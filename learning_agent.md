@@ -8,10 +8,13 @@
       collides with input bit $a$ (one of the two Boolean variables in the
       running $n=2$ example) — the same symbol currently means two
       different things.
-- [ ] Explain why $\sum_k \Delta H(q_k)$, summed over all rounds of a
+- [x] Explain why $\sum_k \Delta H(q_k)$, summed over all rounds of a
       realized trace, does not equal the total entropy drop
       $H(p_0)\to 0$ — the gap between an expectation computed fresh each
       round and the actual realized reduction along one particular path.
+      *(Done — see the chain-rule discussion closing "General form of the
+      entropy reduction": the realized drops do telescope to $H(p)$; it's
+      the per-round forecasts that need not match them.)*
 - [ ] Formalize the optimal (greedy-max) $\Delta H(q_k)$ as a function of
       round $k$ and the evolving belief $p$ — is there a general
       pattern/bound for how it behaves as rounds proceed?
@@ -577,6 +580,222 @@ $q_k$ pulls that average down. $q_k=11$ gives the largest drop on average
 (to $0.636$), which is partly because itself had so much uncertainty, but also due to the interaction with other questions.
 
 In fact, whether one $q$ positively affects another is a *property* of a good prior: a process of elimination should move us through a sequence of good guesses (or best contingent guesses). As this prior was chosen randomly, it is not expected to have that property. Unfortunately, what constitutes a 'good guess' is a property of the true distribution of $\Phi$, and so is by definition empirical.
+
+### General form of the entropy reduction
+
+The examples above suggest a general law, and there is one. The key
+observation: under $B$'s belief, the answers $A_q = \phi_J(q)$ (one random
+variable per column, $J\sim p$) collectively *are* the hypothesis — a
+binary map is nothing but its full table of answers, so the tuple
+$(A_q)_{q\in Q}$ determines $J$ and vice versa. Their joint entropy is
+therefore exactly $B$'s belief entropy:
+
+$$
+H\big(A_{q_1},\ldots,A_{q_{2^n}}\big) = H(p).
+$$
+
+Meanwhile the uniform column average $\langle H_B\rangle_Q$ sums the
+*marginal* entropies $H_B(q) = H(A_q)$. Marginal entropies always sum to
+at least the joint entropy (subadditivity), and the gap is the **total
+correlation** of the answers under $p$:
+
+$$
+C(p) := \sum_{q\in Q} H_B(q) - H(p) \;\geq\; 0,
+$$
+
+zero exactly when the prior makes all answers independent of each other.
+This gives an exact identity, valid for any $n$, $m$, and prior $p$:
+
+$$
+\langle H_B\rangle_Q = \frac{H(p) + C(p)}{2^n},
+\qquad
+m - \langle H_B\rangle_Q = \frac{\big(m\,2^n - H(p)\big) - C(p)}{2^n}.
+$$
+
+Read the second form as a budget: $m\,2^n = \log_2 N$ is the maximum
+possible belief entropy, so $m\,2^n - H(p)$ is how much $B$'s prior
+already "knows" in belief-space — and the average sharpness of its
+*predictions* is that knowledge minus the correlation overhead $C(p)$,
+spread over the $2^n$ questions. Correlation is knowledge that doesn't
+show up in any single marginal. The two extremes make this vivid:
+
+- A **product prior** (answers independent across questions) has
+  $C=0$: every bit of belief-space knowledge appears in the marginals,
+  and $\langle H_B\rangle_Q = H(p)/2^n$, the minimum possible for a given
+  $H(p)$.
+- A **maximally redundant prior**, e.g. $p=\tfrac12$ on FALSE and
+  $\tfrac12$ on TRUE ($n=2,m=1$): belief entropy is a tiny $H(p)=1$ bit
+  (only two live hypotheses!), yet every column is a 50/50 coin flip.
+  Here $C = 4-1 = 3$ bits eats the *entire* deficit:
+  $m-\langle H_B\rangle_Q = (4-1-3)/4 = 0$. $B$ is almost certain which
+  world it's in, and can predict nothing — the two remaining worlds
+  disagree everywhere.
+
+For the running example's prior: $H(p)=3.440$, the column entropies sum
+to $3.529$, so $C(p)=0.089$ — a weakly correlated prior — and indeed
+$\langle H_B\rangle_Q = (3.440+0.089)/4 = 0.882$, matching the baseline
+row of the cross table, with reduction $(4 - 3.440 - 0.089)/4 = 0.118$
+bits.
+
+**As a function of the round $k$.** The identity is preserved verbatim by
+the update rule: after learning the answers to $S_k=\{q_1,\ldots,q_k\}$,
+the asked columns contribute $0$ to both sides, and
+
+$$
+\langle H_B\rangle_Q^{(k)} = \frac{H(p^{(k)}) + C_k}{2^n},
+\qquad
+\frac{H(p^{(k)})}{2^n} \;\leq\; \langle H_B\rangle_Q^{(k)} \;\leq\; m\Big(1-\frac{k}{2^n}\Big),
+$$
+
+with $C_k$ the total correlation of the *remaining* answers under the
+updated belief $p^{(k)}$. Checking this against every row of the cross
+table (true $\psi=$AND):
+
+| learned $q_k$ | $H(p^{(1)})$ | $C_1$ | $(H(p^{(1)})+C_1)/4$ | $\langle H_B\rangle_Q$ from cross table |
+|---|---|---|---|---|
+| $00$ | $2.693$ | $0.042$ | $0.684$ | $0.684$ |
+| $01$ | $2.728$ | $0.083$ | $0.703$ | $0.703$ |
+| $10$ | $2.713$ | $0.050$ | $0.691$ | $0.691$ |
+| $11$ | $2.456$ | $0.087$ | $0.636$ | $0.636$ |
+
+The upper bound $m(1-k/2^n)$ is the **uniform-prior envelope**: with
+$p_j$ uniform, every unasked column stays exactly at $m$ bits forever
+(as argued in the stochastic-matrix section), so
+$\langle H_B\rangle_Q^{(k)} = m(1-k/2^n)$ — a straight line from $m$ down
+to $0$, each question earning exactly its own $m/2^n$ share and nothing
+more. Any prior sits on or below this line, and *how far below* is
+precisely the generalization: for a product prior the unasked columns are
+frozen at their prior marginals ($C_k=0$ always); only a correlated prior
+($C>0$) can move unasked columns at all.
+
+How much, exactly? In expectation — averaging over the answer $B$ expects
+for the asked block, rather than fixing one realization — the entropy of
+an unasked column $q'$ after learning $S_k$ is
+
+$$
+\mathbb{E}\big[H_B^{(k)}(q')\big] = H(A_{q'}) - I\big(A_{q'};\, A_{S_k}\big):
+$$
+
+**expected generalization is mutual information**, the information the
+asked block carries about the unasked column under the prior. Since
+$I\geq 0$ always, no column's entropy rises *in expectation* — which
+finally resolves the cross-table anomaly cleanly. There, learning
+$q_k=10$ (realized answer $0$) raised $H_B(01)$ from $0.764$ to $0.795$;
+but the other branch (answer $1$, probability $0.271$) would have dropped
+it to $0.666$, and the expectation $0.729(0.795)+0.271(0.666)=0.760$ is
+below the baseline $0.764$ by exactly $I(A_{01};A_{10})=0.004$ bits. The
+prior's correlations point the right way on average and can still point
+the wrong way on a given draw.
+
+Finally, the chain rule of entropy ties the whole run together: for any
+*fixed* question order, the expected belief-entropy drops per round are
+$\mathbb{E}[\Delta H_k] = H(A_{q_k}\mid A_{S_{k-1}})$, and these telescope
+exactly:
+
+$$
+\sum_{k=1}^{2^n} H\big(A_{q_k}\mid A_{S_{k-1}}\big) = H\big(A_{q_1},\ldots,A_{q_{2^n}}\big) = H(p).
+$$
+
+(Numerically confirmed for the running example: the four conditional
+answer entropies along the order $00,01,10,11$ sum to $3.440 = H(p)$.)
+Every question order spends the same total budget $H(p)$ *in
+expectation* — greedy max-$\Delta H$ selection can only front-load the
+spending, not increase it. On a single realized trace the picture
+differs in a specific way: the *realized* drops
+$H(p^{(k-1)})-H(p^{(k)})$ also telescope perfectly (from $H(p)$ down to
+$0$), but each round's *forecast* $\Delta H(q_k)$ — an expectation
+computed fresh from the belief of that moment — need not equal the drop
+that then actually occurs, which is why the running example's realized
+drops kept undershooting their forecasts (AND, a high-prior hypothesis,
+kept surviving; surprises never materialized).
+
+### Closed forms from the index representation
+
+Can the calculation be carried all the way through to elementary
+functions? For a general prior, no — but the index representation from
+the stochastic-matrix section shows exactly *which* priors allow it, and
+gives a sharp limit law for generic ones.
+
+Recall the indexing rule ($m=1$): writing $j-1$ in binary, bit $q$ of
+$j-1$ is $\phi_j(q)$ — the hypothesis index *is* the truth table. Column
+$q$ of $M$ is then a subset sum over half the indices, selected by one
+bit:
+
+$$
+M_{1,q} = \sum_{j\,:\,\mathrm{bit}_q(j-1)=1} p_j,
+\qquad
+\langle H_B\rangle_Q = \frac{1}{2^n}\sum_{q} h\big(M_{1,q}\big),
+$$
+
+where $h(x)=-x\log_2 x-(1-x)\log_2(1-x)$ is the binary entropy function.
+The $2^n$ bit-mask subset sums are the only aggregates of $p$ that
+matter. Two cases collapse to elementary functions.
+
+**Solvable case 1: energy additive over answer bits.** Take a Gibbs prior
+whose energy is the *popcount* of the truth table,
+$E(j)=\mathrm{popcount}(j-1)$ — the exact version of the "$0$-over-$1$
+bias" the running example gestures at. Because the energy is a sum over
+bits, the partition function factorizes over the $2^n$ bit positions:
+
+$$
+Z=\sum_{j} e^{-\beta\,\mathrm{popcount}(j-1)}
+ =\prod_{q}\big(1+e^{-\beta}\big) = \big(1+e^{-\beta}\big)^{2^n},
+$$
+
+and with it the whole prior: each answer bit is independently $1$ with
+probability $\sigma(-\beta)=1/(1+e^{\beta})$, the logistic function.
+Everything is then elementary, exactly, for every $n$:
+
+$$
+M_{1,q}=\sigma(-\beta)\ \ \forall q,\qquad
+\langle H_B\rangle_Q = h\big(\sigma(\beta)\big),\qquad
+H(p)=2^n\,h\big(\sigma(\beta)\big),\qquad
+C(p)=0,
+$$
+
+and as a function of the round, $\langle H_B\rangle_Q^{(k)} =
+(1-k/2^n)\,h(\sigma(\beta))$ — asked columns zero out, unasked columns
+never move. (Verified to machine precision in `entropy_identities.py`;
+the same factorization gives $m\,h(\sigma(\beta))$ per column for $m>1$,
+and survives replacing popcount by Hamming distance to any fixed
+reference map, since that's just a per-column relabeling $0\leftrightarrow 1$.)
+The moral cuts both ways: this whole family of priors is exactly
+solvable *because* $C=0$ — and $C=0$ means zero generalization. An
+additive-over-bits energy is a "non-interacting" prior. Genuine circuit
+complexity is not of this form — an AIG's size couples the answer bits
+to each other — and that coupling is precisely what lets a
+complexity-based prior transfer information to unasked columns.
+(Energies that couple *pairs* of answer bits turn the prior into an
+Ising model on the question set, with column marginals as magnetizations
+and the mutual-information transfer as spin-spin correlations — beyond
+elementary functions, but squarely in statistical-mechanics territory.)
+
+**Solvable case 2: a generic prior, in the limit.** Draw $p$ uniformly at
+random from the $N$-simplex (Dirichlet with all parameters $1$). Each
+column probability is a sum of exactly $N/2$ coordinates, which is
+$\mathrm{Beta}(N/2,\,N/2)$-distributed: sharply concentrated at
+$\tfrac12$ with variance $\tfrac{1}{4(N+1)}$. Expanding
+$h(\tfrac12+\varepsilon) = 1 - \tfrac{2}{\ln 2}\varepsilon^2 +
+O(\varepsilon^4)$ and taking expectations,
+
+$$
+\mathbb{E}\big[\,m-\langle H_B\rangle_Q\,\big]
+= \frac{1}{2\ln 2\,(N+1)} + O(N^{-2}),
+\qquad N = 2^{2^n},
+$$
+
+doubly exponentially small in $n$ (numerics at $n=3$: measured
+$0.002812$ vs. predicted $0.002807$). And the $k$-dependence rides along
+for free: conditioning a flat Dirichlet on the survivors of $k$ answers
+leaves a flat Dirichlet on the $N_k = 2^{2^n-k}$ survivors, so the same
+formula applies with $N\to N_k$ — the reduction stays negligible until
+$2^n - k$ is $O(1)$. A generic prior predicts essentially nothing until
+nearly every question has already been asked: the mass of the simplex
+sits at "maximally uncertain in every column," and only the collapse of
+$N_k$ to a handful of survivors pulls the columns away from the fair
+coin. Structure (case 1's bias, or a complexity energy) is not a nicety
+— without it, prediction before the final rounds is doubly exponentially
+close to worthless.
 
 ## $\epsilon_j$ under uniform $P(q)$
 
