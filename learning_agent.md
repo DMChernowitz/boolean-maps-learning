@@ -51,6 +51,10 @@
       selection criteria beyond maximizing expected entropy reduction
       (e.g. worst-case reduction, expected rounds-to-completion).
 - [ ] Unify writing style throughout the document.
+- [ ] Read up and connect to: KL divergence (between $B$'s model and the
+      truth, or between two models); the notion of *regret* — the gap
+      between the best achievable model and $B$'s actual model; free
+      energy; square loss.
 
 ## Definitions
 
