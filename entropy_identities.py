@@ -14,6 +14,13 @@ Then the two solvable cases:
      column probability sigma(-beta), <H_B>_Q = h(sigma(beta)), C = 0;
   5. generic Dirichlet(1) prior: expected reduction ~ 1/(2 ln2 (N+1)),
      and after k rounds the same with N -> N_k = 2^(2^n - k).
+
+And, for section "General m: base-2^m digits":
+  6. independent-bit energy (m copies of the m=1 logistic result);
+  7. linear symbol-cost energy (truncated-geometric closed form);
+  8. generic Dirichlet(1) prior for general m: expected reduction
+     ~ (2^m-1) / (2 ln2 (N+1)), N = 2^(m*2^n), and after k rounds with
+     N -> N_k = 2^(m*(2^n-k)).
 """
 
 import math
@@ -125,9 +132,87 @@ def check_dirichlet(n=3, trials=3000, seed=0):
           f"predicted 1/(2 ln2 (N+1))={pred:.6f}")
 
 
+def digit(j, q, m):
+    """Base-2^m digit q of index j (0-indexed): the general-m analogue of
+    bit q of j used for m=1 above."""
+    return (j // (2**m)**q) % (2**m)
+
+
+def entropy_cat(probs):
+    return -sum(p*math.log2(p) for p in probs if p > 0)
+
+
+def check_independent_bit_energy(n=2, m=2, beta=1.2):
+    """c(a) = popcount_2(a): m non-interacting copies of the m=1 result."""
+    Nq, K, N = 1 << n, 1 << m, (1 << m)**(1 << n)
+    w = [sum(bin(digit(j, q, m)).count('1') for q in range(Nq)) for j in range(N)]
+    Z = sum(math.exp(-beta*wi) for wi in w)
+    p = [math.exp(-beta*wi)/Z for wi in w]
+    cols = [[0.0]*K for _ in range(Nq)]
+    for j in range(N):
+        for q in range(Nq):
+            cols[q][digit(j, q, m)] += p[j]
+    avgH = sum(entropy_cat(c) for c in cols)/Nq
+    theta = 1/(1+math.exp(beta))  # sigma(-beta)
+    pred = m*h(theta)
+    print(f"independent-bit energy n={n} m={m}: <H_B>={avgH:.6f}  "
+          f"m*h(sigma(-b))={pred:.6f}")
+    assert abs(avgH - pred) < 1e-9
+
+
+def check_linear_symbol_cost(n=2, m=2, beta=1.2):
+    """c(a) = a: truncated-geometric single-symbol distribution."""
+    Nq, K, N = 1 << n, 1 << m, (1 << m)**(1 << n)
+    w = [sum(digit(j, q, m) for q in range(Nq)) for j in range(N)]
+    Z = sum(math.exp(-beta*wi) for wi in w)
+    p = [math.exp(-beta*wi)/Z for wi in w]
+    cols = [[0.0]*K for _ in range(Nq)]
+    for j in range(N):
+        for q in range(Nq):
+            cols[q][digit(j, q, m)] += p[j]
+    avgH = sum(entropy_cat(c) for c in cols)/Nq
+
+    r = math.exp(-beta)
+    z = (1-r**K)/(1-r)
+    Ea = r/(1-r) - K*r**K/(1-r**K)
+    H_closed = math.log2(z) + beta*Ea/math.log(2)
+    print(f"linear symbol-cost energy n={n} m={m}: <H_B>={avgH:.6f}  "
+          f"closed-form={H_closed:.6f}")
+    assert abs(avgH - H_closed) < 1e-9
+
+
+def check_dirichlet_general_m(n=2, m=2, k=0, trials=3000, seed=0):
+    rng = random.Random(seed)
+    Nq, K = 1 << n, 1 << m
+    N = K**Nq
+    tot = 0.0
+    for _ in range(trials):
+        e = [rng.expovariate(1.0) for _ in range(N)]
+        s = sum(e)
+        p = [x/s for x in e]
+        surv = [j for j in range(N) if all(digit(j, q, m) == 0 for q in range(k))]
+        tot_m = sum(p[j] for j in surv)
+        pc = {j: p[j]/tot_m for j in surv}
+        rem = list(range(k, Nq))
+        cols = []
+        for q in rem:
+            probs = [0.0]*K
+            for j in surv:
+                probs[digit(j, q, m)] += pc[j]
+            cols.append(probs)
+        tot += m - sum(entropy_cat(c) for c in cols)/len(rem)
+    Nk = K**(Nq-k)
+    pred = (K-1)/(2*math.log(2)*(Nk+1))
+    print(f"Dirichlet n={n} m={m} k={k}: N_k={Nk}  "
+          f"mean reduction={tot/trials:.6f}  predicted={pred:.6f}")
+
+
 if __name__ == '__main__':
     check_total_correlation()
     check_mutual_information()
     check_chain_rule()
     check_popcount_gibbs()
     check_dirichlet()
+    check_independent_bit_energy()
+    check_linear_symbol_cost()
+    check_dirichlet_general_m(n=2, m=2, k=0)

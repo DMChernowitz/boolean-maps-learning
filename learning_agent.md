@@ -797,6 +797,100 @@ coin. Structure (case 1's bias, or a complexity energy) is not a nicety
 — without it, prediction before the final rounds is doubly exponentially
 close to worthless.
 
+### General $m$: base-$2^m$ digits
+
+Everything above fixed $m=1$ so the index could be read off in plain
+binary. The natural generalization: write $j-1$ in base $2^m$ instead of
+base $2$ — one *digit* per question, each digit ranging over all of
+$A=\{0,\ldots,2^m-1\}$ rather than just a bit:
+
+$$
+j-1 = \sum_{q=0}^{2^n-1} \phi_j(q)\cdot(2^m)^q,
+\qquad
+\phi_j(q) = \mathrm{digit}_q^{(2^m)}(j-1),
+$$
+
+directly generalizing "bit $q$ of $j-1$" to "base-$2^m$ digit $q$ of
+$j-1$." Column $q$ of $M$ is the full distribution of that digit's $2^m$
+possible values, and $H_B(q)=H(M_{\cdot,q})$ is now bounded by $m$, not
+$1$.
+
+Nothing in the derivation of the general identity used $m=1$: the
+answers still jointly determine the hypothesis, so
+$H(A_{q_1},\ldots)=H(p)$ still holds, subadditivity still gives
+$C(p)\geq0$, and
+
+$$
+\langle H_B\rangle_Q^{(k)} = \frac{H(p^{(k)})+C_k}{2^n},
+\qquad
+0\;\leq\;\langle H_B\rangle_Q^{(k)}\;\leq\; m\Big(1-\frac{k}{2^n}\Big),
+$$
+
+is exact for every $m$, unchanged. What *does* change with $m$ is the two
+solvable cases.
+
+**Case 1, revisited.** An energy additive over positions,
+$E(j)=\sum_q c(\phi_j(q))$ for any cost $c:A\to\mathbb R$, still
+factorizes the partition function over the $2^n$ questions — the
+argument never used $|A|=2$ — giving $2^n$ independent, identically
+distributed digits drawn from a single-symbol Boltzmann distribution
+$\pi_a\propto e^{-\beta c(a)}$, so $\langle H_B\rangle_Q^{(k)} =
+(1-k/2^n)H(\pi_\beta)$ and $C_k=0$ again. Now *which* $c$ you pick starts
+to matter, in a way it couldn't when there was only one bit to cost:
+
+- $c(a)=\mathrm{popcount}_2(a)$ — penalize each of the $m$ *bits within
+  the answer* independently — makes $\pi_\beta$ a product of $m$
+  independent Bernoulli$(\sigma(-\beta))$ bits, so
+  $H(\pi_\beta)=m\,h(\sigma(\beta))$: exactly $m$ non-interacting copies
+  of the $m=1$ result. The answer's own bits carry no information about
+  each other.
+- $c(a)=a$ — cost the answer's integer value directly, which *does*
+  couple its $m$ bits (symbol $3$ costs more than symbol $2$, even
+  though both have different bit-popcounts) — makes $\pi_\beta$ a
+  truncated geometric distribution on $\{0,\ldots,2^m-1\}$ with ratio
+  $r=e^{-\beta}$:
+
+$$
+\pi_a = \frac{r^a}{z(\beta)},\qquad
+z(\beta)=\sum_{a=0}^{2^m-1} r^a = \frac{1-r^{2^m}}{1-r},
+$$
+
+  still an elementary (finite geometric) closed form, with entropy
+
+$$
+H(\pi_\beta) = \log_2 z(\beta) + \frac{\beta}{\ln 2}\left[\frac{r}{1-r} -
+\frac{2^m r^{2^m}}{1-r^{2^m}}\right]
+$$
+
+  (the bracket is the mean of the truncated geometric — verified to $6$
+  decimal places against direct computation of $H(\pi_\beta)$ for
+  $n=2,m=2$). The two choices of $c$ agree at $m=1$ (both give
+  $h(\sigma(\beta))$) and diverge for $m\geq2$: either way $H_B(q)$ is
+  the marginal uncertainty of a whole answer, but only the second energy
+  makes the *bits within one answer* informative about each other — a
+  distinction that simply doesn't exist when $m=1$.
+
+**Case 2, revisited.** The generic-prior calculation goes through with
+one change: each column is now a sum over $2^m$ (not $2$) equal-size
+blocks of a flat Dirichlet($1$) prior on $N=(2^m)^{2^n}$ hypotheses, so
+by the aggregation property of the Dirichlet distribution, column $q$'s
+answer distribution is *exactly* $\mathrm{Dirichlet}(N/2^m,\ldots,N/2^m)$
+with $2^m$ parts. The same second-order expansion around the uniform
+point — now uniform over $2^m$ symbols instead of $2$ — gives
+
+$$
+\mathbb{E}\big[m-\langle H_B\rangle_Q\big] = \frac{2^m-1}{2\ln2\,(N+1)}
++ O(N^{-2}), \qquad N=2^{m\cdot2^n},
+$$
+
+the $m=1$ formula times $(2^m-1)$: a generic prior's ignorance about
+*which of the $2^m$ answers* is right scales with how many wrong answers
+there are to be ignorant about, while the doubly-exponential smallness in
+$N$ — and hence in both $n$ *and* $m$ — is unchanged. This survives
+conditioning on $k$ answered questions with $N\to N_k=2^{m(2^n-k)}$
+exactly as before (verified numerically, including the more demanding
+$n=3,m=2,k=3$ case: measured $0.00207$ vs. predicted $0.00211$).
+
 ## $\epsilon_j$ under uniform $P(q)$
 
 One immediate simplification we will consider is taking $P(q)$ uniform.
