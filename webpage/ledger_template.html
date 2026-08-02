@@ -1,0 +1,1309 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Correlator Ledger</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --blue: #2a78d6; --blue-soft: #9ec5f4; --orange: #eb6834;
+  --red: #e34948; --aqua: #1baf7a;
+  --sq0: #86b6ef; --sq1: #6da7ec; --sq2: #5598e7; --sq3: #3987e5;
+  --sq4: #2a78d6; --sq5: #256abf; --sq6: #1c5cab; --sq7: #104281;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --blue: #3987e5; --blue-soft: #1c5cab; --orange: #d95926;
+    --red: #e66767; --aqua: #199e70;
+    --sq0: #9ec5f4; --sq1: #86b6ef; --sq2: #6da7ec; --sq3: #5598e7;
+    --sq4: #3987e5; --sq5: #2a78d6; --sq6: #256abf; --sq7: #184f95;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19;
+  --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+  --blue: #3987e5; --blue-soft: #1c5cab; --orange: #d95926;
+  --red: #e66767; --aqua: #199e70;
+  --sq0: #9ec5f4; --sq1: #86b6ef; --sq2: #6da7ec; --sq3: #5598e7;
+  --sq4: #3987e5; --sq5: #2a78d6; --sq6: #256abf; --sq7: #184f95;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --blue: #2a78d6; --blue-soft: #9ec5f4; --orange: #eb6834;
+  --red: #e34948; --aqua: #1baf7a;
+  --sq0: #86b6ef; --sq1: #6da7ec; --sq2: #5598e7; --sq3: #3987e5;
+  --sq4: #2a78d6; --sq5: #256abf; --sq6: #1c5cab; --sq7: #104281;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 20px 64px; }
+header { padding: 28px 0 10px; }
+header h1 { margin: 0; font-size: 26px; font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
+header .sub { color: var(--ink2); margin: 6px 0 0; max-width: 68ch; }
+#spectrumStrip { display: block; width: 100%; height: 8px; margin-top: 14px; border-radius: 2px; }
+
+.controls {
+  position: sticky; top: 0; z-index: 20; background: var(--page);
+  padding: 10px 0 12px; border-bottom: 1px solid var(--grid);
+  display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center;
+}
+.tabs { display: flex; gap: 4px; }
+.tabs button {
+  font: 600 13px/1 system-ui, sans-serif; letter-spacing: .02em;
+  padding: 8px 13px; border-radius: 6px; border: 1px solid transparent;
+  background: transparent; color: var(--ink2); cursor: pointer;
+}
+.tabs button:hover { border-color: var(--border); }
+.tabs button[aria-pressed="true"] { background: var(--surface); color: var(--ink); border-color: var(--border); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.tabs button:focus-visible, .beta input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.flds { display: grid; grid-template-columns: repeat(3, minmax(170px, 1fr)); gap: 8px 16px; flex: 1 1 100%; }
+@media (max-width: 880px) { .flds { grid-template-columns: repeat(2, 1fr); } }
+.beta { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.beta label { font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--muted); white-space: nowrap; }
+.beta label .sub2 { font-weight: 400; letter-spacing: 0; text-transform: none; opacity: .8; }
+.beta input { flex: 1; accent-color: var(--blue); min-width: 70px; }
+.beta .read { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink2); white-space: nowrap; min-width: 6ch; }
+
+.exp { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px 14px; margin-top: 18px; }
+.exp h2 { margin: 0 0 3px; font-size: 15.5px; font-weight: 650; }
+.exp .cap { font-size: 13px; color: var(--ink2); margin: 0 0 12px; max-width: 88ch; }
+.exp .row { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.exp label.inline { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.exp select { font: inherit; font-size: 14px; padding: 6px 9px; border-radius: 6px; border: 1px solid var(--border); background: var(--page); color: var(--ink); max-width: 100%; }
+.btn { font: 600 13px/1 system-ui, sans-serif; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--page); color: var(--ink); cursor: pointer; }
+.btn:hover { border-color: var(--blue); }
+.btn:focus-visible, .exp select:focus-visible, .qbtn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.askbar { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; flex: 1 1 100%; border-top: 1px solid var(--grid); padding-top: 9px; }
+.askbar .lab2 { font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-right: 3px; }
+.qgrid { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+.qbtn { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--page); color: var(--ink); cursor: pointer; }
+.qbtn:hover { border-color: var(--blue); }
+.qbtn.asked { background: var(--blue); color: #fff; border-color: transparent; cursor: default; }
+.surv-read { font-size: 13.5px; color: var(--ink2); margin-top: 12px; }
+.surv-read b { color: var(--ink); }
+.wbar { display: inline-block; vertical-align: middle; width: 84px; height: 10px; background: var(--grid); border-radius: 2px; margin-right: 7px; overflow: hidden; }
+.wbar i { display: block; height: 100%; background: var(--blue); border-radius: 2px; }
+.fstrip { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; font-size: 12px; color: var(--ink2); margin: 2px 0 6px; }
+.fstrip .flab { margin: 0 5px 0 2px; }
+.fsw { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 16px; padding: 0 3px; border-radius: 3px; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; }
+.lgd { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink2); margin: 2px 0 5px; }
+.lgd .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 880px) { .duo { grid-template-columns: 1fr; } }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 22px 0; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px; }
+.tile .lab { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.tile .val { font-size: 27px; font-weight: 600; margin-top: 3px; }
+.tile .note { font-size: 12.5px; color: var(--ink2); margin-top: 2px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px 14px; min-width: 0; }
+.card.wide { grid-column: 1 / -1; }
+.card h2 { margin: 0; font-size: 15.5px; font-weight: 650; }
+.card .cap { font-size: 13px; color: var(--ink2); margin: 3px 0 10px; max-width: 78ch; }
+.card svg.chart { display: block; width: 100%; height: auto; }
+.chartbox { overflow-x: auto; }
+.insight { font-size: 13px; color: var(--ink2); border-top: 1px solid var(--grid); margin-top: 10px; padding-top: 9px; }
+.insight b { color: var(--ink); font-weight: 600; }
+
+table.masks { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+table.masks th { text-align: left; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 4px 10px 6px 0; border-bottom: 1px solid var(--grid); }
+table.masks td { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--grid); vertical-align: middle; font-variant-numeric: tabular-nums; }
+table.masks tr:last-child td { border-bottom: none; }
+.signchip { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; vertical-align: baseline; }
+
+.laws { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; margin-top: 14px; }
+.laws h2 { margin: 0 0 4px; font-size: 16px; }
+.laws ol { margin: 8px 0 0; padding-left: 20px; }
+.laws li { margin: 9px 0; color: var(--ink2); max-width: 90ch; }
+.laws li b { color: var(--ink); }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 26px; max-width: 90ch; }
+
+#tip {
+  position: fixed; pointer-events: none; z-index: 50; display: none;
+  background: var(--ink); color: var(--page); font-size: 12.5px;
+  font-family: ui-monospace, Consolas, monospace;
+  padding: 5px 9px; border-radius: 5px; white-space: pre; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tile .val, .tabs button { transition: background-color .15s, color .15s; }
+}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>The Correlator Ledger</h1>
+  <p class="sub">Walsh–Hadamard spectra of Gibbs priors over map descriptors:
+  <span class="mono">p<sub>j</sub> &prop; e<sup>&minus;E<sub>j</sub></sup></span>,
+  <span class="mono">E<sub>j</sub> = &gamma;C<sub>j</sub> + &lambda;F<sub>j</sub> + &mu;W<sub>j</sub></span>
+  (circuit complexity; footprint F = n&middot;I + S, combining image size and support; weight bias).
+  Slide the fields and watch where the prior stores its knowledge:
+  every correlator <span class="mono">p&#770;(c) = &Sigma;<sub>j</sub> p<sub>j</sub>(&minus;1)<sup>popcount(j&and;c)</sup></span>,
+  one per test mask <span class="mono">c</span>.</p>
+  <svg id="spectrumStrip" preserveAspectRatio="none" viewBox="0 0 100 8" aria-hidden="true"></svg>
+</header>
+
+<div class="controls">
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <button class="btn" id="fieldReset" title="γ = 1, λ = 0, μ = 0 (exactly)">Reset fields</button>
+  <div class="flds">
+    <div class="beta">
+      <label for="gamma">&gamma; &middot; C <span class="sub2">circuit</span></label>
+      <input id="gamma" type="range" min="0" max="3" step="0.01" value="1">
+      <span class="read" id="gammaRead"></span>
+    </div>
+    <div class="beta">
+      <label for="lambda">&lambda; &middot; F <span class="sub2">footprint</span></label>
+      <input id="lambda" type="range" min="-1" max="1" step="0.01" value="0">
+      <span class="read" id="lambdaRead"></span>
+    </div>
+    <div class="beta">
+      <label for="mu">&mu; &middot; W <span class="sub2">weight</span></label>
+      <input id="mu" type="range" min="-0.5" max="0.5" step="0.005" value="0">
+      <span class="read" id="muRead"></span>
+    </div>
+  </div>
+  <div class="askbar" id="askrow"></div>
+  <div class="askbar" id="qrow"></div>
+</div>
+
+<div class="exp" id="experiment"></div>
+<div id="learn"></div>
+<div class="tiles" id="tiles"></div>
+<div class="grid" id="cards"></div>
+
+<div class="laws">
+  <h2>Three exact laws (temperature-independent)</h2>
+  <p style="margin:4px 0 0;color:var(--ink2);font-size:13.5px;max-width:90ch">These hold for the
+  untouched prior — at <em>every</em> &gamma;, which is why some readouts ignore that slider. The
+  &lambda; (footprint) field couples to a relabeling-invariant descriptor, so laws 1–3
+  survive it too. Two things break laws 1–2: <b>evidence</b>, and the <b>&mu; (weight) field</b>,
+  which couples to W — odd under output negation — and acts as a magnetic field: slide it and watch
+  the odd shells and the on-site tile switch on before any question is asked. Law 3 (distance-only
+  pair correlators) survives all three fields, since every descriptor is input-relabeling invariant.</p>
+  <ol>
+    <li><b>Every odd shell vanishes identically.</b> Circuit complexity is invariant under
+    negating the output(s), which acts on truth tables as the translation
+    <span class="mono">j &mapsto; j &oplus; 1&#8230;1</span>; translations multiply
+    <span class="mono">p&#770;(c)</span> by <span class="mono">(&minus;1)<sup>popcount(c)</sup></span>,
+    so invariance forces every odd-popcount correlator to zero. For 3&rarr;2, each output bit
+    can be negated separately &mdash; the mask must have <i>even popcount in each bit-plane</i>.</li>
+    <li><b>M stays exactly uniform at every temperature.</b> Law 1 kills all on-site correlators
+    (single sites always; the within-answer pair for 3&rarr;2 has one site per plane), and the
+    on-site ledger <i>is</i> M. The Gibbs prior has zero predictive capital before the first
+    answer: 100% of its knowledge is cross-question correlation &mdash; the stored bits
+    <span class="mono">m&middot;2&#8319; &minus; H(p)</span> are all convertible, none predictive.
+    A complexity prior is pure &ldquo;instinct for patterns,&rdquo; no instinct for answers.</li>
+    <li><b>Pair correlators depend only on the Hamming distance between the two inputs</b>
+    (the input-relabeling group is transitive on pairs at fixed distance &mdash; within-class
+    spread is 0 to machine precision). Nearby inputs correlate positively, antipodal inputs
+    anticorrelate, and as &gamma;&rarr;&infin; the curve approaches the closed form
+    <span class="mono">1 &minus; 2d/(n+1)</span> (from the gate-free tier: 2 constants + 2n literals).
+    Circuit structure appears in the ledger as <i>geometry</i>: simple circuits are smooth
+    functions on the input hypercube.</li>
+  </ol>
+  <h2 style="margin-top:18px">&hellip;and what asking a question does to them</h2>
+  <ol>
+    <li><b>Each answer collapses the asked block and cashes cross-correlators into predictions.</b>
+    In the ledger, learning &psi;(q<sub>k</sub>)=a* averages every correlator with its
+    2<sup>m</sup> partners (its toggles inside the asked block) &mdash; the asked block saturates
+    to &plusmn;1, and every unasked column of M moves by exactly the covariance that linked it to the
+    asked block. Watch the on-site energy tile leave 0 on the first click: that is law 2 breaking,
+    and it is the <i>only</i> thing in this system that can break it.</li>
+    <li><b>The greedy button is the lemma &Delta;H(q) = H<sub>B</sub>(q).</b> The expected drop in
+    belief entropy from asking q equals the current answer entropy of column q, so the best question
+    is simply the most uncertain column of M &mdash; the same number shown in every unasked button&rsquo;s
+    tooltip. How much the <i>other</i> columns sharpen depends on the prior&rsquo;s cross-question
+    ledger; with this prior, that is where all the knowledge lives.</li>
+    <li><b>Support and ledger deflate together, by a factor 2<sup>m</sup> per question.</b>
+    Survivors number 2<sup>m(2&#8319;&minus;k)</sup> after k answers &mdash; independent of which
+    questions were asked or what came back &mdash; and correlators touching asked blocks become
+    signed copies of untouched ones, so the independent ledger shrinks at the same geometric rate.
+    Once &le;16 hypotheses survive, the panel enumerates them: for (2,1) that is the whole game;
+    for the 65536-map spaces it is the endgame, where the posterior has usually singled out the
+    truth well before the last questions pin it.</li>
+  </ol>
+</div>
+
+<footer id="foot"></footer>
+</div>
+<div id="tip" role="status"></div>
+
+<script>
+"use strict";
+/* ---------------- data ---------------- */
+const C41_HEX = "__C41__";
+const C32_HEX = "__C32__";
+const C31_HEX = "__C31__";
+const C21 = Uint8Array.from(__C21__);
+const NAMES21 = __NAMES21__;
+
+function decodeHex(s) {
+  const a = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) a[i] = parseInt(s[i], 16);
+  return a;
+}
+const POP16 = new Uint8Array(65536);
+for (let i = 1; i < 65536; i++) POP16[i] = POP16[i >> 1] + (i & 1);
+
+const DATASETS = [
+  { key: "d21", label: "n=2 → m=1", n: 2, m: 1, B: 4, C: C21,
+    maxC: 3, planes: false, glyph: { cols: 4, rows: 1 },
+    psi: [
+      { name: "FALSE (constant 0)", j: 0, C: 0 },
+      { name: "b1 (first input)", j: 12, C: 0 },
+      { name: "b0 (second input)", j: 10, C: 0 },
+      { name: "¬b1", j: 3, C: 0 },
+      { name: "b1 ∧ b0 (AND)", j: 8, C: 1 },
+      { name: "b1 ∨ b0 (OR)", j: 14, C: 1 },
+      { name: "NAND", j: 7, C: 1 },
+      { name: "b1 ⊕ b0 (XOR)", j: 6, C: 3 },
+      { name: "XNOR", j: 9, C: 3 },
+      { name: "TRUE (constant 1)", j: 15, C: 0 }],
+    psiDefault: 4 },
+  { key: "d31", label: "n=3 → m=1", n: 3, m: 1, B: 8, C: null,
+    maxC: 6, planes: false, glyph: { cols: 4, rows: 2 },
+    psi: [
+      { name: "constant 0", j: 0x00, C: 0 },
+      { name: "b0 (projection)", j: 0xaa, C: 0 },
+      { name: "¬b2", j: 0x0f, C: 0 },
+      { name: "b0 ∧ b1", j: 0x88, C: 1 },
+      { name: "b0 ∨ b1", j: 0xee, C: 1 },
+      { name: "b0 ⊕ b1", j: 0x66, C: 3 },
+      { name: "AND of all three", j: 0x80, C: 2 },
+      { name: "OR of all three", j: 0xfe, C: 2 },
+      { name: "MAJ(b0, b1, b2)", j: 0xe8, C: 4 },
+      { name: "b0 ⊕ b1 ⊕ b2 (parity)", j: 0x96, C: 6 }],
+    psiDefault: 7 },
+  { key: "d32", label: "n=3 → m=2", n: 3, m: 2, B: 16, C: null,
+    maxC: 9, planes: true, glyph: { cols: 8, rows: 2 },
+    psi: [
+      { name: "constant 00", j: 0x0000, C: 0 },
+      { name: "copy: (b1, b0)", j: 0xccaa, C: 0 },
+      { name: "both bits = b2", j: 0xf0f0, C: 0 },
+      { name: "NOT-copy: (¬b1, ¬b0)", j: 0x3355, C: 0 },
+      { name: "swap: (b0, b1)", j: 0xaacc, C: 0 },
+      { name: "(b2, b0 ∧ b1)", j: 0xf088, C: 1 },
+      { name: "(b0 ∧ b1, b0 ∨ b1)", j: 0x88ee, C: 2 },
+      { name: "half adder: (b0 ∧ b1, b0 ⊕ b1)", j: 0x8866, C: 3 },
+      { name: "(b0 ⊕ b1, b1 ⊕ b2)", j: 0x663c, C: 6 },
+      { name: "full adder: (MAJ, b0 ⊕ b1 ⊕ b2)", j: 0xe896, C: 7 }],
+    psiDefault: 7 },
+  { key: "d41", label: "n=4 → m=1", n: 4, m: 1, B: 16, C: null,
+    maxC: 10, planes: false, glyph: { cols: 4, rows: 4 },
+    psi: [
+      { name: "constant 0", j: 0x0000, C: 0 },
+      { name: "b0 (projection)", j: 0xaaaa, C: 0 },
+      { name: "¬b3", j: 0x00ff, C: 0 },
+      { name: "b0 ∧ b1", j: 0x8888, C: 1 },
+      { name: "b0 ∨ b1", j: 0xeeee, C: 1 },
+      { name: "b0 ⊕ b1", j: 0x6666, C: 3 },
+      { name: "AND of all four", j: 0x8000, C: 3 },
+      { name: "OR of all four", j: 0xfffe, C: 3 },
+      { name: "MAJ(b0, b1, b2)", j: 0xe8e8, C: 4 },
+      { name: "b0 ⊕ b1 ⊕ b2 ⊕ b3 (parity)", j: 0x6996, C: 9 }],
+    psiDefault: 8 },
+];
+
+/* experiment state, kept per dataset so tab switches preserve runs */
+const EXP = {};
+DATASETS.forEach(ds => { EXP[ds.key] = { psi: ds.psiDefault, asked: {}, order: [] }; });
+
+function digit(ds, j, q) {
+  if (ds.planes) return ((j >> q) & 1) | (((j >> (q + 8)) & 1) << 1);
+  return (j >> q) & 1;
+}
+
+/* map descriptors beyond circuit complexity: support S, image size I,
+   weight bias W (computed once per dataset, straight from the digits) */
+function computeFeatures(ds) {
+  const nq = 1 << ds.n, N = ds.C.length;
+  const S = new Uint8Array(N), I = new Uint8Array(N), W = new Int16Array(N);
+  for (let j = 0; j < N; j++) {
+    let seen = 0, ones = 0, sup = 0;
+    for (let q = 0; q < nq; q++) {
+      const a = digit(ds, j, q);
+      seen |= 1 << a; ones += POP16[a];
+    }
+    I[j] = POP16[seen];
+    W[j] = 2 * ones - ds.m * nq;
+    for (let i = 0; i < ds.n; i++)
+      for (let q = 0; q < nq; q++)
+        if (digit(ds, j, q) !== digit(ds, j, q ^ (1 << i))) { sup++; break; }
+    S[j] = sup;
+  }
+  ds.S = S; ds.I = I; ds.W = W;
+  const FP = new Int16Array(ds.C.length);   // footprint F = n*I + S
+  for (let j = 0; j < ds.C.length; j++) FP[j] = ds.n * I[j] + S[j];
+  ds.FP = FP;
+  ds.Fvals = [...new Set(Array.from(FP))].sort((a, b) => a - b);
+}
+
+/* sequential color for a footprint value (light = small F, dark = big) */
+function fIdx(ds, f) {
+  const n2 = ds.Fvals.length;
+  return n2 === 1 ? 4 : Math.round(ds.Fvals.indexOf(f) * 7 / (n2 - 1));
+}
+function fColor(ds, f) {
+  return `var(--sq${fIdx(ds, f)})`;
+}
+function fStrip(ds) {
+  const boxes = ds.Fvals.map(f => {
+    const i = fIdx(ds, f);
+    return `<span class="fsw" style="background:var(--sq${i});color:${i <= 2 ? "#0b0b0b" : "#fff"}">${f}</span>`;
+  }).join("");
+  return `<div class="fstrip"><span class="flab">Footprint F:</span>` +
+    `<span class="flab">simple</span>${boxes}<span class="flab">rich</span></div>`;
+}
+
+function belief(ds, FLD, asked) {
+  const C = ds.C, N = C.length;
+  const p = new Float64Array(N);
+  const qa = Object.entries(asked).map(([q, a]) => [Number(q), a]);
+  const E = new Float64Array(N);
+  let Emin = Infinity;
+  for (let j = 0; j < N; j++) {
+    E[j] = FLD.gamma * C[j] + FLD.lambda * ds.FP[j] + FLD.mu * ds.W[j];
+    if (E[j] < Emin) Emin = E[j];
+  }
+  let Z = 0;
+  for (let j = 0; j < N; j++) {
+    let ok = true;
+    for (const [q, a] of qa) if (digit(ds, j, q) !== a) { ok = false; break; }
+    if (!ok) continue;
+    const w = Math.exp(-(E[j] - Emin));
+    p[j] = w; Z += w;
+  }
+  for (let j = 0; j < N; j++) p[j] /= Z;
+  return p;
+}
+
+/* columns of M from the on-site correlators (the doc's reconstruction) */
+function columnsFromHat(ds, hat) {
+  const nq = 1 << ds.n, K = 1 << ds.m, cols = [];
+  for (let q = 0; q < nq; q++) {
+    const probs = [];
+    if (ds.m === 1) {
+      const b = hat[1 << q];
+      probs.push((1 + b) / 2, (1 - b) / 2);
+    } else {
+      const s0 = hat[1 << q], s1 = hat[1 << (q + 8)],
+            s01 = hat[(1 << q) | (1 << (q + 8))];
+      for (let a = 0; a < K; a++) {
+        const b0 = a & 1, b1 = (a >> 1) & 1;
+        probs.push((1 + (b0 ? -s0 : s0) + (b1 ? -s1 : s1)
+                    + ((b0 ^ b1) ? -s01 : s01)) / 4);
+      }
+    }
+    cols.push(probs.map(x => Math.max(x, 0)));
+  }
+  return cols;
+}
+function colEntropy(col) {
+  return -col.reduce((s, x) => s + (x > 1e-15 ? x * Math.log2(x) : 0), 0);
+}
+
+/* joint distribution of (A_q1, A_q2) from the pair-block correlators */
+function pairJoint(ds, hat, q1, q2) {
+  const K = 1 << ds.m;
+  const mask = (q, al) => {
+    let mm = 0;
+    for (let i = 0; i < ds.m; i++)
+      if ((al >> i) & 1) mm |= 1 << (ds.planes ? q + 8 * i : q);
+    return mm;
+  };
+  const J = [];
+  for (let a1 = 0; a1 < K; a1++) {
+    const row = [];
+    for (let a2 = 0; a2 < K; a2++) {
+      let s = 0;
+      for (let al1 = 0; al1 < K; al1++)
+        for (let al2 = 0; al2 < K; al2++) {
+          const sgn = (POP16[al1 & a1] + POP16[al2 & a2]) & 1 ? -1 : 1;
+          s += sgn * hat[mask(q1, al1) | mask(q2, al2)];
+        }
+      row.push(Math.max(s / (K * K), 0));
+    }
+    J.push(row);
+  }
+  return J;
+}
+
+function mutualInfo(ds, hat, q1, q2) {
+  const J = pairJoint(ds, hat, q1, q2);
+  const m1 = J.map(r => r.reduce((s, x) => s + x, 0));
+  const m2 = J[0].map((_, a2) => J.reduce((s, r) => s + r[a2], 0));
+  let I = colEntropy(m1) + colEntropy(m2);
+  for (const r of J)
+    for (const x of r) if (x > 1e-15) I += x * Math.log2(x);
+  return Math.max(I, 0);
+}
+
+const qstr = (ds, q) => q.toString(2).padStart(ds.n, "0");
+const astr = (ds, a) => a.toString(2).padStart(ds.m, "0");
+
+/* recompute the whole learning trajectory for the current fields and the
+   chronological question order (cached per state) */
+function trajectory(ds, FLD, st) {
+  const key = ds.key + "|" + FLD.gamma + "|" + FLD.lambda + "|" +
+    FLD.mu + "|" + st.psi + "|" + st.order.join(",");
+  if (st._tk === key) return st._traj;
+  const nq = 1 << ds.n;
+  const steps = [];
+  let prev = null;
+  for (let t = 0; t <= st.order.length; t++) {
+    const askedT = {};
+    for (let i = 0; i < t; i++) askedT[st.order[i]] = st.asked[st.order[i]];
+    const p = belief(ds, FLD, askedT);
+    const hat = Float64Array.from(p);
+    fwht(hat);
+    const HB = columnsFromHat(ds, hat).map(colEntropy);
+    const Hbar = HB.reduce((s, x) => s + x, 0) / nq;
+    const step = { hat, HB, Hbar, ppl: Math.pow(2, Hbar) };
+    if (t > 0) {
+      const q = st.order[t - 1];
+      step.q = q; step.a = st.asked[q];
+      step.real = prev.Hbar - Hbar;
+      let tr = 0;
+      for (let q2 = 0; q2 < nq; q2++)
+        if (q2 !== q) tr += mutualInfo(ds, prev.hat, q, q2);
+      step.expOwn = prev.HB[q] / nq;
+      step.expTr = tr / nq;
+    }
+    steps.push(step);
+    prev = step;
+  }
+  steps.forEach(s => { delete s.hat; });
+  st._tk = key; st._traj = steps;
+  return steps;
+}
+
+/* site q for m=1 datasets = the input, numbered by its binary value;
+   for 3->2, site b<8 = (input b, output bit 0), b>=8 = (input b-8, output bit 1) */
+
+function fwht(a) {
+  for (let h = 1; h < a.length; h <<= 1)
+    for (let i = 0; i < a.length; i += h << 1)
+      for (let k = i; k < i + h; k++) {
+        const x = a[k], y = a[k + h];
+        a[k] = x + y; a[k + h] = x - y;
+      }
+}
+
+function compute(ds, p) {
+  const C = ds.C, N = C.length;
+  let Hp = 0, support = 0;
+  const survivors = [];
+  const tierMass = new Float64Array(ds.maxC + 1);
+  const tierCount = new Float64Array(ds.maxC + 1);
+  const tierSurv = new Float64Array(ds.maxC + 1);
+  const tierMassF = Array.from({ length: ds.maxC + 1 }, () => new Map());
+  for (let j = 0; j < N; j++) {
+    if (p[j] > 0) {
+      Hp -= p[j] * Math.log2(p[j]);
+      support++;
+      if (support <= 17) survivors.push(j);
+      tierSurv[C[j]]++;
+      const mp = tierMassF[C[j]];
+      mp.set(ds.FP[j], (mp.get(ds.FP[j]) || 0) + p[j]);
+    }
+    tierMass[C[j]] += p[j]; tierCount[C[j]]++;
+  }
+  const hat = Float64Array.from(p);
+  fwht(hat);
+  const pop = N === 16 ? POP16 : POP16;   // same LUT works (indices < N)
+  // shell l2
+  const shellL2 = new Float64Array(ds.B + 1);
+  let tot = 0, maxOdd = 0;
+  const tierSq = new Float64Array(ds.maxC + 1);
+  const tierSqF = Array.from({ length: ds.maxC + 1 }, () => new Map());
+  for (let c = 1; c < N; c++) {
+    const e = hat[c] * hat[c];
+    shellL2[pop[c]] += e; tot += e;
+    tierSq[C[c]] += e;
+    const mp = tierSqF[C[c]];
+    mp.set(ds.FP[c], (mp.get(ds.FP[c]) || 0) + e);
+    if (pop[c] & 1) { const a = Math.abs(hat[c]); if (a > maxOdd) maxOdd = a; }
+  }
+  // on-site l2
+  let onsite = 0;
+  if (ds.planes) {
+    for (let q = 0; q < 8; q++) {
+      const a = 1 << q, b = 1 << (q + 8);
+      onsite += hat[a] ** 2 + hat[b] ** 2 + hat[a | b] ** 2;
+    }
+  } else {
+    for (let q = 0; q < ds.B; q++) onsite += hat[1 << q] ** 2;
+  }
+  // pair correlators by input Hamming distance
+  const nq = 1 << ds.n;
+  const byd = {}, devd = {};
+  const off = ds.planes ? 0 : 0;
+  for (let q1 = 0; q1 < nq; q1++)
+    for (let q2 = q1 + 1; q2 < nq; q2++) {
+      const d = POP16[q1 ^ q2];
+      const v = hat[(1 << (q1 + off)) | (1 << (q2 + off))];
+      if (!(d in byd)) { byd[d] = []; }
+      byd[d].push(v);
+    }
+  const dist = [];
+  for (const d of Object.keys(byd).map(Number).sort((a, b) => a - b)) {
+    const vs = byd[d];
+    const mean = vs.reduce((s, v) => s + v, 0) / vs.length;
+    const dev = Math.max(...vs.map(v => Math.abs(v - mean)));
+    dist.push({ d, mean, dev, npairs: vs.length });
+  }
+  // cross-plane max (3->2)
+  let crossMax = 0;
+  if (ds.planes) {
+    for (let q1 = 0; q1 < 8; q1++)
+      for (let q2 = 0; q2 < 8; q2++) {
+        const v = Math.abs(hat[(1 << q1) | (1 << (q2 + 8))]);
+        if (v > crossMax) crossMax = v;
+      }
+  }
+  // top masks
+  const top = [];
+  for (let c = 1; c < N; c++) {
+    const a = Math.abs(hat[c]);
+    if (top.length < 8 || a > top[top.length - 1].a) {
+      let lo = 0, hi = top.length;
+      while (lo < hi) { const mid = (lo + hi) >> 1; (top[mid].a >= a) ? lo = mid + 1 : hi = mid; }
+      top.splice(lo, 0, { c, a, v: hat[c] });
+      if (top.length > 8) top.pop();
+    }
+  }
+  return { p, hat, Hp, tierMass, tierCount, tierSurv, tierMassF, shellL2,
+           tot, maxOdd, onsite, dist, crossMax, top, tierSq, tierSqF,
+           support, survivors };
+}
+
+/* ---------------- svg helpers ---------------- */
+const S = (s) => String(s);
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function fmt(x, d = 3) { return (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(d); }
+function roundBarPath(x, y0, y1, w, r) {
+  // vertical bar from baseline y0 to data end y1 (y1<y0 => up)
+  const up = y1 < y0;
+  r = Math.min(r, w / 2, Math.abs(y0 - y1));
+  if (Math.abs(y0 - y1) < 0.5) return "";
+  if (up) return `M${x},${y0} L${x},${y1 + r} Q${x},${y1} ${x + r},${y1} L${x + w - r},${y1} Q${x + w},${y1} ${x + w},${y1 + r} L${x + w},${y0} Z`;
+  return `M${x},${y0} L${x},${y1 - r} Q${x},${y1} ${x + r},${y1} L${x + w - r},${y1} Q${x + w},${y1} ${x + w},${y1 - r} L${x + w},${y0} Z`;
+}
+function axisLine(x1, y1, x2, y2) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--axis)" stroke-width="1"/>`;
+}
+function gridLine(x1, y1, x2, y2) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--grid)" stroke-width="1"/>`;
+}
+function txt(x, y, s, opts = {}) {
+  const anchor = opts.anchor || "middle";
+  const size = opts.size || 11;
+  const fill = opts.fill || "var(--muted)";
+  const cls = opts.mono ? ' font-family="ui-monospace, Consolas, monospace"' : "";
+  const w = opts.weight ? ` font-weight="${opts.weight}"` : "";
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" fill="${fill}"${cls}${w}>${esc(s)}</text>`;
+}
+
+/* generic vertical bar chart with signed support */
+function barChart(items, opts) {
+  // items: {x label, v value, tip, labelText?}
+  const W = opts.width || 520, H = opts.height || 210;
+  const padL = 44, padR = 8, padT = 12, padB = 30;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  let vmax = Math.max(...items.map(i => Math.abs(i.v)), opts.vmax || 0, 1e-12);
+  vmax *= 1.08;
+  const signed = items.some(i => i.v < -1e-12) || opts.signed;
+  const y = signed ? (v) => padT + ih / 2 - (v / vmax) * (ih / 2)
+                   : (v) => padT + ih - (v / vmax) * ih;
+  const y0 = signed ? padT + ih / 2 : padT + ih;
+  const n = items.length;
+  const band = iw / n;
+  const bw = Math.min(24, band * 0.62);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "bar chart")}">`;
+  // gridlines
+  const ticks = signed ? [-vmax / 1.08, 0, vmax / 1.08] : [0, vmax / 2.16, vmax / 1.08];
+  for (const t of ticks) {
+    s += gridLine(padL, y(t), W - padR, y(t));
+    s += txt(padL - 6, y(t) + 3.5, opts.fmtTick ? opts.fmtTick(t) : t.toFixed(opts.tickDec ?? 2), { anchor: "end", size: 10, mono: true });
+  }
+  s += axisLine(padL, y0, W - padR, y0);
+  for (let i = 0; i < n; i++) {
+    const it = items[i];
+    const cx = padL + band * i + (band - bw) / 2;
+    const col = it.v < 0 ? "var(--red)" : (it.color || "var(--blue)");
+    const path = roundBarPath(cx, y0, y(it.v), bw, 4);
+    if (path) s += `<path d="${path}" fill="${col}" data-tip="${esc(it.tip)}"/>`;
+    else s += `<rect x="${cx}" y="${y0 - 3}" width="${bw}" height="6" fill="transparent" data-tip="${esc(it.tip)}"/>` +
+              `<circle cx="${cx + bw / 2}" cy="${y0}" r="2" fill="var(--axis)"/>`;
+    s += txt(cx + bw / 2, H - padB + 14, it.x, { size: 10.5, mono: opts.monoX });
+    if (it.labelText) {
+      const ly = it.v >= 0 ? y(it.v) - 5 : y(it.v) + 13;
+      s += txt(cx + bw / 2, ly, it.labelText, { size: 10.5, fill: "var(--ink2)", mono: true });
+    }
+    if (it.limit !== undefined) {
+      const ly = y(it.limit);
+      s += `<line x1="${cx - 3}" y1="${ly}" x2="${cx + bw + 3}" y2="${ly}" stroke="var(--orange)" stroke-width="2" data-tip="${esc("β→∞ limit: " + it.limit.toFixed(3))}"/>`;
+    }
+  }
+  if (opts.xTitle) s += txt(padL + iw / 2, H - 4, opts.xTitle, { size: 11 });
+  s += "</svg>";
+  return s;
+}
+
+/* stacked vertical bars: items = { x, segs: [{v, color, tip}] } */
+function stackChart(items, opts) {
+  const W = opts.width || 520, H = opts.height || 210;
+  const padL = 44, padR = 8, padT = 12, padB = 30;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const tot = it => it.segs.reduce((s, g) => s + g.v, 0);
+  let vmax = Math.max(...items.map(tot), 1e-12) * 1.08;
+  const y = v => padT + ih - (v / vmax) * ih;
+  const band = iw / items.length, bw = Math.min(24, band * 0.62);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "stacked bars")}">`;
+  for (const tv of [0, vmax / 2.16, vmax / 1.08]) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(opts.tickDec ?? 2),
+      { anchor: "end", size: 10, mono: true });
+  }
+  s += axisLine(padL, y(0), W - padR, y(0));
+  items.forEach((it, i) => {
+    const cx = padL + band * i + (band - bw) / 2;
+    s += txt(cx + bw / 2, H - padB + 14, it.x, { size: 10.5, mono: opts.monoX });
+    const segs = it.segs.filter(g => g.v > 0);
+    let acc = 0;
+    segs.forEach((g, si) => {
+      const yb = y(acc) - (si === 0 ? 0 : 1);
+      const yt = y(acc + g.v) + (si === segs.length - 1 ? 0 : 1);
+      acc += g.v;
+      if (yb - yt < 0.75) return;
+      if (si === segs.length - 1) {
+        const p2 = roundBarPath(cx, yb, yt, bw, 4);
+        if (p2) s += `<path d="${p2}" fill="${g.color}" data-tip="${esc(g.tip)}"/>`;
+      } else {
+        s += `<rect x="${cx}" y="${yt}" width="${bw}" height="${yb - yt}" fill="${g.color}" data-tip="${esc(g.tip)}"/>`;
+      }
+    });
+  });
+  if (opts.xTitle) s += txt(padL + iw / 2, H - 4, opts.xTitle, { size: 11 });
+  s += "</svg>";
+  return s;
+}
+
+/* horizontal bar list (for the 16 explicit p_j) */
+function hbarChart(items, opts) {
+  const W = 520, rowH = 19, padL = opts.padL || 150, padR = 46, padT = 6;
+  const H = padT + rowH * items.length + 8;
+  let vmax = Math.max(...items.map(i => Math.abs(i.v)), 1e-12) * 1.05;
+  const signed = items.some(i => i.v < -1e-12);
+  const x0 = signed ? padL + (W - padL - padR) / 2 : padL;
+  const xspan = signed ? (W - padL - padR) / 2 : (W - padL - padR);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "bars")}">`;
+  s += `<line x1="${x0}" y1="${padT}" x2="${x0}" y2="${H - 8}" stroke="var(--axis)" stroke-width="1"/>`;
+  items.forEach((it, i) => {
+    const yc = padT + rowH * i + rowH / 2;
+    const bw = Math.min(13, rowH - 6);
+    const len = Math.abs(it.v) / vmax * xspan;
+    const col = it.v < 0 ? "var(--red)" : (it.color || "var(--blue)");
+    const bx = it.v < 0 ? x0 - len : x0;
+    s += `<rect x="${bx}" y="${yc - bw / 2}" width="${Math.max(len, 0.5)}" height="${bw}" rx="2.5" fill="${col}" data-tip="${esc(it.tip)}"/>`;
+    s += txt(padL - 8, yc + 3.5, it.x, { anchor: "end", size: 11, fill: "var(--ink2)", mono: true });
+    const lx = it.v < 0 ? bx - 5 : bx + len + 5;
+    s += txt(lx, yc + 3.5, it.label, { anchor: it.v < 0 ? "end" : "start", size: 10, mono: true });
+  });
+  s += "</svg>";
+  return s;
+}
+
+function maskGlyph(c, ds, size) {
+  const { cols, rows } = ds.glyph;
+  const cell = size / Math.max(cols, 2);
+  const w = cols * cell, h = rows * cell;
+  let s = `<svg width="${w + 2}" height="${h + 2}" viewBox="-1 -1 ${w + 2} ${h + 2}" aria-hidden="true">`;
+  for (let b = 0; b < ds.B; b++) {
+    let col, row;
+    // mirror horizontally so question/site 0 sits at the right, and put
+    // higher-weight rows on top, matching the printed-numeral convention
+    if (ds.planes) { col = 7 - (b & 7); row = 1 - (b >> 3); }
+    else { col = cols - 1 - (b % cols); row = rows - 1 - Math.floor(b / cols); }
+    const on = (c >> b) & 1;
+    s += `<rect x="${col * cell}" y="${row * cell}" width="${cell - 1.2}" height="${cell - 1.2}" rx="1.5" fill="${on ? "var(--blue)" : "var(--grid)"}"/>`;
+  }
+  s += "</svg>";
+  return s;
+}
+
+function legendHtml(items) {
+  return `<div class="lgd">` + items.map(([col, lab]) =>
+    `<span><span class="sw" style="background:${col}"></span>${esc(lab)}</span>`).join("") + `</div>`;
+}
+
+/* stacked expected-gain chart above the question buttons */
+function gainChart(ds, gains) {
+  const nq = gains.length;
+  const W = 520, H = 128, padL = 46, padR = 8, padT = 8, padB = 22;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  let vmax = 1e-9;
+  gains.forEach(g => { if (g) vmax = Math.max(vmax, g.own + g.tr); });
+  vmax *= 1.1;
+  const y = v => padT + ih - (v / vmax) * ih;
+  const band = iw / nq, bw = Math.min(22, band * 0.6);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="expected reduction per question">`;
+  for (const tv of [vmax / 2.2, vmax / 1.1]) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(3), { anchor: "end", size: 9.5, mono: true });
+  }
+  s += axisLine(padL, y(0), W - padR, y(0));
+  for (let i = 0; i < nq; i++) {
+    const q = nq - 1 - i;   // descending, matching the buttons below
+    const g = gains[q];
+    const cx = padL + band * i + (band - bw) / 2;
+    s += txt(cx + bw / 2, H - padB + 13, qstr(ds, q),
+      { size: 9.5, mono: true, fill: g ? "var(--muted)" : "var(--axis)" });
+    if (!g) continue;
+    const tip = `ask ${qstr(ds, q)}\nexpected drop in ⟨H_B⟩: ${(g.own + g.tr).toFixed(4)} bits` +
+      `\n  own answer: ${g.own.toFixed(4)}\n  via correlations: ${g.tr.toFixed(4)}`;
+    const hTr = (g.tr / vmax) * ih;
+    const own = roundBarPath(cx, y(0), y(g.own), bw, hTr > 0.6 ? 0.5 : 4);
+    if (own) s += `<path d="${own}" fill="var(--blue)" data-tip="${esc(tip)}"/>`;
+    if (hTr > 0.6) {
+      const p2 = roundBarPath(cx, y(g.own) - 2, y(g.own + g.tr) - 2, bw, 4);
+      if (p2) s += `<path d="${p2}" fill="var(--aqua)" data-tip="${esc(tip)}"/>`;
+    }
+  }
+  s += "</svg>";
+  return s;
+}
+
+/* running average-perplexity trace with the uniform-prior envelope */
+function pplChart(ds, steps) {
+  const nq = 1 << ds.n, K = 1 << ds.m, k = steps.length - 1;
+  const W = 520, H = 250, padL = 44, padR = 12, padT = 10, padB = 52;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const x = t => padL + (iw * t) / nq;
+  const y = v => padT + ih - ((v - 1) / (K - 1)) * ih;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="average perplexity per round">`;
+  for (const tv of [1, (1 + K) / 2, K]) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(1), { anchor: "end", size: 10, mono: true });
+  }
+  s += axisLine(padL, y(1), W - padR, y(1));
+  // envelope over the full horizon
+  const env = [];
+  for (let t = 0; t <= nq; t++)
+    env.push(`${x(t)},${y(Math.pow(2, ds.m * (1 - t / nq)))}`);
+  s += `<polyline points="${env.join(" ")}" fill="none" stroke="var(--muted)" stroke-width="2" opacity="0.55"/>`;
+  // realized trace
+  const pts = steps.map((st2, t) => `${x(t)},${y(st2.ppl)}`);
+  if (k > 0) s += `<polyline points="${pts.join(" ")}" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linejoin="round"/>`;
+  steps.forEach((st2, t) => {
+    const lab = t === 0 ? "start" : `${qstr(ds, st2.q)}→${astr(ds, st2.a)}`;
+    s += `<circle cx="${x(t)}" cy="${y(st2.ppl)}" r="4.5" fill="var(--blue)" stroke="var(--surface)" stroke-width="2" data-tip="${esc(
+      lab + `\nPPL_B = ${st2.ppl.toFixed(3)}   ⟨H_B⟩ = ${st2.Hbar.toFixed(3)} bits`)}"/>`;
+  });
+  // x labels
+  for (let t = 0; t <= nq; t++) {
+    const lab = t === 0 ? "start" : (t <= k ? `${qstr(ds, steps[t].q)}→${astr(ds, steps[t].a)}` : String(t));
+    const fill = t <= k ? "var(--muted)" : "var(--axis)";
+    s += `<text transform="translate(${x(t)} ${H - padB + 14}) rotate(-38)" text-anchor="end" font-size="9" fill="${fill}" font-family="ui-monospace, Consolas, monospace">${esc(lab)}</text>`;
+  }
+  s += "</svg>";
+  return s;
+}
+
+/* per-step expected (stacked) vs realized reduction, in bits of <H_B> */
+function deltaChart(ds, steps) {
+  const nq = 1 << ds.n, k = steps.length - 1;
+  const W = 520, H = 250, padL = 44, padR = 12, padT = 10, padB = 52;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="expected vs realized reduction per step">`;
+  if (k === 0) {
+    s += txt(W / 2, H / 2, "ask a question to populate this chart", { size: 12 });
+    return s + "</svg>";
+  }
+  let vmax = 1e-9, vmin = 0;
+  for (let t = 1; t <= k; t++) {
+    vmax = Math.max(vmax, steps[t].expOwn + steps[t].expTr, steps[t].real);
+    vmin = Math.min(vmin, steps[t].real);
+  }
+  vmax *= 1.12; vmin *= 1.12;
+  const y = v => padT + (vmax - v) / (vmax - vmin) * ih;
+  const band = iw / nq;   // same horizontal scale as the PPL chart
+  const bw = Math.min(11, band * 0.32);
+  for (const tv of [vmin / 1.12, 0, vmax / 2.24, vmax / 1.12]) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(2), { anchor: "end", size: 9.5, mono: true });
+  }
+  s += axisLine(padL, y(0), W - padR, y(0));
+  for (let t = 1; t <= k; t++) {
+    const st2 = steps[t];
+    const cx = padL + band * (t - 0.5) - bw - 1;
+    const tip = `${qstr(ds, st2.q)}→${astr(ds, st2.a)}` +
+      `\nexpected: ${(st2.expOwn + st2.expTr).toFixed(4)} bits` +
+      `\n  own ${st2.expOwn.toFixed(4)}  correlations ${st2.expTr.toFixed(4)}` +
+      `\nrealized: ${st2.real.toFixed(4)} bits`;
+    const hTr = (st2.expTr / (vmax - vmin)) * ih;
+    const own = roundBarPath(cx, y(0), y(st2.expOwn), bw, hTr > 0.6 ? 0.5 : 4);
+    if (own) s += `<path d="${own}" fill="var(--blue)" data-tip="${esc(tip)}"/>`;
+    if (hTr > 0.6) {
+      const p2 = roundBarPath(cx, y(st2.expOwn) - 2, y(st2.expOwn + st2.expTr) - 2, bw, 4);
+      if (p2) s += `<path d="${p2}" fill="var(--aqua)" data-tip="${esc(tip)}"/>`;
+    }
+    const rp = roundBarPath(cx + bw + 2, y(0), y(st2.real), bw, 4);
+    if (rp) s += `<path d="${rp}" fill="var(--orange)" data-tip="${esc(tip)}"/>`;
+    s += `<text transform="translate(${padL + band * (t - 0.5)} ${H - padB + 14}) rotate(-38)" text-anchor="end" font-size="9" fill="var(--muted)" font-family="ui-monospace, Consolas, monospace">${esc(qstr(ds, st2.q) + "→" + astr(ds, st2.a))}</text>`;
+  }
+  s += "</svg>";
+  return s;
+}
+
+/* ---------------- page assembly ---------------- */
+const tabsEl = document.getElementById("tabs");
+const tilesEl = document.getElementById("tiles");
+const cardsEl = document.getElementById("cards");
+const gammaEl = document.getElementById("gamma");
+const lambdaEl = document.getElementById("lambda");
+const muEl = document.getElementById("mu");
+const READS = {
+  gamma: document.getElementById("gammaRead"),
+  lambda: document.getElementById("lambdaRead"),
+  mu: document.getElementById("muRead"),
+};
+const strip = document.getElementById("spectrumStrip");
+let active = 0;   // start on the fully explicit (2,1) dataset
+
+DATASETS.forEach((ds, i) => {
+  const b = document.createElement("button");
+  b.textContent = ds.label;
+  b.setAttribute("role", "tab");
+  b.setAttribute("aria-pressed", i === active ? "true" : "false");
+  b.addEventListener("click", () => { active = i; render(); });
+  tabsEl.appendChild(b);
+});
+
+function tile(lab, val, note) {
+  return `<div class="tile"><div class="lab">${lab}</div><div class="val">${val}</div><div class="note">${note}</div></div>`;
+}
+
+function fmtCount(x) {
+  if (x >= 10000) return (x / 1000).toFixed(1).replace(/\.0$/, "") + "K";
+  return Math.round(x).toLocaleString();
+}
+
+function render() {
+  const ds = DATASETS[active];
+  if (!ds.C) ds.C = decodeHex(
+    ds.key === "d41" ? C41_HEX : ds.key === "d32" ? C32_HEX : C31_HEX);
+  if (!ds.S) computeFeatures(ds);
+  const FLD = {
+    gamma: parseFloat(gammaEl.value), lambda: parseFloat(lambdaEl.value),
+    mu: parseFloat(muEl.value),
+  };
+  READS.gamma.textContent = FLD.gamma.toFixed(2);
+  READS.lambda.textContent = FLD.lambda.toFixed(2);
+  READS.mu.textContent = FLD.mu.toFixed(3);
+  const pure = FLD.lambda === 0 && FLD.mu === 0;
+  const symb = FLD.mu === 0;   // output-negation symmetry intact?
+  document.querySelectorAll("#tabs button").forEach((b, i) =>
+    b.setAttribute("aria-pressed", i === active ? "true" : "false"));
+
+  const st = EXP[ds.key];
+  const psi = ds.psi[st.psi];
+  const p = belief(ds, FLD, st.asked);
+  const r = compute(ds, p);
+  const cols = columnsFromHat(ds, r.hat);
+  const N = ds.C.length, bits = ds.m * (1 << ds.n);
+  const nq = 1 << ds.n, K = 1 << ds.m;
+  const kAsked = Object.keys(st.asked).length;
+  const fmtA = (a) => a.toString(2).padStart(ds.m, "0");
+  const fmtQ = (q) => q.toString(2).padStart(ds.n, "0");
+  const tblStr = (j) => Array.from({ length: nq }, (_, i) =>
+    fmtA(digit(ds, j, nq - 1 - i))).join(ds.m > 1 ? "·" : "");
+
+  /* ---- experiment panel ---- */
+  const HB = cols.map(colEntropy);
+  let qBtns = "";
+  for (let q = nq - 1; q >= 0; q--) {
+    if (q in st.asked) {
+      qBtns += `<button class="qbtn asked" disabled>${fmtQ(q)} &rarr; ${fmtA(st.asked[q])}</button>`;
+    } else {
+      const probs = cols[q].map((x, a) => `P(${fmtA(a)})=${x.toFixed(3)}`).join("  ");
+      qBtns += `<button class="qbtn" data-q="${q}" data-tip="${esc(
+        "ask ψ(" + fmtQ(q) + ")\n" + probs + "\nexpected ΔH = H_B(q) = " + HB[q].toFixed(3) + " bits")}">${fmtQ(q)}</button>`;
+    }
+  }
+  const psiOpts = ds.psi.map((o, i) =>
+    `<option value="${i}"${i === st.psi ? " selected" : ""}>${esc(o.name)} — C=${o.C}</option>`).join("");
+  let survHtml = "";
+  if (r.support <= 16) {
+    const wmax = Math.max(...r.survivors.map(j => r.p[j]), 1e-12);
+    const rows2 = r.survivors
+      .map(j => ({ j, w: r.p[j] }))
+      .sort((a, b) => a.j - b.j)   // lexicographic truth-table order = ascending j
+      .map(({ j, w }) => `<tr>
+        <td class="mono">${tblStr(j)}</td>
+        <td class="mono">${ds.B === 4 ? esc(NAMES21[j]) : "0x" + j.toString(16).padStart(ds.B >> 2, "0")}</td>
+        <td class="mono">${ds.C[j]}</td>
+        <td class="mono">${ds.FP[j]}</td>
+        <td class="mono">${ds.W[j] > 0 ? "+" : ""}${ds.W[j]}</td>
+        <td><span class="wbar" data-tip="${esc("p = " + w.toFixed(5))}"><i style="width:${(100 * w / wmax).toFixed(1)}%"></i></span><span class="mono" style="font-size:12px">${w.toFixed(3)}</span></td>
+        <td>${j === psi.j ? "&#9733; true map" : ""}</td></tr>`).join("");
+    survHtml = `<div class="chartbox" style="margin-top:12px"><table class="masks">
+      <thead><tr><th>truth table (q = ${nq - 1}…0${ds.m > 1 ? ", answers 00–11" : ""})</th><th>${ds.B === 4 ? "name" : "index"}</th><th>C</th><th>F</th><th>W</th><th>posterior p</th><th></th></tr></thead>
+      <tbody>${rows2}</tbody></table></div>`;
+  }
+  /* expected next-step gain per unasked question, split own vs transfer */
+  const gains = [];
+  for (let q = 0; q < nq; q++) {
+    if (q in st.asked) { gains.push(null); continue; }
+    let tr = 0;
+    for (let q2 = 0; q2 < nq; q2++)
+      if (q2 !== q) tr += mutualInfo(ds, r.hat, q, q2);
+    gains.push({ own: HB[q] / nq, tr: tr / nq });
+  }
+  document.getElementById("experiment").innerHTML = `
+    <h2>Run the experiment: ask questions, watch the ledger cash out</h2>
+    <p class="cap">Pick a hidden true map &psi;, then ask questions — each answer zeroes the inconsistent
+    hypotheses and renormalizes the rest. Every number and chart on this page updates to the posterior.
+    Questions are the input strings b<sub>n&minus;1</sub>&hellip;b<sub>1</sub>b<sub>0</sub>, read as ordinary
+    binary numbers (rightmost bit is b<sub>0</sub>, weight 2<sup>0</sup>; bit b<sub>i</sub> has weight 2<sup>i</sup>),
+    and everything question-ordered runs in descending order — question 00 sits at the right, in the ones place.
+    The question buttons ride in the sticky bar above; hover an unasked one for its current answer
+    distribution and expected entropy drop.</p>
+    <div style="margin-top:2px">
+      <div style="font-size:12.5px;color:var(--ink2)">Expected reduction in &#10216;H<sub>B</sub>&#10217; from asking each question next (bits) — the asked question&rsquo;s own column vs what its correlations pull down elsewhere:</div>
+      ${legendHtml([["var(--blue)", "own answer"], ["var(--aqua)", "via correlations"]])}
+      ${gainChart(ds, gains)}
+    </div>
+    <div class="surv-read">Questions asked: <b>${kAsked}/${nq}</b> &nbsp;·&nbsp;
+      Surviving hypotheses: <b>${r.support.toLocaleString()}</b> of ${N.toLocaleString()}
+      (= ${K}<sup>${(1 << ds.n) - kAsked}</sup>)${r.support === 1 ? " — <b>the truth is pinned.</b>" : ""}
+      ${r.support <= 16 ? " — enumerated below:" : ""}</div>
+    ${survHtml}`;
+  document.getElementById("askrow").innerHTML = `
+    <span class="lab2">True map &psi;</span>
+    <select id="psiSel2" style="font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--page);color:var(--ink);max-width:46%">${psiOpts}</select>
+    <button class="btn" id="askBest" ${kAsked >= nq ? "disabled" : ""}>Ask best (greedy)</button>
+    <button class="btn" id="resetExp" ${kAsked === 0 ? "disabled" : ""}>Reset</button>`;
+  document.getElementById("qrow").innerHTML = `
+    <span class="lab2">Ask &psi;</span>${qBtns}`;
+  document.getElementById("psiSel2").addEventListener("change", (e) => {
+    st.psi = +e.target.value; st.asked = {}; st.order = []; render();
+  });
+  document.getElementById("resetExp").addEventListener("click", () => {
+    st.asked = {}; st.order = []; render();
+  });
+  document.getElementById("askBest").addEventListener("click", () => {
+    let best = -1, bv = -1;
+    for (let q = 0; q < nq; q++)
+      if (!(q in st.asked) && HB[q] > bv) { bv = HB[q]; best = q; }
+    if (best >= 0) {
+      st.asked[best] = digit(ds, psi.j, best);
+      st.order.push(best); render();
+    }
+  });
+  document.querySelectorAll(".qbtn[data-q]").forEach(b =>
+    b.addEventListener("click", () => {
+      const q = +b.getAttribute("data-q");
+      st.asked[q] = digit(ds, psi.j, q);
+      st.order.push(q); render();
+    }));
+
+  /* ---- learning-curve card ---- */
+  const steps = trajectory(ds, FLD, st);
+  const last = steps[steps.length - 1];
+  const sumReal = steps[0].Hbar - last.Hbar;
+  const sumExp = steps.slice(1).reduce((s2, x2) => s2 + x2.expOwn + x2.expTr, 0);
+  document.getElementById("learn").innerHTML = `
+    <div class="card" style="margin-top:14px"><h2>The learning curve</h2>
+    <p class="cap">Left: average answer perplexity
+    PPL<sub>B</sub> = 2<sup>&#10216;H<sub>B</sub>&#10217;</sup> (over all ${nq} questions) after each
+    (question&nbsp;&rarr;&nbsp;answer), against the uniform-prior envelope
+    2<sup>m(1&minus;k/2&#8319;)</sup> in gray. Right: the per-step reduction in
+    &#10216;H<sub>B</sub>&#10217; (bits, not cumulative) — the forecast made before each ask
+    (stacked: own answer + correlations) beside the drop that actually happened.
+    Both recompute for the current fields.</p>
+    <div class="duo">
+      <div>${legendHtml([["var(--blue)", "with this prior"], ["var(--muted)", "uniform-prior envelope"]])}${pplChart(ds, steps)}</div>
+      <div>${legendHtml([["var(--blue)", "expected — own answer"], ["var(--aqua)", "expected — via correlations"], ["var(--orange)", "realized"]])}${deltaChart(ds, steps)}</div>
+    </div>
+    <div class="insight">${kAsked === 0
+      ? `The trace starts at PPL<sub>B</sub> = ${steps[0].ppl.toFixed(3)}; the gap to the envelope’s ${(1 << ds.m).toFixed(1)}
+    is what the prior already knows. For this Gibbs prior the gap is <b>zero at k=0</b> — law 2: M uniform, nothing
+    predictive until the first answer — so everything the curve does below the envelope later is generalization, cashed
+    from correlations. Ask a question to extend the trace.`
+      : `Cumulative after ${kAsked} step${kAsked > 1 ? "s" : ""}: expected ${sumExp.toFixed(3)} bits of
+    &#10216;H<sub>B</sub>&#10217;, realized ${sumReal.toFixed(3)}. The two needn’t match step by step — a forecast is an
+    expectation over answers, and a single answer can under- or over-deliver (an answer that surprises the prior
+    collapses more than promised; one it expected, less). The aqua share is the part of each forecast that no
+    correlation-free prior could ever earn.`}</div>
+    </div>`;
+
+  /* spectrum strip: shell shares as segments (odd shells appear once
+     evidence breaks the output-negation symmetry) */
+  let sx = 0, sSvg = "";
+  const shareTot = r.tot || 1e-12;
+  for (let s2 = 1; s2 <= ds.B; s2 += 1) {
+    const w = 100 * r.shellL2[s2] / shareTot;
+    if (w > 0.05) {
+      const t = (s2 - 1) / Math.max(ds.B - 1, 1);
+      sSvg += `<rect x="${sx}" y="0" width="${Math.max(w - 0.35, 0)}" height="8" fill="var(--blue)" opacity="${0.35 + 0.65 * t}"/>`;
+      sx += w;
+    }
+  }
+  strip.innerHTML = sSvg || `<rect x="0" y="0" width="100" height="8" fill="var(--grid)"/>`;
+
+  /* tiles */
+  const knowledge = bits - r.Hp;
+  let meanShell = 0;
+  if (r.tot > 1e-15) {
+    for (let s2 = 0; s2 <= ds.B; s2++) meanShell += s2 * r.shellL2[s2];
+    meanShell /= r.tot;
+  }
+  tilesEl.innerHTML =
+    tile("Belief entropy H(p)", r.Hp.toFixed(2) + " bits", "of a maximum " + bits + " bits") +
+    tile("Effective # of maps", fmtCount(Math.pow(2, r.Hp)), "2^H of " + r.support.toLocaleString() + " survivors") +
+    tile("Stored knowledge", knowledge.toFixed(2) + " bits",
+      kAsked === 0
+        ? (symb ? "= total correlation C(p): all of it cross-question"
+                : "with μ ≠ 0 part of this is marginal (on-site), the rest C(p)")
+        : "includes " + (kAsked * ds.m) + " bits of answers already learned") +
+    tile("Mean shell of the ledger", r.tot > 1e-15 ? meanShell.toFixed(2) : "—",
+      "ℓ²-weighted depth — cooling stores knowledge in deeper shells") +
+    (kAsked === 0 && symb
+      ? tile("On-site (predictive) energy", "0 exact",
+          "invariant by law 2: M stays uniform for every γ, λ — only μ or evidence can move this" +
+          " (float residual " + r.onsite.toExponential(1) + ")")
+      : kAsked === 0
+      ? tile("On-site (predictive) energy", r.onsite.toFixed(3),
+          "the weight field μ broke output-negation symmetry: the prior has marginal opinions before any question")
+      : tile("On-site (predictive) energy", r.onsite.toFixed(3),
+          "evidence broke the output-negation symmetry: cross-question capital is being cashed into M"));
+
+  /* cards */
+  let html = "";
+
+  // Card 1: prior by tier, stacked by footprint
+  const fLegend = fStrip(ds);
+  const tierItems = [];
+  for (let t = 0; t <= ds.maxC; t++) {
+    const segs = [...r.tierMassF[t].entries()].sort((a, b) => a[0] - b[0])
+      .map(([f, m2]) => ({ v: m2, color: fColor(ds, f),
+        tip: `C=${t}, F=${f}: mass ${m2.toFixed(4)}\ntier total ${r.tierMass[t].toFixed(4)} (${r.tierCount[t]} functions)` }));
+    tierItems.push({ x: S(t), segs });
+  }
+  html += `<div class="card"><h2>${kAsked === 0 ? "The prior, tier by tier" : "The posterior, tier by tier"}</h2>
+    <p class="cap">${kAsked === 0
+      ? `Gibbs mass per circuit-complexity tier. Counts per tier:
+         <span class="mono">${Array.from(r.tierCount).map(fmtCount).join(" · ")}</span>`
+      : `Posterior mass per tier after ${kAsked} answer${kAsked > 1 ? "s" : ""}. Survivors per tier:
+         <span class="mono">${Array.from(r.tierSurv).map(fmtCount).join(" · ")}</span>
+         (of ${Array.from(r.tierCount).map(fmtCount).join(" · ")})`}</p>
+    ${fLegend}
+    <div class="chartbox">${stackChart(tierItems, { aria: "belief mass per complexity tier, stacked by footprint", xTitle: "circuit complexity C_j (AIG size)", tickDec: 2 })}</div>
+    <div class="insight">${kAsked === 0
+      ? `With all fields at 0 every map weighs 1/${N.toLocaleString()}; mass migrates down the tiers as &gamma; grows.`
+      : `Answers cull every tier by the same factor 2<sup>m</sup> <i>on average</i>, but not by mass — watch
+    which tiers the evidence favors as the posterior closes in on the true map’s tier (C=${ds.C[psi.j]}).`}
+    The mass-weighted mean complexity here is <b>${(Array.from(r.tierMass).reduce((s, m, t) => s + m * t, 0)).toFixed(2)}</b>.</div>
+    </div>`;
+
+  // Card 2: ledger by shell
+  const shellItems = [];
+  for (let s2 = 1; s2 <= ds.B; s2++) {
+    const share = 100 * r.shellL2[s2] / shareTot;
+    shellItems.push({ x: S(s2), v: share,
+      tip: `shell ${s2}: ${share.toFixed(2)}% of ledger ℓ² energy` });
+  }
+  html += `<div class="card"><h2>The ledger by shell</h2>
+    <p class="cap">Share of nontrivial ℓ&sup2; energy &Sigma;p&#770;(c)&sup2; by shell popcount(c).
+    ${kAsked === 0 && symb
+      ? `Odd shells are <em>exactly</em> zero (law 1, for any &gamma;, &lambda;); max |odd correlator|: <span class="mono">${r.maxOdd.toExponential(1)}</span>.`
+      : kAsked === 0
+      ? `The weight field &mu; has switched the odd shells <b>on</b> — output-negation symmetry is broken by the
+    prior itself; max |odd correlator|: <span class="mono">${r.maxOdd.toFixed(3)}</span>.`
+      : `The ${kAsked} answer${kAsked > 1 ? "s have" : " has"} switched the odd shells <b>on</b> — output-negation
+    symmetry is broken by evidence; max |odd correlator| now <span class="mono">${r.maxOdd.toFixed(3)}</span>.`}</p>
+    <div class="chartbox">${barChart(shellItems, { aria: "ledger energy by shell", xTitle: "shell = popcount(c)", fmtTick: t => t.toFixed(0) + "%", monoX: false })}</div>
+    <div class="insight">${kAsked === 0
+      ? `Cooling pushes energy into <b>higher</b> even shells: the prior’s knowledge is stored in
+    high-order parity constraints among many answers at once — invisible to M, and to any pairwise summary.`
+      : `As the belief sharpens toward one map the ledger approaches its deterministic limit — every correlator
+    &plusmn;1, shell s holding its full <span class="mono">(${ds.B} choose s)</span> share. The climb you are
+    watching is certainty arriving, shell by shell.`}</div>
+    </div>`;
+
+  // Card 3: locality
+  const distItems = r.dist.map(o => ({
+    x: "d=" + o.d, v: o.mean,
+    labelText: fmt(o.mean, 3),
+    limit: pure ? 1 - 2 * o.d / (ds.n + 1) : undefined,
+    tip: `input distance ${o.d} (${o.npairs} pairs)\n⟨s_q s_q'⟩ = ${fmt(o.mean, 4)}\nwithin-class spread ${o.dev.toExponential(1)}` +
+      (pure ? `\nγ→∞ limit ${(1 - 2 * o.d / (ds.n + 1)).toFixed(3)}` : "")
+  }));
+  html += `<div class="card"><h2>Locality: pair correlator vs input distance</h2>
+    <p class="cap">${ds.planes ? "Same-output-bit pairs" : "Pair correlator"} ⟨s<sub>q</sub>s<sub>q'</sub>⟩${kAsked === 0
+      ? ", identical for every pair at Hamming distance d (law 3)"
+      : ` — now the <em>mean</em> over pairs at distance d; the exact degeneracy held only before evidence`}.
+    ${pure ? `Orange ticks: the &gamma;&rarr;&infin; closed form 1 &minus; 2d/(n+1)${kAsked > 0 ? " (a prior-only landmark)" : ""}.`
+           : `(Limit ticks hidden — the closed form holds only for the pure-&gamma; energy.)`}</p>
+    <div class="chartbox">${barChart(distItems, { aria: "pair correlator by input Hamming distance", signed: true, vmax: 1, xTitle: "Hamming distance between the two inputs", monoX: true })}</div>
+    <div class="insight">${kAsked > 0
+      ? `<b>Evidence breaks the distance law.</b> With ${kAsked} answer${kAsked > 1 ? "s" : ""} in, the input-relabeling symmetry is gone: bars show class means, and the within-class spread (hover) is no longer zero.`
+      : ds.planes
+      ? `Cross-bit-plane pairs are all exactly zero (max |·| = <span class="mono">${r.crossMax.toExponential(1)}</span>): a shell-2 mask with one site per plane is odd in each plane. The two output bits only couple from shell 4 up.`
+      : `Adjacent inputs (d=1) agree, antipodal inputs disagree — <b>smoothness on the hypercube</b> is what “low circuit complexity” looks like in the ledger.`}</div>
+    </div>`;
+
+  // Card 4: energy by mask complexity, stacked by mask footprint
+  const rmsItems = [];
+  for (let t = 0; t <= ds.maxC; t++) {
+    const cnt = r.tierCount[t] - (t === ds.C[0] ? 1 : 0); // exclude c=0 from its tier
+    if (cnt <= 0) continue;
+    const Etier = Math.max(r.tierSq[t], 1e-300);
+    const rms = Math.sqrt(r.tierSq[t] / cnt);
+    const segs = [...r.tierSqF[t].entries()].sort((a, b) => a[0] - b[0])
+      .map(([f, e]) => ({ v: rms * e / Etier, color: fColor(ds, f),
+        tip: `masks with C(c)=${t}, F=${f}: ${(100 * e / Etier).toFixed(1)}% of the tier’s ℓ² energy\ntier RMS |p̂| per mask: ${rms.toFixed(4)} (${fmtCount(cnt)} masks)` }));
+    rmsItems.push({ x: S(t), segs });
+  }
+  html += `<div class="card"><h2>The ledger is loudest at simple masks</h2>
+    <p class="cap">Every mask c is itself a truth table with its own complexity C(c) and footprint F(c).
+    Bar height: RMS correlator size per mask in the tier; the stacked subdivision shows how the tier’s
+    ℓ² energy splits across mask footprints.</p>
+    ${fLegend}
+    <div class="chartbox">${stackChart(rmsItems, { aria: "RMS correlator by mask complexity, stacked by mask footprint", xTitle: "complexity of the mask, C(c)", tickDec: 2 })}</div>
+    <div class="insight">${kAsked === 0
+      ? `<b>The prior’s knowledge is organized by the same hierarchy it was built from:</b>
+    p&#770;(c) measures agreement between the random truth table and the parity pattern c,
+    and simple functions correlate with simple parities.`
+      : `<b>Evidence reorganizes the ledger around the truth, not around simplicity:</b> as answers land,
+    the loud masks become the parities that agree with the observed table — whatever their complexity.
+    The complexity ordering below is a property of the prior, and it fades as the posterior sharpens.`}</div>
+    </div>`;
+
+  // Card 5: top masks table
+  let rows = "";
+  r.top.forEach((t2, i) => {
+    const sign = t2.v < 0 ? "var(--red)" : "var(--blue)";
+    rows += `<tr>
+      <td class="mono">${i + 1}</td>
+      <td>${maskGlyph(t2.c, ds, ds.planes ? 60 : (ds.B === 4 ? 60 : 52))}</td>
+      <td class="mono">0x${t2.c.toString(16).padStart(ds.B / 4, "0")}</td>
+      <td class="mono">${POP16[t2.c]}</td>
+      <td class="mono">${ds.C[t2.c]}</td>
+      <td class="mono">${ds.FP[t2.c]}</td>
+      <td class="mono">${ds.W[t2.c] > 0 ? "+" : ""}${ds.W[t2.c]}</td>
+      <td class="mono"><span class="signchip" style="background:${sign}"></span>${fmt(t2.v, 4)}</td>
+    </tr>`;
+  });
+  html += `<div class="card"><h2>Loudest masks right now</h2>
+    <p class="cap">Top 8 by |p&#770;(c)|. The glyph is the mask’s own truth table
+    (${ds.planes ? "8 inputs × 2 output bits" : "one cell per input"}); C(c) is the mask’s own circuit complexity.</p>
+    <div class="chartbox"><table class="masks">
+    <thead><tr><th>#</th><th>mask</th><th>hex</th><th>shell</th><th>C(c)</th><th>F</th><th>W</th><th>p&#770;(c)</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="insight">${kAsked > 0
+      ? `With evidence in, exact orbit ties dissolve: asked-block masks saturate toward &plusmn;1 and drag their partners with them.`
+      : `Ties here are <b>exact symmetry multiplets</b>: masks in one input-relabeling orbit share one value at every &gamma;
+    (the eight half-filled “half-space” masks are a single orbit). ${ds.key === "d41"
+      ? `Near &gamma; &asymp; 1.82 (with &lambda;=&mu;=0) the lead changes: the singleton fully-symmetric mask <span class="mono">0xffff</span> overtakes
+    that octet — every table with C&le;2 has <i>even</i> weight (odd weight needs a lone minterm, &ge;3 gates), so full parity
+    is blind to tiers 0–2, while half-space parities already see odd restrictions at C=2. A lead change between multiplets,
+    not a broken symmetry.` : `At high &gamma; the winners are the complexity-0 parities.`}`}</div>
+    </div>`;
+
+  // Card 6: the complete 15-entry ledger, (2,1) only (the weights live
+  // in the survivor table above, which for (2,1) always shows all maps)
+  if (ds.B === 4) {
+    const cItems = [];
+    for (let c = 1; c < 16; c++) {
+      const maskStr = [3, 2, 1, 0].map(k => (c >> k) & 1).join("");
+      const set = [3, 2, 1, 0].filter(q => (c >> q) & 1)
+        .map(q => qstr(ds, q)).join(",");
+      cItems.push({ x: maskStr, v: r.hat[c],
+        tip: `mask {${set}}  (written ${maskStr})\np̂ = ${fmt(r.hat[c], 4)}` });
+    }
+    html += `<div class="card"><h2>The complete ledger</h2>
+      <p class="cap">All 15 nontrivial correlators; each mask written as its own truth table
+      (q = 11…00 — a 1 marks a question whose answer joins the parity). Blue positive, red negative.</p>
+      <div class="chartbox">${barChart(cItems, { aria: "all 15 correlators", signed: true, monoX: true, tickDec: 2 })}</div>
+      <div class="insight">${kAsked === 0
+        ? `Only six pair masks and the full-parity mask are nonzero — and the pair values follow the
+      distance law: {01,00}-type pairs (d=1) positive, {11,00}-type (d=2) negative, equal magnitudes.
+      XOR/XNOR live in <span class="mono">1111</span>: it is literally “how XNOR-like is the truth?”`
+        : `With ${kAsked} answer${kAsked > 1 ? "s" : ""} in, singleton masks light up (columns of M leaving
+      the fair coin) and masks containing asked questions saturate toward &plusmn;1 — each is now a signed
+      copy of its restriction to the unasked questions.`}</div>
+      </div>`;
+  }
+
+  cardsEl.innerHTML = html;
+
+  document.getElementById("foot").innerHTML =
+    `Complexity data: exact minimum AIG sizes — 4→1 from the krinkin/bounds NPN4 dataset; 3→2 (joint,
+    shared-gate) and 3→1 (14 NPN classes) from this project’s SAT-based exact synthesis
+    (<span class="mono">output/table_*.csv</span>). Everything is computed
+    live on each slider move or question: the Gibbs prior conditioned on the answers so far (zero the
+    inconsistent maps, renormalize — Bayes with 0/1 likelihoods), a fast Walsh–Hadamard transform of all
+    ${N.toLocaleString()} posterior weights (${ds.B} butterfly stages), and every statistic above; the
+    columns of M are read back from the on-site correlators, and the greedy choice maximizes their entropy.
+    Hover any mark or question button for exact values. The energy is
+    E<sub>j</sub> = γC<sub>j</sub> + λF<sub>j</sub> + μW<sub>j</sub> (circuit complexity; footprint
+    F = n·I + S, losslessly combining image size and support; weight bias — all computed in-page from
+    the truth tables and also columns of the CSVs). The three fields temper the prior only — asked
+    answers are hard evidence and survive field changes; Reset clears them.`;
+}
+
+/* tooltip */
+const tip = document.getElementById("tip");
+document.addEventListener("pointerover", (e) => {
+  const t = e.target.closest("[data-tip]");
+  if (!t) { tip.style.display = "none"; return; }
+  tip.textContent = t.getAttribute("data-tip");
+  tip.style.display = "block";
+});
+document.addEventListener("pointermove", (e) => {
+  if (tip.style.display === "block") {
+    const pad = 14;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    const r = tip.getBoundingClientRect();
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - pad;
+    if (y + r.height > innerHeight - 8) y = e.clientY - r.height - pad;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+});
+document.addEventListener("pointerout", (e) => {
+  if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest("[data-tip]"))
+    tip.style.display = "none";
+});
+
+let raf = 0;
+for (const el of [gammaEl, lambdaEl, muEl])
+  el.addEventListener("input", () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; render(); });
+  });
+document.getElementById("fieldReset").addEventListener("click", () => {
+  gammaEl.value = "1";
+  lambdaEl.value = "0";
+  muEl.value = "0";   // exactly zero: output-negation symmetry restored
+  render();
+});
+render();
+</script>

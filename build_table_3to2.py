@@ -18,7 +18,9 @@ def main():
 
     canon = canonicalize_3to2()
 
-    header = [f"in_{format(k, '03b')}" for k in range(8)] + ["circuit_complexity"]
+    header = ([f"in_{format(k, '03b')}" for k in range(8)]
+              + ["circuit_complexity", "support", "image_size",
+                 "weight_bias", "footprint"])
 
     with open("output/table_3to2.csv", "w", newline="") as fh:
         w = csv.writer(fh)
@@ -26,13 +28,18 @@ def main():
         for combined_id in range(65536):
             f0 = combined_id >> 8  # output bit 1 (MSB of the pair)
             f1 = combined_id & 0xFF  # output bit 0 (LSB of the pair)
+            digit = lambda q: (((f0 >> q) & 1) << 1) | ((f1 >> q) & 1)
             cells = []
             for k in range(8):
-                b1 = (f0 >> k) & 1
-                b0 = (f1 >> k) & 1
-                cells.append(f"{b1}{b0}")
+                cells.append(f"{(f0 >> k) & 1}{(f1 >> k) & 1}")
             complexity = class_complexity[int(canon[combined_id])]
-            w.writerow(cells + [complexity])
+            support = sum(
+                1 for i in range(3)
+                if any(digit(q) != digit(q ^ (1 << i)) for q in range(8)))
+            image = len({digit(q) for q in range(8)})
+            weight = 2 * (bin(f0).count("1") + bin(f1).count("1")) - 16
+            w.writerow(cells + [complexity, support, image, weight,
+                                3 * image + support])
 
     comp_vals = [class_complexity[int(canon[c])] for c in range(65536)]
     print("min complexity:", min(comp_vals), "max complexity:", max(comp_vals))

@@ -63,6 +63,22 @@ def canonicalize_4to1():
     return best
 
 
+def canonicalize_3to1():
+    """Returns numpy array `canon` of length 256 where canon[f] is the
+    minimum truth-table value in f's NPN orbit (n=3, standard NPN group,
+    order 3! * 2^3 * 2 = 96)."""
+    n = 3
+    size = 1 << (1 << n)  # 256
+    f_arr = np.arange(size, dtype=np.int64)
+    best = f_arr.copy()
+    for kmap in _kmaps(n):
+        transformed = _bitgather(f_arr, kmap, 1 << n)
+        for out_neg in (0, 1):
+            cand = transformed ^ (0xFF if out_neg else 0)
+            np.minimum(best, cand, out=best)
+    return best
+
+
 def canonicalize_3to2():
     """Returns numpy array `canon` of length 65536 (indexed by combined id
     f0*256+f1) where canon[id] is the minimum combined id in the orbit."""

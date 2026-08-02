@@ -22,7 +22,9 @@ def main():
 
     canon = canonicalize_4to1()
 
-    header = [f"in_{format(k, '04b')}" for k in range(16)] + ["circuit_complexity"]
+    header = ([f"in_{format(k, '04b')}" for k in range(16)]
+              + ["circuit_complexity", "support", "image_size",
+                 "weight_bias", "footprint"])
 
     with open("output/table_4to1.csv", "w", newline="") as fh:
         w = csv.writer(fh)
@@ -30,7 +32,14 @@ def main():
         for f in range(65536):
             bits = [str((f >> k) & 1) for k in range(16)]
             complexity = class_complexity[int(canon[f])]
-            w.writerow(bits + [complexity])
+            support = sum(
+                1 for i in range(4)
+                if any((f >> q) & 1 != (f >> (q ^ (1 << i))) & 1
+                       for q in range(16)))
+            image = len({(f >> q) & 1 for q in range(16)})
+            weight = 2 * bin(f).count("1") - 16
+            w.writerow(bits + [complexity, support, image, weight,
+                               4 * image + support])
 
     # sanity: all rows unique (guaranteed since f ranges over all distinct
     # truth tables 0..65535), and complexity values sane
