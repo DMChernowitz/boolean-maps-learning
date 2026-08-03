@@ -2038,6 +2038,130 @@ remains to correlate with — and the run leverage lands at
 $H(M)_0/H(p) \approx 1.42$ for both fields, an accident of these
 particular couplings rather than an invariance.
 
+### The continuum limit: recovering the classical theory
+
+Send $n \to \infty$ (holding $m = 1$ for clarity; larger $m$ changes
+constants, not structure) and measure time as the asked fraction
+$t = \ell / 2^n$. The trajectory laws of the previous section pass to
+the limit through a single function, the **conditional-entropy
+profile**
+
+$$
+\gamma(t) := \lim_{n\to\infty}\big(G_{\lfloor t\,2^n\rfloor + 1} - G_{\lfloor t\,2^n\rfloor}\big)
+\;\in\; [0, m],
+$$
+
+the expected uncertainty of a fresh answer given a random $t$-fraction
+of the table — nonincreasing in $t$, by Han's inequalities on subset
+entropies. Dividing the finite-$n$ laws by $2^n$ and taking the limit:
+
+$$
+\frac{\mathrm{remaining}(t)}{2^n} \to (1-t)\,\gamma(t),
+\qquad
+\frac{\mathrm{received}(t)}{2^n} \to \int_0^t \gamma(s)\,ds,
+\qquad
+\frac{H(p)}{2^n} \to \int_0^1 \gamma,
+$$
+
+with the deduced share and the leverage following by conservation. **In
+this form the framework *is* the classical theory**: "received" is the
+prequential chain rule (expected cumulative log-loss $=$ block entropy;
+Dawid, Rissanen), $\gamma$ is the *expected information gain per
+example* of the learning-curve literature (Haussler–Kearns–Schapire),
+and the shapes $\gamma(t)$ can take — smooth decays, plateaus,
+first-order drops — are the phase diagram mapped out by the statistical
+mechanics of learning in the 1990s (Györgyi; Seung–Sompolinsky–Tishby;
+Engel & Van den Broeck). What our machinery adds is the exact
+finite-$n$ system underneath. Two archetype priors make the
+correspondence concrete — both realized *exactly* on our hypothesis
+spaces, both landing on a known law.
+
+**Archetype A (smooth, parametric): the coin-mixture prior.** Let the
+prior be exchangeable — a mixture over a coin bias
+$\theta \sim U[0,1]$ of i.i.d. columns:
+
+$$
+p_j = \int_0^1 \theta^{W}(1-\theta)^{2^n - W}\, d\theta
+    = \frac{1}{(2^n+1)\binom{2^n}{W_j}},
+$$
+
+a function of the weight $W_j$ alone (Bayes–Laplace). Exchangeability
+makes every $\ell$-subset equivalent, and the predictive is **Laplace's
+rule of succession** $P(\text{next}=1 \mid k \text{ ones in } \ell) =
+\tfrac{k+1}{\ell+2}$, giving the closed form
+
+$$
+\gamma_\ell \;=\; \frac{1}{\ell+1}\sum_{k=0}^{\ell} h\!\Big(\frac{k+1}{\ell+2}\Big),
+$$
+
+independent of $n$ — so the discrete curves for every $n$ lie on *one*
+master curve, truncated at $2^n$. (Verified: the generic block-entropy
+machinery on the full $65536$-map space reproduces this formula to
+$10^{-10}$ at every $\ell$.) Its continuum tail is the
+**Clarke–Barron / Rissanen redundancy law** for a $d$-parameter family,
+here $d=1$:
+
+$$
+\gamma_\ell = \underbrace{\mathbb{E}_\theta[h(\theta)]}_{1/(2\ln 2)}
++ \frac{d}{2\ell\ln 2} + o(1/\ell),
+$$
+
+equivalently $\mathrm{received}(\ell) = \ell\,\mathbb{E}[h] +
+\tfrac{d}{2}\log_2 \ell + O(1)$ — the $\tfrac{d}{2}\log \ell$
+stochastic-complexity overhead. Numerically
+$(\gamma_\ell - \tfrac{1}{2\ln2})\cdot\ell \to \tfrac{1}{2\ln 2} =
+0.7213$ ($0.60$ at $\ell{=}15$, $0.72$ by $\ell \sim 5000$ —
+convergence is logarithmically slow, visible in the figure as the
+discrete points approaching the Clarke–Barron curve from below).
+
+**Archetype B (condensed, discrete class): the freeze-out prior.**
+Take the $\gamma$-field to infinity: uniform on the gate-free tier
+($2$ constants $+\ 2n$ literals). Two class members are *confusable*
+after $\ell$ random questions only if they agree on all of them, which
+for any pair happens with probability $2^{-\ell}$ (literals of
+different indices agree on half the inputs; a constant agrees with a
+literal on half). The expected number of surviving confusions decays
+like $\binom{2n+2}{2} 2^{-\ell}$, and with it the profile:
+
+$$
+\gamma_\ell \sim c_n\, 2^{-\ell}
+$$
+
+— *exponential* in the number of questions, so in fraction-time the
+remaining-entropy curve $(1-t)\gamma(t)/\gamma(0)$ collapses, as
+$n$ grows, onto a **step at $t = 0^+$**: condensation. All learning
+happens in the first $O(\log n)$ questions out of $2^n$; the continuum
+observer sees a prior that "already knew everything" and a learner
+whose leverage diverges like $2^n/\log n$. This is the discrete-class
+/ first-order archetype of the statistical mechanics of learning (the
+same mathematics as Györgyi's first-order transition for binary-weight
+perceptrons), and the linear-class version is a modern theorem: for the
+degree-$\le k$ (Reed–Muller) prior, $\gamma(t)$ is the RM rank profile
+under random erasures, and *RM codes achieve erasure capacity* — a
+perfect step at $t = R$, the code rate.
+
+![continuum limit: the two archetypes](figures/continuum_limit.png)
+
+Left: archetype A — the exact discrete $\gamma_\ell$ (computed on the
+$(4,1)$ space) on the Clarke–Barron curve. Middle: archetype B — exact
+$\gamma_\ell$ for $n = 2, 3, 4$ on a log scale against the $2^{-\ell}$
+pair-collision guide; the decay *rate* is already size-independent.
+Right: the same data in fraction-time, collapsing toward the step at
+$t = 0^+$. (All curves from `continuum_limit.py`.)
+
+**What remains open in the limit** is exactly what one would hope: the
+$\gamma(t)$ of a *genuine* circuit-complexity Gibbs prior. Two things
+are known. The coupling must scale ($\gamma \sim 2\ln n$) or the
+superexponential density of states drags the measure to typical
+functions and $\gamma \equiv m$; and the annealed approximation to
+$\gamma(t)$ is computable from the ledger's pair-distance enumerator —
+the same shell-2 data behind the round-1 vector formula. Whether the
+exact profile interpolates smoothly between the archetypes or shows a
+genuine first-order transition at some $t^*$ (a computational "aha"
+threshold) is, to our knowledge, unresolved — and it is precisely the
+question the exact finite-$n$ machinery here can attack from below
+while replica methods attack from above.
+
 ## $\epsilon_j$ under uniform $P(q)$
 
 One immediate simplification we will consider is taking $P(q)$ uniform.
