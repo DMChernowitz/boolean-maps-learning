@@ -2035,8 +2035,17 @@ receives only $0.72$ bits (its column is no longer a fair coin). In
 both cases the deduced share grows and then **saturates one round
 early** — the last question deduces nothing, since nothing unasked
 remains to correlate with — and the run leverage lands at
-$H(M)_0/H(p) \approx 1.42$ for both fields, an accident of these
-particular couplings rather than an invariance.
+$H(M)_0/H(p) \approx 1.42$ for both fields. That near-coincidence is
+neither an invariance nor an accident but **symmetry-protected
+flatness**: the leverage is an *even* function of $\mu$ (flipping the
+sign of $\mu$ is the output-complement relabeling, verified exactly),
+so it is stationary at $\mu = 0$ and $\mu = 0.25$ sits in the
+quadratic-flat region ($1.4203,\ 1.4210,\ 1.4174$ at
+$\mu = 0,\ 0.1,\ 0.25$). Larger fields drift it decisively —
+$1.371$ at $\mu{=}0.5$, $1.228$ at $\mu{=}1$, tending to $1$ as
+$\mu \to \infty$ (single-map condensation leaves no correlation to
+leverage) — and other couplings move it freely ($1.13$ to $2.24$
+across nearby $\gamma, \lambda$ choices).
 
 ### The continuum limit: recovering the classical theory
 
