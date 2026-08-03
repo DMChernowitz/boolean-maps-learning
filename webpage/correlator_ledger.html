@@ -705,16 +705,18 @@ function stackChart(items, opts) {
   return s;
 }
 
-/* step mosaic: bars sorted by resulting entropy, width = step prob */
-function mosaicChart(ds, steps, area, HbarNow) {
-  const W = 520, H = 235, padL = 44, padR = 8, padT = 12, padB = 32;
+/* step mosaic: bars sorted by resulting TOTAL entropy, width = step
+   probability; stacked: survives (blue) + was-on-q before (aqua); the
+   gap up to the gray before-line is what correlations destroyed */
+function mosaicChart(ds, steps, area, beforeTot) {
+  const W = 520, H = 240, padL = 44, padR = 8, padT = 12, padB = 32;
   const iw = W - padL - padR, ih = H - padT - padB;
-  const ymax = ds.m;
+  const ymax = ds.m * (1 << ds.n);
   const y = v => padT + ih - (v / ymax) * ih;
-  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="step mosaic: resulting entropy by step probability">`;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="step mosaic: resulting total entropy by step probability">`;
   for (const tv of [0, ymax / 2, ymax]) {
     s += gridLine(padL, y(tv), W - padR, y(tv));
-    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(1), { anchor: "end", size: 10, mono: true });
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(0), { anchor: "end", size: 10, mono: true });
   }
   for (const fx of [0, 0.5, 1]) {
     s += txt(padL + fx * iw, H - padB + 14, fx.toFixed(1), { size: 10, mono: true });
@@ -724,22 +726,31 @@ function mosaicChart(ds, steps, area, HbarNow) {
   for (const st2 of steps) {
     const x0 = padL + acc * iw, wpx = st2.w * iw;
     acc += st2.w;
+    const tr = beforeTot - st2.own - st2.h;
     const tip = `ask ${qstr(ds, st2.q)} → hear ${astr(ds, st2.a)}` +
+      (st2.rep ? "  (already asked — wasted step)" : "") +
       `\nstep probability ${(100 * st2.w).toFixed(2)}%  (P(a|q) = ${st2.pa.toFixed(3)})` +
-      `\nresulting ⟨H_B⟩ = ${st2.h.toFixed(4)} bits` +
-      `\n  on the asked column: 0 (exact)` +
-      `\n  on the other columns: ${st2.h.toFixed(4)}`;
-    if (st2.h > 1e-9 && wpx > 0.4)
-      s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(st2.h)}" width="${Math.max(wpx - 1, 0.8).toFixed(2)}" height="${(y(0) - y(st2.h)).toFixed(2)}" fill="var(--blue)" data-tip="${esc(tip)}"/>`;
-    else if (wpx > 0.4)
-      s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(0) - 3}" width="${Math.max(wpx - 1, 0.8).toFixed(2)}" height="3" fill="var(--axis)" data-tip="${esc(tip)}"/>`;
+      `\nΣ H_B before: ${beforeTot.toFixed(3)} bits` +
+      `\nΣ H_B after:  ${st2.h.toFixed(3)} bits (survives)` +
+      `\n  destroyed on q (its pre-step entropy): ${st2.own.toFixed(3)}` +
+      `\n  destroyed via correlations: ${tr.toFixed(3)}${tr < -1e-9 ? " (negative: other columns rose)" : ""}`;
+    if (wpx > 0.4) {
+      const xw = Math.max(wpx - 1, 0.8).toFixed(2);
+      if (st2.h > 1e-9)
+        s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(st2.h)}" width="${xw}" height="${(y(0) - y(st2.h)).toFixed(2)}" fill="var(--blue)" data-tip="${esc(tip)}"/>`;
+      if (st2.own > 1e-9)
+        s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(st2.h + st2.own)}" width="${xw}" height="${Math.max(y(st2.h) - y(st2.h + st2.own) - 1, 0.6).toFixed(2)}" fill="var(--aqua)" data-tip="${esc(tip)}"/>`;
+      if (st2.h + st2.own < 1e-9)
+        s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(0) - 3}" width="${xw}" height="3" fill="var(--axis)" data-tip="${esc(tip)}"/>`;
+    }
     if (wpx > 40)
-      s += txt(x0 + wpx / 2, y(st2.h) - 4, `${qstr(ds, st2.q)}→${astr(ds, st2.a)}`,
+      s += txt(x0 + wpx / 2, y(Math.max(st2.h + st2.own, st2.h)) - 4,
+        `${qstr(ds, st2.q)}→${astr(ds, st2.a)}`,
         { size: 9, mono: true, fill: "var(--ink2)" });
   }
-  // reference lines: expected entropy after (orange), current (muted)
-  s += `<line x1="${padL}" y1="${y(HbarNow)}" x2="${W - padR}" y2="${y(HbarNow)}" stroke="var(--muted)" stroke-width="2" opacity="0.55" data-tip="${esc("current ⟨H_B⟩ = " + HbarNow.toFixed(4))}"/>`;
-  s += `<line x1="${padL}" y1="${y(area)}" x2="${W - padR}" y2="${y(area)}" stroke="var(--orange)" stroke-width="2" data-tip="${esc("expected ⟨H_B⟩ after one random step = " + area.toFixed(4) + " (the shaded area)")}"/>`;
+  // reference lines: before (muted), expected after (orange)
+  s += `<line x1="${padL}" y1="${y(beforeTot)}" x2="${W - padR}" y2="${y(beforeTot)}" stroke="var(--muted)" stroke-width="2" opacity="0.55" data-tip="${esc("Σ H_B before the step = " + beforeTot.toFixed(3))}"/>`;
+  s += `<line x1="${padL}" y1="${y(area)}" x2="${W - padR}" y2="${y(area)}" stroke="var(--orange)" stroke-width="2" data-tip="${esc("expected Σ H_B after one random step = " + area.toFixed(3) + " (the blue area)")}"/>`;
   s += txt(padL + iw / 2, H - 4, "cumulative step probability", { size: 11 });
   s += "</svg>";
   return s;
@@ -1268,53 +1279,58 @@ function render() {
     not a broken symmetry.` : `At high &gamma; the winners are the complexity-0 parities.`}`}</div>
     </div>`;
 
-  // Card 5b: the step mosaic — every possible next (q, a), width = its
-  // probability, height = the entropy that survives it
+  // Card 5b: the step mosaic — every possible next (q, a) over ALL
+  // questions (asked ones included as wasted steps), width = the step's
+  // probability, heights in TOTAL entropy (sum over all columns)
   {
-    const rem = [];
-    for (let q = 0; q < nq; q++) if (!(q in st.asked)) rem.push(q);
-    let inner, note = "";
-    if (rem.length === 0) {
-      inner = `<div class="cap" style="margin-top:8px">All questions asked — no next steps remain.</div>`;
-    } else {
-      const steps2 = [];
-      let impossible = 0;
-      for (const q of rem) {
-        const condH = new Float64Array(K);
-        for (let q2 = 0; q2 < nq; q2++) {
-          if (q2 === q) continue;
-          const J = pairJoint(ds, r.hat, q, q2);
-          for (let a = 0; a < K; a++) {
-            const pa = cols[q][a];
-            if (pa < 1e-12) continue;
-            condH[a] += colEntropy(J[a].map(x => x / pa));
-          }
-        }
+    const beforeTot = HB.reduce((s2, x2) => s2 + x2, 0);
+    const steps2 = [];
+    let impossible = 0, wasted = 0;
+    for (let q = 0; q < nq; q++) {
+      const rep = q in st.asked;
+      if (rep) wasted++;
+      const condH = new Float64Array(K);
+      for (let q2 = 0; q2 < nq; q2++) {
+        if (q2 === q) continue;
+        const J = pairJoint(ds, r.hat, q, q2);
         for (let a = 0; a < K; a++) {
           const pa = cols[q][a];
-          if (pa < 1e-12) { impossible++; continue; }
-          steps2.push({ q, a, pa, w: pa / rem.length, h: condH[a] / nq });
+          if (pa < 1e-12) continue;
+          condH[a] += colEntropy(J[a].map(x => x / pa));
         }
       }
-      steps2.sort((x2, y2) => y2.h - x2.h);
-      const area = steps2.reduce((s2, x2) => s2 + x2.w * x2.h, 0);
-      const HbarNow = HB.reduce((s2, x2) => s2 + x2, 0) / nq;
-      const meanGain = rem.reduce((s2, q) => s2 + gains[q].own + gains[q].tr, 0) / rem.length;
-      inner = mosaicChart(ds, steps2, area, HbarNow);
-      note = `<div class="insight">Width and height anti-correlate: the improbable answers (narrow bars)
-      are the ones that collapse the most. Area check: ${area.toFixed(4)} = current ⟨H<sub>B</sub>⟩
-      (${HbarNow.toFixed(4)}) &minus; the average expected gain from the bar chart above
-      (${meanGain.toFixed(4)}) — the mosaic and the forecast are the same bookkeeping.
-      ${impossible > 0 ? `${impossible} of the ${rem.length * K} candidate steps have probability
-      0 under the current posterior (answers already ruled out) and carry no width.` : ""}</div>`;
+      for (let a = 0; a < K; a++) {
+        const pa = cols[q][a];
+        if (pa < 1e-12) { impossible++; continue; }
+        steps2.push({ q, a, pa, rep, w: pa / nq, h: condH[a], own: HB[q] });
+      }
     }
+    steps2.sort((x2, y2) => y2.h - x2.h);
+    const area = steps2.reduce((s2, x2) => s2 + x2.w * x2.h, 0);
+    // independent check: sum of the expected-gain forecasts (which are in
+    // mean-per-question units, hence already carry the uniform 1/2^n)
+    const gainSum = gains.reduce((s2, g) => s2 + (g ? g.own + g.tr : 0), 0);
+    const note = `<div class="insight">Width and height anti-correlate: the improbable answers (narrow
+      bars) collapse the most. Area check: ${area.toFixed(3)} = Σ H<sub>B</sub> before
+      (${beforeTot.toFixed(3)}) &minus; the summed expected gains from the chart above
+      (${gainSum.toFixed(3)}) = ${(beforeTot - gainSum).toFixed(3)} — mosaic and forecast are the
+      same bookkeeping.
+      ${wasted > 0 ? `${wasted} question${wasted > 1 ? "s are" : " is"} already asked: their bars are
+      forced (one answer, probability 1) and touch the before-line — visibly wasted steps.` : ""}
+      ${impossible > 0 ? `${impossible} candidate steps have probability 0 (answers already ruled
+      out) and carry no width.` : ""}</div>`;
+    const inner = mosaicChart(ds, steps2, area, beforeTot);
     html += `<div class="card"><h2>One step ahead: the step mosaic</h2>
-      <p class="cap">Every possible next step — pick an unasked q (uniform), hear an answer a
-      (probability from M's column) — as one bar: width = the step's probability, height = the
-      average answer entropy ⟨H<sub>B</sub>⟩ that <em>survives</em> the update, sorted tallest first.
-      The on-q share of each bar is exactly zero (the asked column collapses), so the entire height
-      is entropy on the other columns; the shaded area is the expected entropy after one random step
-      (orange line), against the current value (gray line).</p>
+      <p class="cap">Every possible next step — pick <em>any</em> q (uniform over all ${nq},
+      including already-asked ones), hear an answer a with probability from M's column — as one bar:
+      width = the step's probability, height = the <em>total</em> answer entropy
+      Σ<sub>q'</sub> H<sub>B</sub>(q') that survives the update, sorted tallest first.
+      Stacked on top in aqua: the entropy the asked column carried <em>before</em> the step
+      (destroyed with certainty; zero for re-asks). The gap between the stack and the gray
+      before-line is what correlations destroyed — bars poking <em>above</em> the line are anomaly
+      steps that raised other columns. Blue area = expected entropy after one random step
+      (orange line).</p>
+      ${legendHtml([["var(--blue)", "survives the step"], ["var(--aqua)", "was on the asked q (destroyed)"]])}
       <div class="chartbox">${inner}</div>
       ${note}</div>`;
   }
