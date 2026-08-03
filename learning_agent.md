@@ -1886,6 +1886,21 @@ for their average (checked: all three coincide numerically). The
 general formula confirms it: here $H(p) = 1 + h(\pi)$, so
 $\mathbb{E}[\text{after}] = 1 + h(\pi) - 1 = h(\pi)$.
 
+**The expected information gained from the first question** is the drop
+in $H(M)$: from $2$ to $h(\pi)$, i.e.
+
+$$
+\Delta = 2 - h(\pi) \;=\; \underbrace{1}_{\text{direct}} \;+\; \underbrace{1 - h(\pi)}_{\text{deduced}},
+$$
+
+decomposing exactly as the two-ledger accounting says it must: $1$ bit
+arrives through the asked column (which is also the expected surprisal
+received — the lemma $\Delta H(q) = H_B(q)$ with a fair-coin column),
+and $1 - h(\pi) = I(A_0;A_1) = C(p)$ is withdrawn from the tower. For
+general weights the same statement reads: asking $q$ gains
+$H_B(q) + I(A_0;A_1)$ in expectation, and a uniformly-random question
+gains $\tfrac12\sum_q H_B(q) + I(A_0;A_1)$.
+
 **Reading the curve $h(\pi)$.** The first answer settles the
 *within-class* coordinate (which constant / which non-constant it would
 be); what survives on the unasked column is precisely the *class*
