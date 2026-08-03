@@ -8,7 +8,7 @@
   --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
   --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
   --blue: #2a78d6; --blue-soft: #9ec5f4; --orange: #eb6834;
-  --red: #e34948; --aqua: #1baf7a;
+  --red: #e34948; --aqua: #1baf7a; --yellow: #eda100;
   --sq0: #86b6ef; --sq1: #6da7ec; --sq2: #5598e7; --sq3: #3987e5;
   --sq4: #2a78d6; --sq5: #256abf; --sq6: #1c5cab; --sq7: #104281;
 }
@@ -19,7 +19,7 @@
     --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
     --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
     --blue: #3987e5; --blue-soft: #1c5cab; --orange: #d95926;
-    --red: #e66767; --aqua: #199e70;
+    --red: #e66767; --aqua: #199e70; --yellow: #c98500;
     --sq0: #9ec5f4; --sq1: #86b6ef; --sq2: #6da7ec; --sq3: #5598e7;
     --sq4: #3987e5; --sq5: #2a78d6; --sq6: #256abf; --sq7: #184f95;
   }
@@ -30,7 +30,7 @@
   --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
   --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
   --blue: #3987e5; --blue-soft: #1c5cab; --orange: #d95926;
-  --red: #e66767; --aqua: #199e70;
+  --red: #e66767; --aqua: #199e70; --yellow: #c98500;
   --sq0: #9ec5f4; --sq1: #86b6ef; --sq2: #6da7ec; --sq3: #5598e7;
   --sq4: #3987e5; --sq5: #2a78d6; --sq6: #256abf; --sq7: #184f95;
 }
@@ -40,7 +40,7 @@
   --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
   --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
   --blue: #2a78d6; --blue-soft: #9ec5f4; --orange: #eb6834;
-  --red: #e34948; --aqua: #1baf7a;
+  --red: #e34948; --aqua: #1baf7a; --yellow: #eda100;
   --sq0: #86b6ef; --sq1: #6da7ec; --sq2: #5598e7; --sq3: #3987e5;
   --sq4: #2a78d6; --sq5: #256abf; --sq6: #1c5cab; --sq7: #104281;
 }
@@ -815,6 +815,100 @@ function leverageChart(ds, steps, beforeTot, agg) {
   return s;
 }
 
+/* small multi-line chart: x = 0..K rounds, several named series */
+function mlChart(series, opts) {
+  const K2 = series[0].pts.length - 1;
+  const W = 520, H = 235, padL = 44, padR = 10, padT = 12, padB = 30;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const ymin = opts.ymin ?? 0;
+  const ymax = opts.ymax ??
+    Math.max(...series.flatMap(s2 => s2.pts), 1e-9) * 1.1;
+  const x = t => padL + iw * t / K2;
+  const y = v => padT + ih - ((v - ymin) / (ymax - ymin)) * ih;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "lines")}">`;
+  for (const tv of [ymin, (ymin + ymax) / 2, ymax]) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(opts.tickDec ?? 1),
+      { anchor: "end", size: 10, mono: true });
+  }
+  if (opts.unit !== undefined && opts.unit > ymin && opts.unit < ymax)
+    s += `<line x1="${padL}" y1="${y(opts.unit)}" x2="${W - padR}" y2="${y(opts.unit)}" stroke="var(--muted)" stroke-width="2" opacity="0.5" data-tip="${esc(opts.unitTip || "")}"/>`;
+  s += axisLine(padL, y(ymin), W - padR, y(ymin));
+  for (let t = 0; t <= K2; t++)
+    s += txt(x(t), H - padB + 14, String(t), { size: 10, mono: true });
+  for (const sr of series) {
+    s += `<polyline points="${sr.pts.map((v, t) => `${x(t)},${y(Math.min(v, ymax))}`).join(" ")}" fill="none" stroke="${sr.color}" stroke-width="2" stroke-linejoin="round"/>`;
+    sr.pts.forEach((v, t) => {
+      s += `<circle cx="${x(t)}" cy="${y(Math.min(v, ymax))}" r="4" fill="${sr.color}" stroke="var(--surface)" stroke-width="2" data-tip="${esc(`${sr.name}\nk=${t}: ${v.toFixed(4)}`)}"/>`;
+    });
+  }
+  if (opts.xTitle) s += txt(padL + iw / 2, H - 4, opts.xTitle, { size: 11 });
+  s += "</svg>";
+  return s;
+}
+
+/* exact (2,1) leverage curves: all 16 subsets enumerated, answers from
+   the chosen psi; greedy is deterministic (first-max tie-break) */
+function curves21(FLD) {
+  const ds = DATASETS[0];
+  if (!ds.S) computeFeatures(ds);
+  const psiJ = ds.psi[EXP.d21.psi].j;
+  const nq = 4;
+  const stateStats = (asked) => {
+    const p = belief(ds, FLD, asked);
+    const hat = Float64Array.from(p);
+    fwht(hat);
+    const HB = columnsFromHat(ds, hat).map(colEntropy);
+    const tot = HB.reduce((a, b) => a + b, 0);
+    let own = 0, tr = 0;
+    for (let q = 0; q < nq; q++) {
+      if (q in asked) continue;
+      own += HB[q];
+      for (let q2 = 0; q2 < nq; q2++)
+        if (q2 !== q) tr += mutualInfo(ds, hat, q, q2);
+    }
+    return { p, HB, tot, linst: own > 1e-12 ? (own + tr) / own : 1 };
+  };
+  const base = stateStats({});
+  const tot0 = base.tot, p0 = base.p;
+  const mk = (asked) => {
+    const s2 = stateStats(asked);
+    const qa = Object.entries(asked).map(([q, a]) => [Number(q), a]);
+    let P = 0;
+    for (let j = 0; j < 16; j++)
+      if (qa.every(([q, a]) => digit(ds, j, q) === a)) P += p0[j];
+    const surp = -Math.log2(P);
+    return { ent: s2.tot, linst: s2.linst, HB: s2.HB,
+             lcum: surp > 1e-12 ? (tot0 - s2.tot) / surp : 1 };
+  };
+  const rand = { ent: [], linst: [], lcum: [] };
+  for (let k = 0; k <= nq; k++) {
+    let cE = 0, cI = 0, cC = 0, cnt = 0;
+    for (let S2 = 0; S2 < 16; S2++) {
+      if (POP16[S2] !== k) continue;
+      const asked = {};
+      for (let q = 0; q < nq; q++)
+        if ((S2 >> q) & 1) asked[q] = digit(ds, psiJ, q);
+      const v = mk(asked);
+      cE += v.ent; cI += v.linst; cC += v.lcum; cnt++;
+    }
+    rand.ent.push(cE / cnt); rand.linst.push(cI / cnt); rand.lcum.push(cC / cnt);
+  }
+  const greedy = { ent: [], linst: [], lcum: [] };
+  const asked = {};
+  for (let k = 0; k <= nq; k++) {
+    const v = mk(asked);
+    greedy.ent.push(v.ent); greedy.linst.push(v.linst); greedy.lcum.push(v.lcum);
+    if (k === nq) break;
+    let best = -1, bv = -1;
+    for (let q = 0; q < nq; q++)
+      if (!(q in asked) && v.HB[q] > bv + 1e-12) { bv = v.HB[q]; best = q; }
+    asked[best] = digit(ds, psiJ, best);
+  }
+  const pPsi = Math.max(p0[psiJ], 1e-300);
+  return { rand, greedy, tot0, pPsi, endpoint: tot0 / (-Math.log2(pPsi)) };
+}
+
 /* horizontal bar list (for the 16 explicit p_j) */
 function hbarChart(items, opts) {
   const W = 520, rowH = 19, padL = opts.padL || 150, padR = 46, padT = 6;
@@ -1163,6 +1257,53 @@ function render() {
     collapses more than promised; one it expected, less). The aqua share is the part of each forecast that no
     correlation-free prior could ever earn.`}</div>
     </div>`;
+
+  /* ---- live (2,1) leverage curves — exact, independent of active tab ---- */
+  {
+    const cv = curves21(FLD);
+    const ds21 = DATASETS[0];
+    const psiOpts21 = ds21.psi.map((o, i) =>
+      `<option value="${i}"${i === EXP.d21.psi ? " selected" : ""}>${esc(o.name)} — C=${o.C}</option>`).join("");
+    document.getElementById("learn").insertAdjacentHTML("beforeend", `
+    <div class="card" style="margin-top:14px"><h2>Live (2,1): the run in miniature — exact, no Monte Carlo</h2>
+      <p class="cap">Always the n=2, m=1 system (whatever tab is active), under the current fields and
+      a chosen true map &psi;. Averages over question orderings are computed <em>exactly</em> by
+      enumerating all 16 prefix sets; greedy is deterministic. Left: total answer entropy
+      Σ H<sub>B</sub> after k unique questions. Right: leverage — instantaneous (the state's
+      destroyed-per-face-value forecast) and cumulative (realized totals so far; k=0 is 0/0,
+      defined as 1). Both policies are pinned to the same exact endpoint
+      (H+C)/(−log₂ p<sub>ψ</sub>) = <b>${cv.endpoint.toFixed(3)}</b>
+      (p<sub>ψ</sub> = ${cv.pPsi.toFixed(4)}).</p>
+      <div class="row" style="margin-bottom:8px">
+        <label class="inline" for="psi21">(2,1) true map &psi;</label>
+        <select id="psi21" style="font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--page);color:var(--ink)">${psiOpts21}</select>
+      </div>
+      <div class="duo">
+        <div>${legendHtml([["var(--blue)", "random order (exact avg)"], ["var(--orange)", "greedy"]])}
+        ${mlChart([
+          { name: "Σ H_B — random order", color: "var(--blue)", pts: cv.rand.ent },
+          { name: "Σ H_B — greedy", color: "var(--orange)", pts: cv.greedy.ent },
+        ], { ymax: 4, tickDec: 1, xTitle: "unique questions answered k", aria: "entropy of M vs k" })}</div>
+        <div>${legendHtml([["var(--blue)", "instantaneous — random"], ["var(--aqua)", "cumulative — random"], ["var(--orange)", "instantaneous — greedy"], ["var(--yellow)", "cumulative — greedy"]])}
+        ${mlChart([
+          { name: "instantaneous leverage — random", color: "var(--blue)", pts: cv.rand.linst },
+          { name: "cumulative leverage — random", color: "var(--aqua)", pts: cv.rand.lcum },
+          { name: "instantaneous leverage — greedy", color: "var(--orange)", pts: cv.greedy.linst },
+          { name: "cumulative leverage — greedy", color: "var(--yellow)", pts: cv.greedy.lcum },
+        ], { tickDec: 2, unit: 1, unitTip: "unit leverage: destroyed = face value", xTitle: "unique questions answered k", aria: "leverage vs k" })}</div>
+      </div>
+      <div class="insight">Every point is a finite sum — this card is the template for the full-size
+      runs, where answers stay exact per prefix set and only the subset/&psi; sampling goes Monte
+      Carlo (Rao–Blackwellized). Note the cumulative curves of <em>both</em> policies land on the
+      same endpoint: whole-run leverage depends on &psi; only through −log₂ p<sub>ψ</sub>, never on
+      the question order.</div>
+    </div>`);
+    document.getElementById("psi21").addEventListener("change", (e) => {
+      EXP.d21.psi = +e.target.value;
+      EXP.d21.asked = {}; EXP.d21.order = [];
+      render();
+    });
+  }
 
   /* spectrum strip: shell shares as segments (odd shells appear once
      evidence breaks the output-negation symmetry) */
