@@ -1886,20 +1886,29 @@ for their average (checked: all three coincide numerically). The
 general formula confirms it: here $H(p) = 1 + h(\pi)$, so
 $\mathbb{E}[\text{after}] = 1 + h(\pi) - 1 = h(\pi)$.
 
-**The expected information gained from the first question** is the drop
-in $H(M)$: from $2$ to $h(\pi)$, i.e.
+**Information received vs knowledge gained.** The expected information
+*received* from the first question is the entropy of the answer itself —
+the asked column's entropy, which is also the expected surprisal of the
+answer. In the symmetric family the column is a fair coin, so exactly
+$1$ bit is received, whatever $\pi$. The expected knowledge *gained* is
+the drop in $H(M)$: from $2$ to $h(\pi)$,
 
 $$
-\Delta = 2 - h(\pi) \;=\; \underbrace{1}_{\text{direct}} \;+\; \underbrace{1 - h(\pi)}_{\text{deduced}},
+\Delta = 2 - h(\pi) \;=\; \underbrace{1}_{\text{received}} \;+\; \underbrace{1 - h(\pi)}_{\text{deduced}},
 $$
 
-decomposing exactly as the two-ledger accounting says it must: $1$ bit
-arrives through the asked column (which is also the expected surprisal
-received — the lemma $\Delta H(q) = H_B(q)$ with a fair-coin column),
-and $1 - h(\pi) = I(A_0;A_1) = C(p)$ is withdrawn from the tower. For
-general weights the same statement reads: asking $q$ gains
-$H_B(q) + I(A_0;A_1)$ in expectation, and a uniformly-random question
-gains $\tfrac12\sum_q H_B(q) + I(A_0;A_1)$.
+the deduced part being $I(A_0;A_1) = C(p)$, withdrawn from the tower.
+The contrast of the two is the **leverage** of the question:
+
+$$
+\mathrm{lev} = \frac{\text{knowledge gained}}{\text{information received}}
+= \frac{2 - h(\pi)}{1} = 2 - h(\pi) \in [1, 2].
+$$
+
+For general weights: asking $q$ receives $H_B(q)$ and gains
+$H_B(q) + I(A_0;A_1)$ in expectation; a uniformly-random question
+receives $\tfrac12\sum_q H_B(q)$ and gains
+$\tfrac12\sum_q H_B(q) + I(A_0;A_1)$.
 
 **Reading the curve $h(\pi)$.** The first answer settles the
 *within-class* coordinate (which constant / which non-constant it would
@@ -1920,6 +1929,114 @@ whole one-question learning problem reduces to one binary entropy:
 Every dynamical notion of the preceding sections — transfer, leverage,
 the observation/deduction split — is, in this miniature, a rescaling of
 the single function $h(\pi)$.
+
+### The expected trajectory: a discrete derivative of block entropies
+
+The $n=m=1$ miniature generalizes completely. Fix an arbitrary prior
+$p$ (any $n$, $m$) and run the protocol for $\ell$ rounds under **two
+averages at once**, stated carefully because both matter:
+
+1. **Over question orders** — questions are drawn uniformly without
+   replacement. After $\ell$ rounds the asked *set* $S$ is uniform over
+   all $\binom{2^n}{\ell}$ subsets of size $\ell$ (every set is the
+   prefix of equally many orderings), and the order *within* the prefix
+   is irrelevant: every state quantity depends on the history only
+   through $S$, including the cumulative surprisal, whose per-step
+   conditionals telescope to the block probability
+   $P(A_S = a_S)$ regardless of the order in which the block was
+   revealed.
+2. **Over maps** — the truth is $\psi \sim p$, so the answer block
+   $a_S = \psi(S)$ arrives with exactly the predictive probability
+   $P(A_S = a_S)$. Averaging over $\psi$ with weights $p_j$ *is*
+   averaging over answers with the belief's own block probabilities.
+
+Define the mean block entropy at size $k$,
+
+$$
+G_k := \binom{2^n}{k}^{-1} \sum_{|S| = k} H(A_S),
+\qquad G_0 = 0,\quad G_{2^n} = H(p),
+$$
+
+a single monotone sequence. Two exact laws follow.
+
+**Information received.** For a fixed set $S$, the expected cumulative
+surprisal is the chain rule collapsing:
+$\mathbb{E}\big[\sum_i \mathrm{surp}_i\big] =
+\mathbb{E}\big[-\log_2 P(A_S = \psi(S))\big] = H(A_S)$. Averaging over
+sets:
+
+$$
+\mathrm{received}(\ell) = G_\ell.
+$$
+
+**Knowledge remaining.** For a fixed $S$ and realized answers, the
+matrix entropy is $\sum_{q'} H(A_{q'} \mid A_S = a_S)$; in expectation
+over the answers this is $\sum_{q'} H(A_{q'}\mid A_S) =
+\sum_{q'\notin S}\big[H(A_{S\cup q'}) - H(A_S)\big]$ (asked columns
+contribute zero). Now average over $S$: each set of size $\ell{+}1$
+arises as $S \cup \{q'\}$ once per element, so the first sum
+double-counts every $(\ell{+}1)$-block exactly $\ell{+}1$ times, and
+with $(\ell{+}1)\binom{2^n}{\ell+1} = (2^n{-}\ell)\binom{2^n}{\ell}$,
+
+$$
+\mathbb{E}\big[H(M) \text{ after } \ell\big]
+= (2^n - \ell)\,\big(G_{\ell+1} - G_\ell\big).
+$$
+
+The whole expected learning curve is the **discrete derivative of the
+block-entropy sequence**, scaled by the number of remaining questions
+(verified against brute force for random priors at $(2,1)$ and $(3,1)$,
+every $\ell$, to $10^{-9}$; `expected_trajectory.py`). Sanity: $\ell=0$
+returns $H(M)_0$; $\ell = 2^n$ returns $0$; and the $n=m=1$ case gives
+$\mathbb{E}[\text{after }1] = H(p) - \tfrac12\sum_q H_B(q)$, which is
+$h(\pi)$ in the symmetric family — the miniature recovered.
+
+**Conservation and leverage.** Since received and remaining share the
+extensive axis, define the deduced part by conservation:
+
+$$
+\mathrm{deduced}(\ell) := H(M)_0 - \mathrm{remaining}(\ell) - G_\ell \;\geq\; 0,
+$$
+
+nonnegative always (it equals
+$\mathrm{avg}_S\big[\sum_{q'} I(A_{q'};A_S)\big] - G_\ell$, and already
+the asked columns' terms $\sum_{q'\in S} H_B(q') \geq H(A_S)$ cover
+$G_\ell$ by subadditivity), and zero for product priors. The cumulative
+expected leverage is
+$\big[\mathrm{received} + \mathrm{deduced}\big]/\mathrm{received}$,
+ending at the whole-run value $H(M)_0 / H(p)$.
+
+**Tractability.** Two structural facts keep this computable. First, a
+*truncation theorem*: the block joints of $\ell{+}1$ questions are
+determined by the correlator ledger's shells $0,\ldots,\ell{+}1$, so
+the trajectory out to round $\ell$ never sees the deeper tower. In
+particular round one is a closed *vector* formula for any
+output-negation-symmetric prior at $m{=}1$:
+$\mathbb{E}[\text{after }1] = (2^n{-}1)\cdot
+\mathrm{avg}_{\text{pairs}}\, h\big(\tfrac{1+\rho_{qq'}}{2}\big)$ —
+Hadamard transform, slice the pair shell, apply $h$ pointwise, average
+(verified on the $(3,1)$ Gibbs prior; the $n=m=1$ answer $h(\pi)$ is
+the one-pair case, $\rho = 2\pi - 1$). Second, for relabeling-invariant
+priors $H(A_S)$ is constant on block *orbits* of the input group, so
+the subset averages reduce to a handful of orbit representatives —
+distance classes at $\ell = 1$, still polynomially few beyond.
+
+**The conservation stack in practice.** For the $(3,1)$ Gibbs prior
+with $\gamma = 1.2$, $\lambda = 0.25$ and $\mu \in \{0, 0.25\}$, the
+three pieces at every $\ell$ (bars sum to $H(M)_0$ by construction):
+
+![expected trajectory conservation stack, (3,1)](figures/expected_trajectory_3to1.png)
+
+Readings: at $\mu = 0$ the stack starts at $H(M)_0 = 8$ exactly and
+the first question receives exactly $1$ bit — law 2, twice. At
+$\mu = 0.25$ the stack starts at $5.76$: the weight field has *pre-paid*
+part of the table at prior-construction time, and a first question
+receives only $0.72$ bits (its column is no longer a fair coin). In
+both cases the deduced share grows and then **saturates one round
+early** — the last question deduces nothing, since nothing unasked
+remains to correlate with — and the run leverage lands at
+$H(M)_0/H(p) \approx 1.42$ for both fields, an accident of these
+particular couplings rather than an invariance.
 
 ## $\epsilon_j$ under uniform $P(q)$
 
