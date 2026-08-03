@@ -1342,7 +1342,12 @@ function render() {
       the blue top and the gray before-line: the gap is what the whole ledger destroyed, the aqua is
       what the single-question channel delivered — gap bigger than aqua means correlations
       <em>amplified</em> the answer (the tooltip reports the leverage ratio). Blue area = expected
-      entropy after one random step (orange line).</p>
+      entropy after one random step (orange line). <b>The orange line is a running measure of how
+      good the box is, right now, at a random question from the full domain</b>: the ignorance you
+      expect to remain after one more random interaction. That is why already-asked questions belong
+      in the mosaic — a random quiz includes them, and the box answers them perfectly: their columns
+      hold zero entropy and their steps destroy nothing further. As the box masters the domain, both
+      lines sink to zero together.</p>
       ${legendHtml([["var(--blue)", "survives the step"], ["var(--aqua)", "face-value surprisal −log₂P(a|q)"]])}
       <div class="chartbox">${inner}</div>
       ${note}</div>`;
