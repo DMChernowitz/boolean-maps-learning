@@ -848,11 +848,12 @@ function mlChart(series, opts) {
 }
 
 /* exact (2,1) leverage curves: all 16 subsets enumerated, answers from
-   the chosen psi; greedy is deterministic (first-max tie-break) */
+   the chosen psi (or the p-weighted average over ALL 16 maps);
+   greedy is deterministic per psi (first-max tie-break) */
+let psi21Avg = false;   // card-local mode: average over psi ~ p
 function curves21(FLD) {
   const ds = DATASETS[0];
   if (!ds.S) computeFeatures(ds);
-  const psiJ = ds.psi[EXP.d21.psi].j;
   const nq = 4;
   const stateStats = (asked) => {
     const p = belief(ds, FLD, asked);
@@ -881,32 +882,59 @@ function curves21(FLD) {
     return { ent: s2.tot, linst: s2.linst, HB: s2.HB,
              lcum: surp > 1e-12 ? (tot0 - s2.tot) / surp : 1 };
   };
-  const rand = { ent: [], linst: [], lcum: [] };
-  for (let k = 0; k <= nq; k++) {
-    let cE = 0, cI = 0, cC = 0, cnt = 0;
-    for (let S2 = 0; S2 < 16; S2++) {
-      if (POP16[S2] !== k) continue;
-      const asked = {};
-      for (let q = 0; q < nq; q++)
-        if ((S2 >> q) & 1) asked[q] = digit(ds, psiJ, q);
-      const v = mk(asked);
-      cE += v.ent; cI += v.linst; cC += v.lcum; cnt++;
+  const one = (psiJ) => {
+    const rand = { ent: [], linst: [], lcum: [] };
+    for (let k = 0; k <= nq; k++) {
+      let cE = 0, cI = 0, cC = 0, cnt = 0;
+      for (let S2 = 0; S2 < 16; S2++) {
+        if (POP16[S2] !== k) continue;
+        const asked = {};
+        for (let q = 0; q < nq; q++)
+          if ((S2 >> q) & 1) asked[q] = digit(ds, psiJ, q);
+        const v = mk(asked);
+        cE += v.ent; cI += v.linst; cC += v.lcum; cnt++;
+      }
+      rand.ent.push(cE / cnt); rand.linst.push(cI / cnt); rand.lcum.push(cC / cnt);
     }
-    rand.ent.push(cE / cnt); rand.linst.push(cI / cnt); rand.lcum.push(cC / cnt);
+    const greedy = { ent: [], linst: [], lcum: [] };
+    const asked = {};
+    for (let k = 0; k <= nq; k++) {
+      const v = mk(asked);
+      greedy.ent.push(v.ent); greedy.linst.push(v.linst); greedy.lcum.push(v.lcum);
+      if (k === nq) break;
+      let best = -1, bv = -1;
+      for (let q = 0; q < nq; q++)
+        if (!(q in asked) && v.HB[q] > bv + 1e-12) { bv = v.HB[q]; best = q; }
+      asked[best] = digit(ds, psiJ, best);
+    }
+    const pPsi = Math.max(p0[psiJ], 1e-300);
+    return { rand, greedy, pPsi, endpoint: tot0 / (-Math.log2(pPsi)) };
+  };
+  if (!psi21Avg) {
+    const c = one(ds.psi[EXP.d21.psi].j);
+    return { ...c, tot0, avg: false };
   }
-  const greedy = { ent: [], linst: [], lcum: [] };
-  const asked = {};
-  for (let k = 0; k <= nq; k++) {
-    const v = mk(asked);
-    greedy.ent.push(v.ent); greedy.linst.push(v.linst); greedy.lcum.push(v.lcum);
-    if (k === nq) break;
-    let best = -1, bv = -1;
-    for (let q = 0; q < nq; q++)
-      if (!(q in asked) && v.HB[q] > bv + 1e-12) { bv = v.HB[q]; best = q; }
-    asked[best] = digit(ds, psiJ, best);
+  // p-weighted average over all 16 possible truths (still exact)
+  const zero = () => ({ ent: new Array(nq + 1).fill(0),
+                        linst: new Array(nq + 1).fill(0),
+                        lcum: new Array(nq + 1).fill(0) });
+  const rand = zero(), greedy = zero();
+  let endpoint = 0;
+  for (let j = 0; j < 16; j++) {
+    const w = p0[j];
+    if (w < 1e-14) continue;
+    const c = one(j);
+    for (let k = 0; k <= nq; k++) {
+      rand.ent[k] += w * c.rand.ent[k];
+      rand.linst[k] += w * c.rand.linst[k];
+      rand.lcum[k] += w * c.rand.lcum[k];
+      greedy.ent[k] += w * c.greedy.ent[k];
+      greedy.linst[k] += w * c.greedy.linst[k];
+      greedy.lcum[k] += w * c.greedy.lcum[k];
+    }
+    endpoint += w * c.endpoint;
   }
-  const pPsi = Math.max(p0[psiJ], 1e-300);
-  return { rand, greedy, tot0, pPsi, endpoint: tot0 / (-Math.log2(pPsi)) };
+  return { rand, greedy, tot0, endpoint, avg: true };
 }
 
 /* horizontal bar list (for the 16 explicit p_j) */
@@ -1262,8 +1290,10 @@ function render() {
   {
     const cv = curves21(FLD);
     const ds21 = DATASETS[0];
-    const psiOpts21 = ds21.psi.map((o, i) =>
-      `<option value="${i}"${i === EXP.d21.psi ? " selected" : ""}>${esc(o.name)} — C=${o.C}</option>`).join("");
+    const psiOpts21 =
+      `<option value="avg"${psi21Avg ? " selected" : ""}>Average over all ψ (weighted by p_ψ)</option>` +
+      ds21.psi.map((o, i) =>
+        `<option value="${i}"${!psi21Avg && i === EXP.d21.psi ? " selected" : ""}>${esc(o.name)} — C=${o.C}</option>`).join("");
     document.getElementById("learn").insertAdjacentHTML("beforeend", `
     <div class="card" style="margin-top:14px"><h2>Live (2,1): the run in miniature — exact, no Monte Carlo</h2>
       <p class="cap">Always the n=2, m=1 system (whatever tab is active), under the current fields and
@@ -1271,9 +1301,13 @@ function render() {
       enumerating all 16 prefix sets; greedy is deterministic. Left: total answer entropy
       Σ H<sub>B</sub> after k unique questions. Right: leverage — instantaneous (the state's
       destroyed-per-face-value forecast) and cumulative (realized totals so far; k=0 is 0/0,
-      defined as 1). Both policies are pinned to the same exact endpoint
+      defined as 1). ${cv.avg
+        ? `Curves are the p-weighted average over all 16 possible truths — still exact (16 maps ×
+      16 prefix sets). Expected endpoint E<sub>ψ</sub>[(H+C)/(−log₂ p<sub>ψ</sub>)] =
+      <b>${cv.endpoint.toFixed(3)}</b>.`
+        : `Both policies are pinned to the same exact endpoint
       (H+C)/(−log₂ p<sub>ψ</sub>) = <b>${cv.endpoint.toFixed(3)}</b>
-      (p<sub>ψ</sub> = ${cv.pPsi.toFixed(4)}).</p>
+      (p<sub>ψ</sub> = ${cv.pPsi.toFixed(4)}).`}</p>
       <div class="row" style="margin-bottom:8px">
         <label class="inline" for="psi21">(2,1) true map &psi;</label>
         <select id="psi21" style="font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--page);color:var(--ink)">${psiOpts21}</select>
@@ -1299,8 +1333,13 @@ function render() {
       the question order.</div>
     </div>`);
     document.getElementById("psi21").addEventListener("change", (e) => {
-      EXP.d21.psi = +e.target.value;
-      EXP.d21.asked = {}; EXP.d21.order = [];
+      if (e.target.value === "avg") {
+        psi21Avg = true;
+      } else {
+        psi21Avg = false;
+        EXP.d21.psi = +e.target.value;
+        EXP.d21.asked = {}; EXP.d21.order = [];
+      }
       render();
     });
   }
