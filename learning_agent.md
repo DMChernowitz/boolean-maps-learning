@@ -1841,10 +1841,14 @@ quantity above is an elementary expression. By the numeral convention:
 
 $$
 \sum_q H_B(q) = h(p_1 + p_3) + h(p_2 + p_3),
+\qquad
+h(x) := -x\log_2 x - (1-x)\log_2(1-x),
 $$
 
-with $h$ the binary entropy ($M_{1,0} = p_1{+}p_3$, $M_{1,1} = p_2{+}p_3$
-by the bit-$q$-of-$j$ rule).
+with $h$ the binary entropy — the entropy of a coin of bias $x$, zero
+at $x\in\{0,1\}$, maximal ($1$ bit) at $x=\tfrac12$ — and
+$M_{1,0} = p_1{+}p_3$, $M_{1,1} = p_2{+}p_3$ by the bit-$q$-of-$j$
+rule.
 
 **After one uniformly-random question**, averaged over the answers with
 their prior weights: the asked column drops to zero and the other is
