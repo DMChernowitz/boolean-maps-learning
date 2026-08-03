@@ -1310,8 +1310,13 @@ function render() {
     // independent check: sum of the expected-gain forecasts (which are in
     // mean-per-question units, hence already carry the uniform 1/2^n)
     const gainSum = gains.reduce((s2, g) => s2 + (g ? g.own + g.tr : 0), 0);
-    const note = `<div class="insight">Width and height anti-correlate: the improbable answers (narrow
-      bars) collapse the most. Area check: ${area.toFixed(3)} = Σ H<sub>B</sub> before
+    const note = `<div class="insight">Width and height <b>tend to correlate</b> — statistically, not
+      as a law. The limiting cases are forced: as P(a|q) → 1 a step becomes a no-op and its wide bar
+      must ride the before-line (re-asks are the extreme), and in expectation the narrow branches must
+      sit low enough to pay for that. But individual bars break the trend in both directions: a narrow
+      bar can land <em>above</em> the line (a surprise that flattened the model), and a wide bar can
+      still cut deep when the expected answer carries strong correlations. Area check:
+      ${area.toFixed(3)} = Σ H<sub>B</sub> before
       (${beforeTot.toFixed(3)}) &minus; the summed expected gains from the chart above
       (${gainSum.toFixed(3)}) = ${(beforeTot - gainSum).toFixed(3)} — mosaic and forecast are the
       same bookkeeping.
