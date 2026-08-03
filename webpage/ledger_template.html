@@ -705,6 +705,46 @@ function stackChart(items, opts) {
   return s;
 }
 
+/* step mosaic: bars sorted by resulting entropy, width = step prob */
+function mosaicChart(ds, steps, area, HbarNow) {
+  const W = 520, H = 235, padL = 44, padR = 8, padT = 12, padB = 32;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const ymax = ds.m;
+  const y = v => padT + ih - (v / ymax) * ih;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="step mosaic: resulting entropy by step probability">`;
+  for (const tv of [0, ymax / 2, ymax]) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(1), { anchor: "end", size: 10, mono: true });
+  }
+  for (const fx of [0, 0.5, 1]) {
+    s += txt(padL + fx * iw, H - padB + 14, fx.toFixed(1), { size: 10, mono: true });
+  }
+  s += axisLine(padL, y(0), W - padR, y(0));
+  let acc = 0;
+  for (const st2 of steps) {
+    const x0 = padL + acc * iw, wpx = st2.w * iw;
+    acc += st2.w;
+    const tip = `ask ${qstr(ds, st2.q)} → hear ${astr(ds, st2.a)}` +
+      `\nstep probability ${(100 * st2.w).toFixed(2)}%  (P(a|q) = ${st2.pa.toFixed(3)})` +
+      `\nresulting ⟨H_B⟩ = ${st2.h.toFixed(4)} bits` +
+      `\n  on the asked column: 0 (exact)` +
+      `\n  on the other columns: ${st2.h.toFixed(4)}`;
+    if (st2.h > 1e-9 && wpx > 0.4)
+      s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(st2.h)}" width="${Math.max(wpx - 1, 0.8).toFixed(2)}" height="${(y(0) - y(st2.h)).toFixed(2)}" fill="var(--blue)" data-tip="${esc(tip)}"/>`;
+    else if (wpx > 0.4)
+      s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(0) - 3}" width="${Math.max(wpx - 1, 0.8).toFixed(2)}" height="3" fill="var(--axis)" data-tip="${esc(tip)}"/>`;
+    if (wpx > 40)
+      s += txt(x0 + wpx / 2, y(st2.h) - 4, `${qstr(ds, st2.q)}→${astr(ds, st2.a)}`,
+        { size: 9, mono: true, fill: "var(--ink2)" });
+  }
+  // reference lines: expected entropy after (orange), current (muted)
+  s += `<line x1="${padL}" y1="${y(HbarNow)}" x2="${W - padR}" y2="${y(HbarNow)}" stroke="var(--muted)" stroke-width="2" opacity="0.55" data-tip="${esc("current ⟨H_B⟩ = " + HbarNow.toFixed(4))}"/>`;
+  s += `<line x1="${padL}" y1="${y(area)}" x2="${W - padR}" y2="${y(area)}" stroke="var(--orange)" stroke-width="2" data-tip="${esc("expected ⟨H_B⟩ after one random step = " + area.toFixed(4) + " (the shaded area)")}"/>`;
+  s += txt(padL + iw / 2, H - 4, "cumulative step probability", { size: 11 });
+  s += "</svg>";
+  return s;
+}
+
 /* horizontal bar list (for the 16 explicit p_j) */
 function hbarChart(items, opts) {
   const W = 520, rowH = 19, padL = opts.padL || 150, padR = 46, padT = 6;
@@ -1227,6 +1267,57 @@ function render() {
     is blind to tiers 0–2, while half-space parities already see odd restrictions at C=2. A lead change between multiplets,
     not a broken symmetry.` : `At high &gamma; the winners are the complexity-0 parities.`}`}</div>
     </div>`;
+
+  // Card 5b: the step mosaic — every possible next (q, a), width = its
+  // probability, height = the entropy that survives it
+  {
+    const rem = [];
+    for (let q = 0; q < nq; q++) if (!(q in st.asked)) rem.push(q);
+    let inner, note = "";
+    if (rem.length === 0) {
+      inner = `<div class="cap" style="margin-top:8px">All questions asked — no next steps remain.</div>`;
+    } else {
+      const steps2 = [];
+      let impossible = 0;
+      for (const q of rem) {
+        const condH = new Float64Array(K);
+        for (let q2 = 0; q2 < nq; q2++) {
+          if (q2 === q) continue;
+          const J = pairJoint(ds, r.hat, q, q2);
+          for (let a = 0; a < K; a++) {
+            const pa = cols[q][a];
+            if (pa < 1e-12) continue;
+            condH[a] += colEntropy(J[a].map(x => x / pa));
+          }
+        }
+        for (let a = 0; a < K; a++) {
+          const pa = cols[q][a];
+          if (pa < 1e-12) { impossible++; continue; }
+          steps2.push({ q, a, pa, w: pa / rem.length, h: condH[a] / nq });
+        }
+      }
+      steps2.sort((x2, y2) => y2.h - x2.h);
+      const area = steps2.reduce((s2, x2) => s2 + x2.w * x2.h, 0);
+      const HbarNow = HB.reduce((s2, x2) => s2 + x2, 0) / nq;
+      const meanGain = rem.reduce((s2, q) => s2 + gains[q].own + gains[q].tr, 0) / rem.length;
+      inner = mosaicChart(ds, steps2, area, HbarNow);
+      note = `<div class="insight">Width and height anti-correlate: the improbable answers (narrow bars)
+      are the ones that collapse the most. Area check: ${area.toFixed(4)} = current ⟨H<sub>B</sub>⟩
+      (${HbarNow.toFixed(4)}) &minus; the average expected gain from the bar chart above
+      (${meanGain.toFixed(4)}) — the mosaic and the forecast are the same bookkeeping.
+      ${impossible > 0 ? `${impossible} of the ${rem.length * K} candidate steps have probability
+      0 under the current posterior (answers already ruled out) and carry no width.` : ""}</div>`;
+    }
+    html += `<div class="card"><h2>One step ahead: the step mosaic</h2>
+      <p class="cap">Every possible next step — pick an unasked q (uniform), hear an answer a
+      (probability from M's column) — as one bar: width = the step's probability, height = the
+      average answer entropy ⟨H<sub>B</sub>⟩ that <em>survives</em> the update, sorted tallest first.
+      The on-q share of each bar is exactly zero (the asked column collapses), so the entire height
+      is entropy on the other columns; the shaded area is the expected entropy after one random step
+      (orange line), against the current value (gray line).</p>
+      <div class="chartbox">${inner}</div>
+      ${note}</div>`;
+  }
 
   // Card 6: the complete 15-entry ledger, (2,1) only (the weights live
   // in the survivor table above, which for (2,1) always shows all maps)
