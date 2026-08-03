@@ -726,25 +726,30 @@ function mosaicChart(ds, steps, area, beforeTot) {
   for (const st2 of steps) {
     const x0 = padL + acc * iw, wpx = st2.w * iw;
     acc += st2.w;
-    const tr = beforeTot - st2.own - st2.h;
+    const destroyed = beforeTot - st2.h;
     const tip = `ask ${qstr(ds, st2.q)} → hear ${astr(ds, st2.a)}` +
       (st2.rep ? "  (already asked — wasted step)" : "") +
       `\nstep probability ${(100 * st2.w).toFixed(2)}%  (P(a|q) = ${st2.pa.toFixed(3)})` +
+      `\nface-value surprisal −log₂P(a|q): ${st2.surp.toFixed(3)} bits` +
       `\nΣ H_B before: ${beforeTot.toFixed(3)} bits` +
       `\nΣ H_B after:  ${st2.h.toFixed(3)} bits (survives)` +
-      `\n  destroyed on q (its pre-step entropy): ${st2.own.toFixed(3)}` +
-      `\n  destroyed via correlations: ${tr.toFixed(3)}${tr < -1e-9 ? " (negative: other columns rose)" : ""}`;
+      `\ndestroyed in total: ${destroyed.toFixed(3)}${destroyed < -1e-9 ? " (negative: the ledger rose)" : ""}` +
+      `\n  of which on q: ${st2.own.toFixed(3)}   via correlations: ${(destroyed - st2.own).toFixed(3)}` +
+      `\nleverage (destroyed / face value): ${st2.surp > 1e-9 ? (destroyed / st2.surp).toFixed(2) : "—"}`;
     if (wpx > 0.4) {
       const xw = Math.max(wpx - 1, 0.8).toFixed(2);
       if (st2.h > 1e-9)
         s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(st2.h)}" width="${xw}" height="${(y(0) - y(st2.h)).toFixed(2)}" fill="var(--blue)" data-tip="${esc(tip)}"/>`;
-      if (st2.own > 1e-9)
-        s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(st2.h + st2.own)}" width="${xw}" height="${Math.max(y(st2.h) - y(st2.h + st2.own) - 1, 0.6).toFixed(2)}" fill="var(--aqua)" data-tip="${esc(tip)}"/>`;
-      if (st2.h + st2.own < 1e-9)
+      if (st2.surp > 1e-9) {
+        const yTop = Math.max(y(st2.h + st2.surp), padT);   // clamp huge surprisals
+        const hgt = Math.max(y(st2.h) - yTop - 1, 0.6);
+        s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${yTop.toFixed(2)}" width="${xw}" height="${hgt.toFixed(2)}" fill="var(--aqua)" data-tip="${esc(tip)}"/>`;
+      }
+      if (st2.h + st2.surp < 1e-9)
         s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(0) - 3}" width="${xw}" height="3" fill="var(--axis)" data-tip="${esc(tip)}"/>`;
     }
     if (wpx > 40)
-      s += txt(x0 + wpx / 2, y(Math.max(st2.h + st2.own, st2.h)) - 4,
+      s += txt(x0 + wpx / 2, Math.max(y(st2.h + st2.surp), padT) - 4,
         `${qstr(ds, st2.q)}→${astr(ds, st2.a)}`,
         { size: 9, mono: true, fill: "var(--ink2)" });
   }
@@ -1302,7 +1307,8 @@ function render() {
       for (let a = 0; a < K; a++) {
         const pa = cols[q][a];
         if (pa < 1e-12) { impossible++; continue; }
-        steps2.push({ q, a, pa, rep, w: pa / nq, h: condH[a], own: HB[q] });
+        steps2.push({ q, a, pa, rep, w: pa / nq, h: condH[a],
+                      own: HB[q], surp: -Math.log2(pa) });
       }
     }
     steps2.sort((x2, y2) => y2.h - x2.h);
@@ -1330,12 +1336,14 @@ function render() {
       including already-asked ones), hear an answer a with probability from M's column — as one bar:
       width = the step's probability, height = the <em>total</em> answer entropy
       Σ<sub>q'</sub> H<sub>B</sub>(q') that survives the update, sorted tallest first.
-      Stacked on top in aqua: the entropy the asked column carried <em>before</em> the step
-      (destroyed with certainty; zero for re-asks). The gap between the stack and the gray
-      before-line is what correlations destroyed — bars poking <em>above</em> the line are anomaly
-      steps that raised other columns. Blue area = expected entropy after one random step
-      (orange line).</p>
-      ${legendHtml([["var(--blue)", "survives the step"], ["var(--aqua)", "was on the asked q (destroyed)"]])}
+      Stacked on top in aqua: the answer's <em>face-value</em> information content,
+      −log₂ P(a|q) — how surprising this answer is in the context of its single question
+      (zero for forced re-asks, different for each a). Compare the aqua segment to the gap between
+      the blue top and the gray before-line: the gap is what the whole ledger destroyed, the aqua is
+      what the single-question channel delivered — gap bigger than aqua means correlations
+      <em>amplified</em> the answer (the tooltip reports the leverage ratio). Blue area = expected
+      entropy after one random step (orange line).</p>
+      ${legendHtml([["var(--blue)", "survives the step"], ["var(--aqua)", "face-value surprisal −log₂P(a|q)"]])}
       <div class="chartbox">${inner}</div>
       ${note}</div>`;
   }
