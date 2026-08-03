@@ -761,6 +761,60 @@ function mosaicChart(ds, steps, area, beforeTot) {
   return s;
 }
 
+/* leverage mosaic: same widths/order as the step mosaic; height =
+   (entropy destroyed) / (face-value surprisal), signed; re-asks 0/0 = 1 */
+function leverageChart(ds, steps, beforeTot, agg) {
+  const W = 520, H = 240, padL = 44, padR = 8, padT = 12, padB = 32;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const levs = steps.map(s2 => {
+    const d = beforeTot - s2.h;
+    return s2.surp > 1e-9 ? d / s2.surp : 1;
+  });
+  let hi = 2, lo = 0;
+  for (const v of levs) { hi = Math.max(hi, v); lo = Math.min(lo, v); }
+  hi = Math.min(Math.max(hi, agg) * 1.12, 8);
+  lo = Math.max(lo * 1.12, -3);
+  const y = v => padT + ((hi - v) / (hi - lo)) * ih;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="leverage per step: destroyed over face value">`;
+  const ticks = [...new Set([lo < 0 ? Math.ceil(lo * 10) / 10 : null, 0, 1,
+    Math.floor(hi * 10) / 10].filter(v => v !== null))];
+  for (const tv of ticks) {
+    s += gridLine(padL, y(tv), W - padR, y(tv));
+    s += txt(padL - 6, y(tv) + 3.5, tv.toFixed(1), { anchor: "end", size: 10, mono: true });
+  }
+  for (const fx of [0, 0.5, 1])
+    s += txt(padL + fx * iw, H - padB + 14, fx.toFixed(1), { size: 10, mono: true });
+  s += axisLine(padL, y(0), W - padR, y(0));
+  let acc = 0;
+  steps.forEach((st2, i) => {
+    const x0 = padL + acc * iw, wpx = st2.w * iw;
+    acc += st2.w;
+    const d = beforeTot - st2.h;
+    const lev = levs[i];
+    const clamped = lev > hi || lev < lo;
+    const vDraw = Math.max(Math.min(lev, hi), lo);
+    const tip = `ask ${qstr(ds, st2.q)} → hear ${astr(ds, st2.a)}` +
+      (st2.rep ? "  (re-ask: 0/0, defined as 1)" : "") +
+      `\ndestroyed: ${d.toFixed(3)} bits   face value: ${st2.surp.toFixed(3)} bits` +
+      `\nleverage = ${st2.rep ? "1 (by convention)" : lev.toFixed(3)}${clamped ? "  (bar clamped to axis)" : ""}`;
+    if (wpx > 0.4 && Math.abs(vDraw) > 1e-9) {
+      const yA = Math.min(y(0), y(vDraw)), hgt = Math.abs(y(vDraw) - y(0));
+      s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${yA.toFixed(2)}" width="${Math.max(wpx - 1, 0.8).toFixed(2)}" height="${hgt.toFixed(2)}" fill="${lev < 0 ? "var(--red)" : "var(--blue)"}" data-tip="${esc(tip)}"/>`;
+    } else if (wpx > 0.4) {
+      s += `<rect x="${(x0 + 0.5).toFixed(2)}" y="${y(0) - 3}" width="${Math.max(wpx - 1, 0.8).toFixed(2)}" height="3" fill="transparent" data-tip="${esc(tip)}"/>`;
+    }
+    if (wpx > 40)
+      s += txt(x0 + wpx / 2, y(Math.max(vDraw, 0)) - 4,
+        `${qstr(ds, st2.q)}→${astr(ds, st2.a)}`,
+        { size: 9, mono: true, fill: "var(--ink2)" });
+  });
+  s += `<line x1="${padL}" y1="${y(1)}" x2="${W - padR}" y2="${y(1)}" stroke="var(--muted)" stroke-width="2" opacity="0.55" data-tip="${esc("unit leverage: destroyed = face value")}"/>`;
+  s += `<line x1="${padL}" y1="${y(agg)}" x2="${W - padR}" y2="${y(agg)}" stroke="var(--orange)" stroke-width="2" data-tip="${esc("aggregate (totals before dividing): " + agg.toFixed(3) + " = Σ(H_B + T) / Σ H_B")}"/>`;
+  s += txt(padL + iw / 2, H - 4, "cumulative step probability (same order as the mosaic)", { size: 11 });
+  s += "</svg>";
+  return s;
+}
+
 /* horizontal bar list (for the 16 explicit p_j) */
 function hbarChart(items, opts) {
   const W = 520, rowH = 19, padL = opts.padL || 150, padR = 46, padT = 6;
@@ -1351,6 +1405,29 @@ function render() {
       ${legendHtml([["var(--blue)", "survives the step"], ["var(--aqua)", "face-value surprisal −log₂P(a|q)"]])}
       <div class="chartbox">${inner}</div>
       ${note}</div>`;
+
+    // Card 5c: the leverage mosaic — same bars, height = destroyed/face
+    const aggNum = steps2.reduce((s2, x2) => s2 + x2.w * (beforeTot - x2.h), 0);
+    const aggDen = steps2.reduce((s2, x2) => s2 + x2.w * x2.surp, 0);
+    const agg = aggDen > 1e-12 ? aggNum / aggDen : 1;
+    html += `<div class="card"><h2>Leverage: bits destroyed per bit of surprisal</h2>
+      <p class="cap">The same steps, same widths, same order as the mosaic — but the height is now
+      the signed <em>ratio</em> of the total entropy the step destroys to the answer's face-value
+      information −log₂ P(a|q). Above the gray unit line, correlations amplify the answer;
+      below it, the answer under-delivers; negative (red) bars are anomalies that raised the ledger.
+      Re-asks are 0/0, defined as unit. Extreme ratios clamp to the axis (exact values in the
+      tooltip). The orange line is the aggregate with <b>totals summed before dividing</b>:
+      Σ destroyed / Σ face value = (Σ H<sub>B</sub> + T) / Σ H<sub>B</sub> — exactly the inverse of
+      the observation share from the information-flow accounting, i.e. 1 + deduction/observation.</p>
+      <div class="chartbox">${leverageChart(ds, steps2, beforeTot, agg)}</div>
+      <div class="insight">Right now each face-value bit of answer destroys
+      <b>${agg.toFixed(2)}</b> bits of answer entropy on aggregate${agg > 1
+        ? " — the correlation reservoir is amplifying observation into deduction."
+        : agg < 1 - 1e-9 ? " — the reservoir is nearly spent (or the fields are off): answers barely echo."
+        : "."}
+      Per-bar ratios are noisy where the denominator is small; trust the orange totals-first
+      aggregate, which is exact.</div>
+      </div>`;
   }
 
   // Card 6: the complete 15-entry ledger, (2,1) only (the weights live
