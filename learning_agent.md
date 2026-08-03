@@ -643,11 +643,34 @@ C(p) := \sum_{q\in Q} H_B(q) - H(p) \;\geq\; 0,
 $$
 
 zero exactly when the prior makes all answers independent of each other.
-This gives an exact identity, valid for any $n$, $m$, and prior $p$:
+
+This suggests the right formalism: define the **entropy of $M$** as the
+*sum* of the column entropies,
 
 $$
-\langle H_B\rangle_Q = \frac{H(p) + C(p)}{2^n},
-\qquad
+H(M) := \sum_{q\in Q} H_B(q),
+$$
+
+an **extensive** quantity. Under the uniform prior it equals
+$m\cdot 2^n$ — exactly the total information required to fill in the
+whole table, doubling with every increment of $n$ (a fully agnostic
+learner faces twice the work at $n{+}1$) — and, crucially, it lives on
+the *same axis* as received information: surprisal in, reduction of
+$H(M)$ out, directly comparable bit for bit. In general $H(M)$
+*over*counts what remains to be learned: each column is priced
+independently, so shared information is charged once per column that
+carries it, and the overcount is exactly the tower,
+
+$$
+H(M) = H(p) + C(p)
+$$
+
+— the exact identity, valid for any $n$, $m$, and prior $p$. The
+per-question *density* $\langle H_B\rangle_Q = H(M)/2^n$ remains useful
+when comparing against the $m$-bit-per-question ceiling (and it is what
+perplexity exponentiates); in budget form,
+
+$$
 m - \langle H_B\rangle_Q = \frac{\big(m\,2^n - H(p)\big) - C(p)}{2^n}.
 $$
 
