@@ -1802,6 +1802,83 @@ correlate with), which is the per-round shadow of the uniform-prior
 envelope: a correlation-free learner lives at $0\%$ deduction in
 *every* round.
 
+### The smallest case: $n = m = 1$ in closed form
+
+Two questions, two answers, four maps — small enough that every
+quantity above is an elementary expression. By the numeral convention:
+
+| $j$ | $\phi_j(1,0)$ | name | weight |
+|---|---|---|---|
+| 0 | 00 | FALSE | $p_0$ |
+| 1 | 01 | $\lnot b_0$ | $p_1$ |
+| 2 | 10 | $b_0$ (identity) | $p_2$ |
+| 3 | 11 | TRUE | $p_3$ |
+
+**Before anything is asked**, the two columns of $M$ carry
+
+$$
+\sum_q H_B(q) = h(p_1 + p_3) + h(p_2 + p_3),
+$$
+
+with $h$ the binary entropy ($M_{1,0} = p_1{+}p_3$, $M_{1,1} = p_2{+}p_3$
+by the bit-$q$-of-$j$ rule).
+
+**After one uniformly-random question**, averaged over the answers with
+their prior weights: the asked column drops to zero and the other is
+left with its conditional entropy, so the expected total is
+$\tfrac12\big[H(A_1|A_0) + H(A_0|A_1)\big]$. Since the two answers
+jointly *are* the hypothesis, $H(A_0, A_1) = H(p)$, and the chain rule
+gives the closed form
+
+$$
+\mathbb{E}\Big[\sum_q H_B \text{ after}\Big]
+= H(p) - \tfrac12 \sum_q H_B(q)
+$$
+
+— for any weights $(p_0,\ldots,p_3)$. (Equivalently: the expected drop
+is $\tfrac12\sum_q H_B(q) + I(A_0;A_1)$ and
+$I(A_0;A_1) = \sum_q H_B(q) - H(p)$; both routes agree, and both were
+verified numerically against brute force.)
+
+**The symmetric one-parameter family.** Put equal weight on the two
+constants and on the two non-constants: $p_0 = p_3 = \tfrac{\pi}{2}$,
+$p_1 = p_2 = \tfrac{1-\pi}{2}$, with $\pi$ the probability that the
+truth is a *constant* map. This is exactly the weight-symmetric
+($W$-balanced) situation, so both columns are fair coins and the
+starting entropy is maximal, $\sum_q H_B = 2$, for every $\pi$ — law 2
+in miniature. Ask $q=0$ and hear either answer: the two survivors are
+one constant (renormalized weight $\pi$) and one non-constant (weight
+$1-\pi$), which disagree on the remaining question. Hence
+
+$$
+\sum_q H_B \,\big(\text{after asking } q=0\big) \;=\; h(\pi),
+$$
+
+*identically in the answer*, and by symmetry the same for $q=1$ and
+for their average (checked: all three coincide numerically). The
+general formula confirms it: here $H(p) = 1 + h(\pi)$, so
+$\mathbb{E}[\text{after}] = 1 + h(\pi) - 1 = h(\pi)$.
+
+**Reading the curve $h(\pi)$.** The first answer settles the
+*within-class* coordinate (which constant / which non-constant it would
+be); what survives on the unasked column is precisely the *class*
+uncertainty — constant versus non-constant — and nothing else. The
+whole one-question learning problem reduces to one binary entropy:
+
+- $\pi = \tfrac12$: uniform prior over the four maps, $C(p) = 0$,
+  nothing transfers — the surviving bit is irreducible, $h = 1$.
+- $\pi \to 0$ or $1$: the class is known in advance, the first answer
+  determines the second — $h \to 0$.
+- The total correlation is $C(p) = 2 - H(p) = 1 - h(\pi) =
+  I(A_0; A_1)$, and the first question's leverage (entropy destroyed
+  per bit of face-value surprisal, which is exactly $1$ bit here) is
+  $2 - h(\pi) \in [1, 2]$: from no amplification at the uniform prior
+  to perfect doubling when the class is certain.
+
+Every dynamical notion of the preceding sections — transfer, leverage,
+the observation/deduction split — is, in this miniature, a rescaling of
+the single function $h(\pi)$.
+
 ## $\epsilon_j$ under uniform $P(q)$
 
 One immediate simplification we will consider is taking $P(q)$ uniform.
