@@ -200,23 +200,44 @@ def main():
                          if interp(n, x) is not None)
         print(f"  x={x:4}: universal {universal_annealed(x):.3f}   {vals}")
 
-    # panel 3: same data in fraction-time -> degenerate step (why the
-    # t-axis is the wrong microscope for this archetype)
+    # panel 3: divided time u = l / log2(L-1) centers every drop at u=1;
+    # thin dashed lines: the annealed prediction per size
     ax = axes[2]
     for n, col in ((2, "#1baf7a"), (3, "#2a78d6"), (4, "#eb6834"),
                    (5, "#eda100"), (6, "#e87ba4")):
         gam = data[n]
-        NQ = 1 << n
+        NQ, L = 1 << n, 2 * n + 2
+        s0 = math.log2(L - 1)
         rem = [(NQ - l) * gam[l] for l in range(NQ)] + [0.0]
-        ts = [l / NQ for l in range(NQ + 1)]
-        ax.plot(ts, [r / rem[0] for r in rem], "-", color=col, lw=1.5,
-                label=f"$n={n}$")
-    ax.plot([0, 0, 1], [1, 0, 0], "--", color="#898781",
-            label="$n\\to\\infty$: step at $t=0^+$")
-    ax.set_xlabel("asked fraction $t=\\ell/2^n$")
-    ax.set_ylabel("remaining $H(M)_t / H(M)_0$")
-    ax.set_title("B: fraction-time is degenerate (step at $0^+$)")
+        us = [l / s0 for l in range(NQ + 1)]
+        ax.plot(us, [r / rem[0] for r in rem], "o-", ms=3, lw=1.3,
+                color=col, label=f"$n={n}$")
+        pred = [(1 - l / NQ) * universal_annealed(l - s0) for l in range(NQ)] + [0.0]
+        ax.plot(us, [p_ / pred[0] for p_ in pred], "--", lw=1,
+                color=col, alpha=0.6)
+    ax.plot([0, 1, 1, 3], [1, 1, 0, 0], ":", color="#898781",
+            label="$n\\to\\infty$: step at $u=1$")
+    ax.set_xlim(0, 3)
+    ax.set_xlabel("divided time  $u = \\ell / \\log_2(L-1)$")
+    ax.set_ylabel("remaining $H(M)_u / H(M)_0$")
+    ax.set_title("B: divided time — drops coincide at $u=1$")
     ax.legend(fontsize=8)
+    # coincidence check at fixed u
+    def interpU(n, u):
+        NQ, L = 1 << n, 2 * n + 2
+        gam = data[n]
+        rem = [(NQ - l) * gam[l] for l in range(NQ)] + [0.0]
+        l = u * math.log2(L - 1)
+        lo = int(math.floor(l))
+        f = l - lo
+        if lo < 0 or lo + 1 >= len(rem):
+            return None
+        return ((1 - f) * rem[lo] + f * rem[lo + 1]) / rem[0]
+    print("B divided-time coincidence (remaining/H0 at fixed u):")
+    for u in (0.5, 1.0, 1.5, 2.0):
+        vals = "  ".join(f"n={n}:{interpU(n, u):.3f}" for n in (2, 3, 4, 5, 6)
+                         if interpU(n, u) is not None)
+        print(f"  u={u:3}: {vals}")
 
     fig.suptitle("Continuum limits of the expected trajectory: correct scalings for the two archetypes")
     fig.tight_layout()

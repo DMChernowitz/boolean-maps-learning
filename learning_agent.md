@@ -2164,7 +2164,13 @@ column's entropy given $M$ wrong survivors and the truth is
 $\mathbb{E}\,h\big(\tfrac{1+B}{M+1}\big)$, $B \sim
 \mathrm{Binom}(M,\tfrac12)$). Fraction-time $t = \ell/2^n$ compresses
 this entire window into the point $t = 0$ — the step is a correct
-limit but a useless microscope.
+limit but a useless microscope. The intermediate option, *divided*
+time $u = \ell/\log_2(L-1)$, centers every size's drop at $u = 1$
+(the value there converging to the universal $\Phi(0) = 0.374$), but
+cannot make the curves coincide pointwise: the window's width is fixed
+in $\ell$, hence shrinks like $1/\log_2 L$ in $u$, and the divided-time
+curves sharpen slowly toward a step at $u = 1$. Location is a division;
+shape is a shift — full coincidence needs the shifted variable.
 
 ![continuum limit: the two archetypes, correct scalings](figures/continuum_limit.png)
 
@@ -2175,8 +2181,11 @@ Middle: archetype B against the shifted time $x$ — sizes $n = 2,3,4$
 curve; at $x = 0$ the values run $0.452, 0.408, 0.388, 0.382, 0.375$
 against the universal $0.374$ (the residual finite-size drift is the
 hypergeometric correction to the $2^{-\ell}$ survival rate at small
-$2^n$). Right: the same data in fraction-time, showing why that axis
-degenerates to the step. (All curves from `continuum_limit.py`.)
+$2^n$). Right: the remaining entropy in divided time $u$ — all drops
+centered at $u = 1$ (remaining fraction there: $0.23, 0.27, 0.31,
+0.34, 0.36$ for $n = 2\ldots6$, climbing toward $0.374$), sharpening
+slowly toward the limiting step; dashed thin lines are the annealed
+predictions per size. (All curves from `continuum_limit.py`.)
 
 **What remains open in the limit** is exactly what one would hope: the
 $\gamma(t)$ of a *genuine* circuit-complexity Gibbs prior. Two things
