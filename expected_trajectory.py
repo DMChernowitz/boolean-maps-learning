@@ -126,6 +126,38 @@ def main():
     fig.savefig("figures/expected_trajectory_3to1.png", dpi=130)
     print("wrote figures/expected_trajectory_3to1.png")
 
+    # second figure: the shares of the removed entropy, cumulative and
+    # per-step -- received/removed dips while the deduced share peaks
+    fig2, axes2 = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
+    for ax, mu in zip(axes2, (0.0, 0.25)):
+        p = gibbs(C, F, W, mu)
+        HM0, rem, rec, ded, Gs = curves(p)
+        ls = list(range(1, NQ + 1))
+        cumsh = [rec[l] / (HM0 - rem[l]) for l in ls]
+        stepsh = [(rec[l] - rec[l - 1]) / max(rem[l - 1] - rem[l], 1e-12)
+                  for l in ls]
+        ax.plot(ls, cumsh, "o-", color="#2a78d6",
+                label="cumulative: received / removed")
+        ax.plot(ls, [1 - x for x in cumsh], "o-", color="#1baf7a",
+                label="cumulative deduced share")
+        ax.plot(ls, [1 - x for x in stepsh], "s--", color="#eb6834", ms=4,
+                label="per-step deduced share")
+        ax.axhline(Gs[-1] / HM0, color="#898781", lw=1,
+                   label="endpoint $H(p)/H(M)_0$")
+        ax.set_title(f"$\\mu={mu}$")
+        ax.set_xlabel("questions answered $\\ell$")
+        print(f"mu={mu} shares:")
+        print("  l:            " + " ".join(f"{l:6d}" for l in ls))
+        print("  rec/removed:  " + " ".join(f"{x:6.3f}" for x in cumsh))
+        print("  step deduced: " + " ".join(f"{1-x:6.3f}" for x in stepsh))
+    axes2[0].set_ylabel("share of removed entropy")
+    axes2[0].legend(fontsize=8)
+    fig2.suptitle(f"(3,1) Gibbs prior, $\\gamma={GAMMA}$, $\\lambda={LAMBDA}$: "
+                  "where the removed entropy comes from")
+    fig2.tight_layout()
+    fig2.savefig("figures/deduction_share_3to1.png", dpi=130)
+    print("wrote figures/deduction_share_3to1.png")
+
 
 if __name__ == "__main__":
     main()

@@ -2047,6 +2047,36 @@ $\mu \to \infty$ (single-map condensation leaves no correlation to
 leverage) — and other couplings move it freely ($1.13$ to $2.24$
 across nearby $\gamma, \lambda$ choices).
 
+**Where the removed entropy comes from.** For the same prior, split
+the entropy removed so far into its two sources — the cumulative
+surprisal received through the asked columns versus the part deduced
+via correlations:
+
+![deduction shares along the run, (3,1)](figures/deduction_share_3to1.png)
+
+The requested ratio, received/removed, is remarkably flat ($\approx
+0.65$) before rising to its forced endpoint $H(p)/H(M)_0$; its
+complement, the cumulative deduced share, correspondingly declines.
+The sharper object is the *per-step* deduced share (orange), which
+ends at exactly zero — the last question deduces nothing — and whose
+peak location is the shape parameter of the whole curve.
+
+**Which statistic predicts the shape?** The *level* is indeed set by
+the entropy of the prior: received/removed must end at
+$H(p)/H(M)_0 = H/(H+C)$, so $H(p)$ (against the ledger total) fixes
+where the curve lands. But the *shape* is not a function of $H(p)$:
+sweeping $\gamma$ at fixed $\lambda$ moves the per-step deduced
+share's peak from $\ell = 1$ (warm, $H/H(M)_0 = 0.82$) through
+$\ell = 3$ ($0.53$) to $\ell = 4$ (cold, $0.43$) — the peak migrates
+inward as the prior cools. The reason is the cascade: cooling stores
+the tower $C(p)$ in *deeper shells*, and deep-shell knowledge must
+descend one level per answer before it is spendable as column bias.
+So the shape predictor is the **shell decomposition of the total
+correlation** (the ℓ²-mean shell of the ledger is the scalar proxy):
+pairwise-dominated priors spend their deduction immediately and
+decline; deep-shell priors are cascade-gated and peak mid-run; the
+linear-code extreme defers everything to a single threshold.
+
 ### The continuum limit: recovering the classical theory
 
 Send $n \to \infty$ (holding $m = 1$ for clarity; larger $m$ changes
@@ -2167,10 +2197,14 @@ this entire window into the point $t = 0$ — the step is a correct
 limit but a useless microscope. The intermediate option, *divided*
 time $u = \ell/\log_2(L-1)$, centers every size's drop at $u = 1$
 (the value there converging to the universal $\Phi(0) = 0.374$), but
-cannot make the curves coincide pointwise: the window's width is fixed
-in $\ell$, hence shrinks like $1/\log_2 L$ in $u$, and the divided-time
-curves sharpen slowly toward a step at $u = 1$. Location is a division;
-shape is a shift — full coincidence needs the shifted variable.
+the limiting step at $u=1$ must not be over-sold: the sharpening rate
+is $1/\log_2(L-1)$ — *doubly* logarithmic in the table size $2^n$ — so
+no accessible size shows step-like behavior ($x = (u-1)\log_2(L-1)$
+reaches even $5$ at $u = 1.5$ only near $n \approx 500$). What finite
+sizes actually trace is the smooth family $\Phi\big((u-1)s\big)$ with
+$s = \log_2(L-1)$ creeping from $2.3$ at $n=2$ to $3.7$ at $n=6$.
+Location is a division; shape is a shift; the step is a formal limit,
+not a picture.
 
 ![continuum limit: the two archetypes, correct scalings](figures/continuum_limit.png)
 
@@ -2183,9 +2217,11 @@ against the universal $0.374$ (the residual finite-size drift is the
 hypergeometric correction to the $2^{-\ell}$ survival rate at small
 $2^n$). Right: the remaining entropy in divided time $u$ — all drops
 centered at $u = 1$ (remaining fraction there: $0.23, 0.27, 0.31,
-0.34, 0.36$ for $n = 2\ldots6$, climbing toward $0.374$), sharpening
-slowly toward the limiting step; dashed thin lines are the annealed
-predictions per size. (All curves from `continuum_limit.py`.)
+0.34, 0.36$ for $n = 2\ldots6$, climbing toward $0.374$); the dotted
+step is the *formal* $n\to\infty$ limit, approached only at rate
+$1/\log_2(L-1)$ and not visibly at these sizes — dashed thin lines are
+the finite-size annealed predictions, which are what the data actually
+follows. (All curves from `continuum_limit.py`.)
 
 **What remains open in the limit** is exactly what one would hope: the
 $\gamma(t)$ of a *genuine* circuit-complexity Gibbs prior. Two things
