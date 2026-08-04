@@ -19,4 +19,118 @@
 
 \maketitle
 
+\section{A thought experiment}
+
+Let us start with a small thought experiment, by introducing
+\emph{Werner the learner} (Figure~\ref{fig:werner}).
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[line cap=round, line join=round]
+  % the box
+  \draw[rounded corners=7pt, very thick] (-2.4,-1.9) rectangle (2.4,1.9);
+  % brain outline
+  \draw[thick, fill=gray!10] plot [smooth cycle, tension=0.75] coordinates {
+    (-1.5,0.05) (-1.3,0.7) (-0.75,1.1) (0.05,1.2) (0.85,1.0)
+    (1.35,0.5) (1.45,-0.1) (1.05,-0.65) (0.45,-0.9) (-0.35,-0.95)
+    (-1.05,-0.7) (-1.45,-0.35) };
+  % central fissure
+  \draw[thick] (0.03,1.18) .. controls (-0.05,0.6) and (0.12,-0.05) .. (0.02,-0.6);
+  % circuit traces, left hemisphere
+  \draw (-0.25,0.75) -- (-0.7,0.75) -- (-0.7,0.4);
+  \fill (-0.7,0.4) circle (1.6pt);
+  \draw (-0.25,0.35) -- (-0.55,0.35) -- (-0.55,-0.1) -- (-1.0,-0.1);
+  \fill (-1.0,-0.1) circle (1.6pt);
+  \draw (-0.25,-0.15) -- (-0.4,-0.15) -- (-0.4,-0.55);
+  \fill (-0.4,-0.55) circle (1.6pt);
+  \draw (-0.7,0.75) -- (-1.05,0.75) -- (-1.05,0.35);
+  \fill (-1.05,0.35) circle (1.6pt);
+  \draw (-0.25,0.75) circle (1.1pt);
+  \draw (-0.25,0.35) circle (1.1pt);
+  \draw (-0.25,-0.15) circle (1.1pt);
+  % circuit traces, right hemisphere
+  \draw (0.3,0.8) -- (0.75,0.8) -- (0.75,0.45);
+  \fill (0.75,0.45) circle (1.6pt);
+  \draw (0.3,0.4) -- (0.6,0.4) -- (0.6,0.0) -- (1.05,0.0);
+  \fill (1.05,0.0) circle (1.6pt);
+  \draw (0.3,-0.2) -- (0.5,-0.2) -- (0.5,-0.55);
+  \fill (0.5,-0.55) circle (1.6pt);
+  \draw (0.75,0.8) -- (1.1,0.8) -- (1.1,0.5);
+  \fill (1.1,0.5) circle (1.6pt);
+  \draw (0.3,0.8) circle (1.1pt);
+  \draw (0.3,0.4) circle (1.1pt);
+  \draw (0.3,-0.2) circle (1.1pt);
+  % name plate
+  \node at (0,-1.45) {\textsc{Werner}};
+\end{tikzpicture}
+\caption{Werner the learner.}
+\label{fig:werner}
+\end{figure}
+
+In this work, we model learning as the increased ability to give the
+correct answer to questions, as more of the ground truth is revealed.
+It is Werner's job to learn a pattern. The most basic shape of a
+pattern is a \emph{binary map}, and the most basic binary map is a map
+from one bit to one bit.
+
+The cast of the experiment:
+\begin{itemize}
+  \item a \textbf{question} $q \in Q = \{0,1\}$;
+  \item an \textbf{answer} $a \in A = \{0,1\}$;
+  \item the \textbf{truth} $\psi: Q \to A$, the one fixed map nature
+    uses to answer questions. $\psi$ is unknown to Werner.
+\end{itemize}
+There are exactly four candidate maps $\phi_j$ that $\psi$ could be
+(Table~\ref{tab:fourmaps}): each of the two inputs can be sent to
+either of the two outputs, independently. We index them by reading
+the truth table $\phi_j(1)\,\phi_j(0)$ as a binary numeral: that
+number \emph{is} $j$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{c cc l}
+\toprule
+$j$ & $\phi_j(1)$ & $\phi_j(0)$ & name \\
+\midrule
+0 & 0 & 0 & constant $0$ \\
+1 & 0 & 1 & NOT ($\lnot q$) \\
+2 & 1 & 0 & identity ($q$) \\
+3 & 1 & 1 & constant $1$ \\
+\bottomrule
+\end{tabular}
+\caption{The four binary maps from one bit to one bit.}
+\label{tab:fourmaps}
+\end{table}
+
+Now, if Werner is unintelligent, he has no preconceived notion of
+which maps are more useful, more likely, or somehow more logical than
+others. We model this with a \textbf{uniform prior}: writing
+$p_j = P(\psi = \phi_j)$ for Werner's belief,
+\begin{equation}
+  p_j = \tfrac{1}{4}, \qquad j = 0, 1, 2, 3.
+\end{equation}
+
+What does this belief predict? For each question $q$ separately, we
+can tabulate the probability of each possible answer $a$: it is the
+total belief in the maps that would answer $a$ to $q$,
+\begin{equation}
+  M_{a,q} \;=\; \sum_{j\,:\,\phi_j(q) = a} p_j .
+\end{equation}
+Arranged with one column per question and one row per answer, these
+numbers form the matrix $M$ --- each column a probability
+distribution over answers, so $M$ is column-stochastic. Under the
+uniform prior, two of the four maps answer $0$ and two answer $1$, at
+either question:
+\begin{equation}
+  M \;=\;
+  \begin{array}{r@{\quad}cc}
+      & q=1 & q=0 \\[2pt]
+    \cline{2-3}
+    a=0 \big| & \tfrac12 & \tfrac12 \\[4pt]
+    a=1 \big| & \tfrac12 & \tfrac12 \\
+  \end{array}
+\end{equation}
+Every column is a fair coin: the unintelligent Werner predicts
+nothing about any answer before it is revealed.
+
 \end{document}
