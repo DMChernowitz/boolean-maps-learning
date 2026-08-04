@@ -2149,14 +2149,34 @@ degree-$\le k$ (Reed–Muller) prior, $\gamma(t)$ is the RM rank profile
 under random erasures, and *RM codes achieve erasure capacity* — a
 perfect step at $t = R$, the code rate.
 
-![continuum limit: the two archetypes](figures/continuum_limit.png)
+**Getting the scalings right matters.** Neither archetype's law is
+visible on naive axes. The Clarke–Barron increment converges only
+logarithmically (the coefficient is at $0.60$ of its limit by
+$\ell = 15$, $0.72$ by $\ell \sim 5000$), so the honest comparison is
+the *tail on log–log axes*, where $\gamma_\ell - E[h]$ is a line of
+slope $-1$ that the master curve merges into. And the discrete-class
+window lives at $\ell \approx \log_2(L-1) + O(1)$ — a *shifted* axis,
+not a rescaled one: plotted against $x = \ell - \log_2(L-1)$, the
+curves for all sizes collapse onto a **universal survivor curve**
+(wrong maps survive $\ell$ questions with probability $\approx
+2^{-\ell}$, so their number is $\mathrm{Poisson}(2^{-x})$; the fresh
+column's entropy given $M$ wrong survivors and the truth is
+$\mathbb{E}\,h\big(\tfrac{1+B}{M+1}\big)$, $B \sim
+\mathrm{Binom}(M,\tfrac12)$). Fraction-time $t = \ell/2^n$ compresses
+this entire window into the point $t = 0$ — the step is a correct
+limit but a useless microscope.
 
-Left: archetype A — the exact discrete $\gamma_\ell$ (computed on the
-$(4,1)$ space) on the Clarke–Barron curve. Middle: archetype B — exact
-$\gamma_\ell$ for $n = 2, 3, 4$ on a log scale against the $2^{-\ell}$
-pair-collision guide; the decay *rate* is already size-independent.
-Right: the same data in fraction-time, collapsing toward the step at
-$t = 0^+$. (All curves from `continuum_limit.py`.)
+![continuum limit: the two archetypes, correct scalings](figures/continuum_limit.png)
+
+Left: archetype A on log–log — the exact machinery points sit on the
+closed-form master curve, which merges into the Clarke–Barron line.
+Middle: archetype B against the shifted time $x$ — sizes $n = 2,3,4$
+(exact) and $5, 6$ (subset MC) converging onto the universal annealed
+curve; at $x = 0$ the values run $0.452, 0.408, 0.388, 0.382, 0.375$
+against the universal $0.374$ (the residual finite-size drift is the
+hypergeometric correction to the $2^{-\ell}$ survival rate at small
+$2^n$). Right: the same data in fraction-time, showing why that axis
+degenerates to the step. (All curves from `continuum_limit.py`.)
 
 **What remains open in the limit** is exactly what one would hope: the
 $\gamma(t)$ of a *genuine* circuit-complexity Gibbs prior. Two things
