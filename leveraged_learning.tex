@@ -3,9 +3,25 @@
 \usepackage[a4paper, margin=2.8cm]{geometry}
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{booktabs}
+\usepackage[normalem]{ulem}
+\usepackage{float}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{svg.path}
+\usetikzlibrary{tikzmark}
 \usepackage[colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black]{hyperref}
+
+% the answer matrix M printed as a table: bold a-labels down the first
+% column, bold q-labels along the first row, separated by rules
+\newcommand{\Mtab}[4]{%
+  \begin{array}{c|cc}
+    \mathbf{a}\backslash\mathbf{q} & \mathbf{1} & \mathbf{0} \\
+    \hline
+    \mathbf{0} & #1 & #2 \\[2pt]
+    \mathbf{1} & #3 & #4
+  \end{array}}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
@@ -19,7 +35,7 @@
 
 \maketitle
 
-\section{A thought experiment}
+\section{A thought experiment}\label{sec:thought}
 
 Let us start with a small thought experiment, by introducing
 \emph{Werner the learner} (Figure~\ref{fig:werner}).
@@ -28,40 +44,29 @@ Let us start with a small thought experiment, by introducing
 \centering
 \begin{tikzpicture}[line cap=round, line join=round]
   % the box
-  \draw[rounded corners=7pt, very thick] (-2.4,-1.9) rectangle (2.4,1.9);
-  % brain outline
-  \draw[thick, fill=gray!10] plot [smooth cycle, tension=0.75] coordinates {
-    (-1.5,0.05) (-1.3,0.7) (-0.75,1.1) (0.05,1.2) (0.85,1.0)
-    (1.35,0.5) (1.45,-0.1) (1.05,-0.65) (0.45,-0.9) (-0.35,-0.95)
-    (-1.05,-0.7) (-1.45,-0.35) };
-  % central fissure
-  \draw[thick] (0.03,1.18) .. controls (-0.05,0.6) and (0.12,-0.05) .. (0.02,-0.6);
-  % circuit traces, left hemisphere
-  \draw (-0.25,0.75) -- (-0.7,0.75) -- (-0.7,0.4);
-  \fill (-0.7,0.4) circle (1.6pt);
-  \draw (-0.25,0.35) -- (-0.55,0.35) -- (-0.55,-0.1) -- (-1.0,-0.1);
-  \fill (-1.0,-0.1) circle (1.6pt);
-  \draw (-0.25,-0.15) -- (-0.4,-0.15) -- (-0.4,-0.55);
-  \fill (-0.4,-0.55) circle (1.6pt);
-  \draw (-0.7,0.75) -- (-1.05,0.75) -- (-1.05,0.35);
-  \fill (-1.05,0.35) circle (1.6pt);
-  \draw (-0.25,0.75) circle (1.1pt);
-  \draw (-0.25,0.35) circle (1.1pt);
-  \draw (-0.25,-0.15) circle (1.1pt);
-  % circuit traces, right hemisphere
-  \draw (0.3,0.8) -- (0.75,0.8) -- (0.75,0.45);
-  \fill (0.75,0.45) circle (1.6pt);
-  \draw (0.3,0.4) -- (0.6,0.4) -- (0.6,0.0) -- (1.05,0.0);
-  \fill (1.05,0.0) circle (1.6pt);
-  \draw (0.3,-0.2) -- (0.5,-0.2) -- (0.5,-0.55);
-  \fill (0.5,-0.55) circle (1.6pt);
-  \draw (0.75,0.8) -- (1.1,0.8) -- (1.1,0.5);
-  \fill (1.1,0.5) circle (1.6pt);
-  \draw (0.3,0.8) circle (1.1pt);
-  \draw (0.3,0.4) circle (1.1pt);
-  \draw (0.3,-0.2) circle (1.1pt);
+  \draw[rounded corners=7pt, very thick] (-2.0,-2.05) rectangle (2.0,1.95);
+  % Lucide brain-circuit icon (lucide.dev, ISC license), 24x24 viewBox;
+  % svg.path coordinates are in pt (1 SVG unit = 1pt), hence the pt-based
+  % scale and the y-flip for SVG's downward y-axis
+  \begin{scope}[shift={(-1.31cm,1.45cm)}, xscale=3.1, yscale=-3.1,
+                line width=4.7pt]
+    \draw svg {M 12 5 a 3 3 0 1 0 -5.997 0.125 a 4 4 0 0 0 -2.526 5.77
+               a 4 4 0 0 0 0.556 6.588 A 4 4 0 1 0 12 18 Z};
+    \draw svg {M 9 13 a 4.5 4.5 0 0 0 3 -4};
+    \draw svg {M 6.003 5.125 A 3 3 0 0 0 6.401 6.5};
+    \draw svg {M 3.477 10.896 a 4 4 0 0 1 0.585 -0.396};
+    \draw svg {M 6 18 a 4 4 0 0 1 -1.967 -0.516};
+    \draw svg {M 12 13 h 4};
+    \draw svg {M 12 18 h 6 a 2 2 0 0 1 2 2 v 1};
+    \draw svg {M 12 8 h 8};
+    \draw svg {M 16 8 V 5 a 2 2 0 0 1 2 -2};
+    \draw svg {M 15.5 13 a 0.5 0.5 0 1 0 1 0 a 0.5 0.5 0 1 0 -1 0};
+    \draw svg {M 17.5 3 a 0.5 0.5 0 1 0 1 0 a 0.5 0.5 0 1 0 -1 0};
+    \draw svg {M 19.5 21 a 0.5 0.5 0 1 0 1 0 a 0.5 0.5 0 1 0 -1 0};
+    \draw svg {M 19.5 8 a 0.5 0.5 0 1 0 1 0 a 0.5 0.5 0 1 0 -1 0};
+  \end{scope}
   % name plate
-  \node at (0,-1.45) {\textsc{Werner}};
+  \node at (0,-1.6) {\textsc{Werner}};
 \end{tikzpicture}
 \caption{Werner the learner.}
 \label{fig:werner}
@@ -78,7 +83,7 @@ The cast of the experiment:
   \item a \textbf{question} $q \in Q = \{0,1\}$;
   \item an \textbf{answer} $a \in A = \{0,1\}$;
   \item the \textbf{truth} $\psi: Q \to A$, the one fixed map nature
-    uses to answer questions. $\psi$ is unknown to Werner.
+    uses to answer questions. $\psi$ is unknown to Werner. By definition then, $\psi(q) = a$.
 \end{itemize}
 There are exactly four candidate maps $\phi_j$ that $\psi$ could be
 (Table~\ref{tab:fourmaps}): each of the two inputs can be sent to
@@ -104,7 +109,11 @@ $j$ & $\phi_j(1)$ & $\phi_j(0)$ & name \\
 
 Now, if Werner is unintelligent, he has no preconceived notion of
 which maps are more useful, more likely, or somehow more logical than
-others. We model this with a \textbf{uniform prior}: writing
+others. In practice, we would have to tell Werner the answer $a$ to every single question $q$,
+before he has learned the whole pattern. 
+
+
+We model this with a \textbf{uniform prior}: writing
 $p_j = P(\psi = \phi_j)$ for Werner's belief,
 \begin{equation}
   p_j = \tfrac{1}{4}, \qquad j = 0, 1, 2, 3.
@@ -116,21 +125,422 @@ total belief in the maps that would answer $a$ to $q$,
 \begin{equation}
   M_{a,q} \;=\; \sum_{j\,:\,\phi_j(q) = a} p_j .
 \end{equation}
-Arranged with one column per question and one row per answer, these
-numbers form the matrix $M$ --- each column a probability
-distribution over answers, so $M$ is column-stochastic. Under the
-uniform prior, two of the four maps answer $0$ and two answer $1$, at
-either question:
+Arranged with one row per answer ($a = 0, 1$ from the top) and one
+column per question ($q = 1, 0$ from the left, descending like the
+digits of the numeral convention), these numbers form the matrix
+$M$ - each column a probability distribution over answers, so $M$
+is column-stochastic. Under the uniform prior, two of the four maps
+answer $0$ and two answer $1$, at either question:
 \begin{equation}
   M \;=\;
-  \begin{array}{r@{\quad}cc}
-      & q=1 & q=0 \\[2pt]
-    \cline{2-3}
-    a=0 \big| & \tfrac12 & \tfrac12 \\[4pt]
-    a=1 \big| & \tfrac12 & \tfrac12 \\
-  \end{array}
+  \Mtab{M_{0,1}}{M_{0,0}}{M_{1,1}}{M_{1,0}}
+  \;=\;
+  \Mtab{p_0 + p_1}{p_0 + p_2}{p_2 + p_3}{p_1 + p_3}
+  \;=\;
+  \Mtab{\tfrac12}{\tfrac12}{\tfrac12}{\tfrac12}\;.
 \end{equation}
 Every column is a fair coin: the unintelligent Werner predicts
 nothing about any answer before it is revealed.
+
+Next, Werner gets to predict the answer to the question $q = 0$. By
+his own belief it is a coin toss: $M_{0,0} = M_{1,0} = \tfrac12$.
+Let us say the answer comes back $a = 1$. The \textbf{surprisal} of
+this answer, to Werner, is $1$ bit, because the probability he
+assigned to it was one half. In general, when an event a belief holds
+with probability $P$ actually occurs, its surprisal is
+\begin{equation}
+  s \;=\; -\log_2 P \quad \text{bits},
+\end{equation}
+here $s = -\log_2 M_{a,q}$ for answer $a$ arriving at question $q$.
+Surprisal measures how much the received information deviates from
+what was already expected: an answer held certain ($P = 1$) carries
+$0$ bits --- nothing new; a coin toss carries exactly $1$ bit; and
+the surprisal grows without bound as the answer gets more unexpected,
+$P \to 0$. It is additive: the surprisal of two independent events
+occurring is the sum of their surprisals, just as their probabilities
+multiply.
+
+Moreover, Werner can use a process of elimination --- an extreme form
+of Bayes' rule --- to update his prior into a posterior. Semantically:
+every candidate map that would have answered the question wrongly is
+now \emph{ruled out}, not merely disfavored, because the truth $\psi$
+answered $1$ at $q=0$ and a map with $\phi_j(0) = 0$ cannot be
+$\psi$. This kills the constant-$0$ map ($j = 0$) and the identity
+($j = 2$). The two survivors, NOT ($j = 1$) and constant $1$
+($j = 3$), both predicted the observed answer, so this round of
+evidence does not distinguish between them at all
+(Table~\ref{tab:elimination}): their ratio of believabilities must be
+preserved, and the only update that does so is to renormalize their
+weights to sum to one.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c cc l}
+\toprule
+$j$ & $\phi_j(1)$ & $\phi_j(0)$ & name \\
+\midrule
+\tikzmark{strikeA}0 & 0 & $\mathbf{0}$ & constant $0$\tikzmark{strikeAend} \\
+1 & 0 & 1 & NOT ($\lnot q$) \\
+\tikzmark{strikeB}2 & 1 & $\mathbf{0}$ & identity ($q$)\tikzmark{strikeBend} \\
+3 & 1 & 1 & constant $1$ \\
+\bottomrule
+\end{tabular}
+% one continuous strike-through rule per eliminated row
+\begin{tikzpicture}[overlay, remember picture]
+  \draw[line width=0.5pt]
+    ([shift={(-2pt,0.55ex)}]pic cs:strikeA) --
+    ([shift={(2pt,0.55ex)}]pic cs:strikeAend);
+  \draw[line width=0.5pt]
+    ([shift={(-2pt,0.55ex)}]pic cs:strikeB) --
+    ([shift={(2pt,0.55ex)}]pic cs:strikeBend);
+\end{tikzpicture}
+\caption{The candidate maps after the answer $\psi(0) = 1$: the two
+maps with $\phi_j(0) = 0$ are ruled out.}
+\label{tab:elimination}
+\end{table} (This is Bayes' rule
+with a $0/1$ likelihood: $P(\psi = \phi_j \mid a) \propto
+P(a \mid \phi_j)\, p_j$, and $P(a \mid \phi_j)$ is $1$ for a map that
+answers $a$ and $0$ for a map that does not.) The posterior is
+\begin{equation}
+  p' \;=\; \big(0,\ \tfrac12,\ 0,\ \tfrac12\big).
+\end{equation}
+Constructing the new answer matrix from $p'$ by the same recipe as
+before:
+\begin{equation}
+  M' \;=\;
+  \Mtab{p'_0 + p'_1}{p'_0 + p'_2}{p'_2 + p'_3}{p'_1 + p'_3}
+  \;=\;
+  \Mtab{\tfrac12}{0}{\tfrac12}{1}\;.
+\end{equation}
+So indeed, Werner knows the answer to $q = 0$ --- that column has
+collapsed onto $a = 1$ --- and he is still as agnostic as possible
+about the other answer: the $q = 1$ column remains a fair coin. He
+gained $1$ bit of surprisal information, and cleaned up his table to
+the tune of $1$ bit: the $q = 0$ column went from a full bit of
+answer-uncertainty to none, while the $q = 1$ column is unchanged.
+
+After the next question, $q = 1$, he learns $a = 1$ --- again a coin
+toss beforehand ($M'_{1,1} = \tfrac12$), so again worth $1$ bit of
+surprisal. Elimination now rules out NOT ($\phi_1(1) = 0$), leaving a
+single survivor:
+\begin{equation}
+  p'' \;=\; \big(0,\ 0,\ 0,\ 1\big),
+  \qquad
+  M'' \;=\; \Mtab{0}{0}{1}{1}\;.
+\end{equation}
+So this is the constant map: $\psi = \phi_3$. Werner is done. Every
+column is one-hot, and he will be able to answer all questions
+correctly from now on.
+
+\section{Intelligent priors}\label{sec:intelligent}
+
+Now, let us assume that Werner knows \emph{something} about the world
+before he starts. Let us say he knows the map is not constant. His
+belief then spreads evenly over the two remaining candidates, NOT
+($j = 1$) and the identity ($j = 2$):
+\begin{equation}
+  p \;=\; \big(0,\ \tfrac12,\ \tfrac12,\ 0\big).
+\end{equation}
+Is he any better at predicting $\psi(0)$? Constructing $M$ by the
+usual recipe:
+\begin{equation}
+  M \;=\;
+  \Mtab{p_0 + p_1}{p_0 + p_2}{p_2 + p_3}{p_1 + p_3}
+  \;=\;
+  \Mtab{\tfrac12}{\tfrac12}{\tfrac12}{\tfrac12}\;.
+\end{equation}
+He is still just as bad as before: every column a fair coin. So what
+has all this veteran wisdom about the nature of patterns in the world
+bought him? His increased ability for \emph{inference}.
+
+Ask $q = 0$ again, and let the answer again come back $a = 1$ ---
+again a coin toss beforehand, so again worth exactly $1$ bit of
+surprisal. Elimination rules out the identity ($\phi_2(0) = 0$), and
+the lone survivor is NOT:
+\begin{equation}
+  p' \;=\; \big(0,\ 1,\ 0,\ 0\big),
+  \qquad
+  M' \;=\; \Mtab{1}{0}{0}{1}\;.
+\end{equation}
+This time \emph{both} columns collapse at once. Werner received the
+same single bit of surprisal as before, but cleaned up $2$ bits of
+table: the answer at $q = 0$ he observed, and the answer at $q = 1$
+he \emph{deduced}, without ever asking --- ruling out the constants
+means $\phi(1) \neq \phi(0)$, so his prior held the two answers
+perfectly anticorrelated, and settling one settles the other. He is
+done after one question instead of two.
+
+We say the information from the first answer was \textbf{leveraged}.
+We will make this more precise in the upcoming sections.
+
+\subsection{A one-parameter world}\label{sec:oneparam}
+
+For more structure, let us relax the claim that there are \emph{no}
+constant maps. Instead, we create a one-parameter world where the
+prior probability that the map is constant is $p$, spread evenly
+within each class (Table~\ref{tab:oneparam}):
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c cc l c}
+\toprule
+$j$ & $\phi_j(1)$ & $\phi_j(0)$ & name & $p_j$ \\
+\midrule
+0 & 0 & 0 & constant $0$ & $p/2$ \\
+1 & 0 & 1 & NOT ($\lnot q$) & $(1-p)/2$ \\
+2 & 1 & 0 & identity ($q$) & $(1-p)/2$ \\
+3 & 1 & 1 & constant $1$ & $p/2$ \\
+\bottomrule
+\end{tabular}
+\caption{The one-parameter prior: constant with probability $p$.}
+\label{tab:oneparam}
+\end{table}
+
+\noindent
+In vector form, and with the answer matrix constructed by the usual
+recipe:
+\begin{equation}
+  \big(p_0,\ p_1,\ p_2,\ p_3\big)
+  \;=\; \tfrac12\big(p,\ 1-p,\ 1-p,\ p\big),
+  \qquad
+  M \;=\; \Mtab{\tfrac12}{\tfrac12}{\tfrac12}{\tfrac12}\;,
+\end{equation}
+fair coins in every column, for every value of $p$.
+
+How much is there to learn, in total? We account for the table as a
+whole by declaring entropy \emph{extensive} over the columns --- the
+answer-uncertainties of the columns simply add:
+\begin{equation}\label{eq:HM}
+  H(M) \;:=\; \sum_{q} H\big(M_{\cdot,q}\big),
+  \qquad
+  H\big(M_{\cdot,q}\big) \;:=\; -\sum_{a} M_{a,q}\,\log_2 M_{a,q}.
+\end{equation}
+Here both columns are fair coins carrying $1$ bit each, so the table
+starts at its maximum: $H(M) = 2$ bits.
+
+Now let us ask a question. Again we could use $q = 0$; by the
+symmetry of the prior it actually does not matter for this argument.
+And we are now going to talk about \emph{expected} values, instead
+of realized ones: averages over the possible maps, denoted
+$\langle\,\cdot\,\rangle$. Since we assume our prior is \emph{a
+priori} correct --- nature draws the truth from the very distribution
+Werner believes --- the average over $\psi$ simply zips with the
+weights: $\langle X \rangle = \sum_j p_j\, X(\psi{=}\phi_j)$.
+
+How much surprisal should Werner expect from asking a question $q$?
+The answer comes back $a$ exactly when the truth answers $a$, which
+under the zipped average happens with probability
+$\sum_{j:\phi_j(q)=a} p_j = M_{a,q}$ --- the very probability Werner
+assigned to it --- and when it does, it costs him $-\log_2 M_{a,q}$
+of surprisal. Grouping the average over maps by the answer each map
+gives:
+\begin{equation}\label{eq:surprisal-entropy}
+  \langle s_q \rangle
+  \;=\; \sum_{j} p_j \,\big({-}\log_2 M_{\phi_j(q),\,q}\big)
+  \;=\; \sum_{a} \underbrace{\sum_{j\,:\,\phi_j(q)=a} p_j}_{M_{a,q}}
+        \big({-}\log_2 M_{a,q}\big)
+  \;=\; \sum_{a} M_{a,q}\,\big({-}\log_2 M_{a,q}\big).
+\end{equation}
+The right-hand side is exactly the column entropy
+$H(M_{\cdot,q})$ of equation~\eqref{eq:HM}: \textbf{the expected
+surprisal of a question is the entropy of its column}. Each answer occurs with
+exactly the probability Werner assigned to it, so his average
+surprisal is his own uncertainty about that answer --- an identity
+that will do a great deal of work in what follows.
+
+For a two-answer column, this entropy is a function of a single
+number, the probability $x$ of one of the two answers: the
+\textbf{binary entropy function}
+\begin{equation}\label{eq:binary-entropy}
+  h(x) \;:=\; -x\log_2 x \;-\; (1-x)\log_2(1-x),
+\end{equation}
+zero at $x \in \{0, 1\}$ (a settled answer) and maximal, $1$ bit, at
+the fair coin $x = \tfrac12$. For the first question here the column
+is a fair coin, so
+\begin{equation}
+  \langle s_1 \rangle \;=\; H\big(M_{\cdot,0}\big)
+  \;=\; h\big(\tfrac12\big) \;=\; 1 \text{ bit},
+\end{equation}
+whatever the value of $p$.
+
+And the other column is now cleaned up. Breaking the update down over
+the possible maps: with probability $\tfrac12$ the answer is $1$
+(truth is NOT or constant $1$), with probability $\tfrac12$ it is $0$
+(truth is FALSE or the identity), and
+\begin{equation}
+  M' \;=\;
+  \underbrace{\Mtab{1-p}{0}{p}{1}}_{a_1 = 1,\ \text{prob } 1/2}
+  \quad\text{or}\quad
+  \underbrace{\Mtab{p}{1}{1-p}{0}}_{a_1 = 0,\ \text{prob } 1/2}\;.
+\end{equation}
+Either way, the asked column is one-hot and the unasked column is a
+coin of bias $p$: what survives on $q = 1$ is precisely the
+class uncertainty --- constant or not --- and nothing else. The total
+entropy of the table is now
+\begin{equation}
+  H(M') \;=\; 0 + h(p) \;=\; h(p),
+\end{equation}
+a reduction of $2 - h(p)$ bits, purchased with a single bit of
+surprisal. Define the \textbf{leverage after one question} as the
+ratio of table entropy destroyed to surprisal received:
+\begin{equation}
+  L_1 \;:=\; \frac{2 - h(p)}{1} \;=\; 2 - h(p) \;\in\; [1, 2].
+\end{equation}
+The expected surprisal on the second question is, once more, the
+entropy of its column,
+\begin{equation}
+  \langle s_2 \rangle \;=\; h(p) \;\leq\; 1 \text{ bit},
+\end{equation}
+after which the table is empty. Cumulatively over the two questions,
+$1 + h(p)$ bits of received information reduced the table by the
+full $2$ bits it started with, so the \textbf{cumulative leverage}
+after two questions is
+\begin{equation}
+  L_2 \;:=\; \frac{2}{1 + h(p)} \;\in\; [1, 2].
+\end{equation}
+So our knowledge about the world has allowed us to be more certain
+after our inference. Set
+$p = \tfrac12$, and the prior is the uniform one of
+Section~\ref{sec:thought}: $h = 1$, $L_1 = L_2 = 1$, and nothing is
+leveraged at all. As $p$ skews further from $\tfrac12$, the
+second question carries less and less expected information, and Werner's
+potential for learning from it goes down with it. The column it could clean up is nearly settled already. In the limit $p = 0$, we recover the non-constant
+world from the start of Section~\ref{sec:intelligent}. There is no
+surprisal and no improvement to $M$ left in the second question at
+all: it contributes nothing to denominator or enumerator, and $L_1 = L_2$. Figure~\ref{fig:oneparam} traces all three curves
+between these extremes.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  declare function={ hh(\x) = (-\x*ln(\x) - (1-\x)*ln(1-\x))/ln(2); }]
+\begin{axis}[
+  width=0.48\textwidth, height=6.2cm,
+  xlabel={$p$},
+  ylabel={bits},
+  xmin=0, xmax=1, ymin=0, ymax=1.05,
+  grid=major, grid style={gray!25},
+  legend style={at={(0.5,0.04)}, anchor=south, draw=gray!60,
+                fill=white, font=\small},
+  legend cell align=left]
+  \addplot[blue, thick, smooth, domain=0.001:0.999, samples=201]
+    { hh(x) };
+  \addlegendentry{$h(p)$: entropy after one question}
+\end{axis}
+\begin{axis}[
+  xshift=0.52\textwidth,
+  width=0.48\textwidth, height=6.2cm,
+  xlabel={$p$},
+  ylabel={leverage},
+  xmin=0, xmax=1, ymin=0.95, ymax=2.05,
+  grid=major, grid style={gray!25},
+  legend style={at={(0.5,0.96)}, anchor=north, draw=gray!60,
+                fill=white, font=\small},
+  legend cell align=left]
+  \addplot[red!80!black, thick, smooth, domain=0.001:0.999, samples=201]
+    { 2 - hh(x) };
+  \addlegendentry{$L_1 = 2 - h(p)$}
+  \addplot[green!55!black, thick, smooth, domain=0.001:0.999, samples=201]
+    { 2/(1 + hh(x)) };
+  \addlegendentry{$L_2 = 2/(1+h(p))$}
+\end{axis}
+\end{tikzpicture}
+\caption{The one-parameter world as a function of the constant-map
+probability $p$. Left: the table entropy $h(p)$ remaining after one
+question, in bits. Right: the one-question leverage $L_1$ and the
+cumulative leverage $L_2$ after both questions. At $p = \tfrac12$
+(the uniform prior) nothing is leveraged; toward the
+deterministic-class extremes every answer doubles its value.}
+\label{fig:oneparam}
+\end{figure}
+
+\section{The general case}\label{sec:general}
+
+Now let us give the definitions in full generality. Questions are bit
+strings of length $n$, and answers are bit strings of length $m$:
+\begin{equation}
+  q \in Q = \{0,1\}^n,
+  \qquad
+  a \in A = \{0,1\}^m,
+\end{equation}
+so there are $2^n$ distinct questions and $2^m$ possible answers to
+each. As before, we read bit strings as the numbers they spell, using
+the two interchangeably: $q \in \{0, \ldots, 2^n{-}1\}$ and
+$a \in \{0, \ldots, 2^m{-}1\}$. The truth $\psi: Q \to A$ is one of
+the candidate maps $\phi_j$; since each of the $2^n$ inputs can be
+sent to any of the $2^m$ outputs independently, there are
+\begin{equation}
+  N \;=\; \big(2^m\big)^{2^n} \;=\; 2^{m\,2^n}
+\end{equation}
+of them, and the index $j$ is again the truth table read as a
+numeral, now with $2^n$ digits in base $2^m$:
+$j = \sum_q \phi_j(q)\,(2^m)^q$, running from the constant-$0$ map
+($j = 0$) to the constant-$(2^m{-}1)$ map ($j = N{-}1$). Werner's
+belief is a distribution over all of them, $\sum_{j=0}^{N-1} p_j = 1$.
+
+The answer matrix is defined by the same rule as before --- the total
+belief in the maps that would answer $a$ to $q$:
+\begin{equation}\label{eq:M-general}
+  M_{a,q} \;=\; \sum_{j\,:\,\phi_j(q) = a} p_j,
+\end{equation}
+now a $2^m \times 2^n$ matrix, still with each column a probability
+distribution over the possible answers: column-stochastic.
+
+The update rule also carries over verbatim. When question $q$ is
+asked and the answer $a = \psi(q)$ comes back, the process of
+elimination reads, in one formula,
+\begin{equation}\label{eq:update}
+  p'_j \;=\; \frac{\delta\big(\phi_j(q),\, a\big)\; p_j}{M_{a,q}},
+  \qquad
+  \delta(x,y) :=
+  \begin{cases}
+    1 & x = y,\\
+    0 & x \neq y.
+  \end{cases}
+\end{equation}
+The Kronecker delta performs the elimination --- any map that answers
+wrongly is zeroed --- and the division renormalizes the survivors,
+whose total prior mass is exactly $M_{a,q}$ by
+equation~\eqref{eq:M-general}. Note that one and the same number
+prices the answer and funds the update: the event arrives with the
+probability $M_{a,q}$, costs Werner $-\log_2 M_{a,q}$ bits of
+surprisal, and its belief mass becomes the new unit of normalization.
+
+The total entropy of the table is extensive over the columns, exactly
+as in equation~\eqref{eq:HM}:
+\begin{equation}\label{eq:HM-general}
+  H(M) \;=\; \sum_{q \in Q} H\big(M_{\cdot,q}\big)
+  \;=\; -\sum_{q \in Q} \sum_{a \in A} M_{a,q} \log_2 M_{a,q}
+  \;\;\leq\;\; m\,2^n,
+\end{equation}
+each column carrying at most $m$ bits (a uniform spread over its
+$2^m$ answers). The ceiling $m\,2^n$ is the size of the entire truth
+table in bits, and it is attained precisely by the uniform prior:
+maximal ignorance prices every answer at full cost.
+
+Finally, the \textbf{leverage}. Run the protocol for $k$ rounds:
+questions $q_1, \ldots, q_k$ are asked, the answers
+$a_i = \psi(q_i)$ are each processed by the update
+rule~\eqref{eq:update}, producing the tables $M^{(i)}$, and round $i$
+costs the surprisal $s_i = -\log_2 M^{(i-1)}_{a_i,\,q_i}$. The
+cumulative leverage after $k$ rounds is the table entropy destroyed
+per bit of surprisal received:
+\begin{equation}\label{eq:leverage}
+  L_k \;:=\;
+  \frac{H\big(M^{(0)}\big) - H\big(M^{(k)}\big)}
+       {\sum_{i=1}^{k} s_i}\;.
+\end{equation}
+In expectation over the truth, $\psi \sim p$, we take the ratio of
+the expected totals, as we implicitly did in
+Section~\ref{sec:oneparam}:
+\begin{equation}
+  \langle L_k \rangle \;:=\;
+  \frac{\big\langle H\big(M^{(0)}\big) - H\big(M^{(k)}\big) \big\rangle}
+       {\big\langle \sum_{i=1}^{k} s_i \big\rangle}\;.
+\end{equation}
+A leverage of $1$ is the uniform-prior baseline: every bit of table
+entropy destroyed was paid for at face value, one bit of surprisal
+each. Anything above $1$ is deduction --- table entropy removed
+without ever being observed.
 
 \end{document}
