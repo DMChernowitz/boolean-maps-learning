@@ -5,6 +5,18 @@
 \usepackage{booktabs}
 \usepackage[normalem]{ulem}
 \usepackage{float}
+\usepackage{caption}
+\usepackage[most]{tcolorbox}
+
+% gray boxes with a subtle title strip, marking example material
+\newtcolorbox{example}{
+  breakable, enhanced,
+  colback=gray!8, colframe=gray!50, boxrule=0.4pt, arc=1.5pt,
+  colbacktitle=gray!22, coltitle=black!60,
+  fonttitle=\small\scshape, title={example},
+  toptitle=1.5pt, bottomtitle=1.5pt,
+  left=7pt, right=7pt, top=5pt, bottom=5pt,
+  before upper={\setlength{\parindent}{15pt}}}
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{pgfplots}
@@ -21,6 +33,15 @@
     \hline
     \mathbf{0} & #1 & #2 \\[2pt]
     \mathbf{1} & #3 & #4
+  \end{array}}
+
+% four-question version, for the n=2, m=1 guiding example
+\newcommand{\MtabIV}[8]{%
+  \begin{array}{c|cccc}
+    \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & #1 & #2 & #3 & #4 \\[2pt]
+    \mathbf{1} & #5 & #6 & #7 & #8
   \end{array}}
 
 \newtheorem{theorem}{Theorem}
@@ -91,7 +112,7 @@ either of the two outputs, independently. We index them by reading
 the truth table $\phi_j(1)\,\phi_j(0)$ as a binary numeral: that
 number \emph{is} $j$.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{c cc l}
 \toprule
@@ -114,10 +135,15 @@ before he has learned the whole pattern.
 
 
 We model this with a \textbf{uniform prior}: writing
-$p_j = P(\psi = \phi_j)$ for Werner's belief,
+$p_j = P(\psi = \phi_j)$ for Werner's belief, every candidate map
+carries the same weight.
+
+\begin{example}
+For the four maps at hand:
 \begin{equation}
   p_j = \tfrac{1}{4}, \qquad j = 0, 1, 2, 3.
 \end{equation}
+\end{example}
 
 What does this belief predict? For each question $q$ separately, we
 can tabulate the probability of each possible answer $a$: it is the
@@ -129,7 +155,10 @@ Arranged with one row per answer ($a = 0, 1$ from the top) and one
 column per question ($q = 1, 0$ from the left, descending like the
 digits of the numeral convention), these numbers form the matrix
 $M$ - each column a probability distribution over answers, so $M$
-is column-stochastic. Under the uniform prior, two of the four maps
+is column-stochastic.
+
+\begin{example}
+Under the uniform prior, two of the four maps
 answer $0$ and two answer $1$, at either question:
 \begin{equation}
   M \;=\;
@@ -146,7 +175,10 @@ Next, Werner gets to predict the answer to the question $q = 0$. By
 his own belief it is a coin toss: $M_{0,0} = M_{1,0} = \tfrac12$.
 Let us say the answer comes back $a = 1$. The \textbf{surprisal} of
 this answer, to Werner, is $1$ bit, because the probability he
-assigned to it was one half. In general, when an event a belief holds
+assigned to it was one half.
+\end{example}
+
+In general, when an event a belief holds
 with probability $P$ actually occurs, its surprisal is
 \begin{equation}
   s \;=\; -\log_2 P \quad \text{bits},
@@ -163,18 +195,17 @@ multiply.
 Moreover, Werner can use a process of elimination --- an extreme form
 of Bayes' rule --- to update his prior into a posterior. Semantically:
 every candidate map that would have answered the question wrongly is
-now \emph{ruled out}, not merely disfavored, because the truth $\psi$
-answered $1$ at $q=0$ and a map with $\phi_j(0) = 0$ cannot be
-$\psi$. This kills the constant-$0$ map ($j = 0$) and the identity
-($j = 2$). The two survivors, NOT ($j = 1$) and constant $1$
-($j = 3$), both predicted the observed answer, so this round of
-evidence does not distinguish between them at all
-(Table~\ref{tab:elimination}): their ratio of believabilities must be
-preserved, and the only update that does so is to renormalize their
-weights to sum to one.
+now \emph{ruled out}, not merely disfavored.
 
-\begin{table}[H]
-\centering
+\begin{example}
+The truth $\psi$ answered $1$ at $q = 0$, and a map with
+$\phi_j(0) = 0$ cannot be $\psi$. This kills the constant-$0$ map
+($j = 0$) and the identity ($j = 2$). The two survivors, NOT
+($j = 1$) and constant $1$ ($j = 3$), both predicted the observed
+answer, so this round of evidence does not distinguish between them
+at all (Table~\ref{tab:elimination}).
+
+\begin{center}
 \begin{tabular}{c cc l}
 \toprule
 $j$ & $\phi_j(1)$ & $\phi_j(0)$ & name \\
@@ -194,13 +225,21 @@ $j$ & $\phi_j(1)$ & $\phi_j(0)$ & name \\
     ([shift={(-2pt,0.55ex)}]pic cs:strikeB) --
     ([shift={(2pt,0.55ex)}]pic cs:strikeBend);
 \end{tikzpicture}
-\caption{The candidate maps after the answer $\psi(0) = 1$: the two
-maps with $\phi_j(0) = 0$ are ruled out.}
+\captionof{table}{The candidate maps after the answer $\psi(0) = 1$:
+the two maps with $\phi_j(0) = 0$ are ruled out.}
 \label{tab:elimination}
-\end{table} (This is Bayes' rule
-with a $0/1$ likelihood: $P(\psi = \phi_j \mid a) \propto
-P(a \mid \phi_j)\, p_j$, and $P(a \mid \phi_j)$ is $1$ for a map that
-answers $a$ and $0$ for a map that does not.) The posterior is
+\end{center}
+\end{example}
+
+The surviving ratio of believabilities must be preserved, and the
+only update that does so is to renormalize the surviving weights to
+sum to one. (This is Bayes' rule with a $0/1$ likelihood:
+$P(\psi = \phi_j \mid a) \propto P(a \mid \phi_j)\, p_j$, and
+$P(a \mid \phi_j)$ is $1$ for a map that answers $a$ and $0$ for a
+map that does not.)
+
+\begin{example}
+The posterior is
 \begin{equation}
   p' \;=\; \big(0,\ \tfrac12,\ 0,\ \tfrac12\big).
 \end{equation}
@@ -231,13 +270,17 @@ single survivor:
 So this is the constant map: $\psi = \phi_3$. Werner is done. Every
 column is one-hot, and he will be able to answer all questions
 correctly from now on.
+\end{example}
 
 \section{Intelligent priors}\label{sec:intelligent}
 
 Now, let us assume that Werner knows \emph{something} about the world
-before he starts. Let us say he knows the map is not constant. His
-belief then spreads evenly over the two remaining candidates, NOT
-($j = 1$) and the identity ($j = 2$):
+before he starts.
+
+\begin{example}
+Let us say Werner knows the map is not constant. His belief then
+spreads evenly over the two remaining candidates, NOT ($j = 1$) and
+the identity ($j = 2$):
 \begin{equation}
   p \;=\; \big(0,\ \tfrac12,\ \tfrac12,\ 0\big).
 \end{equation}
@@ -249,10 +292,13 @@ usual recipe:
   \;=\;
   \Mtab{\tfrac12}{\tfrac12}{\tfrac12}{\tfrac12}\;.
 \end{equation}
-He is still just as bad as before: every column a fair coin. So what
-has all this veteran wisdom about the nature of patterns in the world
-bought him? His increased ability for \emph{inference}.
+He is still just as bad as before: every column a fair coin.
+\end{example}
 
+So what has all this veteran wisdom about the nature of patterns in
+the world bought him? His increased ability for \emph{inference}.
+
+\begin{example}
 Ask $q = 0$ again, and let the answer again come back $a = 1$ ---
 again a coin toss beforehand, so again worth exactly $1$ bit of
 surprisal. Elimination rules out the identity ($\phi_2(0) = 0$), and
@@ -269,6 +315,7 @@ he \emph{deduced}, without ever asking --- ruling out the constants
 means $\phi(1) \neq \phi(0)$, so his prior held the two answers
 perfectly anticorrelated, and settling one settles the other. He is
 done after one question instead of two.
+\end{example}
 
 We say the information from the first answer was \textbf{leveraged}.
 We will make this more precise in the upcoming sections.
@@ -454,6 +501,8 @@ deterministic-class extremes every answer doubles its value.}
 \label{fig:oneparam}
 \end{figure}
 
+In general, in a larger world, if there are $d$ questions to disagree on between the two maps, the reader can convince themselves that the limit as $p \to 1$ is $L_1=d$. 
+
 \section{The general case}\label{sec:general}
 
 Now let us give the definitions in full generality. Questions are bit
@@ -478,6 +527,49 @@ $j = \sum_q \phi_j(q)\,(2^m)^q$, running from the constant-$0$ map
 ($j = 0$) to the constant-$(2^m{-}1)$ map ($j = N{-}1$). Werner's
 belief is a distribution over all of them, $\sum_{j=0}^{N-1} p_j = 1$.
 
+\begin{example}
+The example we will use to guide the general case is $n = 2$,
+$m = 1$, which has $N = 2^{1 \cdot 4} = 16$ maps: every Boolean
+function of the two input bits $b_1, b_0$, with $q = b_1 b_0$ read as
+an ordinary binary number, $q = 2 b_1 + b_0$. Each $\phi_j$ in
+Table~\ref{tab:sixteen} is shown as its truth table, printed in
+descending question order $(11, 10, 01, 00)$ so that the answer to
+question $q$ occupies the digit of weight $2^q$. The printed
+string is exactly $j$ in binary (e.g.\ AND, which answers $1$ only to
+$q = 11$, reads $1000$, so it is $j = 8$). The prior $p_j$ alongside
+is conjured for illustration.
+
+\begin{center}
+\begin{tabular}{c |cccc| l c}
+\toprule
+ & \multicolumn{4}{|c|}{$\phi_j(q)$} & & \\
+$j$ & $11$ & $10$ & $01$ & $00$ & name & $p_j$ \\
+\midrule
+0  & 0 & 0 & 0 & 0 & FALSE (constant $0$) & 0.150 \\
+1  & 0 & 0 & 0 & 1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 \\
+2  & 0 & 0 & 1 & 0 & $\lnot b_1 \wedge b_0$ & 0.060 \\
+3  & 0 & 0 & 1 & 1 & $\lnot b_1$ & 0.017 \\
+4  & 0 & 1 & 0 & 0 & $b_1 \wedge \lnot b_0$ & 0.094 \\
+5  & 0 & 1 & 0 & 1 & $\lnot b_0$ & 0.015 \\
+6  & 0 & 1 & 1 & 0 & $b_1 \oplus b_0$ (XOR) & 0.012 \\
+7  & 0 & 1 & 1 & 1 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 \\
+8  & 1 & 0 & 0 & 0 & $b_1 \wedge b_0$ (AND) & 0.149 \\
+9  & 1 & 0 & 0 & 1 & $b_1 = b_0$ (XNOR) & 0.114 \\
+10 & 1 & 0 & 1 & 0 & $b_0$ (projection) & 0.082 \\
+11 & 1 & 0 & 1 & 1 & $b_1 \to b_0$ (IF THEN) & 0.016 \\
+12 & 1 & 1 & 0 & 0 & $b_1$ (projection) & 0.102 \\
+13 & 1 & 1 & 0 & 1 & $b_0 \to b_1$ (IF THEN) & 0.013 \\
+14 & 1 & 1 & 1 & 0 & $b_1 \vee b_0$ (OR) & 0.014 \\
+15 & 1 & 1 & 1 & 1 & TRUE (constant $1$) & 0.010 \\
+\bottomrule
+\end{tabular}
+\captionof{table}{The guiding example: all $16$ maps of the $n = 2$,
+$m = 1$ hypothesis space, with a contrived prior
+($\sum_j p_j = 1.000$).}
+\label{tab:sixteen}
+\end{center}
+\end{example}
+
 The answer matrix is defined by the same rule as before --- the total
 belief in the maps that would answer $a$ to $q$:
 \begin{equation}\label{eq:M-general}
@@ -486,25 +578,169 @@ belief in the maps that would answer $a$ to $q$:
 now a $2^m \times 2^n$ matrix, still with each column a probability
 distribution over the possible answers: column-stochastic.
 
+It is worth taking a moment to describe the constitution of this
+matrix. Because of the enumeration of $j$ (the index \emph{is} the
+truth table) the answer matrix has a natural structure: it is the
+contraction of the belief vector $p$ with a fixed tensor with $\{0,1\}$ entries $E$,
+summed along the map index,
+\begin{equation}\label{eq:E}
+  M_{a,q} \;=\; \sum_{j=0}^{N-1} E_{a,q,j}\; p_j,
+  \qquad
+  E_{a,q,j} \;:=\; \delta\big(\phi_j(q),\, a\big)
+  \;=\; \delta\Big(\big\lfloor j \cdot 2^{-qm} \big\rfloor \bmod 2^m,\;
+  a\Big).
+\end{equation}
+The second form is pure arithmetic on the index: by the
+numeral convention, $\phi_j(q)$ is nothing but the $q$-th digit of
+$j$ in base $2^m$, so $E$ never needs to be stored. Membership of
+$j$ in the entry $M_{a,q}$ is read directly off the digits of $j$. This is a good thing, $E$ is astronomically large for even moderate $m$ and $n$.
+For $m = 1$ this reduces to: bit $q$ of $j$ equals $a$. The tensor
+$E$ is moreover sparse and perfectly regular: each question-slice ($q$ fixed)
+holds exactly $N$ nonzero entries: every map answers exactly one
+$a$ divided evenly over the $2^m$ answer rows, $N/2^m$ apiece.
+Within a slice the nonzero row follows the odometer pattern of a
+numeral system: runs of $(2^m)^q$ consecutive $j$ share a digit,
+cycling through all $2^m$ rows with period $(2^m)^{q+1}$. 
+
+The odometer pattern gives every entry of $M$ the same compact
+closed form: for $m = 1$, bit $q$ of $j$ equals $0$ exactly when
+$j \bmod 2^{q+1} < 2^q$, and equals $1$ otherwise.
+
+\begin{example}
+Each entry of $M$ collects the eight maps of Table~\ref{tab:sixteen}
+whose truth table carries the right digit. Filling the entries in
+--- note the period halving column by column, with the outer columns
+written in their simplified forms, $j \bmod 16 < 8$ being simply
+$j < 8$ and $j \bmod 2 < 1$ simply ``$j$ even'' --- and then
+substituting the values of $p_j$:
+\begin{equation}\label{eq:M16}
+\begin{aligned}
+  M \;&=\;
+  \MtabIV{\scriptstyle\sum\limits_{j < 8} p_j}
+         {\scriptstyle\sum\limits_{j \bmod 8 < 4} p_j}
+         {\scriptstyle\sum\limits_{j \bmod 4 < 2} p_j}
+         {\scriptstyle\sum\limits_{j\ \mathrm{even}} p_j}
+         {\scriptstyle\sum\limits_{j \geq 8} p_j}
+         {\scriptstyle\sum\limits_{j \bmod 8 \geq 4} p_j}
+         {\scriptstyle\sum\limits_{j \bmod 4 \geq 2} p_j}
+         {\scriptstyle\sum\limits_{j\ \mathrm{odd}} p_j}
+  \\[10pt]
+  &=\;
+  \MtabIV{0.500}{0.729}{0.778}{0.663}
+         {0.500}{0.271}{0.222}{0.337}\;.
+\end{aligned}
+\end{equation}
+\end{example}
+
 The update rule also carries over verbatim. When question $q$ is
 asked and the answer $a = \psi(q)$ comes back, the process of
 elimination reads, in one formula,
 \begin{equation}\label{eq:update}
-  p'_j \;=\; \frac{\delta\big(\phi_j(q),\, a\big)\; p_j}{M_{a,q}},
-  \qquad
-  \delta(x,y) :=
-  \begin{cases}
-    1 & x = y,\\
-    0 & x \neq y.
-  \end{cases}
+  p'_j \;=\; \frac{\delta\big(\phi_j(q),\, a\big)\; p_j}{M_{a,q}}
+  \;=\; \frac{E_{a,q,j}\; p_j}{M_{a,q}}.
 \end{equation}
-The Kronecker delta performs the elimination --- any map that answers
-wrongly is zeroed --- and the division renormalizes the survivors,
+The Kronecker delta performs the elimination. Only maps that agree with a survive and the division renormalizes the survivors,
 whose total prior mass is exactly $M_{a,q}$ by
 equation~\eqref{eq:M-general}. Note that one and the same number
 prices the answer and funds the update: the event arrives with the
 probability $M_{a,q}$, costs Werner $-\log_2 M_{a,q}$ bits of
-surprisal, and its belief mass becomes the new unit of normalization.
+surprisal, and its belief mass becomes the new unit of normalization. Every update shrinks the support by $2^{-m}$, radically thinning, especially for large $m$. The survivors live on a block-wave in $j$-space. The map determines the offset and frequency.
+The total set of survivors depends on the set of asked questions, not the order: updating commutes. This is illustrated in the example below.
+
+\begin{example}
+Figure~\ref{fig:cull} makes the process visual for $n = m = 2$: a
+schematic prior over $N = 4^4 = 256$ maps, drawn as vertical
+lines with thickness representing weight. Each answer stops $3$ out of every $4$ surviving lines:
+maps whose truth table carry a wrong digit at the asked question. Renormalization inflates the weight of the rest, so the total probability is always unit. Four questions cut
+$256 \to 64 \to 16 \to 4 \to 1$, and the last line standing is the
+truth. Note the regularity of the cull: each answer keeps a single
+residue class of $j$, so the cadence of the survivors is regular.
+
+\begin{center}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[x=0.05cm, y=1cm]
+  % label-column titles, tucked just below the starting line
+  \node[anchor=north, font=\small\itshape] at (-20,-0.05) {q};
+  \node[anchor=north, font=\small\itshape] at (-7,-0.05) {a};
+  % round 0: all 256 maps
+  \foreach \j in {0,...,255}
+    \draw[line width=0.1pt] (\j,0) -- (\j,-1.4);
+  % filter q=00, a=11: passes digit0 = 3, i.e. j mod 4 = 3
+  \draw[gray, line width=1pt] (-2,-1.4) -- (2.5,-1.4);
+  \foreach \k in {0,...,62}
+    \draw[gray, line width=1pt] (4*\k+3.5,-1.4) -- (4*\k+6.5,-1.4);
+  \draw[gray, line width=1pt] (255.5,-1.4) -- (257,-1.4);
+  \node[font=\small] at (-20,-1.4) {$00$};
+  \node[font=\small] at (-7,-1.4) {$11$};
+  % survivors: j mod 4 = 3 (j = 4k+3), weight classes by k mod 3,
+  % rotated so the eventual winner j=27 (k=6) carries the MIDDLE class:
+  % k=0 -> 2, k=1 -> 4, k=2 -> 1; question order 00, 10, 01, 11;
+  % layer masses 149 -> 39 -> 9 -> 2
+  \foreach \j in {3,15,...,255}
+    \draw[line width=0.6pt] (\j,-1.4) -- (\j,-2.8);
+  \foreach \j in {7,19,...,247}
+    \draw[line width=1.2pt] (\j,-1.4) -- (\j,-2.8);
+  \foreach \j in {11,23,...,251}
+    \draw[line width=0.3pt] (\j,-1.4) -- (\j,-2.8);
+  % filter q=10, a=01: passes digit2 = 1, i.e. j mod 64 in [16,32);
+  % windows nudged right so the finite-width survivor lines clear them
+  \draw[gray, line width=1pt] (-2,-2.8) -- (17,-2.8);
+  \foreach \s in {0,...,2}
+    \draw[gray, line width=1pt] (64*\s+33,-2.8) -- (64*\s+81,-2.8);
+  \draw[gray, line width=1pt] (225,-2.8) -- (257,-2.8);
+  \node[font=\small] at (-20,-2.8) {$10$};
+  \node[font=\small] at (-7,-2.8) {$01$};
+  % survivors: digit 2 = 1, i.e. j mod 64 in {19,23,27,31},
+  % all rescaled by 149/39
+  \foreach \j in {23,83,95,155,215}
+    \draw[line width=1.15pt] (\j,-2.8) -- (\j,-4.2);
+  \foreach \j in {27,87,147,159,219}
+    \draw[line width=2.29pt] (\j,-2.8) -- (\j,-4.2);
+  \foreach \j in {19,31,91,151,211,223}
+    \draw[line width=4.58pt] (\j,-2.8) -- (\j,-4.2);
+  % filter q=01, a=10: passes digit1 = 2, i.e. j mod 16 in [8,12);
+  % windows nudged right so the finite-width survivor lines clear them
+  \draw[gray, line width=1pt] (-2,-4.2) -- (9.2,-4.2);
+  \foreach \t in {0,...,14}
+    \draw[gray, line width=1pt] (16*\t+13.2,-4.2) -- (16*\t+25.2,-4.2);
+  \draw[gray, line width=1pt] (253.2,-4.2) -- (257,-4.2);
+  \node[font=\small] at (-20,-4.2) {$01$};
+  \node[font=\small] at (-7,-4.2) {$10$};
+  % survivors: j mod 64 = 27, all rescaled by 39/9
+  \draw[line width=9.93pt]  (27,-4.2)  -- (27,-5.6);
+  \draw[line width=19.87pt] (91,-4.2)  -- (91,-5.6);
+  \draw[line width=4.97pt]  (155,-4.2) -- (155,-5.6);
+  \draw[line width=9.93pt]  (219,-4.2) -- (219,-5.6);
+  % filter q=11, a=00: passes digit3 = 0, i.e. j mod 256 in [0,64);
+  % the left stub is drawn a little longer than cell-exact, purely to
+  % emphasize that the window's offset can be nonzero
+  \draw[gray, line width=1pt] (-2,-5.6) -- (1,-5.6);
+  \draw[gray, line width=1pt] (63.5,-5.6) -- (257,-5.6);
+  \node[font=\small] at (-20,-5.6) {$11$};
+  \node[font=\small] at (-7,-5.6) {$00$};
+  % survivor: j = 27, rescaled by 9/2, labeled on a white patch
+  \draw[line width=44.7pt] (27,-5.6) -- (27,-7.0);
+  \node[fill=white, inner sep=1.5pt, font=\small, align=center]
+    at (27,-6.3) {$\psi$\\[-1pt] $j{=}27$};
+  % survivor counts per stage, superimposed mid-row on white patches
+  \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-0.7) {$256$};
+  \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-2.1) {$64$};
+  \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-3.5) {$16$};
+  \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-4.9) {$4$};
+  \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-6.3) {$1$};
+\end{tikzpicture}}
+\captionsetup{skip=8pt}
+\captionof{figure}{The update rule as a cull, for $n = m = 2$. All $256$
+candidate maps start as vertical lines under a schematic prior. The truth is
+the bitwise negation $\psi(q) = \lnot q$ ($j = 27$), and the four
+questions are asked in the order $00, 10, 01, 11$. Each answer terminates the
+$3/4$ of surviving maps whose truth-table digit at the asked question
+disagrees. Every survivor's thickness, proportional to its
+weight, is rescaled by the same renormalization factor, preserving
+their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the smallest question. After the three lowest $q$, even spacing returns.}
+\label{fig:cull}
+\end{center}
+\end{example}
 
 The total entropy of the table is extensive over the columns, exactly
 as in equation~\eqref{eq:HM}:
@@ -517,6 +753,374 @@ each column carrying at most $m$ bits (a uniform spread over its
 $2^m$ answers). The ceiling $m\,2^n$ is the size of the entire truth
 table in bits, and it is attained precisely by the uniform prior:
 maximal ignorance prices every answer at full cost.
+
+The belief itself carries an entropy as well, and we give its gap to
+the table a name:
+\begin{equation}\label{eq:C}
+  H(p) \;=\; -\sum_{j=0}^{N-1} p_j \log_2 p_j,
+  \qquad
+  C \;:=\; H(M) - H(p) \;\geq\; 0.
+\end{equation}
+$H(p)$, Werner's uncertainty about the \emph{identity} of the truth,
+obeys the same ceiling: a distribution over $N$ maps has entropy at
+most $\log_2 N = m\,2^n$, attained again by the uniform prior.  The information in the
+prior is not directly useful for prediction, but it is good to track. 
+
+Why is $C>0$? The answers jointly determine the map, so $H(p)$ is the
+\emph{joint} entropy of all $2^n$ answers, while $H(M)$ sums their
+\emph{marginal} entropies and a joint entropy never exceeds the
+sum of its marginals. Hence $H(p) \leq H(M)$, and the gap $C$, the
+\textbf{total correlation} of the answers, is nonnegative: knowledge
+stored in correlations \emph{between} answers, invisible to every
+single column of $M$.
+
+We choose this convention for $H(M)$ because in the ignorant case
+\begin{enumerate}
+  \item $H(M)$ is the total amount of information we must collect from questions to settle the map
+  \item $H(M) = H(p)$, so the ignorance agrees in both bases, without correlations.
+\end{enumerate}
+Therefore, the scaling is sensible. How these quantities respond to an intelligent prior, is the main question of this work.
+
+Let us watch these ledgers in motion by playing the guiding example
+through all four questions. Werner can compute two forecasts for
+every unasked question, in advance, from $M$ alone: the expected
+surprisal $\langle s \rangle$, which by
+equation~\eqref{eq:surprisal-entropy} is the entropy of that
+question's column, and the expected drop
+$\langle \Delta H(M) \rangle$ of the \emph{whole} table if that
+question is asked next. This is the average over possible $a$, weighted by their probability (according to $M$):
+\begin{equation}
+  \langle s \rangle(q)
+  \;=\; \sum_{a} M_{a,q}\,\big({-}\log_2 M_{a,q}\big),
+\end{equation}
+\begin{equation}
+  \langle \Delta H(M) \rangle(q)
+  \;=\; \sum_{a} M_{a,q}\,\Big[H(M) - H\big(M^{(q,a)}\big)\Big],
+\end{equation}
+where $M^{(q,a)}$ is the table after the update
+rule~\eqref{eq:update} processes answer $a$ to question $q$. We know the column of $q$ will drop $\langle s \rangle(q)$ in entropy. But other columns will also respond.
+The excess of the second over the first is
+the expected transfer to unasked columns, and it can only be paid out
+of correlations. We append both forecasts as extra rows under $M$.
+
+\begin{example}
+
+Werner plays greedily: always asking the question with the largest
+forecast. The truth is AND ($\psi = \phi_8$).
+
+
+\textbf{Question 1.} The starting state:
+\[
+  \begin{array}{c|cccc}
+    \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & 0.500 & 0.729 & 0.778 & 0.663 \\[2pt]
+    \mathbf{1} & 0.500 & 0.271 & 0.222 & 0.337 \\
+    \hline
+    \langle s \rangle & 1.000 & 0.843 & 0.764 & 0.922 \\[2pt]
+    \langle \Delta H(M) \rangle & 1.005 & 0.878 & 0.778 & 0.965
+  \end{array}
+\]
+To see where the forecast entries come from, take $q = 11$: both
+answers arrive with probability $M_{a,11} = \tfrac12$, the answer
+$a = 0$ would drop $H(M)$ from $3.529$ to $2.504$, and the answer
+$a = 1$ to $2.543$, so
+\[
+  \langle s \rangle(11)
+  = \tfrac12 (1.000) + \tfrac12 (1.000) = 1.000,
+  \qquad
+  \langle \Delta H(M) \rangle(11)
+  = \tfrac12 (1.025) + \tfrac12 (0.986) = 1.005.
+\]
+Both forecast rows point to $q = 11$: it is a perfect coin
+($\langle s\rangle = 1.000$) and also moves the whole table most.
+Werner asks it, and nature answers $a = 1$ (probability $0.500$,
+surprisal $s_1 = 1.000$). Eight maps die:
+
+\begin{center}
+\begin{tabular}{c l c c}
+\toprule
+$j$ & name & $p_j$ & $p'_j$ \\
+\midrule
+\tikzmark{w1a}0 & FALSE (constant $0$) & 0.150 & ---\tikzmark{w1ae} \\
+\tikzmark{w1b}1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 & ---\tikzmark{w1be} \\
+\tikzmark{w1c}2 & $\lnot b_1 \wedge b_0$ & 0.060 & ---\tikzmark{w1ce} \\
+\tikzmark{w1d}3 & $\lnot b_1$ & 0.017 & ---\tikzmark{w1de} \\
+\tikzmark{w1e}4 & $b_1 \wedge \lnot b_0$ & 0.094 & ---\tikzmark{w1ee} \\
+\tikzmark{w1f}5 & $\lnot b_0$ & 0.015 & ---\tikzmark{w1fe} \\
+\tikzmark{w1g}6 & $b_1 \oplus b_0$ (XOR) & 0.012 & ---\tikzmark{w1ge} \\
+\tikzmark{w1h}7 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 & ---\tikzmark{w1he} \\
+8 & $b_1 \wedge b_0$ (AND) & 0.149 & 0.298 \\
+9 & $b_1 = b_0$ (XNOR) & 0.114 & 0.228 \\
+10 & $b_0$ (projection) & 0.082 & 0.164 \\
+11 & $b_1 \to b_0$ (IF THEN) & 0.016 & 0.032 \\
+12 & $b_1$ (projection) & 0.102 & 0.204 \\
+13 & $b_0 \to b_1$ (IF THEN) & 0.013 & 0.026 \\
+14 & $b_1 \vee b_0$ (OR) & 0.014 & 0.028 \\
+15 & TRUE (constant $1$) & 0.010 & 0.020 \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \foreach \s/\e in {w1a/w1ae, w1b/w1be, w1c/w1ce, w1d/w1de,
+                     w1e/w1ee, w1f/w1fe, w1g/w1ge, w1h/w1he}
+    \draw[line width=0.5pt]
+      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
+      ([shift={(2pt,0.55ex)}]pic cs:\e);
+\end{tikzpicture}
+\end{center}
+
+The ledger:
+\[
+  H(M)\colon 3.529 \to 2.543, \qquad
+  H(p)\colon 3.440 \to 2.456, \qquad
+  C\colon 0.089 \to 0.087.
+\]
+Werner received $1.000$ bit but destroyed only $0.986$ bits of table:
+the deduced part is \emph{negative}, $-0.014$ bits. The realized
+answer nudged the unasked columns slightly toward the fair coin ---
+correlations point the right way only on average, not on every draw.
+The destroyed-per-received ratio of this round is $0.986$: less than
+$1$, anti-leverage.
+\end{example}
+
+Question 1 is a reminder that the forecast rows are
+\emph{expectations}: they hold on average over many repetitions of
+the experiment, and only if the world really does draw its truth $\psi$
+from Werner's prior. On any single run the realized numbers are free
+to deviate.
+
+\begin{example}
+\textbf{Question 2.} The state after the collapse, with fresh
+forecasts:
+\[
+  \begin{array}{c|cccc}
+    \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & 0 & 0.722 & 0.756 & 0.694 \\[2pt]
+    \mathbf{1} & 1 & 0.278 & 0.244 & 0.306 \\
+    \hline
+    \langle s \rangle & \text{---} & 0.853 & 0.802 & 0.889 \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & 0.889 & 0.820 & 0.926
+  \end{array}
+\]
+Greedy picks $q = 00$. Nature answers
+$a = 0$ --- the answer Werner favored (probability $0.694$), so the
+surprisal is only $s_2 = 0.527$ bits. Four of the eight die:
+
+\begin{center}
+\begin{tabular}{c l c c}
+\toprule
+$j$ & name & $p_j$ & $p'_j$ \\
+\midrule
+8 & $b_1 \wedge b_0$ (AND) & 0.298 & 0.429 \\
+\tikzmark{w2a}9 & $b_1 = b_0$ (XNOR) & 0.228 & ---\tikzmark{w2ae} \\
+10 & $b_0$ (projection) & 0.164 & 0.236 \\
+\tikzmark{w2b}11 & $b_1 \to b_0$ (IF THEN) & 0.032 & ---\tikzmark{w2be} \\
+12 & $b_1$ (projection) & 0.204 & 0.294 \\
+\tikzmark{w2c}13 & $b_0 \to b_1$ (IF THEN) & 0.026 & ---\tikzmark{w2ce} \\
+14 & $b_1 \vee b_0$ (OR) & 0.028 & 0.040 \\
+\tikzmark{w2d}15 & TRUE (constant $1$) & 0.020 & ---\tikzmark{w2de} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \foreach \s/\e in {w2a/w2ae, w2b/w2be, w2c/w2ce, w2d/w2de}
+    \draw[line width=0.5pt]
+      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
+      ([shift={(2pt,0.55ex)}]pic cs:\e);
+\end{tikzpicture}
+\end{center}
+
+The ledger:
+\[
+  H(M)\colon 2.543 \to 1.770, \qquad
+  H(p)\colon 2.456 \to 1.722, \qquad
+  C\colon 0.087 \to 0.049.
+\]
+This time $0.773$ bits are destroyed for $0.527$ received. Where did
+the extra $0.246$ come from? Partly from the favored answer arriving
+--- the belief dropped $0.734$ against only $0.527$ paid --- and
+partly from the store: $C$ fell by $0.038$.
+Step ratio $1.466$. Cumulatively, $1.759$ destroyed per $1.527$
+received, which gives a leverage of $1.152$ after 2 steps.
+\end{example}
+
+Why track $C$, when its step-by-step changes visibly do not match
+the amounts deduced? Because on a single realized run the deduced
+part has \emph{two} sources, and $C$ is the only quantity that
+separates them. Writing $\Delta$ for the realized drops in one step,
+\begin{equation}\label{eq:windfall-tower}
+  \underbrace{\Delta H(M) - s}_{\text{deduced}}
+  \;=\;
+  \underbrace{\big[\Delta H(p) - s\big]}_{\text{windfall}}
+  \;+\;
+  \underbrace{\big[{-}\Delta C\big]}_{\text{tower}},
+\end{equation}
+an identity, since $H(M) = H(p) + C$ at every stage. The windfall is
+luck: the realized surprisal undershooting (or overshooting) the
+realized drop in belief entropy: zero in expectation. The tower
+term is structure: a genuine withdrawal from the correlation store,
+and the channel with a global guarantee. Over a complete run its
+withdrawals sum to exactly the initial $C$, while the windfalls
+average away. 
+
+\begin{example}
+\textbf{Question 3.} Two questions remain:
+\[
+  \begin{array}{c|cccc}
+    \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & 0 & 0.666 & 0.723 & 1 \\[2pt]
+    \mathbf{1} & 1 & 0.334 & 0.277 & 0 \\
+    \hline
+    \langle s \rangle & \text{---} & 0.919 & 0.851 & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & 0.968 & 0.899 & \text{---}
+  \end{array}
+\]
+Greedy picks $q = 10$; nature answers $a = 0$ (probability $0.666$,
+surprisal $s_3 = 0.587$). Two die:
+
+\begin{center}
+\begin{tabular}{c l c c}
+\toprule
+$j$ & name & $p_j$ & $p'_j$ \\
+\midrule
+8 & $b_1 \wedge b_0$ (AND) & 0.429 & 0.645 \\
+10 & $b_0$ (projection) & 0.236 & 0.355 \\
+\tikzmark{w3a}12 & $b_1$ (projection) & 0.294 & ---\tikzmark{w3ae} \\
+\tikzmark{w3b}14 & $b_1 \vee b_0$ (OR) & 0.040 & ---\tikzmark{w3be} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \foreach \s/\e in {w3a/w3ae, w3b/w3be}
+    \draw[line width=0.5pt]
+      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
+      ([shift={(2pt,0.55ex)}]pic cs:\e);
+\end{tikzpicture}
+\end{center}
+
+The ledger:
+\[
+  H(M)\colon 1.770 \to 0.938, \qquad
+  H(p)\colon 1.722 \to 0.938, \qquad
+  C\colon 0.049 \to 0.
+\]
+Again $0.832$ destroyed for $0.587$ received, and the cumulative ratio is
+$1.225$. And note that $C$ has dropped to zero.
+\end{example}
+
+$C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$.
+That's not the case when the number of free parameters has been reduced by learning to 1 each.
+
+\begin{example}
+\textbf{Question 4.} One question, one coin:
+\[
+  \begin{array}{c|cccc}
+    \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & 0 & 1 & 0.645 & 1 \\[2pt]
+    \mathbf{1} & 1 & 0 & 0.355 & 0 \\
+    \hline
+    \langle s \rangle & \text{---} & \text{---} & 0.938 & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \text{---} & 0.938 & \text{---}
+  \end{array}
+\]
+The two forecasts now coincide: with $C = 0$ there is no transfer
+left to hope for, and the last question can only be observed, not
+leveraged. Nature answers $a = 0$ (probability $0.645$, surprisal
+$s_4 = 0.633$):
+
+\begin{center}
+\begin{tabular}{c l c c}
+\toprule
+$j$ & name & $p_j$ & $p'_j$ \\
+\midrule
+8 & $b_1 \wedge b_0$ (AND) & 0.645 & 1.000 \\
+\tikzmark{w4a}10 & $b_0$ (projection) & 0.355 & ---\tikzmark{w4ae} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \draw[line width=0.5pt]
+    ([shift={(-2pt,0.55ex)}]pic cs:w4a) --
+    ([shift={(2pt,0.55ex)}]pic cs:w4ae);
+\end{tikzpicture}
+\end{center}
+
+The ledger closes:
+\[
+  H(M)\colon 0.938 \to 0, \qquad
+  H(p)\colon 0.938 \to 0, \qquad
+  C\colon 0 \to 0.
+\]
+The truth is AND. The step destroyed $0.938$ for $0.633$ received
+(ratio $1.484$) --- not deduction this time, but luck: the destroyed
+amount was fixed in advance (the column's full entropy), while the
+realized surprisal undershot it because the likelier answer arrived.
+In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
+tower $0$.
+\end{example}
+
+\begin{example}
+\textbf{The whole run.} Cumulatively: $3.529$ bits of table
+destroyed --- all of it, as it must be --- for $2.747$ bits of
+surprisal received, a run ratio of $1.285$. Of the $0.782$ bits
+deduced, only $0.089$ was structure --- the entire initial tower,
+as the guarantee demands --- and the remaining $0.693$ was windfall:
+the truth happened to be a high-prior map, and its answers kept
+underpaying. In expectation the windfall vanishes, and the run
+ratio would be $H(M)_0/H(p) = 3.529/3.440 = 1.026$; most of the
+realized $1.285$ was luck, not intelligence. Figure~\ref{fig:run21}
+stacks the books after each question: what remains, what was
+received, and the deduced gap up to the initial total.
+
+\begin{center}
+\begin{tikzpicture}[x=1.35cm, y=1.05cm]
+  % axis
+  \draw[->] (-0.75,0) -- (-0.75,3.9);
+  \node[above, font=\small] at (-0.75,3.9) {bits};
+  \foreach \y in {0,1,2,3}
+    \draw (-0.81,\y) -- (-0.69,\y) node[left, font=\small] {$\y$};
+  % l = 0
+  \fill[blue!55] (-0.32,0) rectangle (0.32,3.529);
+  % l = 1
+  \fill[blue!55] (0.68,0) rectangle (1.32,2.543);
+  \fill[orange!85] (0.68,2.543) rectangle (1.32,3.543);
+  % l = 2
+  \fill[blue!55] (1.68,0) rectangle (2.32,1.770);
+  \fill[orange!85] (1.68,1.770) rectangle (2.32,3.297);
+  \fill[green!55!black] (1.68,3.297) rectangle (2.32,3.529);
+  % l = 3
+  \fill[blue!55] (2.68,0) rectangle (3.32,0.938);
+  \fill[orange!85] (2.68,0.938) rectangle (3.32,3.052);
+  \fill[green!55!black] (2.68,3.052) rectangle (3.32,3.529);
+  % l = 4
+  \fill[orange!85] (3.68,0) rectangle (4.32,2.747);
+  \fill[green!55!black] (3.68,2.747) rectangle (4.32,3.529);
+  % initial-total line
+  \draw[dashed, gray] (-0.75,3.529) -- (4.6,3.529);
+  \node[right, font=\small, gray] at (4.6,3.529) {$H(M)_0$};
+  % x labels
+  \foreach \l in {0,...,4}
+    \node[below, font=\small] at (\l,0) {$\ell{=}\l$};
+  % legend
+  \fill[blue!55] (5.4,2.9) rectangle (5.7,3.15);
+  \node[right, font=\small] at (5.7,3.02) {remaining $H(M)$};
+  \fill[orange!85] (5.4,2.3) rectangle (5.7,2.55);
+  \node[right, font=\small] at (5.7,2.42) {received $\sum s$};
+  \fill[green!55!black] (5.4,1.7) rectangle (5.7,1.95);
+  \node[right, font=\small] at (5.7,1.82) {deduced};
+\end{tikzpicture}
+\captionof{figure}{The realized run through the guiding example:
+remaining table entropy, cumulative surprisal received, and the
+deduced remainder, after each question. The three parts sum to
+$H(M)_0 = 3.529$ at every step. At $\ell = 1$ the deduced part is
+in fact slightly negative ($-0.014$ bits): the received bar pokes
+just above the $H(M)_0$ line, invisibly at this scale.}
+\label{fig:run21}
+\end{center}
+\end{example}
+
+The ratio that kept appearing --- table entropy destroyed per bit of
+surprisal received --- deserves a name.
 
 Finally, the \textbf{leverage}. Run the protocol for $k$ rounds:
 questions $q_1, \ldots, q_k$ are asked, the answers
