@@ -2392,6 +2392,590 @@ roughly neutral toward the truth: it neither actively fights learning AND
 nor goes out of its way to help beyond what a flat preference for
 "not too complex" already provides.
 
+## An ansatz: two extremal candidates for the most intelligent prior
+
+For generic $n$ and $m$, concentrate weight $p$ on one special map
+$\phi_\star$ and distribute the remaining $1-p$ in the two extreme
+ways — the limiting cases of "all eggs in the fewest baskets" versus
+"one egg guarded, the rest spread flat":
+
+- **Twin ansatz (A):** one other map $\phi_\circ$ carries $1-p$;
+  every remaining map has weight $0$.
+- **Spike ansatz (B):** all other $N-1$ maps share the rest evenly,
+  $\beta := (1-p)/(N-1)$ each.
+
+Both are candidates for "the most intelligent prior" in opposite
+senses: A commits to a two-world hypothesis (minimal support), B
+hedges a single guess with total agnosticism (maximal support).
+
+**Twin ansatz, before the first question.** Let $D$ be the set of
+questions where the twins disagree, $d = |D| \in \{1,\ldots,2^n\}$.
+Columns outside $D$ are one-hot (both maps agree there; entropy $0$);
+columns in $D$ carry exactly two answers,
+
+$$
+M_{a,q} =
+\begin{cases}
+p & a = \phi_\star(q),\\
+1-p & a = \phi_\circ(q),\\
+0 & \text{else},
+\end{cases}
+\qquad q \in D,
+$$
+
+with entropy $h(p)$ apiece — binary regardless of $m$, since only two
+answers ever have support. So $H(M)_0 = d\,h(p)$.
+
+**Twin ansatz, after one question.** Asking $q \notin D$ returns a
+certain answer: surprisal $0$, $M$ unchanged — nothing spent, nothing
+learned. Asking $q \in D$ settles everything, whichever way it falls:
+
+- *It fell on the special map* (probability $p$): the twin dies, the
+  posterior is a point mass on $\phi_\star$, and every column
+  collapses to one-hot. Surprisal $-\log_2 p$; reduction
+  $\Delta H(M) = d\,h(p)$ (all of it).
+- *It fell on the twin* (probability $1-p$): point mass on
+  $\phi_\circ$, again $H(M') = 0$. Surprisal $-\log_2(1-p)$;
+  reduction $d\,h(p)$.
+
+The reduction is the same in both branches — only the price differs.
+Expected surprisal $h(p)$ (the column-entropy lemma, again), expected
+leverage $d\,h(p)/h(p) = d$, up to $2^n$ for complementary twins:
+the $n=m=1$ symmetric family's ceiling of $2$, generalized. The twin
+prior never regresses — but it is *dogmatic*: if the truth is neither
+twin, some answer of probability $0$ eventually arrives, carrying
+infinite surprisal and an undefined update.
+
+**Spike ansatz, before the first question.** Every column looks the
+same: the special answer carries the spike plus its share of
+background, the other $2^m - 1$ answers carry background only,
+
+$$
+M_{\phi_\star(q),q} = p + \Big(\tfrac{N}{2^m}-1\Big)\beta \;=:\; M_\star,
+\qquad
+M_{a \neq \phi_\star(q),q} = \tfrac{N}{2^m}\,\beta \;=:\; M_\circ,
+$$
+
+which for large $N$ tend to $p + (1-p)2^{-m}$ and $(1-p)2^{-m}$. So
+
+$$
+H(M)_0 = 2^n\, H_{\mathrm{col}}(p),
+\qquad
+H_{\mathrm{col}}(p) = -M_\star \log_2 M_\star - (2^m-1)\, M_\circ \log_2 M_\circ,
+$$
+
+interpolating from $m\,2^n$ (uniform, $p=0$) down to $0$ ($p\to1$).
+
+**Spike ansatz, after one question.** All questions are equivalent;
+ask any $q$.
+
+- *It fell on the special map* (probability $M_\star$): the survivors
+  are $\phi_\star$ and the $N/2^m - 1$ background maps that agreed at
+  $q$ — and these still share their (renormalized) weight evenly, so
+  **the ansatz is closed under confirming updates**: the posterior is
+  again spike-plus-uniform on the reduced space of $N' = N/2^m$ maps,
+  with a sharper spike $p' = p/M_\star > p$. Surprisal
+  $-\log_2 M_\star$ (small, vanishing as $p \to 1$); the asked column
+  zeroes and every unasked column sharpens to
+  $H_{\mathrm{col}}'(p')$, giving
+
+$$
+\Delta H(M) = H_{\mathrm{col}}(p)
++ (2^n-1)\big[H_{\mathrm{col}}(p) - H_{\mathrm{col}}'(p')\big] > 0 :
+$$
+
+  a cheap answer funds a global cleanup.
+
+- *It fell elsewhere* (each wrong answer with probability $M_\circ$):
+  the spike dies, and what survives is the uniform background on
+  $N/2^m$ maps — **exactly the uniform prior on the reduced space**.
+  Every unasked column springs back to the full $m$ bits:
+  $H(M') = (2^n-1)\,m$. Surprisal $-\log_2 M_\circ$ (large), and
+
+$$
+\Delta H(M) = 2^n H_{\mathrm{col}}(p) - (2^n-1)\,m,
+$$
+
+  which is **negative precisely when**
+  $H_{\mathrm{col}}(p) < (1 - 2^{-n})\,m$: a sharp spike that guesses
+  wrong pays a large surprisal *and* watches the table's entropy
+  rise — the confident predictions in every column are exposed as
+  worthless, and the ledger reverts to ignorance. (In expectation the
+  reduction is still nonnegative, as mutual information demands; the
+  regression lives in one branch, not in the average.)
+
+Numbers at $n = m = 2$ ($N = 256$; verified against brute force in
+`ansatz_priors.py`):
+
+| $p$ | $H_{\mathrm{col}}$ | $H(M)_0$ | confirm: $s$, $\Delta H$, $p'$ | refute: $s$, $\Delta H$ |
+|---|---|---|---|---|
+| $0.3$ | $1.833$ | $7.333$ | $1.08$, $+3.45$, $0.63$ | $2.51$, $+1.33$ (still cleans) |
+| $0.9$ | $0.505$ | $2.019$ | $0.11$, $+1.49$, $0.97$ | $5.32$, $-3.98$ (**regresses**) |
+
+**The full curves.** All nine quantities — surprisal, $H(M)$ before,
+and $H(M)$ after, each in the correct / wrong / expected cases — as
+functions of $p$, for both ansatzes on the two full-size spaces
+($N = 65536$ in both; `ansatz_figures.py`; the three "before" lines
+coincide, since $H(M)_0$ does not know the answer yet):
+
+![spike ansatz curves, (4,1)](figures/ansatz_spike_4to1.png)
+
+![twin ansatz curves, (4,1)](figures/ansatz_twin_4to1.png)
+
+![spike ansatz curves, (3,2)](figures/ansatz_spike_3to2.png)
+
+![twin ansatz curves, (3,2)](figures/ansatz_twin_3to2.png)
+
+Readings, with an eye on the $p \to 1$ limit:
+
+- **Spike.** The wrong-branch after-entropy is flat at $(2^n-1)m$
+  (red dashed) whatever $p$: reversion to uniform has no memory of
+  how confident the spike was. The regression region is visible as
+  the crossing of the dotted "before" curve below that line —
+  at $p \approx 0.29$ for $(4,1)$ and $p \approx 0.37$ for $(3,2)$ —
+  so even a moderately confident spike already has something to
+  lose. As $p \to 1$ the correct branch becomes free *and* complete
+  ($s \to 0$, $H_{\text{after}} \to 0$), while the wrong branch
+  diverges as $-\log_2(1-p)$ against a fixed $(2^n-1)m$ of restored
+  ignorance: an unbounded bill for a bounded catastrophe. Both
+  expectations tend smoothly to $0$ — the vanishing probability of
+  being wrong tames the divergence (and the gray solid curve is
+  exactly $H_{\mathrm{col}}(p)$, the column-entropy lemma drawn).
+- **Twin.** All three after-curves are identically zero: one
+  disagreement answer settles everything, in every branch, at every
+  $p$. The before-curve is the dome $2^n h(p)$, and the surprisals
+  are the mirror pair $-\log_2 p$ / $-\log_2(1-p)$ crossing at the
+  symmetric point, with expectation $h(p) \leq 1$ bit. As
+  $p \to 1$ both the dome and the expected surprisal vanish
+  *together*, at fixed ratio: for arbitrary $d$ the expected leverage
+  is $\langle\Delta H\rangle/\langle s\rangle = d\,h(p)/h(p) = d$,
+  identically in $p$ (and unchanged if the question is drawn
+  uniformly rather than aimed at $D$ — agreement questions add zero
+  to both ledgers). Ever less is learned as $p \to 1$, but always at
+  the same exchange rate $d$, up to $2^n$ for complementary twins.
+
+**The spike's leverage, branch by branch.** Dividing the entropy
+destroyed by the surprisal paid, per branch and in expectation
+(ratio of expected totals):
+
+![spike ansatz leverage, (4,1)](figures/ansatz_leverage_4to1.png)
+
+![spike ansatz leverage, (3,2)](figures/ansatz_leverage_3to2.png)
+
+All three curves leave the uniform baseline $L = 1$ at $p = 0$. The
+correct branch's leverage grows without bound — logarithmically,
+$L \sim \big[2^n - (2^n{-}1)2^{-m}\big]\ln\tfrac{1}{1-p}$ — the
+vindicated dogmatist's exchange rate has no ceiling. (Every "sharp
+upturn" at the right edge of these plots is this same logarithm:
+$\log\tfrac{1}{1-p}$ has infinite slope at $p = 1$ on a linear axis,
+so its entire late growth compresses into the final sliver.) The
+wrong branch crosses zero exactly at the regression threshold
+($p \approx 0.29$ / $0.37$), bottoms out, and creeps back toward
+$0^-$: near $p = 1$ the diverging surprisal dilutes the bounded
+regression, so being wrong becomes infinitely expensive per bit but
+finitely destructive in total.
+
+The expected curve needs its definition remembered: it is the
+*ratio of expected totals*, $\langle\Delta H\rangle/\langle s\rangle$,
+not the expectation of the branch ratios. The distinction is the
+whole story here. The correct branch dominates the expected
+*numerator* ($\langle\Delta H\rangle \sim \varepsilon\log\frac1\varepsilon$,
+with $\varepsilon = 1-p$; the wrong branch contributes only a bounded
+loss times probability $\varepsilon$), but the wrong branch dominates
+the expected *denominator*: its surprisal $\log_2\frac1\varepsilon$
+weighs in at $\varepsilon\log\frac1\varepsilon$, beating the correct
+branch's tiny $\sim\varepsilon$. One branch fills the top of the
+fraction, the other the bottom, both at the same rate, and the ratio
+settles at the *finite* limit
+
+$$
+\langle L_1 \rangle \;\xrightarrow{\;p \to 1\;}\;
+2^n - (2^n - 1)\,2^{-m}
+$$
+
+($8.5$ for $(4,1)$, $6.25$ for $(3,2)$; the approach is
+logarithmically slow — still $7.6$ / $5.6$ at $1-p = 10^{-7}$ —
+which the linear axis renders as the same wall at $p = 1$). The
+limit rewrites exactly as
+
+$$
+2^n - (2^n-1)\,2^{-m} \;=\; 2^n\big(1 - 2^{-m}\big) + 2^{-m},
+$$
+
+*extensive over the questions*, with the coefficient $1 - 2^{-m}$
+being precisely the culling ratio — the fraction of hypothesis space
+each answer eliminates. At $m \to \infty$ the culling ratio tends to
+$1$ and the spike recovers the twin's ceiling $2^n$ (every answer
+kills essentially all rivals at once); at $m = 1$ it is
+$2^{n-1} + \tfrac12$, half the ceiling — a one-bit answer can only
+halve the world.
+
+![limiting leverage per question vs m](figures/ansatz_culling_ratio.png) Had we
+instead averaged the branch leverages themselves,
+$P_{\mathrm{ok}} L_{\mathrm{ok}} + P_{\mathrm{bad}} L_{\mathrm{bad}}
+\approx L_{\mathrm{ok}}$ *would* diverge: the run-level accounting
+is what stays finite, because the rare disaster's huge surprisal
+keeps refilling the shared denominator. The limit sits strictly
+below the twin's $2^n$: the price of hedging, paid even at total
+confidence.
+
+**The bracket.** The two ansatzes bound the design space of
+single-favorite priors from opposite ends. The twin converts any
+informative answer into total knowledge and never regresses, but only
+because it has bet the house on a two-world cosmology — outside it,
+the prior is not just wrong but broken. The spike survives every
+possible world (nothing gets probability zero), and its confirming
+branch is a textbook leverage machine — but its intelligence is
+*fragile* rather than brittle: one wrong guess undoes the predictive
+capital of the whole table at once. Commitment maximizes leverage;
+hedging bounds the damage; where the most intelligent prior sits
+between them depends on how much dogma the world will forgive.
+
+## The extraction ratio: what one question frees from storage
+
+An important observation first: **the entropy of a maximally
+uncertain $M$ equals the entropy of the maximally uncertain prior on
+maps** — both are $m\,2^n = \log_2 N$. The two ledgers share one
+ceiling, which is what lets them be subtracted from each other
+meaningfully.
+
+Measure the knowledge invested in a prior against that ceiling,
+$I := m2^n - H(p)$, and the knowledge already *visible* in the answer
+matrix as $B := m2^n - H(M)$ — the head start $M$ has over the
+uniform table. Removing the visible part from the invested part, the
+ceilings cancel:
+
+$$
+I - B \;=\; \big[m2^n - H(p)\big] - \big[m2^n - H(M)\big]
+\;=\; H(M) - H(p) \;=\; C,
+$$
+
+exactly the total correlation — the *stored* knowledge, invisible to
+$M$, convertible only by asking. And by the two-ledger conservation,
+a complete run does convert all of it: the expected total deduced
+equals $C$. What conservation does not say is *when*.
+
+So ask about the actual effect of one question. Its expected
+contribution splits into received ($\langle s_1\rangle$) and deduced,
+and only the deduced part comes out of storage — the same surgery on
+the numerator as on the denominator:
+
+$$
+D_1 := \big\langle \Delta H(M)\big\rangle_1 - \langle s_1 \rangle,
+\qquad
+X_1 := \frac{D_1}{C} \;\in\; [0, 1],
+$$
+
+the **extraction ratio**: the proportion of the stored information
+freed by a single question. (The unmodified ratio
+$\langle\Delta H(M)\rangle_1 / I$ is ill-behaved at both ends — it
+diverges at the uniform prior, where the destroyed bit is received
+rather than freed, and vanishes at the delta.)
+
+For the spike prior everything is closed-form, because
+spike-plus-uniform is *exchangeable* across questions: the block
+entropy depends only on the block size,
+
+$$
+G_k = -P_k \log_2 P_k - \big((2^m)^k - 1\big)\, u_k \log_2 u_k,
+\qquad
+P_k = p + \Big(\tfrac{N}{(2^m)^k} - 1\Big)\beta,
+\quad
+u_k = \tfrac{N}{(2^m)^k}\,\beta,
+$$
+
+with $\beta = (1-p)/(N-1)$, so the master trajectory law gives
+$\mathrm{received}(1) = G_1$, $\mathrm{remaining}(1) =
+(2^n{-}1)(G_2 - G_1)$, and $D_1$, $C$, $X_1$ follow in elementary
+functions (verified against brute force at $(2,1)$ and $(2,2)$;
+`extraction_ratio.py`).
+
+![extraction ratio X1 = D1/C for the spike prior](figures/extraction_ratio.png)
+
+$X_1$ rises monotonically from $0$ at the uniform prior — nothing
+stored, nothing freed — to the **delta limit**
+
+$$
+X_1 \;\xrightarrow{\;p \to 1\;}\;
+\frac{(2^n - 1)\big(1 - 2^{-m}\big)^2}{2^n\big(1 - 2^{-m}\big) - 1},
+$$
+
+approached logarithmically slowly, as usual for this prior. Three
+readings of the formula:
+
+- **$m \to \infty$: the limit is $1$.** With a huge answer alphabet
+  one confirming answer identifies the map outright; the first
+  question can free the entire store.
+- **$n \to \infty$: the limit is $1 - 2^{-m}$** — the culling ratio
+  once more. On a large question space, the fraction of the tower one
+  question frees equals the fraction of hypothesis space one answer
+  kills. For $m = 1$ that is $\tfrac12$: a sharp binary spike frees
+  half its stored knowledge on the first ask ($0.75$ at $n=2$,
+  $0.536$ at $n=4$, $0.508$ at $n=6$).
+- **Larger $m$ at fixed $n$ raises the whole curve** ($0.586, 0.79,
+  0.89, 0.95$ for $m = 1..4$ at $n = 3$): richer answers free
+  storage faster at every confidence level, not just in the limit.
+- **Proportional scaling $n = c\,m \to \infty$: the limit is $1$ for
+  every $c$**, with deficit $1 - X_1 \simeq 2^{-m} = 2^{-n/c}$.
+  Writing $u = 2^{-m}$, the $2^{-n} = u^c$ corrections cancel at
+  first order (the residual is $O(2^{-m-n})$), so
+  $X_1^{\delta} \approx 1 - 2^{-m}$ — the culling ratio — holds in
+  *every* large-$n$ regime; fixed $m$ keeps a permanent deficit,
+  the diagonal sends it to zero at a rate set by the answer
+  alphabet alone (numerically at $c = 2$: deficit $0.1230$ vs
+  $2^{-3} = 0.125$ at $m=3$; $0.0623$ vs $0.0625$ at $m=4$).
+
+**The one-question extraction posit.** Two demands frame the result.
+First, *full support*: every map keeps some weight — a prior with
+zeroes is a smaller hypothesis space in disguise (a two-support
+"twin" prior trivially extracts $X_1 = 1$, but only because it has
+already collapsed the problem to one latent bit). Second — and full
+support alone is not enough, since residual mass concentrated near a
+single rival map mimics the two-support case arbitrarily well while
+technically touching every map — the *hedge itself must be
+uninformative*: the residual mass at maximum entropy, encoding no
+knowledge of its own. Under these demands we posit that, in the
+sharp limit, the proportion of stored information one question can
+free is
+
+$$
+X_1 \;\longrightarrow\; 1 - \frac{1}{|A|} \;=\; 1 - 2^{-m}.
+$$
+
+The mechanism fixes the constant: the deficit $1/|A|$ is precisely
+the probability that total ignorance *fakes* the expected answer —
+an agnostic rival predicts every answer at $1/|A|$, so a single
+answer carries at most $\log_2 |A| = m$ bits of discrimination
+between the favorite and the field. This is why the same constant
+survives every large-$n$ regime above: it is a property of the
+answer alphabet and the honesty of the hedge, not of the question
+space.
+
+## The spike as a two-state machine: a renormalization flow
+
+The spike ansatz admits a cleaner dynamical description than
+branch-by-branch bookkeeping: it is closed under the update rule, so
+the *ansatz form* survives every question and only its parameters
+flow. After $0$ steps we are in the spike ansatz, characterized by
+$p_0$. After each question the state space shrinks by $2^{-m}$, and
+the belief is in one of exactly two macrostates:
+
+- **spike $(p_k)$ ** on the $N_k = N\,2^{-mk}$ surviving maps, with
+  probability $q_k$;
+- **uniform** on those maps, with probability $1 - q_k$ — an
+  *absorbing* state, since a uniform belief updates to a uniform
+  belief forever after.
+
+The induction step: in the spike state, the next answer confirms the
+special map with probability $M_\star(p_k)$ (the spike branch of the
+ansatz section) and refutes it otherwise, so
+
+$$
+q_{k+1} = q_k\, M_\star(p_k),
+\qquad
+p_{k+1} = \frac{p_k}{M_\star(p_k)},
+\qquad
+q_0 = 1,\quad p_0 = p.
+$$
+
+**The consistency constraint that solves the flow.** Multiply the two
+recursions: $q_{k+1}\,p_{k+1} = q_k\,p_k$. The product is invariant,
+
+$$
+q_k\, p_k \;=\; p_0 \quad \text{for all } k,
+$$
+
+and this is no accident: it is the **law of iterated expectations**
+(equivalently, Bayes as a martingale — conservation of belief).
+Werner's unconditional belief that the truth is $\phi_\star$ cannot
+change in expectation, and since $\phi_\star$ carries weight $p_k$ on
+the surviving branch and $0$ on the absorbed one, that unconditional
+belief is exactly $q_k p_k$. The shrinking state space does not
+disturb this: the martingale concerns the fixed event
+$\psi = \phi_\star$ on the *original* space, conditioned on the
+growing answer history — eliminated maps do not leave the space, they
+just carry posterior weight zero. (What is *not* a martingale is
+$p_k$ itself: a probability conditional on survival, it drifts
+upward deterministically, the renormalization by $1/M_\star$ exactly
+compensating the support loss — which is why only the product is
+conserved.) The invariant linearizes the flow: with
+the large-$N$ transition $M_\star(p) = 2^{-m} + (1-2^{-m})\,p$,
+
+$$
+q_{k+1} \;=\; 2^{-m} q_k + \big(1 - 2^{-m}\big)\, p_0,
+$$
+
+an affine map with fixed point $p_0$, solved in closed form:
+
+$$
+q_k \;=\; p_0 + (1 - p_0)\, 2^{-mk},
+\qquad
+p_k \;=\; \frac{p_0}{q_k}
+\;=\; \frac{p_0}{p_0 + (1-p_0)\,2^{-mk}}.
+$$
+
+In odds form, $\frac{p_k}{1-p_k} = 2^{mk}\frac{p_0}{1-p_0}$: each
+confirming answer delivers exactly $m$ bits of evidence for the
+spike. And $q_\infty = p_0$: the probability of *never* being
+refuted converges to the probability of being right — a false spike
+survives $k$ questions only by faking, at $2^{-mk}$.
+
+**Two more consistency checks** (all verified numerically in
+`spike_flow.py`, including brute force at $(2,2)$):
+
+- The induction is Bayes in one shot: $q_k$ equals the predictive
+  probability of the entire special answer block,
+  $q_k = p_0 + (N2^{-mk} - 1)\beta$ exactly at finite $N$ — the
+  chain rule of conditional probabilities telescopes the $k$
+  transitions into one block probability. (The large-$N$ closed form
+  above misses it by at most $(1-p_0)/(N-1)$, uniformly in $k$.)
+- The chain reproduces the ledger machinery: the branch-weighted
+  expected cumulative surprisal telescopes to the block entropy
+  $G_k$, and the branch-weighted matrix entropy
+  $q_k (2^n - k) H_{\mathrm{col}}(p_k) + (1-q_k)(2^n - k)\,m$
+  equals the master law $(2^n - k)(G_{k+1} - G_k)$.
+
+**Leverage as a function of $k$.** The cumulative expected leverage
+$\langle L_k \rangle = [H(M)_0 - \langle H(M_k)\rangle]/G_k$ is now a
+ratio of closed forms, and the sharp limit is well behaved for every
+$k$:
+
+$$
+\langle L_k \rangle \;\xrightarrow{\;p_0 \to 1\;}\;
+\big(1 - 2^{-m}\big)\,
+\frac{2^n - (2^n - k)\,2^{-mk}}{1 - 2^{-mk}}.
+$$
+
+At $k = 1$ this reproduces $2^n - (2^n{-}1)2^{-m}$; at $k = 2^n$ it
+reproduces the whole-run value $2^n(1 - 2^{-m})$ (up to the
+negligible $1 - 2^{-m2^n}$ in the denominator). In between it is
+**monotonically decreasing**: at $(4,1)$ the sequence runs
+$8.5,\ 8.33,\ 8.21,\ 8.13,\ \ldots,\ 8.0$. The first question is the
+most leveraged one the spike will ever ask; each further question
+dilutes the cumulative ratio toward the extensive run value —
+deduction is front-loaded even for this shallowest of towers. The
+structure is transparent in the decomposition (with $u = 2^{-m}$)
+
+$$
+\langle L_k \rangle^{\delta}
+\;=\; \underbrace{2^n\,(1-u)}_{\text{plateau}}
+\;+\; \underbrace{(1-u)\,\frac{k\,u^k}{1-u^k}}_{\text{boundary layer}},
+$$
+
+an extensive plateau plus an $O(1)$ excess that decays geometrically
+in $k$ and does not depend on $n$ at all.
+
+**A caveat on the order of limits.** The approach to the formula
+above costs $\log_2\frac{1}{1-p_0} \gg mk$: the finite-$p_0$
+corrections are $O\!\big(mk / \log_2\frac{1}{1-p_0}\big)$, so at
+fixed $p_0$ the exact value *sags below* the limit as $k$ grows
+(at $1 - p_0 = 10^{-9}$, $(4,1)$: exact $7.80$ vs limit $8.5$ at
+$k=1$, but $5.47$ vs $8.0$ at $k = 16$; tightening to $10^{-15}$
+lifts $k{=}16$ to $6.24$). The limits $p_0 \to 1$ and $k \to \infty$
+do not commute; the clean interpolation formula is the
+$p_0 \to 1$-first ordering.
+
+Both stories are visible against the asked fraction $x = k/2^n$:
+
+![spike leverage vs asked fraction](figures/spike_flow_leverage.png)
+
+Left: the $p_0 \to 1$ limit for growing $n$, normalized per question.
+The boundary layer lives at $k = O(1)$, so in $x$-coordinates it is
+squeezed into the origin as $n$ grows, and the curves collapse onto
+the flat plateau at the culling ratio: **in the thermodynamic limit
+the leverage per question is independent of the asked fraction** ---
+by $n = 8$ the curve is indistinguishable from the dashed line.
+Right: the approach at fixed $(6,1)$. Finite-$p_0$ curves sag ever
+more steeply with $x$, and tightening $p_0$ lifts them only
+logarithmically --- at $x = 1$ even $1 - p_0 = 10^{-12}$ reaches
+$0.2$ against the plateau's $0.5$. The non-commuting limits of the
+caveat, drawn: the plateau is approached pointwise in $x$, but never
+uniformly.
+
+**The other ordering: $n \to \infty$ at finite $p$.** Fix the asked
+fraction $x$ and the spike weight $p$, and send $n \to \infty$. Now
+the spike branch sharpens to a delta within $O(1)$ questions — a
+vanishing *fraction* — so at any $x > 0$ the branch mixture has long
+settled: the surviving branch predicts everything, the absorbed
+branch (probability $1-p$) knows nothing, and
+
+$$
+\big\langle H(M_{x2^n}) \big\rangle \to 2^n (1-x)(1-p)\,m,
+\qquad
+G_{x2^n} \to 2^n\, x\,(1-p)\,m + O(1).
+$$
+
+The cumulative leverage then converges — not per question, but as a
+number — to a pure hyperbola in $x$:
+
+$$
+\big\langle L_{x 2^n} \big\rangle
+\;\xrightarrow{\;n \to \infty\;}\;
+1 + \frac{c(p, m)}{x},
+\qquad
+c(p,m) = \frac{H_{\mathrm{col}}(p) - (1-p)\,m}{(1-p)\,m}
+= \frac{C(p)}{H(p)} + O(2^{-n}),
+$$
+
+with the column entropy in explicit form (the special answer carries
+the spike plus its share of background, the other $2^m - 1$ answers
+background only):
+
+$$
+H_{\mathrm{col}}(p)
+= -P_\star \log_2 P_\star - \big(2^m - 1\big)\, u' \log_2 u',
+\qquad
+P_\star = p + \frac{1-p}{2^m},
+\quad
+u' = \frac{1-p}{2^m}.
+$$
+
+The reading is the extreme front-loading made exact: the entire
+tower $C$ is harvested inside a vanishing fraction of the run, so
+the cumulative leverage is baseline $1$ plus *total deduction over
+received so far*, $C/(x H(p))$ — hyperbolic dilution. At $x = 1$ it
+lands on the run leverage $H_{\mathrm{col}}(p)/((1-p)m)$; as
+$x \to 0^+$ it diverges — the boundary layer of the previous
+ordering, seen from outside. And as $p \to 1$ the coefficient
+$c$ diverges logarithmically, which is the non-commutation once
+more: $p \to 1$ first gives the extensive plateau, $n \to \infty$
+first gives a finite hyperbola at every $p < 1$.
+
+![finite-p leverage hyperbolas](figures/spike_flow_finite_p.png)
+
+Five weights $p \in \{0.001, 0.1, 0.5, 0.9, 0.999\}$ at $m = 1$ and
+$m = 2$ (log scale; verified against the exact machinery at
+$(9,1)$ and $(8,2)$, which converge onto these curves —
+`spike_flow.py`, check 6). All curves share the universal $1/x$
+shape; the prior only sets the coefficient. At $p = 0.001$ the
+hyperbola is indistinguishable from the uniform baseline $1$; at
+$p = 0.999$ it starts near $260$ at $x = 0.02$ and still ends above
+$6$ at $x = 1$.
+
+**And the subsequent $p \to 1$ limit?** It converges for no $x$: the
+coefficient diverges as
+$c(p,m) \sim \tfrac{1-2^{-m}}{m}\log_2\tfrac{1}{1-p}$, so
+$L(x) \to \infty$ pointwise on all of $(0,1]$ — the received total
+$x H(p)$ and the harvested tower $C$ both vanish with $1-p$, but the
+tower carries an extra logarithm. The divergence is a common factor,
+uniform in $x$, so one rescaling restores a finite, universal
+profile:
+
+$$
+\frac{\big\langle L_{x2^n} \big\rangle}{\log_2 \tfrac{1}{1-p}}
+\;\xrightarrow{\;n\to\infty,\ \text{then}\ p \to 1\;}\;
+\frac{1 - 2^{-m}}{m}\cdot\frac{1}{x}.
+$$
+
+The double limit in this order has no finite value but a clean
+shape: the same hyperbola, with the culling ratio per answer bit as
+its coefficient. Summarizing the three orderings: $p \to 1$ first
+gives an extensive plateau, flat in $x$; $n \to \infty$ first gives
+a finite hyperbola for every $p < 1$; both together give a
+log-divergent hyperbola whose rescaled profile
+$\tfrac{1-2^{-m}}{m}\,x^{-1}$ is the section's laws compressed into
+one function.
+
 ## Appendix: circuit complexity methods
 
 **Circuit complexity** here means minimum **AIG size**: the fewest 2-input
