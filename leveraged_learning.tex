@@ -23,7 +23,7 @@
 
 % lying probability bar, rightmost column of the truth tables;
 % base scale: a full-width bar (1.3cm) is probability 1; the optional
-% argument magnifies (used at 4x for the diffuse prior of Table 4)
+% argument magnifies (used at 2x for the prior of Table 4)
 \newcommand{\pbar}[2][1]{%
   \begin{tikzpicture}[baseline=-0.55ex]
     \useasboundingbox (0,-0.17) rectangle (1.3,0.17);
@@ -32,12 +32,70 @@
 
 % subtle heat-map cell: darker blue for high values, lighter for low;
 % shades are min-max normalized within their group (probabilities on
-% [0,1]; the <s> and <dH(M)> rows jointly on [0.764, 1.005])
+% [0,1]; the <s> and <dH(M)> rows jointly on [0.264, 1.104])
 \newcommand{\hm}[1]{\cellcolor{blue!#1}}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{svg.path}
 \usetikzlibrary{tikzmark}
+\usetikzlibrary{decorations.pathreplacing}
+
+% forecast bar chart under the a\q matrices: one slot per question
+% (width 2.1 = probability 1), one bar per answer with width M_{a,q}
+% and height the branch drop in H(M) (y unit = 1 bit = 1.5cm); dashed
+% line = the expected drop; fill = the question's <s> heatmap shade.
+% \fslot{left x}{shade}{M_{0,q}}{drop a=0}{drop a=1}{<dH(M)>}
+\newcommand{\fslot}[6]{%
+  \draw[fill=blue!#2, draw=black!60, line width=0.3pt]
+    (#1,0) rectangle ({#1+2.1*#3},#4);
+  \draw[fill=blue!#2, draw=black!60, line width=0.3pt]
+    ({#1+2.1*#3},0) rectangle ({#1+2.1},#5);
+  \draw[dashed, black!70, line width=0.4pt] (#1,#6) -- ({#1+2.1},#6);
+  \node[above, font=\scriptsize] at ({#1+1.05},{max(#4,#5)}) {$#6$};
+  % answer digit at the bar base, or under the axis if the bar is tiny
+  \pgfmathsetmacro{\yza}{ifthenelse(#4<0.2,-0.09,0.1)}
+  \pgfmathsetmacro{\yzb}{ifthenelse(#5<0.2,-0.09,0.1)}
+  \node[fill=white, inner sep=0.8pt, font=\tiny] at ({#1+1.05*#3},\yza) {$0$};
+  \node[fill=white, inner sep=0.8pt, font=\tiny] at ({#1+1.05+1.05*#3},\yzb) {$1$};
+}
+% \fbrace{left x}{q label}: curly bracket + question label under a slot
+\newcommand{\fbrace}[2]{%
+  \draw[decorate, decoration={brace, mirror, amplitude=3pt}, black!70]
+    (#1,-0.19) -- ({#1+2.1},-0.19);
+  \node[below, font=\scriptsize] at ({#1+1.05},-0.28) {$\mathbf{#2}$};
+}
+% signed correlator bar chart, grouped by shell (groups 1-4-6-4-1);
+% one entry per bar: x/value/mask/fill color; bars may go negative
+\newcommand{\ledgerbars}[1]{%
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm]
+  % alternating shell backdrops (spreadsheet banding), odd shells darker
+  \fill[gray!10] (-0.35,-1.85) rectangle (0.40,1.3);
+  \fill[gray!28] (0.40,-1.85) rectangle (2.85,1.3);
+  \fill[gray!10] (2.85,-1.85) rectangle (6.40,1.3);
+  \fill[gray!28] (6.40,-1.85) rectangle (8.85,1.3);
+  \fill[gray!10] (8.85,-1.85) rectangle (9.60,1.3);
+  \draw[->] (-0.6,-1.15) -- (-0.6,1.3);
+  \foreach \y/\t in {-1/-1, 0/0, 1/+1}
+    \draw (-0.66,\y) -- (-0.54,\y) node[left, font=\scriptsize] {$\t$};
+  \draw[black!60, line width=0.4pt] (-0.6,0) -- (9.7,0);
+  \foreach \x/\v/\l/\c in {#1} {
+    \draw[fill=\c, draw=black!60, line width=0.3pt]
+      ({\x-0.21},0) rectangle ({\x+0.21},\v);
+    \node[rotate=90, anchor=east, font=\tiny] at (\x,-1.22) {\l};
+  }
+\end{tikzpicture}
+\end{center}}
+
+% \faxis: the shared y-axis and baseline of the forecast bar charts
+\newcommand{\faxis}{%
+  \draw[->] (-0.45,0) -- (-0.45,1.5);
+  \node[above, font=\scriptsize] at (-0.45,1.5) {bits};
+  \node[rotate=90, font=\scriptsize] at (-0.85,0.75) {$\Delta H(M)$};
+  \foreach \y in {0,1}
+    \draw (-0.51,\y) -- (-0.39,\y) node[left, font=\scriptsize] {$\y$};
+  \draw[black!60, line width=0.4pt] (-0.45,0) -- (10.15,0);
+}
 \usepackage[colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black]{hyperref}
 
 % the answer matrix M printed as a table: bold a-labels down the first
@@ -560,28 +618,27 @@ is conjured for illustration.
  & \multicolumn{4}{|c|}{$\phi_j(q)$} & & & \\
 $j$ & $11$ & $10$ & $01$ & $00$ & name & $p_j$ & \\
 \midrule
-0  & 0 & 0 & 0 & 0 & FALSE (constant $0$) & 0.150 & \pbar[4]{0.150} \\
-1  & 0 & 0 & 0 & 1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 & \pbar[4]{0.141} \\
-2  & 0 & 0 & 1 & 0 & $\lnot b_1 \wedge b_0$ & 0.060 & \pbar[4]{0.060} \\
-3  & 0 & 0 & 1 & 1 & $\lnot b_1$ & 0.017 & \pbar[4]{0.017} \\
-4  & 0 & 1 & 0 & 0 & $b_1 \wedge \lnot b_0$ & 0.094 & \pbar[4]{0.094} \\
-5  & 0 & 1 & 0 & 1 & $\lnot b_0$ & 0.015 & \pbar[4]{0.015} \\
-6  & 0 & 1 & 1 & 0 & $b_1 \oplus b_0$ (XOR) & 0.012 & \pbar[4]{0.012} \\
-7  & 0 & 1 & 1 & 1 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 & \pbar[4]{0.011} \\
-8  & 1 & 0 & 0 & 0 & $b_1 \wedge b_0$ (AND) & 0.149 & \pbar[4]{0.149} \\
-9  & 1 & 0 & 0 & 1 & $b_1 = b_0$ (XNOR) & 0.114 & \pbar[4]{0.114} \\
-10 & 1 & 0 & 1 & 0 & $b_0$ (projection) & 0.082 & \pbar[4]{0.082} \\
-11 & 1 & 0 & 1 & 1 & $b_1 \to b_0$ (IF THEN) & 0.016 & \pbar[4]{0.016} \\
-12 & 1 & 1 & 0 & 0 & $b_1$ (projection) & 0.102 & \pbar[4]{0.102} \\
-13 & 1 & 1 & 0 & 1 & $b_0 \to b_1$ (IF THEN) & 0.013 & \pbar[4]{0.013} \\
-14 & 1 & 1 & 1 & 0 & $b_1 \vee b_0$ (OR) & 0.014 & \pbar[4]{0.014} \\
-15 & 1 & 1 & 1 & 1 & TRUE (constant $1$) & 0.010 & \pbar[4]{0.010} \\
+0  & 0 & 0 & 0 & 0 & FALSE (constant $0$) & 0.394 & \pbar[2]{0.394} \\
+1  & 0 & 0 & 0 & 1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.010 & \pbar[2]{0.010} \\
+2  & 0 & 0 & 1 & 0 & $\lnot b_1 \wedge b_0$ & 0.010 & \pbar[2]{0.010} \\
+3  & 0 & 0 & 1 & 1 & $\lnot b_1$ & 0.010 & \pbar[2]{0.010} \\
+4  & 0 & 1 & 0 & 0 & $b_1 \wedge \lnot b_0$ & 0.131 & \pbar[2]{0.131} \\
+5  & 0 & 1 & 0 & 1 & $\lnot b_0$ & 0.010 & \pbar[2]{0.010} \\
+6  & 0 & 1 & 1 & 0 & $b_1 \oplus b_0$ (XOR) & 0.010 & \pbar[2]{0.010} \\
+7  & 0 & 1 & 1 & 1 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.010 & \pbar[2]{0.010} \\
+8  & 1 & 0 & 0 & 0 & $b_1 \wedge b_0$ (AND) & 0.213 & \pbar[2]{0.213} \\
+9  & 1 & 0 & 0 & 1 & $b_1 = b_0$ (XNOR) & 0.092 & \pbar[2]{0.092} \\
+10 & 1 & 0 & 1 & 0 & $b_0$ (projection) & 0.040 & \pbar[2]{0.040} \\
+11 & 1 & 0 & 1 & 1 & $b_1 \to b_0$ (IF THEN) & 0.010 & \pbar[2]{0.010} \\
+12 & 1 & 1 & 0 & 0 & $b_1$ (projection) & 0.010 & \pbar[2]{0.010} \\
+13 & 1 & 1 & 0 & 1 & $b_0 \to b_1$ (IF THEN) & 0.030 & \pbar[2]{0.030} \\
+14 & 1 & 1 & 1 & 0 & $b_1 \vee b_0$ (OR) & 0.010 & \pbar[2]{0.010} \\
+15 & 1 & 1 & 1 & 1 & TRUE (constant $1$) & 0.010 & \pbar[2]{0.010} \\
 \bottomrule
 \end{tabular}
 \captionof{table}{The guiding example: all $16$ maps of the $n = 2$,
 $m = 1$ hypothesis space, with a contrived prior
-($\sum_j p_j = 1.000$). The bars show $p_j$, drawn at four times the
-scale of the later tables.}
+($\sum_j p_j = 1.000$).}
 \label{tab:sixteen}
 \end{center}
 \end{example}
@@ -642,8 +699,8 @@ substituting the values of $p_j$:
          {\scriptstyle\sum\limits_{j\ \mathrm{odd}} p_j}
   \\[10pt]
   &=\;
-  \MtabIV{0.500}{0.729}{0.778}{0.663}
-         {0.500}{0.271}{0.222}{0.337}\;.
+  \MtabIV{0.585}{0.779}{0.890}{0.818}
+         {0.415}{0.221}{0.110}{0.182}\;.
 \end{aligned}
 \end{equation}
 \end{example}
@@ -830,50 +887,60 @@ forecast. The truth is AND ($\psi = \phi_8$).
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & \hm{17} 0.500 & \hm{26} 0.729 & \hm{27} 0.778 & \hm{23} 0.663 \\[2pt]
-    \mathbf{1} & \hm{17} 0.500 & \hm{9} 0.271 & \hm{8} 0.222 & \hm{12} 0.337 \\
+    \mathbf{0} & \hm{20} 0.585 & \hm{27} 0.779 & \hm{31} 0.890 & \hm{29} 0.818 \\[2pt]
+    \mathbf{1} & \hm{15} 0.415 & \hm{8} 0.221 & \hm{4} 0.110 & \hm{6} 0.182 \\
     \hline
-    \langle s \rangle & \hm{34} 1.000 & \hm{11} 0.843 & \hm{0} 0.764 & \hm{23} 0.922 \\[2pt]
-    \langle \Delta H(M) \rangle & \hm{35} 1.005 & \hm{17} 0.878 & \hm{2} 0.778 & \hm{29} 0.965
+    \langle s \rangle & \hm{30} 0.979 & \hm{21} 0.762 & \hm{10} 0.500 & \hm{18} 0.684 \\[2pt]
+    \langle \Delta H(M) \rangle & \hm{35} 1.104 & \hm{22} 0.800 & \hm{12} 0.544 & \hm{22} 0.801
   \end{array}
 \]
-To see where the forecast entries come from, take $q = 11$: both
-answers arrive with probability $M_{a,11} = \tfrac12$, the answer
-$a = 0$ would drop $H(M)$ from $3.529$ to $2.504$, and the answer
-$a = 1$ to $2.543$, so
-\[
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{0}{30}{0.585}{1.357}{0.748}{1.104}
+  \fslot{2.65}{21}{0.779}{0.869}{0.556}{0.800}
+  \fslot{5.30}{10}{0.890}{0.600}{0.088}{0.544}
+  \fslot{7.95}{18}{0.818}{0.870}{0.491}{0.801}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
+To see where the forecast entries come from, take $q = 11$: the
+answer $a = 0$ arrives with probability $M_{0,11} = 0.585$ and would
+drop $H(M)$ from $2.925$ to $1.569$; the answer $a = 1$ arrives with
+probability $0.415$ and drops it only to $2.178$, so
+\begin{align*}
   \langle s \rangle(11)
-  = \tfrac12 (1.000) + \tfrac12 (1.000) = 1.000,
-  \qquad
+  &= 0.585\, (0.773) + 0.415\, (1.269) = 0.979, \\
   \langle \Delta H(M) \rangle(11)
-  = \tfrac12 (1.025) + \tfrac12 (0.986) = 1.005.
-\]
-Both forecast rows point to $q = 11$: it is a perfect coin
-($\langle s\rangle = 1.000$) and also moves the whole table most.
-Werner asks it, and nature answers $a = 1$ (probability $0.500$,
-surprisal $s_1 = 1.000$). Eight maps die:
+  &= 0.585\, (1.357) + 0.415\, (0.748) = 1.104.
+\end{align*}
+Both forecast rows point to $q = 11$: it is the closest thing to a
+coin on offer ($\langle s\rangle = 0.979$) and also moves the whole
+table most, by a wide margin.
+Werner asks it, and nature answers $a = 1$ (probability $0.415$,
+surprisal $s_1 = 1.269$). Eight maps die:
 
 \begin{center}
 \begin{tabular}{c c l c c c}
 \toprule
 $j$ & $\phi_j(11)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.150 & --- & \tikzmark{w1ae} \\
-\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 & --- & \tikzmark{w1be} \\
-\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.060 & --- & \tikzmark{w1ce} \\
-\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.017 & --- & \tikzmark{w1de} \\
-\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.094 & --- & \tikzmark{w1ee} \\
-\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.015 & --- & \tikzmark{w1fe} \\
-\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.012 & --- & \tikzmark{w1ge} \\
-\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 & --- & \tikzmark{w1he} \\
-8 & 1 & $b_1 \wedge b_0$ (AND) & 0.149 & 0.298 & \pbar{0.298} \\
-9 & 1 & $b_1 = b_0$ (XNOR) & 0.114 & 0.228 & \pbar{0.228} \\
-10 & 1 & $b_0$ (projection) & 0.082 & 0.164 & \pbar{0.164} \\
-11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.016 & 0.032 & \pbar{0.032} \\
-12 & 1 & $b_1$ (projection) & 0.102 & 0.204 & \pbar{0.204} \\
-13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.013 & 0.026 & \pbar{0.026} \\
-14 & 1 & $b_1 \vee b_0$ (OR) & 0.014 & 0.028 & \pbar{0.028} \\
-15 & 1 & TRUE (constant $1$) & 0.010 & 0.020 & \pbar{0.020} \\
+\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.394 & --- & \tikzmark{w1ae} \\
+\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.010 & --- & \tikzmark{w1be} \\
+\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.010 & --- & \tikzmark{w1ce} \\
+\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.010 & --- & \tikzmark{w1de} \\
+\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.131 & --- & \tikzmark{w1ee} \\
+\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.010 & --- & \tikzmark{w1fe} \\
+\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.010 & --- & \tikzmark{w1ge} \\
+\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.010 & --- & \tikzmark{w1he} \\
+8 & 1 & $b_1 \wedge b_0$ (AND) & 0.213 & 0.513 & \pbar{0.513} \\
+9 & 1 & $b_1 = b_0$ (XNOR) & 0.092 & 0.222 & \pbar{0.222} \\
+10 & 1 & $b_0$ (projection) & 0.040 & 0.096 & \pbar{0.096} \\
+11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.010 & 0.024 & \pbar{0.024} \\
+12 & 1 & $b_1$ (projection) & 0.010 & 0.024 & \pbar{0.024} \\
+13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.030 & 0.072 & \pbar{0.072} \\
+14 & 1 & $b_1 \vee b_0$ (OR) & 0.010 & 0.024 & \pbar{0.024} \\
+15 & 1 & TRUE (constant $1$) & 0.010 & 0.024 & \pbar{0.024} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -887,13 +954,13 @@ $j$ & $\phi_j(11)$ & name & $p_j$ & $p'_j$ & \\
 
 The ledger:
 \[
-  H(M)\colon 3.529 \to 2.543, \qquad
-  H(p)\colon 3.440 \to 2.456, \qquad
-  C\colon 0.089 \to 0.087.
+  H(M)\colon 2.925 \to 2.178, \qquad
+  H(p)\colon 2.707 \to 2.093, \qquad
+  C\colon 0.218 \to 0.085.
 \]
-Werner received $1.000$ bit but destroyed only $0.986$ bits of table.
-Correlations point the right way only on average, not on every draw. In this case, Werner got the slightly less informative branch.
-The destroyed-per-received ratio of this round is $0.986$: less than
+Werner received $1.269$ bits but destroyed only $0.748$ bits of table.
+Correlations point the right way only on average, not on every draw. In this case, Werner got the much less informative branch, and paid the premium price for it.
+The destroyed-per-received ratio of this round is $0.589$: well below
 $1$, anti-leverage.
 \end{example}
 
@@ -910,30 +977,39 @@ forecasts:
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & \hm{0} 0 & \hm{25} 0.722 & \hm{26} 0.756 & \hm{24} 0.694 \\[2pt]
-    \mathbf{1} & \hm{35} 1 & \hm{10} 0.278 & \hm{9} 0.244 & \hm{11} 0.306 \\
+    \mathbf{0} & \hm{0} 0 & \hm{30} 0.855 & \hm{29} 0.831 & \hm{23} 0.658 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{5} 0.145 & \hm{6} 0.169 & \hm{12} 0.342 \\
     \hline
-    \langle s \rangle & \text{---} & \hm{13} 0.853 & \hm{6} 0.802 & \hm{18} 0.889 \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \hm{18} 0.889 & \hm{8} 0.820 & \hm{24} 0.926
+    \langle s \rangle & \text{---} & \hm{14} 0.596 & \hm{16} 0.655 & \hm{28} 0.927 \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{17} 0.670 & \hm{17} 0.677 & \hm{30} 0.983
   \end{array}
 \]
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{2.65}{14}{0.855}{0.726}{0.341}{0.670}
+  \fslot{5.30}{16}{0.831}{0.723}{0.451}{0.677}
+  \fslot{7.95}{28}{0.658}{1.113}{0.733}{0.983}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
 Greedy picks $q = 00$. Nature answers
-$a = 0$ --- the answer Werner favored (probability $0.694$), so the
-surprisal is only $s_2 = 0.527$ bits. Four of the eight die:
+$a = 0$ --- the answer Werner favored (probability $0.658$), so the
+surprisal is only $s_2 = 0.604$ bits. Four of the eight die:
 
 \begin{center}
 \begin{tabular}{c c l c c c}
 \toprule
 $j$ & $\phi_j(00)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-8 & 0 & $b_1 \wedge b_0$ (AND) & 0.298 & 0.429 & \pbar{0.429} \\
-\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.228 & --- & \tikzmark{w2ae} \\
-10 & 0 & $b_0$ (projection) & 0.164 & 0.236 & \pbar{0.236} \\
-\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.032 & --- & \tikzmark{w2be} \\
-12 & 0 & $b_1$ (projection) & 0.204 & 0.294 & \pbar{0.294} \\
-\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.026 & --- & \tikzmark{w2ce} \\
-14 & 0 & $b_1 \vee b_0$ (OR) & 0.028 & 0.040 & \pbar{0.040} \\
-\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.020 & --- & \tikzmark{w2de} \\
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.513 & 0.780 & \pbar{0.780} \\
+\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.222 & --- & \tikzmark{w2ae} \\
+10 & 0 & $b_0$ (projection) & 0.096 & 0.147 & \pbar{0.147} \\
+\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.024 & --- & \tikzmark{w2be} \\
+12 & 0 & $b_1$ (projection) & 0.024 & 0.037 & \pbar{0.037} \\
+\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.072 & --- & \tikzmark{w2ce} \\
+14 & 0 & $b_1 \vee b_0$ (OR) & 0.024 & 0.037 & \pbar{0.037} \\
+\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.024 & --- & \tikzmark{w2de} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -946,16 +1022,18 @@ $j$ & $\phi_j(00)$ & name & $p_j$ & $p'_j$ & \\
 
 The ledger:
 \[
-  H(M)\colon 2.543 \to 1.770, \qquad
-  H(p)\colon 2.456 \to 1.722, \qquad
-  C\colon 0.087 \to 0.049.
+  H(M)\colon 2.178 \to 1.065, \qquad
+  H(p)\colon 2.093 \to 1.035, \qquad
+  C\colon 0.085 \to 0.030.
 \]
-This time $0.773$ bits are destroyed for $0.527$ received. Where did
-the extra $0.246$ come from? Partly from the favored answer arriving
---- the belief dropped $0.734$ against only $0.527$ paid --- and
-partly from the store: $C$ fell by $0.038$.
-Step ratio $1.466$. Cumulatively, $1.759$ destroyed per $1.527$
-received, which gives a leverage of $1.152$ after 2 steps.
+This time $1.113$ bits are destroyed for $0.604$ received. Where did
+the extra $0.509$ come from? Partly from the favored answer arriving
+--- the belief dropped $1.058$ against only $0.604$ paid --- and
+partly from the store: $C$ fell by $0.055$.
+Step ratio $1.842$. Cumulatively, however, $1.860$ destroyed per $1.873$
+received gives a leverage of $0.993$ after 2 steps: still a hair
+below $1$. Even a strong second round has not quite repaid the
+expensive shock of question 1.
 \end{example}
 
 Why track $C$, when its step-by-step changes visibly do not match
@@ -983,25 +1061,33 @@ average away.
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & \hm{0} 0 & \hm{23} 0.666 & \hm{25} 0.723 & \hm{35} 1 \\[2pt]
-    \mathbf{1} & \hm{35} 1 & \hm{12} 0.334 & \hm{10} 0.277 & \hm{0} 0 \\
+    \mathbf{0} & \hm{0} 0 & \hm{32} 0.927 & \hm{29} 0.817 & \hm{35} 1 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{3} 0.073 & \hm{6} 0.183 & \hm{0} 0 \\
     \hline
-    \langle s \rangle & \text{---} & \hm{23} 0.919 & \hm{13} 0.851 & \text{---} \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \hm{30} 0.968 & \hm{20} 0.899 & \text{---}
+    \langle s \rangle & \text{---} & \hm{5} 0.378 & \hm{18} 0.687 & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{6} 0.408 & \hm{19} 0.717 & \text{---}
   \end{array}
 \]
-Greedy picks $q = 10$; nature answers $a = 0$ (probability $0.666$,
-surprisal $s_3 = 0.587$). Two die:
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{2.65}{5}{0.927}{0.435}{0.065}{0.408}
+  \fslot{5.30}{18}{0.817}{0.801}{0.343}{0.717}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
+Greedy picks $q = 01$; nature answers $a = 0$ (probability $0.817$,
+surprisal $s_3 = 0.292$). Two die:
 
 \begin{center}
 \begin{tabular}{c c l c c c}
 \toprule
-$j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
+$j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-8 & 0 & $b_1 \wedge b_0$ (AND) & 0.429 & 0.645 & \pbar{0.645} \\
-10 & 0 & $b_0$ (projection) & 0.236 & 0.355 & \pbar{0.355} \\
-\tikzmark{w3a}12 & 1 & $b_1$ (projection) & 0.294 & --- & \tikzmark{w3ae} \\
-\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.040 & --- & \tikzmark{w3be} \\
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.780 & 0.955 & \pbar{0.955} \\
+\tikzmark{w3a}10 & 1 & $b_0$ (projection) & 0.147 & --- & \tikzmark{w3ae} \\
+12 & 0 & $b_1$ (projection) & 0.037 & 0.045 & \pbar{0.045} \\
+\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.037 & --- & \tikzmark{w3be} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1014,42 +1100,50 @@ $j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
 
 The ledger:
 \[
-  H(M)\colon 1.770 \to 0.938, \qquad
-  H(p)\colon 1.722 \to 0.938, \qquad
-  C\colon 0.049 \to 0.
+  H(M)\colon 1.065 \to 0.264, \qquad
+  H(p)\colon 1.035 \to 0.264, \qquad
+  C\colon 0.030 \to 0.
 \]
-Again $0.832$ destroyed for $0.587$ received, and the cumulative ratio is
-$1.225$. And note that $C$ has dropped to zero.
+Again a bargain: $0.801$ destroyed for a mere $0.292$ received, and the
+cumulative ratio finally clears unity, at $1.229$. And note that $C$
+has dropped to zero.
 \end{example}
 
 $C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$.
 That's not the case when the number of free parameters has been reduced by learning to 1 each.
 
 \begin{example}
-\textbf{Question 4.} One question, one coin:
+\textbf{Question 4.} One question, one heavily loaded coin:
 \[
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & \hm{0} 0 & \hm{35} 1 & \hm{23} 0.645 & \hm{35} 1 \\[2pt]
-    \mathbf{1} & \hm{35} 1 & \hm{0} 0 & \hm{12} 0.355 & \hm{0} 0 \\
+    \mathbf{0} & \hm{0} 0 & \hm{33} 0.955 & \hm{35} 1 & \hm{35} 1 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{2} 0.045 & \hm{0} 0 & \hm{0} 0 \\
     \hline
-    \langle s \rangle & \text{---} & \text{---} & \hm{25} 0.938 & \text{---} \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \text{---} & \hm{25} 0.938 & \text{---}
+    \langle s \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---}
   \end{array}
 \]
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{2.65}{0}{0.955}{0.264}{0.264}{0.264}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
 The two forecasts now coincide: with $C = 0$ there is no transfer
 left to hope for, and the last question can only be observed, not
-leveraged. Nature answers $a = 0$ (probability $0.645$, surprisal
-$s_4 = 0.633$):
+leveraged. Nature answers $a = 0$ (probability $0.955$, surprisal
+$s_4 = 0.066$):
 
 \begin{center}
 \begin{tabular}{c c l c c c}
 \toprule
-$j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
+$j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-8 & 0 & $b_1 \wedge b_0$ (AND) & 0.645 & 1.000 & \pbar{1.000} \\
-\tikzmark{w4a}10 & 1 & $b_0$ (projection) & 0.355 & --- & \tikzmark{w4ae} \\
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.955 & 1.000 & \pbar{1.000} \\
+\tikzmark{w4a}12 & 1 & $b_1$ (projection) & 0.045 & --- & \tikzmark{w4ae} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1061,31 +1155,23 @@ $j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
 
 The ledger closes:
 \[
-  H(M)\colon 0.938 \to 0, \qquad
-  H(p)\colon 0.938 \to 0, \qquad
+  H(M)\colon 0.264 \to 0, \qquad
+  H(p)\colon 0.264 \to 0, \qquad
   C\colon 0 \to 0.
 \]
-The truth is AND. The step destroyed $0.938$ for $0.633$ received
-(ratio $1.484$) --- not deduction this time, but luck: the destroyed
+The truth is AND. The step destroyed $0.264$ for $0.066$ received
+(ratio $3.990$) --- not deduction this time, but luck: the destroyed
 amount was fixed in advance (the column's full entropy), while the
 realized surprisal undershot it because the likelier answer arrived.
 In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
 tower $0$.
-\end{example}
 
-\begin{example}
-\textbf{The whole run.} Cumulatively: $3.529$ bits of table
-destroyed --- all of it, as it must be --- for $2.747$ bits of
-surprisal received, a run ratio of $1.285$. Of the $0.782$ bits
-deduced, only $0.089$ was structure --- the entire initial tower,
-as the guarantee demands --- and the remaining $0.693$ was windfall:
-the truth happened to be a high-prior map, and its answers kept
-underpaying. In expectation the windfall vanishes, and the run
-ratio would be $H(M)_0/H(p) = 3.529/3.440 = 1.026$; most of the
-realized $1.285$ was luck, not intelligence. Figure~\ref{fig:run21}
+Cumulatively: $2.925$ bits of table
+destroyed, all of it, for $2.231$ bits of
+surprisal received: a run ratio of $1.311$. Most of the
+realized $1.311$ was luck, not intelligence. Figure~\ref{fig:run21}
 stacks the books after each question: what remains, plus what was
-received; the deduced part is the gap down (or up) to the initial
-total.
+received. Once it dips below the starting entropy, our prior has done some work. 
 
 \begin{center}
 \begin{tikzpicture}[x=1.35cm, y=1.05cm]
@@ -1095,46 +1181,49 @@ total.
   \foreach \y in {0,1,2,3}
     \draw (-0.81,\y) -- (-0.69,\y) node[left, font=\small] {$\y$};
   % l = 0
-  \fill[blue!55] (-0.32,0) rectangle (0.32,3.529);
-  % l = 1: stack tops at 3.543, slightly above H(M)_0
-  \fill[blue!55] (0.68,0) rectangle (1.32,2.543);
-  \fill[orange!85] (0.68,2.543) rectangle (1.32,3.543);
+  \fill[blue!55] (-0.32,0) rectangle (0.32,2.925);
+  % l = 1: stack tops at 3.446, well above H(M)_0
+  \fill[blue!55] (0.68,0) rectangle (1.32,2.178);
+  \fill[orange!85] (0.68,2.178) rectangle (1.32,3.446);
   % l = 2
-  \fill[blue!55] (1.68,0) rectangle (2.32,1.770);
-  \fill[orange!85] (1.68,1.770) rectangle (2.32,3.297);
+  \fill[blue!55] (1.68,0) rectangle (2.32,1.065);
+  \fill[orange!85] (1.68,1.065) rectangle (2.32,2.938);
   % l = 3
-  \fill[blue!55] (2.68,0) rectangle (3.32,0.938);
-  \fill[orange!85] (2.68,0.938) rectangle (3.32,3.052);
+  \fill[blue!55] (2.68,0) rectangle (3.32,0.264);
+  \fill[orange!85] (2.68,0.264) rectangle (3.32,2.429);
   % l = 4
-  \fill[orange!85] (3.68,0) rectangle (4.32,2.747);
+  \fill[orange!85] (3.68,0) rectangle (4.32,2.231);
   % initial-total line
-  \draw[dashed, gray] (-0.75,3.529) -- (4.6,3.529);
-  \node[right, font=\small, gray] at (4.6,3.529) {$H(M)_0$};
+  \draw[dashed, gray] (-0.75,2.925) -- (4.6,2.925);
+  \node[right, font=\small, gray] at (4.6,2.925) {$H(M)_0$};
   % x labels
   \foreach \l in {0,...,4}
     \node[below, font=\small] at (\l,0) {$\ell{=}\l$};
   % legend
-  \fill[blue!55] (5.4,2.9) rectangle (5.7,3.15);
-  \node[right, font=\small] at (5.7,3.02) {remaining $H(M)$};
-  \fill[orange!85] (5.4,2.3) rectangle (5.7,2.55);
-  \node[right, font=\small] at (5.7,2.42) {received $\sum s$};
+  \fill[blue!55] (5.4,2.15) rectangle (5.7,2.4);
+  \node[right, font=\small] at (5.7,2.27) {remaining $H(M)$};
+  \fill[orange!85] (5.4,1.55) rectangle (5.7,1.8);
+  \node[right, font=\small] at (5.7,1.67) {received $\sum s$};
 \end{tikzpicture}
 \captionof{figure}{The realized run through the guiding example:
 remaining table entropy plus cumulative surprisal received, after
 each question, against the initial total (dashed). The gap between
 each stack and the line is the cumulative deduced part. At
-$\ell = 1$ the stack in fact tops out $0.014$ bits \emph{above} the
-line --- the negative deduction of question 1 --- though the
-overshoot is too small to see at this scale; from $\ell = 2$ on the
-stacks fall short of the line as genuine deduction accrues.}
+$\ell = 1$ the stack tops out $0.521$ bits \emph{above} the
+line --- the negative deduction of question 1, plainly visible. At
+$\ell = 2$ the stack still grazes the line from above ($0.013$ bits);
+only from $\ell = 3$ on do the stacks fall short of it, as genuine
+deduction overtakes the early loss.}
 \label{fig:run21}
 \end{center}
 \end{example}
 
-The ratio that kept appearing --- table entropy destroyed per bit of
-surprisal received --- deserves a name.
+If the prior is good, meaning it actual models reality (the prevalence of maps),
+we expect graphs such as the one above to drop as questions come in.
+The ratio of table entropy destroyed per bit of
+surprisal received deserves a name.
 
-Finally, the \textbf{leverage}. Run the protocol for $k$ rounds:
+The \textbf{leverage}. Run the protocol for $k$ rounds:
 questions $q_1, \ldots, q_k$ are asked, the answers
 $a_i = \psi(q_i)$ are each processed by the update
 rule~\eqref{eq:update}, producing the tables $M^{(i)}$, and round $i$
@@ -1146,17 +1235,670 @@ per bit of surprisal received:
   \frac{H\big(M^{(0)}\big) - H\big(M^{(k)}\big)}
        {\sum_{i=1}^{k} s_i}\;.
 \end{equation}
-In expectation over the truth, $\psi \sim p$, we take the ratio of
-the expected totals, as we implicitly did in
-Section~\ref{sec:oneparam}:
-\begin{equation}
-  \langle L_k \rangle \;:=\;
-  \frac{\big\langle H\big(M^{(0)}\big) - H\big(M^{(k)}\big) \big\rangle}
-       {\big\langle \sum_{i=1}^{k} s_i \big\rangle}\;.
-\end{equation}
 A leverage of $1$ is the uniform-prior baseline: every bit of table
 entropy destroyed was paid for at face value, one bit of surprisal
 each. Anything above $1$ is deduction --- table entropy removed
 without ever being observed.
+
+\section{Correlators}\label{sec:correlators}
+
+What kind of operator is the update rule~\eqref{eq:update}? In map
+space it is as simple as an operator gets: multiplication by a
+diagonal $0/1$ mask, then renormalization. But there is a change of
+basis in which the same operation becomes a \emph{convolution} with a
+two-term kernel, and in which the correlation store $C$ stops being a
+single number and becomes visible coordinate by coordinate. The main advantage is 
+that the effect of each update is well tabulated beforehand into a small number of targeted parameters.
+
+This
+section builds that basis for $m = 1$; the final paragraph deals
+with general $m$.
+
+First, re-encode each answer as a spin,
+\begin{equation}\label{eq:spin}
+  \sigma_q(\phi_j) \;:=\; (-1)^{\phi_j(q)} \;\in\; \{+1, -1\},
+\end{equation}
+so answer $0 \mapsto +1$ and $1 \mapsto -1$. A pure relabeling, but
+it buys the one algebraic fact everything below turns on:
+$\sigma_q^2 = 1$.
+
+The \textbf{Walsh--Hadamard transform} is built from a single
+matrix. For one bit,
+\begin{equation}\label{eq:hadamard}
+  W \;=\; \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix},
+  \qquad W_{c,b} \;=\; (-1)^{c\,b}, \quad c, b \in \{0,1\}.
+\end{equation}
+\begin{example}
+Acting on a one-bit distribution,
+\[
+  W \binom{p_0}{p_1}
+  \;=\; \binom{p_0 + p_1}{p_0 - p_1}
+  \;=\; \binom{1}{\langle \sigma \rangle}:
+\]
+row $c = 0$ computes the normalization, row $c = 1$ the spin bias.
+Distribution in, correlators out.
+\end{example}
+
+The normalization riding along is a redundancy. The original distribution also uses one variable more than its degrees of freedom.
+
+\begin{example}
+Tensoring two copies (the $n=1$ case) does the same for two bits at once:
+\begin{equation}\label{eq:HH}
+  W \otimes W \;=\;
+  \begin{pmatrix}
+    W & W \\
+    W & -W
+  \end{pmatrix}
+  \;=\;
+  \begin{pmatrix}
+    1 & 1 & 1 & 1 \\
+    1 & -1 & 1 & -1 \\
+    1 & 1 & -1 & -1 \\
+    1 & -1 & -1 & 1
+  \end{pmatrix}
+  \quad
+  \begin{array}{l}
+    \leftarrow c = 00\colon\ \text{sums to } 1 \\
+    \leftarrow c = 01\colon\ \langle \sigma_0 \rangle \\
+    \leftarrow c = 10\colon\ \langle \sigma_1 \rangle \\
+    \leftarrow c = 11\colon\ \langle \sigma_1 \sigma_0 \rangle
+  \end{array}
+\end{equation}
+\end{example}
+
+The Kronecker product multiplies signs, so for any number $l$ of
+tensor factors the entry at row $c$, column $j$ is
+\begin{equation}\label{eq:kron}
+  \big(W^{\otimes l}\big)_{c,j}
+  \;=\; \prod_{b=0}^{l-1} (-1)^{c_b\, j_b}
+  \;=\; (-1)^{\sum_b c_b\, j_b},
+\end{equation}
+with $c_b$, $j_b$ the $b$-th bits of the row and column indices;
+every further tensor factor appends one more bit.
+
+For $m = 1$ a map \emph{is} its truth table of $2^n$ bits --- the
+numeral $j$ --- so Werner's belief is a vector of length
+$N = 2^{2^n}$, and one transform computes every correlator at once:
+\begin{equation}\label{eq:wht}
+  \chi \;=\; W^{\otimes 2^n} p,
+  \qquad
+  \chi_S \;=\; \Big\langle \prod_{q \in S} \sigma_q \Big\rangle
+  \;=\; \sum_{j=0}^{N-1} (-1)^{\sum_{q \in S} \phi_j(q)}\, p_j.
+\end{equation}
+Each row computes the \textbf{correlator} of one subset
+$S \subseteq Q$ of questions. In the subscript we may encode the set as
+its \emph{mask}: written in the same descending question order as everywhere else, bit $q$ of the subscript
+records whether $q \in S$. The row index of the matrix, read as a
+numeral, is the mask. 
+
+\begin{example}
+For $n = 2$,
+the question order is $(11, 10, 01, 00)$ so $\chi_{0110}$ is the correlator of
+$S = \{10, 01\}$.
+
+the sixteen rows of $W^{\otimes 4}$ probe the sixteen
+subsets of $Q = \{11, 10, 01, 00\}$. A few entries of the
+dictionary:
+\begin{center}
+\begin{tabular}{c c l}
+\toprule
+mask & set $S$ & correlator \\
+\midrule
+$0000$ & $\emptyset$ & $\chi_{0000} = 1$ (normalization) \\
+$0001$ & $\{00\}$ & $\chi_{0001} = \langle \sigma_{00} \rangle$ \\
+$1000$ & $\{11\}$ & $\chi_{1000} = \langle \sigma_{11} \rangle$ \\
+$0110$ & $\{10, 01\}$ & $\chi_{0110} = \langle \sigma_{10}\, \sigma_{01} \rangle$ \\
+$1111$ & $\{11, 10, 01, 00\}$ & $\chi_{1111} = \langle \sigma_{11}\, \sigma_{10}\, \sigma_{01}\, \sigma_{00} \rangle$, the full parity \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{example}
+
+Sort the $N$ correlators by $|S|$, the number
+of questions probed, into \emph{shells}. Shell $0$ is the normalization, $\chi_\emptyset = 1$, riding along
+as a correlator. Shell $1$ is $M$ in different clothes:
+\begin{equation}\label{eq:shell1}
+  \chi_{\{q\}} \;=\; M_{0,q} - M_{1,q},
+  \qquad
+  M_{a,q} \;=\; \tfrac12\big(1 + (-1)^a\, \chi_{\{q\}}\big),
+\end{equation}
+the bias of column $q$. For $m=1$, we elegantly see the first shell correlators are the distance from fair coins. 
+
+Shell $2$ holds the agreement biases of
+pairs of questions --- knowledge $M$ cannot see: two priors can
+share every column of $M$ and differ here. Higher shells store
+subtler and subtler parity knowledge. Nothing is lost in the
+sorting: $W^2 = 2I$, so $(W^{\otimes 2^n})^2 = N I$ --- the
+transform is its own inverse up to a factor $N$, and knowing every
+correlator is knowing the belief. The ledger also gives $C$ a
+signature: a product prior ($C = 0$) factorizes every correlator,
+$\chi_S = \prod_{q \in S} \chi_{\{q\}}$, so its upper shells
+repeat what shell $1$ already said; correlated knowledge is
+precisely \emph{non-factorizing} correlators.
+
+\begin{example}
+The prior of Table~\ref{tab:sixteen} transforms to the ledger
+\begin{center}
+\begin{tabular}{c l}
+\toprule
+shell & correlators \\
+\midrule
+0 & $\chi_{0000} = 1$ \\[2pt]
+1 & $\chi_{1000} = +0.170$,\ \ $\chi_{0100} = +0.558$,\ \
+    $\chi_{0010} = +0.780$,\ \ $\chi_{0001} = +0.636$ \\[2pt]
+2 & $\chi_{1100} = -0.032$,\ \ $\chi_{1010} = +0.230$,\ \
+    $\chi_{1001} = +0.374$, \\
+  & $\chi_{0110} = +0.498$,\ \ $\chi_{0101} = +0.434$,\ \
+    $\chi_{0011} = +0.576$ \\[2pt]
+3 & $\chi_{1110} = +0.028$,\ \ $\chi_{1101} = +0.092$,\ \
+    $\chi_{1011} = +0.434$,\ \ $\chi_{0111} = +0.374$ \\[2pt]
+4 & $\chi_{1111} = +0.152$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\ledgerbars{0/1/0000/blue!45,
+  0.80/0.170/1000/blue!45, 1.35/0.558/0100/blue!45,
+  1.90/0.780/0010/blue!45, 2.45/0.636/0001/blue!45,
+  3.25/-0.032/1100/orange!80, 3.80/0.230/1010/blue!45,
+  4.35/0.374/1001/blue!45, 4.90/0.498/0110/blue!45,
+  5.45/0.434/0101/blue!45, 6.00/0.576/0011/blue!45,
+  6.80/0.028/1110/blue!45, 7.35/0.092/1101/blue!45,
+  7.90/0.434/1011/blue!45, 8.45/0.374/0111/blue!45,
+  9.25/0.152/1111/blue!45}
+Shell $1$ reproduces the columns of equation~\eqref{eq:M16}:
+$(1 + 0.170)/2 = 0.585 = M_{0,11}$, and likewise $0.779$, $0.890$,
+$0.818$. The negative entry $\chi_{1100}$ says questions $11$
+and $10$ disagree slightly more often than they agree; every other
+pair leans toward agreement. This is a reflection of the strong coherent $0$-preference encoded in the prior. Answering $1$ would give negative 1-shells.
+\end{example}
+
+Now look at the \emph{rows} of $W^{\otimes 2^n}$ as functions of
+$j$. They are \textbf{block waves}. The observation mask is built of the same material:
+\begin{equation}\label{eq:mask}
+  \delta\big(\phi_j(q), a\big)
+  \;=\; \frac12\left(1 + (-1)^{a+\phi_j(q)}\right),
+\end{equation}
+a $0/1$ block wave --- one constant plus one Hadamard row. And
+multiplication and convolution swap under this transform exactly as
+under Fourier: multiplying two functions of $j$ pointwise convolves
+their ledgers. And the observation mask's ledger has only two
+nonzero entries --- at $\emptyset$ and at $\{q\}$ --- so this
+convolution is no great sum: it combines each correlator with
+exactly one other.
+
+The update rule, carried out entirely in the ledger, is therefore
+that two-term combination, followed by renormalization by the new
+shell $0$. In index notation, learning $a = \psi(q)$ sends every
+set $S$ to
+\begin{equation}\label{eq:corr-update}
+  \chi'_S \;=\;
+  \frac{\chi_S + (-1)^a\, \chi_{S \triangle \{q\}}}
+       {1 + (-1)^a\, \chi_{\{q\}}},
+\end{equation}
+where $S \triangle \{q\}$ is $S$ with the membership of $q$
+toggled: $q$ is added if absent, removed if present (on masks, bit
+$q$ is flipped). The numerator is the monomial
+algebra of $\sigma_q^2 = 1$: multiplying
+$\prod_{r \in S} \sigma_r$ by
+$\sigma_q$ toggles $q$'s membership of the product, so every correlator
+is averaged with its \textbf{partner}: the correlator differing
+by $q$, signed by the answer. The denominator is the
+$S = \emptyset$ instance of the numerator, and by
+equation~\eqref{eq:shell1} it equals $2 M_{a,q}$: the same number
+that priced the answer in equation~\eqref{eq:update} renormalizes
+the ledger. Read the formula by cases:
+\begin{itemize}
+  \item $S = \emptyset$: partner $\{q\}$, giving
+    $(1 + (-1)^a \chi_{\{q\}})/(1 + (-1)^a \chi_{\{q\}}) = 1$.
+    Normalization is preserved.
+  \item $S = \{q\}$, the asked question: partner $\emptyset$, giving
+    $(\chi_{\{q\}} + (-1)^a)/(1 + (-1)^a \chi_{\{q\}}) = (-1)^a$.
+    The bias saturates to certainty --- the one-hot collapse of
+    column $q$, derived rather than decreed.
+  \item $S = \{q'\}$, an unasked question: the partner is the pair
+    $\{q', q\}$, and one line of algebra puts the
+    shift in terms of the \emph{connected} correlator:
+    \begin{equation}\label{eq:cov-shift}
+      \chi'_{\{q'\}} - \chi_{\{q'\}}
+      \;=\; \frac{(-1)^a \big(\chi_{\{q',q\}}
+        - \chi_{\{q'\}}\, \chi_{\{q\}}\big)}{2 M_{a,q}}
+      \;=\; \frac{(-1)^a\, \mathrm{Cov}\big(\sigma_{q'}, \sigma_q\big)}
+        {2 M_{a,q}}.
+    \end{equation}
+    Unasked columns move in proportion to their covariance with the
+    asked question: knowledge stored one shell up descends into the
+    predictions. A product prior has zero covariance everywhere, so
+    its unasked columns are frozen --- the ``$C = 0$ means no
+    transfer'' fact, now a one-line consequence.
+  \item Higher shells: the same cascade. Each update marries
+    shell-$k$ sets containing $q$ to shell-$(k{-}1)$ sets without
+    it; whatever structure was stored jointly with $q$ moves one
+    shell down, toward $M$.
+\end{itemize}
+
+\begin{example}
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm,
+  lnode/.style={draw=black!60, rounded corners=1pt,
+                inner sep=2.5pt, font=\tiny, align=center},
+  pair/.style={<->, blue!55!black, line width=0.8pt},
+  denom/.style={->, gray!60, line width=0.35pt}]
+  % alternating shell bands, odd shells darker
+  \fill[gray!28] (-0.3,0.55) rectangle (9.3,1.45);
+  \fill[gray!10] (-0.3,1.55) rectangle (9.3,2.45);
+  \fill[gray!28] (-0.3,2.55) rectangle (9.3,3.45);
+  \fill[gray!10] (-0.3,3.55) rectangle (9.3,4.45);
+  \fill[gray!10] (-0.3,-0.45) rectangle (9.3,0.45);
+  % nodes: fill hue = sign, intensity = |chi| of the prior ledger
+  % shell 4
+  \node[lnode, fill=blue!14] (n1111) at (4.3,4) {1111};
+  % shell 3
+  \node[lnode, fill=blue!9]  (n1110) at (2.5,3) {1110};
+  \node[lnode, fill=blue!11] (n1101) at (4.1,3) {1101};
+  \node[lnode, fill=blue!24] (n1011) at (5.7,3) {1011};
+  \node[lnode, fill=blue!22] (n0111) at (7.3,3) {0111};
+  % shell 2
+  \node[lnode, fill=orange!9] (n1100) at (0.7,2) {1100};
+  \node[lnode, fill=blue!17]  (n1010) at (2.3,2) {1010};
+  \node[lnode, fill=blue!22]  (n1001) at (3.9,2) {1001};
+  \node[lnode, fill=blue!26]  (n0110) at (5.5,2) {0110};
+  \node[lnode, fill=blue!24]  (n0101) at (7.1,2) {0101};
+  \node[lnode, fill=blue!29]  (n0011) at (8.7,2) {0011};
+  % shell 1
+  \node[lnode, fill=blue!14, draw=orange!85!black, line width=1pt]
+    (n1000) at (1.5,1) {1000};
+  \node[lnode, fill=blue!29] (n0100) at (3.7,1) {0100};
+  \node[lnode, fill=blue!37] (n0010) at (5.3,1) {0010};
+  \node[lnode, fill=blue!32] (n0001) at (6.9,1) {0001};
+  % shell 0
+  \node[lnode, fill=blue!45] (n0000) at (4.5,0) {0000};
+  % the asked bias renormalizes every update: a fan from 1000
+  \draw[denom] (n1000) to (n1100);
+  \draw[denom] (n1000) to (n1010);
+  \draw[denom] (n1000) to (n1001);
+  \draw[denom] (n1000) to (n0110);
+  \draw[denom] (n1000) to (n0101);
+  \draw[denom] (n1000) to (n0011);
+  \draw[denom] (n1000) to (n1110);
+  \draw[denom] (n1000) to (n1101);
+  \draw[denom, bend left=8] (n1000) to (n1011);
+  \draw[denom, bend right=8] (n1000) to (n0111);
+  \draw[denom, bend left=18] (n1000) to (n1111);
+  \draw[denom, bend right=28] (n1000) to (n0100);
+  \draw[denom, bend right=28] (n1000) to (n0010);
+  \draw[denom, bend right=28] (n1000) to (n0001);
+  % the eight partner pairs under toggling of 11
+  \draw[pair] (n1000) -- (n0000);
+  \draw[pair] (n1100) -- (n0100);
+  \draw[pair] (n1010) -- (n0010);
+  \draw[pair] (n1001) -- (n0001);
+  \draw[pair] (n1110) -- (n0110);
+  \draw[pair] (n1101) -- (n0101);
+  \draw[pair] (n1011) -- (n0011);
+  \draw[pair] (n1111) -- (n0111);
+  % descent annotation
+  \draw[->, gray] (9.8,3.4) -- (9.8,0.6);
+  \node[rotate=90, gray, font=\scriptsize] at (10.1,2)
+    {structure descends};
+\end{tikzpicture}
+\captionsetup{skip=8pt}
+\captionof{figure}{The update rule in the ledger, drawn for the
+guiding example's first question ($q = 11$). Every set is paired
+with the partner whose membership of $11$ is toggled (arrows);
+each pair is averaged with the answer's sign and renormalized,
+per equation~\eqref{eq:corr-update}. The pair
+$\emptyset \leftrightarrow \{11\}$ at the orange-bordered asked
+set fixes the normalization and
+saturates the asked bias; each blue double arrow averages a pair
+into both of its members, and the net flow of structure is one
+shell down, toward $M$. The thin gray arrows from the
+asked $q$ to every other pill remind that this sets the
+renormalization. The fill encodes each prior value to
+scale: darker is larger, orange is negative.}
+\label{fig:pairing}
+\end{center}
+\end{example}
+
+In particular, $M$ never has to leave the ledger. By
+equation~\eqref{eq:shell1} the posterior column of any question $q'$
+is read off the updated singleton, and
+equation~\eqref{eq:corr-update} expresses that singleton in prior
+ledger entries:
+\begin{equation}\label{eq:M-from-chi}
+  M'_{a',q'}
+  \;=\; \tfrac12\big(1 + (-1)^{a'}\, \chi'_{\{q'\}}\big)
+  \;=\; \frac12 \left[ 1 + (-1)^{a'}\,
+    \frac{\chi_{\{q'\}} + (-1)^{a}\, \chi_{\{q'\} \triangle \{q\}}}
+         {1 + (-1)^{a}\, \chi_{\{q\}}} \right].
+\end{equation}
+Three ledger entries suffice for the whole posterior column: its own
+bias, the asked bias, and their pair correlator. The formula covers
+the asked column too: for $q' = q$ the toggle empties the set,
+$\chi_{\{q\} \triangle \{q\}} = \chi_\emptyset = 1$, the fraction
+collapses to $(-1)^a$, and $M'_{a',q} = \delta(a', a)$.
+
+\begin{example}
+Question 1 of the walkthrough asked $q = 11$ and received $a = 1$:
+sign $(-1)^a = -1$, toggled set $\{11\}$, mask $1000$.
+Equation~\eqref{eq:corr-update}
+maps the ledger of the previous box to
+\begin{center}
+\begin{tabular}{c l}
+\toprule
+shell & updated correlators \\
+\midrule
+0 & $\chi'_{0000} = 1$ \\[2pt]
+1 & $\chi'_{1000} = \mathbf{-1}$,\ \ $\chi'_{0100} = +0.711$,\ \
+    $\chi'_{0010} = +0.663$,\ \ $\chi'_{0001} = +0.316$ \\[2pt]
+2 & $\chi'_{1100} = -0.711$,\ \ $\chi'_{1010} = -0.663$,\ \
+    $\chi'_{1001} = -0.316$, \\
+  & $\chi'_{0110} = +0.566$,\ \ $\chi'_{0101} = +0.412$,\ \
+    $\chi'_{0011} = +0.171$ \\[2pt]
+3 & $\chi'_{1110} = -0.566$,\ \ $\chi'_{1101} = -0.412$,\ \
+    $\chi'_{1011} = -0.171$,\ \ $\chi'_{0111} = +0.267$ \\[2pt]
+4 & $\chi'_{1111} = -0.267$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\ledgerbars{0/1/0000/blue!45,
+  0.80/-1/1000/orange!80, 1.35/0.711/0100/blue!45,
+  1.90/0.663/0010/blue!45, 2.45/0.316/0001/blue!45,
+  3.25/-0.711/1100/orange!80, 3.80/-0.663/1010/orange!80,
+  4.35/-0.316/1001/orange!80, 4.90/0.566/0110/blue!45,
+  5.45/0.412/0101/blue!45, 6.00/0.171/0011/blue!45,
+  6.80/-0.566/1110/orange!80, 7.35/-0.412/1101/orange!80,
+  7.90/-0.171/1011/orange!80, 8.45/0.267/0111/blue!45,
+  9.25/-0.267/1111/orange!80}
+The asked bias saturates:
+$\chi'_{1000} = (0.170 - 1)/(1 - 0.170) = -1$. The other
+singletons move by equation~\eqref{eq:cov-shift}: for $q' = 10$ the
+covariance is $-0.032 - (0.558)(0.170) = -0.127$, so the shift is
+$(-1)(-0.127)/(2 \times 0.415) = +0.153$, landing on $+0.711$ ---
+and indeed $(1 + 0.711)/2 = 0.855$, the column $M_{0,10}$ of the
+Question 2 box. Note also that every mask containing the asked bit
+is now just $(-1)^a$ times its partner
+($\chi'_{1010} = -\chi'_{0010}$,
+etc.): with $\sigma_{11}$ pinned, no correlator involving
+question $11$ carries independent knowledge anymore.
+
+\begin{center}
+\begin{tikzpicture}[x=8cm, y=1.5cm]
+  % the update rule (eq:corr-update), drawn: per set S, the numerator
+  % chi_S with the twin's signed contribution beside it (waterfall)
+  % at x = 2M_{a,q}, rescaled to x = 1 by the ray through the origin
+  \draw[dotted, gray!60] (0.830,0.38) -- (0.830,-4.35);
+  \draw[dotted, gray!60] (1,0.38) -- (1,-4.35);
+  \node[font=\small\itshape] at (0.5,0.85)
+    {update $\chi$ after $\psi(11) = 1$};
+  \node[font=\tiny, gray, anchor=east] at (0.92,0.50)
+    {stack at $2M_{a,q}$};
+  \node[font=\tiny, gray, anchor=west] at (0.955,0.50)
+    {read at $1$};
+  % the set being updated, left of each row
+  \node[font=\scriptsize, anchor=east] at (-0.04,0)
+    {$S = \{11\}$};
+  \node[font=\scriptsize, anchor=east] at (-0.04,-2.1)
+    {$S = \{10\}$};
+  \node[font=\scriptsize, anchor=east] at (-0.04,-2.63)
+    {$S = \{11, 01\}$};
+  \node[font=\scriptsize, anchor=east] at (-0.04,-4.24)
+    {$S = \{01, 00\}$};
+  % ---------- S = 1000 (the asked set) ----------
+  \fill[gray!12] (0,0) -- (1,0) -- (1,-1) -- cycle;
+  \draw[->] (-0.02,0) -- (1.12,0);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,0) rectangle (0.829,0.170);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,0.170) rectangle (0.851,-0.830);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,0) rectangle (1.022,-1);
+  \draw[blue!55!black, line width=0.6pt] (0,0) -- (1,-1);
+  \fill[black] (0.830,-0.830) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,0.085) {$\chi_{1000}$\\$+0.170$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-0.33) {$-\chi_{0000}$\\$-1$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-1)
+    {$\chi'_{1000} = -1$};
+  % ---------- S = 0100 (an unasked question) ----------
+  \fill[gray!12] (0,-2.1) -- (1,-2.1) -- (1,-1.389) -- cycle;
+  \draw[->] (-0.02,-2.1) -- (1.12,-2.1);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,-2.1) rectangle (0.829,-1.542);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,-1.542) rectangle (0.851,-1.510);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,-2.1) rectangle (1.022,-1.389);
+  \draw[blue!55!black, line width=0.6pt] (0,-2.1) -- (1,-1.389);
+  \fill[black] (0.830,-1.510) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,-1.821) {$\chi_{0100}$\\$+0.558$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-1.526) {$-\chi_{1100}$\\$+0.032$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-1.389)
+    {$\chi'_{0100} = +0.711$};
+  % ---------- S = 1010 (contains the asked bit) ----------
+  \fill[gray!12] (0,-2.63) -- (1,-2.63) -- (1,-3.293) -- cycle;
+  \draw[->] (-0.02,-2.63) -- (1.12,-2.63);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,-2.63) rectangle (0.829,-2.40);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,-2.40) rectangle (0.851,-3.18);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,-2.63) rectangle (1.022,-3.293);
+  \draw[blue!55!black, line width=0.6pt] (0,-2.63) -- (1,-3.293);
+  \fill[black] (0.830,-3.18) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,-2.515) {$\chi_{1010}$\\$+0.230$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-2.83) {$-\chi_{0010}$\\$-0.780$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-3.293)
+    {$\chi'_{1010} = -0.663$};
+  % ---------- S = 0011 (a higher shell) ----------
+  \fill[gray!12] (0,-4.24) -- (1,-4.24) -- (1,-4.069) -- cycle;
+  \draw[->] (-0.02,-4.24) -- (1.12,-4.24);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,-4.24) rectangle (0.829,-3.664);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,-3.664) rectangle (0.851,-4.098);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,-4.24) rectangle (1.022,-4.069);
+  \draw[blue!55!black, line width=0.6pt] (0,-4.24) -- (1,-4.069);
+  \fill[black] (0.830,-4.098) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,-3.952) {$\chi_{0011}$\\$+0.576$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-3.881) {$-\chi_{1011}$\\$-0.434$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-4.069)
+    {$\chi'_{0011} = +0.171$};
+  % shared x labels on the bottom panel
+  \draw (0.830,-4.26) -- (0.830,-4.22);
+  \draw (1,-4.26) -- (1,-4.22);
+  \node[font=\tiny, below] at (0.830,-4.28) {$0.830$};
+  \node[font=\tiny, below] at (1,-4.28) {$1$};
+\end{tikzpicture}
+\captionsetup{skip=8pt}
+\captionof{figure}{The update rule of
+equation~\eqref{eq:corr-update}, drawn for the guiding example's
+first update ($q = 11$, $a = 1$, so $(-1)^a = -1$ and toggled bit
+$1000$). One row per set $S$. At $x = 2M_{a,q} = 1 + (-1)^a
+\chi_{1000} = 0.830$ stands the numerator as a waterfall: the bar
+of $\chi_S$ (blue), and beside it the partner's signed
+contribution $(-1)^a \chi_{S \triangle \{q\}}$ (orange), hanging
+from the level where the first bar ends. The two subscripts
+differ by the flipped bit. The ray from the origin through the
+waterfall's endpoint rescales it, by similar triangles, to
+$x = 1$, where its height is the updated correlator $\chi'_S$.}
+\label{fig:update-rays}
+\end{center}
+\end{example}
+
+As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
+The second shell answers questions such as 'If the answer to $\psi(10) = 0$, then $\psi(01) = 1$'. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
+
+\begin{example}
+The remaining
+questions of the run ($00$, $01$, $10$, all answered $0$, so with
+sign $+1$) each saturate their own bit the same way, and since
+XOR toggles commute, the order does not matter --- the
+commutativity of updating, seen again. After all four, the ledger
+is pure signs, $\chi_S = (-1)^{|S \cap \{11\}|}$ --- $-1$ on every
+set containing $11$, $+1$ on the rest: the transform
+of the point mass on $\psi = \phi_8$:
+\begin{center}
+\begin{tabular}{c l}
+\toprule
+shell & final correlators \\
+\midrule
+0 & $\chi_{0000} = 1$ \\[2pt]
+1 & $\chi_{1000} = -1$,\ \ $\chi_{0100} = +1$,\ \
+    $\chi_{0010} = +1$,\ \ $\chi_{0001} = +1$ \\[2pt]
+2 & $\chi_{1100} = -1$,\ \ $\chi_{1010} = -1$,\ \
+    $\chi_{1001} = -1$, \\
+  & $\chi_{0110} = +1$,\ \ $\chi_{0101} = +1$,\ \
+    $\chi_{0011} = +1$ \\[2pt]
+3 & $\chi_{1110} = -1$,\ \ $\chi_{1101} = -1$,\ \
+    $\chi_{1011} = -1$,\ \ $\chi_{0111} = +1$ \\[2pt]
+4 & $\chi_{1111} = -1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\ledgerbars{0/1/0000/blue!45,
+  0.80/-1/1000/orange!80, 1.35/1/0100/blue!45,
+  1.90/1/0010/blue!45, 2.45/1/0001/blue!45,
+  3.25/-1/1100/orange!80, 3.80/-1/1010/orange!80,
+  4.35/-1/1001/orange!80, 4.90/1/0110/blue!45,
+  5.45/1/0101/blue!45, 6.00/1/0011/blue!45,
+  6.80/-1/1110/orange!80, 7.35/-1/1101/orange!80,
+  7.90/-1/1011/orange!80, 8.45/1/0111/blue!45,
+  9.25/-1/1111/orange!80}
+\end{example}
+
+\subsection{General $m$}\label{sec:generalm}
+
+It turns out that taking $m > 1$ is more
+general but not much more instructive. With multiple output bits it
+is as if we have $m$ a priori independent maps per question; they
+just happen always to be asked and answered simultaneously, in
+unison. Therefore we do not have to think about what one of them
+teaches us about another. It would mean we have more than $2$
+options every question, and therefore the factor by which every
+update thins the hypotheses is not $2$ but $2^m$. The guiding
+example helps because the maps are represented as binary numbers,
+which are more familiar.
+
+For completeness, the main formulas. The truth table is now
+$m \cdot 2^n$ bits: one \emph{site} $(q, i)$ per bit $i$ of each
+answer, each carrying a spin
+$\sigma_{q,i}(\phi_j) := (-1)^{\phi_j(q)_i}$, where $\phi_j(q)_i$
+is the $i$-th bit of the answer. Correlators are indexed by sets
+$S$ of sites --- masks of $m 2^n$ bits under the same numeral
+convention, $m$ of them per question:
+\begin{equation}\label{eq:wht-m}
+  \chi_S \;=\; \Big\langle \prod_{(q,i) \in S} \sigma_{q,i}
+  \Big\rangle
+  \;=\; \sum_{j=0}^{N-1} (-1)^{\sum_{(q,i) \in S} \phi_j(q)_i}\,
+  p_j.
+\end{equation}
+
+\begin{example}
+For $n = 3$, $m = 2$ the sites form a $2 \times 8$ grid: one column
+per question, one row per bit of the answer. A set $S$ is a pattern
+of hot cells in this grid, and $\chi_S$ multiplies the
+corresponding spins:
+\begin{center}
+\begin{tikzpicture}[x=0.40cm, y=0.40cm]
+  % column headers
+  \node[font=\tiny, anchor=east] at (-0.4,0.8) {$q =$};
+  \foreach \c/\q in {0/111, 1/110, 2/101, 3/100,
+                     4/011, 5/010, 6/001, 7/000}
+    \node[font=\tiny, rotate=90, anchor=west] at ({\c+0.5},0.3)
+      {$\q$};
+  % row labels (first grid)
+  \node[font=\tiny, anchor=east] at (-0.4,-0.5) {bit $1$};
+  \node[font=\tiny, anchor=east] at (-0.4,-1.5) {bit $0$};
+  % the five grids: cold cells
+  \foreach \g in {0, 1, 2, 3, 4}
+    \foreach \c in {0,...,7}
+      \foreach \r in {0, 1}
+        \draw[black!40, line width=0.3pt, fill=gray!12]
+          (\c,{-3.4*\g - 2 + \r}) rectangle
+          ({\c+1},{-3.4*\g - 1 + \r});
+  % hot cells: {grid/column/row}, row 1 = bit 1 (top)
+  \foreach \g/\c/\r in {1/2/1, 2/1/0, 2/1/1, 3/3/0, 3/4/1,
+                        4/0/1, 4/2/0, 4/5/0, 4/5/1, 4/7/0}
+    \draw[black!40, line width=0.3pt, fill=orange!70]
+      (\c,{-3.4*\g - 2 + \r}) rectangle
+      ({\c+1},{-3.4*\g - 1 + \r});
+  % what each pattern computes
+  \node[font=\scriptsize, anchor=west] at (8.8,-1)
+    {$\chi_\emptyset = 1$: the normalization};
+  \node[font=\scriptsize, anchor=west] at (8.8,-4.4)
+    {$\langle \sigma_{101,1} \rangle$: the bias of one answer bit};
+  \node[font=\scriptsize, anchor=west, align=left] at (8.8,-7.8)
+    {$\langle \sigma_{110,1}\, \sigma_{110,0} \rangle$: the parity
+     of one answer ---\\with the two biases, the block of
+     $M_{\cdot,110}$};
+  \node[font=\scriptsize, anchor=west] at (8.8,-11.2)
+    {$\langle \sigma_{100,0}\, \sigma_{011,1} \rangle$: agreement
+     across two questions};
+  \node[font=\scriptsize, anchor=west, align=left] at (8.8,-14.6)
+    {$\langle \sigma_{111,1}\, \sigma_{101,0}\, \sigma_{010,1}\,
+      \sigma_{010,0}\, \sigma_{000,0} \rangle$:\\a five-site
+      parity, deep in the shells};
+\end{tikzpicture}
+\end{center}
+Any of the $2^{16} = 65536$ hot/cold patterns is a correlator, and
+sorting by the number of hot cells gives the shells. The mask of
+$S$ is the grid read as a $16$-bit numeral.
+\end{example}
+
+Write $B_q$ for the block of $q$'s $m$ sites, and
+$a \cdot T := \sum_{i \in T} a_i$ for the parity of the answer $a$
+on a subset $T \subseteq B_q$. The answer matrix is read off the
+correlators supported on one block --- $2^m$ of them per column:
+\begin{equation}\label{eq:M-m}
+  M_{a,q} \;=\; \frac{1}{2^m} \sum_{T \subseteq B_q}
+  (-1)^{a \cdot T}\, \chi_T.
+\end{equation}
+The observation mask at $(q, a)$ is a function of the $m$ bits of
+one block, so its ledger has $2^m$ nonzero entries, and hearing
+$a = \psi(q)$ combines every correlator with its $2^m$ partners ---
+one per toggle $T$ within the asked block:
+\begin{equation}\label{eq:corr-update-m}
+  \chi'_S \;=\; \frac{\sum_{T \subseteq B_q} (-1)^{a \cdot T}\,
+    \chi_{S \triangle T}}{2^m\, M_{a,q}},
+\end{equation}
+the denominator once more the $S = \emptyset$ instance of the
+numerator. And a posterior column is still local in the ledger:
+substituting equation~\eqref{eq:corr-update-m} into
+equation~\eqref{eq:M-m},
+\begin{equation}\label{eq:M-from-chi-m}
+  M'_{a',q'} \;=\; \frac{\sum_{T' \subseteq B_{q'}}
+    \sum_{T \subseteq B_q}
+    (-1)^{a' \cdot T' + a \cdot T}\, \chi_{T' \triangle T}}
+    {2^{2m}\, M_{a,q}}\,:
+\end{equation}
+the $(2^m)^2$ correlators supported on the two blocks --- the
+Walsh coefficients of the joint answer table of $q$ and $q'$ ---
+suffice, out of a ledger of $2^{m 2^n}$. For $m = 1$ the four
+formulas collapse to
+equations~\eqref{eq:wht}, \eqref{eq:shell1},
+\eqref{eq:corr-update} and~\eqref{eq:M-from-chi}.
+
+\section{Expectations}
+
+In expectation over the truth $\psi \sim p$, as well as over the question order, we take the ratio of
+the expected totals, 
+\begin{equation}
+  \langle L_k \rangle \;:=\;
+  \frac{H\big(M^{(0)}\big) - \big\langle  H\big(M^{(k)}\big) \big\rangle}
+       {\big\langle \sum_{i=1}^{k} s_i \big\rangle}\;.
+\end{equation}
+
+We did this implicitly in
+Section~\ref{sec:oneparam}. There, the problem was actually symmetric in $q_0 \leftrightarrow q_1$. That is not the case in general.
+
+In order to progress, we will be interested in such averages.
 
 \end{document}
