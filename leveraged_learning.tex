@@ -18,7 +18,22 @@
   left=7pt, right=7pt, top=5pt, bottom=5pt,
   before upper={\setlength{\parindent}{15pt}}}
 \usepackage{graphicx}
+\usepackage{colortbl}
 \usepackage{tikz}
+
+% lying probability bar, rightmost column of the truth tables;
+% base scale: a full-width bar (1.3cm) is probability 1; the optional
+% argument magnifies (used at 4x for the diffuse prior of Table 4)
+\newcommand{\pbar}[2][1]{%
+  \begin{tikzpicture}[baseline=-0.55ex]
+    \useasboundingbox (0,-0.17) rectangle (1.3,0.17);
+    \fill[blue!25] (0,-0.15) rectangle ({#2*1.3*#1},0.15);
+  \end{tikzpicture}}
+
+% subtle heat-map cell: darker blue for high values, lighter for low;
+% shades are min-max normalized within their group (probabilities on
+% [0,1]; the <s> and <dH(M)> rows jointly on [0.764, 1.005])
+\newcommand{\hm}[1]{\cellcolor{blue!#1}}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{svg.path}
@@ -540,32 +555,33 @@ $q = 11$, reads $1000$, so it is $j = 8$). The prior $p_j$ alongside
 is conjured for illustration.
 
 \begin{center}
-\begin{tabular}{c |cccc| l c}
+\begin{tabular}{c |cccc| l c c}
 \toprule
- & \multicolumn{4}{|c|}{$\phi_j(q)$} & & \\
-$j$ & $11$ & $10$ & $01$ & $00$ & name & $p_j$ \\
+ & \multicolumn{4}{|c|}{$\phi_j(q)$} & & & \\
+$j$ & $11$ & $10$ & $01$ & $00$ & name & $p_j$ & \\
 \midrule
-0  & 0 & 0 & 0 & 0 & FALSE (constant $0$) & 0.150 \\
-1  & 0 & 0 & 0 & 1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 \\
-2  & 0 & 0 & 1 & 0 & $\lnot b_1 \wedge b_0$ & 0.060 \\
-3  & 0 & 0 & 1 & 1 & $\lnot b_1$ & 0.017 \\
-4  & 0 & 1 & 0 & 0 & $b_1 \wedge \lnot b_0$ & 0.094 \\
-5  & 0 & 1 & 0 & 1 & $\lnot b_0$ & 0.015 \\
-6  & 0 & 1 & 1 & 0 & $b_1 \oplus b_0$ (XOR) & 0.012 \\
-7  & 0 & 1 & 1 & 1 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 \\
-8  & 1 & 0 & 0 & 0 & $b_1 \wedge b_0$ (AND) & 0.149 \\
-9  & 1 & 0 & 0 & 1 & $b_1 = b_0$ (XNOR) & 0.114 \\
-10 & 1 & 0 & 1 & 0 & $b_0$ (projection) & 0.082 \\
-11 & 1 & 0 & 1 & 1 & $b_1 \to b_0$ (IF THEN) & 0.016 \\
-12 & 1 & 1 & 0 & 0 & $b_1$ (projection) & 0.102 \\
-13 & 1 & 1 & 0 & 1 & $b_0 \to b_1$ (IF THEN) & 0.013 \\
-14 & 1 & 1 & 1 & 0 & $b_1 \vee b_0$ (OR) & 0.014 \\
-15 & 1 & 1 & 1 & 1 & TRUE (constant $1$) & 0.010 \\
+0  & 0 & 0 & 0 & 0 & FALSE (constant $0$) & 0.150 & \pbar[4]{0.150} \\
+1  & 0 & 0 & 0 & 1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 & \pbar[4]{0.141} \\
+2  & 0 & 0 & 1 & 0 & $\lnot b_1 \wedge b_0$ & 0.060 & \pbar[4]{0.060} \\
+3  & 0 & 0 & 1 & 1 & $\lnot b_1$ & 0.017 & \pbar[4]{0.017} \\
+4  & 0 & 1 & 0 & 0 & $b_1 \wedge \lnot b_0$ & 0.094 & \pbar[4]{0.094} \\
+5  & 0 & 1 & 0 & 1 & $\lnot b_0$ & 0.015 & \pbar[4]{0.015} \\
+6  & 0 & 1 & 1 & 0 & $b_1 \oplus b_0$ (XOR) & 0.012 & \pbar[4]{0.012} \\
+7  & 0 & 1 & 1 & 1 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 & \pbar[4]{0.011} \\
+8  & 1 & 0 & 0 & 0 & $b_1 \wedge b_0$ (AND) & 0.149 & \pbar[4]{0.149} \\
+9  & 1 & 0 & 0 & 1 & $b_1 = b_0$ (XNOR) & 0.114 & \pbar[4]{0.114} \\
+10 & 1 & 0 & 1 & 0 & $b_0$ (projection) & 0.082 & \pbar[4]{0.082} \\
+11 & 1 & 0 & 1 & 1 & $b_1 \to b_0$ (IF THEN) & 0.016 & \pbar[4]{0.016} \\
+12 & 1 & 1 & 0 & 0 & $b_1$ (projection) & 0.102 & \pbar[4]{0.102} \\
+13 & 1 & 1 & 0 & 1 & $b_0 \to b_1$ (IF THEN) & 0.013 & \pbar[4]{0.013} \\
+14 & 1 & 1 & 1 & 0 & $b_1 \vee b_0$ (OR) & 0.014 & \pbar[4]{0.014} \\
+15 & 1 & 1 & 1 & 1 & TRUE (constant $1$) & 0.010 & \pbar[4]{0.010} \\
 \bottomrule
 \end{tabular}
 \captionof{table}{The guiding example: all $16$ maps of the $n = 2$,
 $m = 1$ hypothesis space, with a contrived prior
-($\sum_j p_j = 1.000$).}
+($\sum_j p_j = 1.000$). The bars show $p_j$, drawn at four times the
+scale of the later tables.}
 \label{tab:sixteen}
 \end{center}
 \end{example}
@@ -814,11 +830,11 @@ forecast. The truth is AND ($\psi = \phi_8$).
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & 0.500 & 0.729 & 0.778 & 0.663 \\[2pt]
-    \mathbf{1} & 0.500 & 0.271 & 0.222 & 0.337 \\
+    \mathbf{0} & \hm{17} 0.500 & \hm{26} 0.729 & \hm{27} 0.778 & \hm{23} 0.663 \\[2pt]
+    \mathbf{1} & \hm{17} 0.500 & \hm{9} 0.271 & \hm{8} 0.222 & \hm{12} 0.337 \\
     \hline
-    \langle s \rangle & 1.000 & 0.843 & 0.764 & 0.922 \\[2pt]
-    \langle \Delta H(M) \rangle & 1.005 & 0.878 & 0.778 & 0.965
+    \langle s \rangle & \hm{34} 1.000 & \hm{11} 0.843 & \hm{0} 0.764 & \hm{23} 0.922 \\[2pt]
+    \langle \Delta H(M) \rangle & \hm{35} 1.005 & \hm{17} 0.878 & \hm{2} 0.778 & \hm{29} 0.965
   \end{array}
 \]
 To see where the forecast entries come from, take $q = 11$: both
@@ -838,26 +854,26 @@ Werner asks it, and nature answers $a = 1$ (probability $0.500$,
 surprisal $s_1 = 1.000$). Eight maps die:
 
 \begin{center}
-\begin{tabular}{c l c c}
+\begin{tabular}{c c l c c c}
 \toprule
-$j$ & name & $p_j$ & $p'_j$ \\
+$j$ & $\phi_j(11)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-\tikzmark{w1a}0 & FALSE (constant $0$) & 0.150 & ---\tikzmark{w1ae} \\
-\tikzmark{w1b}1 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 & ---\tikzmark{w1be} \\
-\tikzmark{w1c}2 & $\lnot b_1 \wedge b_0$ & 0.060 & ---\tikzmark{w1ce} \\
-\tikzmark{w1d}3 & $\lnot b_1$ & 0.017 & ---\tikzmark{w1de} \\
-\tikzmark{w1e}4 & $b_1 \wedge \lnot b_0$ & 0.094 & ---\tikzmark{w1ee} \\
-\tikzmark{w1f}5 & $\lnot b_0$ & 0.015 & ---\tikzmark{w1fe} \\
-\tikzmark{w1g}6 & $b_1 \oplus b_0$ (XOR) & 0.012 & ---\tikzmark{w1ge} \\
-\tikzmark{w1h}7 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 & ---\tikzmark{w1he} \\
-8 & $b_1 \wedge b_0$ (AND) & 0.149 & 0.298 \\
-9 & $b_1 = b_0$ (XNOR) & 0.114 & 0.228 \\
-10 & $b_0$ (projection) & 0.082 & 0.164 \\
-11 & $b_1 \to b_0$ (IF THEN) & 0.016 & 0.032 \\
-12 & $b_1$ (projection) & 0.102 & 0.204 \\
-13 & $b_0 \to b_1$ (IF THEN) & 0.013 & 0.026 \\
-14 & $b_1 \vee b_0$ (OR) & 0.014 & 0.028 \\
-15 & TRUE (constant $1$) & 0.010 & 0.020 \\
+\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.150 & --- & \tikzmark{w1ae} \\
+\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.141 & --- & \tikzmark{w1be} \\
+\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.060 & --- & \tikzmark{w1ce} \\
+\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.017 & --- & \tikzmark{w1de} \\
+\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.094 & --- & \tikzmark{w1ee} \\
+\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.015 & --- & \tikzmark{w1fe} \\
+\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.012 & --- & \tikzmark{w1ge} \\
+\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.011 & --- & \tikzmark{w1he} \\
+8 & 1 & $b_1 \wedge b_0$ (AND) & 0.149 & 0.298 & \pbar{0.298} \\
+9 & 1 & $b_1 = b_0$ (XNOR) & 0.114 & 0.228 & \pbar{0.228} \\
+10 & 1 & $b_0$ (projection) & 0.082 & 0.164 & \pbar{0.164} \\
+11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.016 & 0.032 & \pbar{0.032} \\
+12 & 1 & $b_1$ (projection) & 0.102 & 0.204 & \pbar{0.204} \\
+13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.013 & 0.026 & \pbar{0.026} \\
+14 & 1 & $b_1 \vee b_0$ (OR) & 0.014 & 0.028 & \pbar{0.028} \\
+15 & 1 & TRUE (constant $1$) & 0.010 & 0.020 & \pbar{0.020} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -875,10 +891,8 @@ The ledger:
   H(p)\colon 3.440 \to 2.456, \qquad
   C\colon 0.089 \to 0.087.
 \]
-Werner received $1.000$ bit but destroyed only $0.986$ bits of table:
-the deduced part is \emph{negative}, $-0.014$ bits. The realized
-answer nudged the unasked columns slightly toward the fair coin ---
-correlations point the right way only on average, not on every draw.
+Werner received $1.000$ bit but destroyed only $0.986$ bits of table.
+Correlations point the right way only on average, not on every draw. In this case, Werner got the slightly less informative branch.
 The destroyed-per-received ratio of this round is $0.986$: less than
 $1$, anti-leverage.
 \end{example}
@@ -896,11 +910,11 @@ forecasts:
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & 0 & 0.722 & 0.756 & 0.694 \\[2pt]
-    \mathbf{1} & 1 & 0.278 & 0.244 & 0.306 \\
+    \mathbf{0} & \hm{0} 0 & \hm{25} 0.722 & \hm{26} 0.756 & \hm{24} 0.694 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{10} 0.278 & \hm{9} 0.244 & \hm{11} 0.306 \\
     \hline
-    \langle s \rangle & \text{---} & 0.853 & 0.802 & 0.889 \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & 0.889 & 0.820 & 0.926
+    \langle s \rangle & \text{---} & \hm{13} 0.853 & \hm{6} 0.802 & \hm{18} 0.889 \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{18} 0.889 & \hm{8} 0.820 & \hm{24} 0.926
   \end{array}
 \]
 Greedy picks $q = 00$. Nature answers
@@ -908,18 +922,18 @@ $a = 0$ --- the answer Werner favored (probability $0.694$), so the
 surprisal is only $s_2 = 0.527$ bits. Four of the eight die:
 
 \begin{center}
-\begin{tabular}{c l c c}
+\begin{tabular}{c c l c c c}
 \toprule
-$j$ & name & $p_j$ & $p'_j$ \\
+$j$ & $\phi_j(00)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-8 & $b_1 \wedge b_0$ (AND) & 0.298 & 0.429 \\
-\tikzmark{w2a}9 & $b_1 = b_0$ (XNOR) & 0.228 & ---\tikzmark{w2ae} \\
-10 & $b_0$ (projection) & 0.164 & 0.236 \\
-\tikzmark{w2b}11 & $b_1 \to b_0$ (IF THEN) & 0.032 & ---\tikzmark{w2be} \\
-12 & $b_1$ (projection) & 0.204 & 0.294 \\
-\tikzmark{w2c}13 & $b_0 \to b_1$ (IF THEN) & 0.026 & ---\tikzmark{w2ce} \\
-14 & $b_1 \vee b_0$ (OR) & 0.028 & 0.040 \\
-\tikzmark{w2d}15 & TRUE (constant $1$) & 0.020 & ---\tikzmark{w2de} \\
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.298 & 0.429 & \pbar{0.429} \\
+\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.228 & --- & \tikzmark{w2ae} \\
+10 & 0 & $b_0$ (projection) & 0.164 & 0.236 & \pbar{0.236} \\
+\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.032 & --- & \tikzmark{w2be} \\
+12 & 0 & $b_1$ (projection) & 0.204 & 0.294 & \pbar{0.294} \\
+\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.026 & --- & \tikzmark{w2ce} \\
+14 & 0 & $b_1 \vee b_0$ (OR) & 0.028 & 0.040 & \pbar{0.040} \\
+\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.020 & --- & \tikzmark{w2de} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -969,25 +983,25 @@ average away.
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & 0 & 0.666 & 0.723 & 1 \\[2pt]
-    \mathbf{1} & 1 & 0.334 & 0.277 & 0 \\
+    \mathbf{0} & \hm{0} 0 & \hm{23} 0.666 & \hm{25} 0.723 & \hm{35} 1 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{12} 0.334 & \hm{10} 0.277 & \hm{0} 0 \\
     \hline
-    \langle s \rangle & \text{---} & 0.919 & 0.851 & \text{---} \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & 0.968 & 0.899 & \text{---}
+    \langle s \rangle & \text{---} & \hm{23} 0.919 & \hm{13} 0.851 & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{30} 0.968 & \hm{20} 0.899 & \text{---}
   \end{array}
 \]
 Greedy picks $q = 10$; nature answers $a = 0$ (probability $0.666$,
 surprisal $s_3 = 0.587$). Two die:
 
 \begin{center}
-\begin{tabular}{c l c c}
+\begin{tabular}{c c l c c c}
 \toprule
-$j$ & name & $p_j$ & $p'_j$ \\
+$j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-8 & $b_1 \wedge b_0$ (AND) & 0.429 & 0.645 \\
-10 & $b_0$ (projection) & 0.236 & 0.355 \\
-\tikzmark{w3a}12 & $b_1$ (projection) & 0.294 & ---\tikzmark{w3ae} \\
-\tikzmark{w3b}14 & $b_1 \vee b_0$ (OR) & 0.040 & ---\tikzmark{w3be} \\
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.429 & 0.645 & \pbar{0.645} \\
+10 & 0 & $b_0$ (projection) & 0.236 & 0.355 & \pbar{0.355} \\
+\tikzmark{w3a}12 & 1 & $b_1$ (projection) & 0.294 & --- & \tikzmark{w3ae} \\
+\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.040 & --- & \tikzmark{w3be} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1017,11 +1031,11 @@ That's not the case when the number of free parameters has been reduced by learn
   \begin{array}{c|cccc}
     \mathbf{a}\backslash\mathbf{q} & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
     \hline
-    \mathbf{0} & 0 & 1 & 0.645 & 1 \\[2pt]
-    \mathbf{1} & 1 & 0 & 0.355 & 0 \\
+    \mathbf{0} & \hm{0} 0 & \hm{35} 1 & \hm{23} 0.645 & \hm{35} 1 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{0} 0 & \hm{12} 0.355 & \hm{0} 0 \\
     \hline
-    \langle s \rangle & \text{---} & \text{---} & 0.938 & \text{---} \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \text{---} & 0.938 & \text{---}
+    \langle s \rangle & \text{---} & \text{---} & \hm{25} 0.938 & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \text{---} & \hm{25} 0.938 & \text{---}
   \end{array}
 \]
 The two forecasts now coincide: with $C = 0$ there is no transfer
@@ -1030,12 +1044,12 @@ leveraged. Nature answers $a = 0$ (probability $0.645$, surprisal
 $s_4 = 0.633$):
 
 \begin{center}
-\begin{tabular}{c l c c}
+\begin{tabular}{c c l c c c}
 \toprule
-$j$ & name & $p_j$ & $p'_j$ \\
+$j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-8 & $b_1 \wedge b_0$ (AND) & 0.645 & 1.000 \\
-\tikzmark{w4a}10 & $b_0$ (projection) & 0.355 & ---\tikzmark{w4ae} \\
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.645 & 1.000 & \pbar{1.000} \\
+\tikzmark{w4a}10 & 1 & $b_0$ (projection) & 0.355 & --- & \tikzmark{w4ae} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1069,8 +1083,9 @@ the truth happened to be a high-prior map, and its answers kept
 underpaying. In expectation the windfall vanishes, and the run
 ratio would be $H(M)_0/H(p) = 3.529/3.440 = 1.026$; most of the
 realized $1.285$ was luck, not intelligence. Figure~\ref{fig:run21}
-stacks the books after each question: what remains, what was
-received, and the deduced gap up to the initial total.
+stacks the books after each question: what remains, plus what was
+received; the deduced part is the gap down (or up) to the initial
+total.
 
 \begin{center}
 \begin{tikzpicture}[x=1.35cm, y=1.05cm]
@@ -1081,20 +1096,17 @@ received, and the deduced gap up to the initial total.
     \draw (-0.81,\y) -- (-0.69,\y) node[left, font=\small] {$\y$};
   % l = 0
   \fill[blue!55] (-0.32,0) rectangle (0.32,3.529);
-  % l = 1
+  % l = 1: stack tops at 3.543, slightly above H(M)_0
   \fill[blue!55] (0.68,0) rectangle (1.32,2.543);
   \fill[orange!85] (0.68,2.543) rectangle (1.32,3.543);
   % l = 2
   \fill[blue!55] (1.68,0) rectangle (2.32,1.770);
   \fill[orange!85] (1.68,1.770) rectangle (2.32,3.297);
-  \fill[green!55!black] (1.68,3.297) rectangle (2.32,3.529);
   % l = 3
   \fill[blue!55] (2.68,0) rectangle (3.32,0.938);
   \fill[orange!85] (2.68,0.938) rectangle (3.32,3.052);
-  \fill[green!55!black] (2.68,3.052) rectangle (3.32,3.529);
   % l = 4
   \fill[orange!85] (3.68,0) rectangle (4.32,2.747);
-  \fill[green!55!black] (3.68,2.747) rectangle (4.32,3.529);
   % initial-total line
   \draw[dashed, gray] (-0.75,3.529) -- (4.6,3.529);
   \node[right, font=\small, gray] at (4.6,3.529) {$H(M)_0$};
@@ -1106,15 +1118,15 @@ received, and the deduced gap up to the initial total.
   \node[right, font=\small] at (5.7,3.02) {remaining $H(M)$};
   \fill[orange!85] (5.4,2.3) rectangle (5.7,2.55);
   \node[right, font=\small] at (5.7,2.42) {received $\sum s$};
-  \fill[green!55!black] (5.4,1.7) rectangle (5.7,1.95);
-  \node[right, font=\small] at (5.7,1.82) {deduced};
 \end{tikzpicture}
 \captionof{figure}{The realized run through the guiding example:
-remaining table entropy, cumulative surprisal received, and the
-deduced remainder, after each question. The three parts sum to
-$H(M)_0 = 3.529$ at every step. At $\ell = 1$ the deduced part is
-in fact slightly negative ($-0.014$ bits): the received bar pokes
-just above the $H(M)_0$ line, invisibly at this scale.}
+remaining table entropy plus cumulative surprisal received, after
+each question, against the initial total (dashed). The gap between
+each stack and the line is the cumulative deduced part. At
+$\ell = 1$ the stack in fact tops out $0.014$ bits \emph{above} the
+line --- the negative deduction of question 1 --- though the
+overshoot is too small to see at this scale; from $\ell = 2$ on the
+stacks fall short of the line as genuine deduction accrues.}
 \label{fig:run21}
 \end{center}
 \end{example}
