@@ -129,6 +129,21 @@
 
 \maketitle
 
+This work rests on three insights. 
+\begin{enumerate}
+  \item Learning is the incremental ability to answer questions correctly that follow a pattern.
+  \item The number of questions
+reviewed is not the right measure of a learner's progress. What
+counts is the information received from asking them. Not all
+questions are created equal: about some, the learner already knows
+a great deal a priori, and their answers count for less.
+\item One can infer \emph{more} than a single bit from a yes--no
+question, by exploiting the correlations of an intelligent prior:
+an answer over here settles expectations over there. This ability
+to extrapolate is codified here as \emph{leverage}.
+\end{enumerate}
+
+
 \section{A thought experiment}\label{sec:thought}
 
 Let us start with a small thought experiment, by introducing
@@ -1446,36 +1461,7 @@ by $q$, signed by the answer. The denominator is the
 $S = \emptyset$ instance of the numerator, and by
 equation~\eqref{eq:shell1} it equals $2 M_{a,q}$: the same number
 that priced the answer in equation~\eqref{eq:update} renormalizes
-the ledger. Read the formula by cases:
-\begin{itemize}
-  \item $S = \emptyset$: partner $\{q\}$, giving
-    $(1 + (-1)^a \chi_{\{q\}})/(1 + (-1)^a \chi_{\{q\}}) = 1$.
-    Normalization is preserved.
-  \item $S = \{q\}$, the asked question: partner $\emptyset$, giving
-    $(\chi_{\{q\}} + (-1)^a)/(1 + (-1)^a \chi_{\{q\}}) = (-1)^a$.
-    The bias saturates to certainty --- the one-hot collapse of
-    column $q$, derived rather than decreed.
-  \item $S = \{q'\}$, an unasked question: the partner is the pair
-    $\{q', q\}$, and one line of algebra puts the
-    shift in terms of the \emph{connected} correlator:
-    \begin{equation}\label{eq:cov-shift}
-      \chi'_{\{q'\}} - \chi_{\{q'\}}
-      \;=\; \frac{(-1)^a \big(\chi_{\{q',q\}}
-        - \chi_{\{q'\}}\, \chi_{\{q\}}\big)}{2 M_{a,q}}
-      \;=\; \frac{(-1)^a\, \mathrm{Cov}\big(\sigma_{q'}, \sigma_q\big)}
-        {2 M_{a,q}}.
-    \end{equation}
-    Unasked columns move in proportion to their covariance with the
-    asked question: knowledge stored one shell up descends into the
-    predictions. A product prior has zero covariance everywhere, so
-    its unasked columns are frozen --- the ``$C = 0$ means no
-    transfer'' fact, now a one-line consequence.
-  \item Higher shells: the same cascade. Each update marries
-    shell-$k$ sets containing $q$ to shell-$(k{-}1)$ sets without
-    it; whatever structure was stored jointly with $q$ moves one
-    shell down, toward $M$.
-\end{itemize}
-
+the ledger. 
 \begin{example}
 \begin{center}
 \begin{tikzpicture}[x=1cm, y=1cm,
@@ -1559,23 +1545,36 @@ scale: darker is larger, orange is negative.}
 \end{center}
 \end{example}
 
-In particular, $M$ never has to leave the ledger. By
-equation~\eqref{eq:shell1} the posterior column of any question $q'$
-is read off the updated singleton, and
-equation~\eqref{eq:corr-update} expresses that singleton in prior
-ledger entries:
-\begin{equation}\label{eq:M-from-chi}
-  M'_{a',q'}
-  \;=\; \tfrac12\big(1 + (-1)^{a'}\, \chi'_{\{q'\}}\big)
-  \;=\; \frac12 \left[ 1 + (-1)^{a'}\,
-    \frac{\chi_{\{q'\}} + (-1)^{a}\, \chi_{\{q'\} \triangle \{q\}}}
-         {1 + (-1)^{a}\, \chi_{\{q\}}} \right].
-\end{equation}
-Three ledger entries suffice for the whole posterior column: its own
-bias, the asked bias, and their pair correlator. The formula covers
-the asked column too: for $q' = q$ the toggle empties the set,
-$\chi_{\{q\} \triangle \{q\}} = \chi_\emptyset = 1$, the fraction
-collapses to $(-1)^a$, and $M'_{a',q} = \delta(a', a)$.
+Read formula~\eqref{eq:corr-update} by cases:
+\begin{itemize}
+  \item $S = \emptyset$: partner $\{q\}$, giving
+    $(1 + (-1)^a \chi_{\{q\}})/(1 + (-1)^a \chi_{\{q\}}) = 1$.
+    Normalization is preserved.
+  \item $S = \{q\}$, the asked question: partner $\emptyset$, giving
+    $(\chi_{\{q\}} + (-1)^a)/(1 + (-1)^a \chi_{\{q\}}) = (-1)^a$.
+    The bias saturates to certainty --- the one-hot collapse of
+    column $q$, derived rather than decreed.
+  \item $S = \{q'\}$, an unasked question: the partner is the pair
+    $\{q', q\}$, and one line of algebra puts the
+    shift in terms of the \emph{connected} correlator:
+    \begin{equation}\label{eq:cov-shift}
+      \chi'_{\{q'\}} - \chi_{\{q'\}}
+      \;=\; \frac{(-1)^a \big(\chi_{\{q',q\}}
+        - \chi_{\{q'\}}\, \chi_{\{q\}}\big)}{2 M_{a,q}}
+      \;=\; \frac{(-1)^a\, \mathrm{Cov}\big(\sigma_{q'}, \sigma_q\big)}
+        {2 M_{a,q}}.
+    \end{equation}
+    Unasked columns move in proportion to their covariance with the
+    asked question: knowledge stored one shell up descends into the
+    predictions. A product prior has zero covariance everywhere, so
+    its unasked columns are frozen --- the ``$C = 0$ means no
+    transfer'' fact, now a one-line consequence.
+  \item Higher shells: the same cascade. Each update marries
+    shell-$k$ sets containing $q$ to shell-$(k{-}1)$ sets without
+    it; whatever structure was stored jointly with $q$ moves one
+    shell down, toward $M$.
+\end{itemize}
+
 
 \begin{example}
 Question 1 of the walkthrough asked $q = 11$ and received $a = 1$:
@@ -1628,8 +1627,8 @@ question $11$ carries independent knowledge anymore.
   % at x = 2M_{a,q}, rescaled to x = 1 by the ray through the origin
   \draw[dotted, gray!60] (0.830,0.38) -- (0.830,-4.35);
   \draw[dotted, gray!60] (1,0.38) -- (1,-4.35);
-  \node[font=\small\itshape] at (0.5,0.85)
-    {update $\chi$ after $\psi(11) = 1$};
+  % \node[font=\small\itshape] at (0.5,0.85)
+  %   {update $\chi$ after $\psi(11) = 1$};
   \node[font=\tiny, gray, anchor=east] at (0.92,0.50)
     {stack at $2M_{a,q}$};
   \node[font=\tiny, gray, anchor=west] at (0.955,0.50)
@@ -1734,7 +1733,7 @@ $x = 1$, where its height is the updated correlator $\chi'_S$.}
 \end{example}
 
 As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
-The second shell answers questions such as 'If the answer to $\psi(10) = 0$, then $\psi(01) = 1$'. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
+The 2-shell answers questions such as 'If the answer to $\psi(10) = 0$, then $\psi(01) = 1$'. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
 
 \begin{example}
 The remaining
@@ -1814,9 +1813,13 @@ corresponding spins:
                      4/011, 5/010, 6/001, 7/000}
     \node[font=\tiny, rotate=90, anchor=west] at ({\c+0.5},0.3)
       {$\q$};
-  % row labels (first grid)
-  \node[font=\tiny, anchor=east] at (-0.4,-0.5) {bit $1$};
-  \node[font=\tiny, anchor=east] at (-0.4,-1.5) {bit $0$};
+  % row labels, all grids
+  \foreach \g in {0, 1, 2, 3, 4} {
+    \node[font=\tiny, anchor=east] at (-0.4,{-3.4*\g - 0.5})
+      {bit $1$};
+    \node[font=\tiny, anchor=east] at (-0.4,{-3.4*\g - 1.5})
+      {bit $0$};
+  }
   % the five grids: cold cells
   \foreach \g in {0, 1, 2, 3, 4}
     \foreach \c in {0,...,7}
@@ -1870,35 +1873,393 @@ one per toggle $T$ within the asked block:
     \chi_{S \triangle T}}{2^m\, M_{a,q}},
 \end{equation}
 the denominator once more the $S = \emptyset$ instance of the
-numerator. And a posterior column is still local in the ledger:
-substituting equation~\eqref{eq:corr-update-m} into
-equation~\eqref{eq:M-m},
-\begin{equation}\label{eq:M-from-chi-m}
-  M'_{a',q'} \;=\; \frac{\sum_{T' \subseteq B_{q'}}
-    \sum_{T \subseteq B_q}
-    (-1)^{a' \cdot T' + a \cdot T}\, \chi_{T' \triangle T}}
-    {2^{2m}\, M_{a,q}}\,:
-\end{equation}
-the $(2^m)^2$ correlators supported on the two blocks --- the
-Walsh coefficients of the joint answer table of $q$ and $q'$ ---
-suffice, out of a ledger of $2^{m 2^n}$. For $m = 1$ the four
+numerator. For $m = 1$ the three
 formulas collapse to
-equations~\eqref{eq:wht}, \eqref{eq:shell1},
-\eqref{eq:corr-update} and~\eqref{eq:M-from-chi}.
+equations~\eqref{eq:wht}, \eqref{eq:shell1}
+and~\eqref{eq:corr-update}.
 
-\section{Expectations}
+\begin{example}
+To draw the update, take a sparse prior at $n = 3$, $m = 2$: four
+maps, $\phi(q) = q \bmod 4$ (weight $0.45$), constant $00$
+($0.35$), ``$11$ iff $q \geq 4$'' ($0.12$), constant $11$
+($0.08$). Werner asks $q = 110$ and hears $a = 11$: toggle signs
+$(+, -, -, +)$ on $(\emptyset, 110_0, 110_1, \text{both})$, where
+$q_i$ denotes site $(q, i)$, and denominator
+$2^m M_{11,110} = 0.8$. The pairs of the $m = 1$ figure become
+\emph{quartets}:
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm,
+  lnode/.style={draw=black!60, rounded corners=1pt,
+                inner sep=2.5pt, font=\tiny, align=center},
+  pair/.style={<->, blue!55!black, line width=0.7pt}]
+  % shell bands, odd darker
+  \fill[gray!10] (-0.3,-0.45) rectangle (8.3,0.45);
+  \fill[gray!28] (-0.3,0.55) rectangle (8.3,1.45);
+  \fill[gray!10] (-0.3,1.55) rectangle (8.3,2.45);
+  \fill[gray!28] (-0.3,2.55) rectangle (8.3,3.45);
+  % the on-block quartet of the asked question 110
+  \node[lnode, fill=blue!45]  (qa0) at (2,0)   {$\emptyset$};
+  \node[lnode, fill=blue!30]  (qa1) at (1.1,1) {$110_0$};
+  \node[lnode, fill=orange!19] (qa2) at (2.9,1) {$110_1$};
+  \node[lnode, fill=blue!12]  (qa3) at (2,2)   {$110_1 110_0$};
+  \draw[pair] (qa0) -- (qa1); \draw[pair] (qa0) -- (qa2);
+  \draw[pair] (qa0) -- (qa3); \draw[pair] (qa1) -- (qa2);
+  \draw[pair] (qa1) -- (qa3); \draw[pair] (qa2) -- (qa3);
+  % a generic quartet, seeded by the foreign site 011_0
+  \node[lnode, fill=orange!10] (qb0) at (6,1)   {$011_0$};
+  \node[lnode, fill=orange!13] (qb1) at (5.1,2) {$011_0 110_0$};
+  \node[lnode, fill=blue!36]   (qb2) at (6.9,2) {$011_0 110_1$};
+  \node[lnode, fill=blue!39]   (qb3) at (6,3)   {$011_0 110_1 110_0$};
+  \draw[pair] (qb0) -- (qb1); \draw[pair] (qb0) -- (qb2);
+  \draw[pair] (qb0) -- (qb3); \draw[pair] (qb1) -- (qb2);
+  \draw[pair] (qb1) -- (qb3); \draw[pair] (qb2) -- (qb3);
+  % the asked block's quartet renormalizes every other
+  \draw[dashed, orange!85!black] (2,1) ellipse (1.75 and 1.6);
+  \draw[dashed, gray!70] (6,2) ellipse (1.75 and 1.6);
+  \draw[->, gray!60, line width=0.5pt] (3.65,1.55) -- (4.35,1.8);
+  \node[font=\tiny, gray, below, rotate=20] at (4.0,1.62)
+    {renormalizes};
+\end{tikzpicture}
+\captionsetup{skip=8pt}
+\captionof{figure}{For $m = 2$, toggling any subset of the asked
+block's two sites ties four correlators into a clique that
+averages jointly, per equation~\eqref{eq:corr-update-m}. The
+on-block quartet (orange hull) contains the normalization and the
+entire block of $M_{\cdot,110}$; its signed sum is the denominator
+that renormalizes every other quartet. Fills to scale for the
+sparse prior, as before.}
+\label{fig:quartets}
+
+\begin{tikzpicture}[x=8cm, y=1.2cm]
+  % \node[font=\small\itshape] at (0.5,0.55)
+  %   {update $\chi$ after $\psi(110) = 11$};
+  \draw[dotted, gray!60] (0.8,0.3) -- (0.8,-3.95);
+  \draw[dotted, gray!60] (1,0.3) -- (1,-3.95);
+  % ---------- S = {110_1} ----------
+  \fill[gray!12] (0,0) -- (1,0) -- (1,-1) -- cycle;
+  \draw[->] (-0.02,0) -- (1.12,0);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.768,0) rectangle (0.784,-0.300);
+  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
+    (0.784,-0.300) rectangle (0.800,-0.400);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.800,-0.400) rectangle (0.816,-1.400);
+  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
+    (0.816,-1.400) rectangle (0.832,-0.800);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.98,0) rectangle (1.02,-1);
+  \draw[blue!55!black, line width=0.6pt] (0,0) -- (1,-1);
+  \fill[black] (0.8,-0.8) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
+    at (0.745,-0.15) {$\chi_S = -0.300$};
+  \node[font=\tiny, anchor=west] at (1.035,-1)
+    {$\chi'_{\{110_1\}} = -1$};
+  \node[font=\scriptsize, anchor=east] at (-0.05,0)
+    {$S = \{110_1\}$};
+  % ---------- S = {011_0} ----------
+  \fill[gray!12] (0,-1.95) -- (1,-1.95) -- (1,-1.75) -- cycle;
+  \draw[->] (-0.02,-1.95) -- (1.12,-1.95);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.768,-1.95) rectangle (0.784,-2.010);
+  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
+    (0.784,-2.010) rectangle (0.800,-1.870);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.800,-1.870) rectangle (0.816,-2.630);
+  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
+    (0.816,-2.630) rectangle (0.832,-1.790);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.98,-1.95) rectangle (1.02,-1.75);
+  \draw[blue!55!black, line width=0.6pt] (0,-1.95) -- (1,-1.75);
+  \fill[black] (0.8,-1.79) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
+    at (0.745,-2.01) {$\chi_S = -0.060$};
+  \node[font=\tiny, anchor=west] at (1.035,-1.75)
+    {$\chi'_{\{011_0\}} = +0.200$};
+  \node[font=\scriptsize, anchor=east] at (-0.05,-1.95)
+    {$S = \{011_0\}$};
+  % ---------- S = {011_0, 110_1} ----------
+  \fill[gray!12] (0,-3.67) -- (1,-3.67) -- (1,-3.87) -- cycle;
+  \draw[->] (-0.02,-3.67) -- (1.12,-3.67);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.768,-3.67) rectangle (0.784,-2.910);
+  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
+    (0.784,-2.910) rectangle (0.800,-3.750);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.800,-3.750) rectangle (0.816,-3.690);
+  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
+    (0.816,-3.690) rectangle (0.832,-3.830);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.98,-3.67) rectangle (1.02,-3.87);
+  \draw[blue!55!black, line width=0.6pt] (0,-3.67) -- (1,-3.87);
+  \fill[black] (0.8,-3.83) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
+    at (0.745,-3.29) {$\chi_S = +0.760$};
+  \node[font=\tiny, anchor=west] at (1.035,-3.87)
+    {$\chi'_{\{011_0, 110_1\}} = -0.200$};
+  \node[font=\scriptsize, anchor=east] at (-0.05,-3.67)
+    {$S = \{011_0, 110_1\}$};
+  % shared x labels
+  \draw (0.8,-3.89) -- (0.8,-3.85);
+  \draw (1,-3.89) -- (1,-3.85);
+  \node[font=\tiny, below] at (0.8,-3.91) {$0.8$};
+  \node[font=\tiny, below] at (1,-3.91) {$1$};
+\end{tikzpicture}
+\captionsetup{skip=8pt}
+\captionof{figure}{The $m = 2$ update, three sets from the sparse
+prior. The waterfall now has four segments: $\chi_S$ (blue) and
+its three signed quartet partners, in toggle order $110_0$,
+$110_1$, both (light to dark orange). The ray from the origin
+rescales the endpoint from $x = 2^m M_{a,q} = 0.8$ to $x = 1$.
+The asked site saturates to $-1$; the foreign site $011_0$ flips
+sign, $-0.060 \to +0.200$; and $\{011_0, 110_1\}$ lands on
+$-0.200$, the slaved value $-\chi'_{\{011_0\}}$.}
+\label{fig:update-rays-m2}
+\end{center}
+\end{example}
+
+\section{Expectations}\label{sec:expectations}
 
 In expectation over the truth $\psi \sim p$, as well as over the question order, we take the ratio of
-the expected totals, 
-\begin{equation}
-  \langle L_k \rangle \;:=\;
-  \frac{H\big(M^{(0)}\big) - \big\langle  H\big(M^{(k)}\big) \big\rangle}
-       {\big\langle \sum_{i=1}^{k} s_i \big\rangle}\;.
+the expected totals,
+\begin{equation}\label{eq:Lk-avg}
+  \langle L_\ell \rangle \;:=\;
+  \frac{H\big(M^{(0)}\big) - \big\langle  H\big(M^{(\ell)}\big) \big\rangle}
+       {\big\langle \sum_{i=1}^{\ell} s_i \big\rangle}\;.
 \end{equation}
 
 We did this implicitly in
 Section~\ref{sec:oneparam}. There, the problem was actually symmetric in $q_0 \leftrightarrow q_1$. That is not the case in general.
 
-In order to progress, we will be interested in such averages.
+In order to progress, we will be interested in such averages. Both
+are natural. The question order is uniform, without replacement:
+before any evidence arrives, there is no reason to prefer one
+question over another. And the truth is drawn from the prior
+itself: Werner scores his future against his own beliefs, and he
+has faith in them.
+
+The bookkeeping simplifies at once. Updating commutes, so after
+$\ell$ rounds the state depends only on the asked \emph{set} $S$,
+a uniform random subset of size $\ell$. And the received
+surprisals telescope to the surprisal of the whole answer block,
+\begin{equation}\label{eq:telescope}
+  \sum_{i=1}^{\ell} s_i \;=\; -\log_2 P\big(A_S = \psi(S)\big),
+\end{equation}
+whose average over $\psi$ is a block entropy. Everything is
+therefore generated by one sequence, the mean block entropy at
+size $k$:
+\begin{equation}\label{eq:Gk}
+  G_k \;:=\; \binom{2^n}{k}^{-1} \sum_{|S| = k} H(A_S),
+  \qquad G_0 = 0, \qquad G_{2^n} = H(p).
+\end{equation}
+$G_1$ is the mean column entropy, so $H(M)_0 = 2^n G_1$. Two
+exact laws follow. The first is
+equation~\eqref{eq:telescope} averaged:
+\begin{equation}\label{eq:law-received}
+  \Big\langle \sum_{i=1}^{\ell} s_i \Big\rangle \;=\; G_\ell.
+\end{equation}
+For the second, fix $S$ and average the posterior table over the
+answers. Each unasked column's entropy becomes a conditional
+entropy, $H(A_{q'} \mid A_S) = H(A_{S \cup \{q'\}}) - H(A_S)$,
+and the asked columns contribute zero. Now average over $S$:
+every set of size $\ell + 1$ arises as $S \cup \{q'\}$ once per
+element, and counting with
+$(\ell{+}1)\binom{2^n}{\ell+1} = (2^n{-}\ell)\binom{2^n}{\ell}$,
+\begin{equation}\label{eq:law-remaining}
+  \big\langle H\big(M^{(\ell)}\big) \big\rangle
+  \;=\; (2^n - \ell)\,\big(G_{\ell+1} - G_\ell\big).
+\end{equation}
+The whole expected learning curve is the discrete derivative of
+one monotone sequence. By conservation, destruction and deduction
+are the differences $H(M)_0 - \langle H(M^{(\ell)}) \rangle$ and
+$H(M)_0 - \langle H(M^{(\ell)}) \rangle - G_\ell$, and
+equation~\eqref{eq:Lk-avg} becomes
+\begin{equation}\label{eq:Lk-G}
+  \langle L_\ell \rangle \;=\;
+  \frac{H(M)_0 - (2^n - \ell)\big(G_{\ell+1} - G_\ell\big)}
+       {G_\ell}\;.
+\end{equation}
+In terms of the prior, the block entropies are explicit. The maps
+that answer the pattern $b$ on the asked set $S$ form a residue
+class, with mass
+\begin{equation}\label{eq:Gk-pj}
+  G_\ell \;=\; -\binom{2^n}{\ell}^{-1} \sum_{|S| = \ell}\;
+  \sum_{b} P_{S,b} \log_2 P_{S,b},
+  \qquad
+  P_{S,b} \;:=\; \sum_{j \,:\, \phi_j(q) = b_q \;\forall q \in S}
+  p_j,
+\end{equation}
+the inner sum running over the $2^\ell$ answer patterns $b$ on
+$S$. Nothing here is specific to $m = 1$: blocks of $m$-bit
+answers obey the same laws verbatim, with $b$ running over the
+$(2^m)^\ell$ patterns of the block.
+
+Some observations.
+\begin{itemize}
+  \item Expectation kills the windfall. Each step has
+    $\langle \Delta H(p) - s \rangle = 0$, so the expected deduced
+    part is a pure tower withdrawal:
+    $H(M)_0 - \langle H(M^{(\ell)}) \rangle - G_\ell
+    = C_0 - \langle C_\ell \rangle$, with
+    $\langle C_\ell \rangle =
+    \langle H(M^{(\ell)}) \rangle - \big(H(p) - G_\ell\big)$. It
+    is nonnegative: anti-leverage is only ever bad luck.
+  \item Deduction saturates one round early: substituting
+    $G_{2^n} = H(p)$ at $\ell = 2^n - 1$ already gives
+    $\langle C_{2^n - 1} \rangle = 0$. The store is empty before
+    the last question, which can only be observed, never
+    leveraged.
+  \item $\langle L_\ell \rangle \geq 1$ always, but it need not be
+    monotone. The endpoint is forced:
+    $\langle L_{2^n} \rangle = H(M)_0 / H(p) = 1 + C_0/H(p)$, the
+    run ratio quoted in Section~\ref{sec:general}. This is also
+    why equation~\eqref{eq:Lk-avg} is a ratio of expectations: the
+    expectation of the ratio is dominated by lucky runs with
+    vanishing denominators.
+  \item Sanity: $\ell = 0$ returns $H(M)_0 = 2^n G_1$, and at
+    $n = 1$ the laws reproduce the one-parameter world of
+    Section~\ref{sec:oneparam}.
+\end{itemize}
+
+There is also a monotonicity theorem hiding in $G$. Entropy is
+submodular, so the increments $G_\ell - G_{\ell-1}$, which are
+the expected surprisals of the $\ell$-th answer, decrease with
+$\ell$: answers get cheaper as evidence accumulates. Greedy play
+does the opposite on purpose, seeking out the most expensive
+question on the board.
+
+\begin{example}
+For the guiding prior the block-entropy sequence is
+$G_k = (0,\ 0.731,\ 1.436,\ 2.100,\ 2.707)$, and the laws unfold
+it into the expected run:
+\begin{center}
+\begin{tabular}{c c c c c}
+\toprule
+ & received & remaining & store & leverage \\
+$\ell$ & $\big\langle \sum_i s_i \big\rangle$
+  & $\big\langle H\big(M^{(\ell)}\big) \big\rangle$
+  & $\langle C_\ell \rangle$
+  & $\langle L_\ell \rangle$ \\
+\midrule
+1 & 0.731 & 2.113 & 0.137 & 1.110 \\
+2 & 1.436 & 1.328 & 0.056 & 1.113 \\
+3 & 2.100 & 0.608 & 0     & 1.104 \\
+4 & 2.707 & 0     & 0     & 1.081 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The expected leverage humps at $\ell = 2$ and lands on
+$2.925/2.707 = 1.081$. The realized run of
+Section~\ref{sec:general} scattered around this gentle
+expectation: greedy questioning and a lucky truth delivered
+$1.311$. Figure~\ref{fig:expected-stack} stacks the expected
+books.
+
+\begin{center}
+\begin{tikzpicture}[x=1.35cm, y=1.05cm]
+  % axis
+  \draw[->] (-0.75,0) -- (-0.75,3.6);
+  \node[above, font=\small] at (-0.75,3.6) {bits};
+  \foreach \y in {0,1,2,3}
+    \draw (-0.81,\y) -- (-0.69,\y) node[left, font=\small] {$\y$};
+  % l = 0
+  \fill[blue!55] (-0.32,0) rectangle (0.32,2.925);
+  % l = 1
+  \fill[blue!55] (0.68,0) rectangle (1.32,2.113);
+  \fill[orange!85] (0.68,2.113) rectangle (1.32,2.844);
+  \fill[green!55!black!60] (0.68,2.844) rectangle (1.32,2.925);
+  % l = 2
+  \fill[blue!55] (1.68,0) rectangle (2.32,1.328);
+  \fill[orange!85] (1.68,1.328) rectangle (2.32,2.764);
+  \fill[green!55!black!60] (1.68,2.764) rectangle (2.32,2.925);
+  % l = 3
+  \fill[blue!55] (2.68,0) rectangle (3.32,0.608);
+  \fill[orange!85] (2.68,0.608) rectangle (3.32,2.708);
+  \fill[green!55!black!60] (2.68,2.708) rectangle (3.32,2.925);
+  % l = 4
+  \fill[orange!85] (3.68,0) rectangle (4.32,2.707);
+  \fill[green!55!black!60] (3.68,2.707) rectangle (4.32,2.925);
+  % initial-total line
+  \draw[dashed, gray] (-0.75,2.925) -- (4.6,2.925);
+  \node[right, font=\small, gray] at (4.6,2.925) {$H(M)_0$};
+  % x labels
+  \foreach \l in {0,...,4}
+    \node[below, font=\small] at (\l,0) {$\ell{=}\l$};
+  % legend
+  \fill[blue!55] (5.4,2.15) rectangle (5.7,2.4);
+  \node[right, font=\small] at (5.7,2.27)
+    {remaining $\langle H(M) \rangle$};
+  \fill[orange!85] (5.4,1.55) rectangle (5.7,1.8);
+  \node[right, font=\small] at (5.7,1.67) {received $G_\ell$};
+  \fill[green!55!black!60] (5.4,0.95) rectangle (5.7,1.2);
+  \node[right, font=\small] at (5.7,1.07)
+    {deduced $C_0 - \langle C_\ell \rangle$};
+\end{tikzpicture}
+\captionsetup{skip=8pt}
+\captionof{figure}{The expected run through the guiding example.
+Conservation is now exact at every $\ell$: remaining plus received
+plus deduced reaches $H(M)_0$, so the cake always tops out on the
+dashed line, and no overshoot is possible. The top layer is the
+expected withdrawal from the correlation store,
+$C_0 - \langle C_\ell \rangle$; it saturates at $C_0 = 0.218$
+already at $\ell = 3$.}
+\label{fig:expected-stack}
+\end{center}
+\end{example}
+
+\subsection{Choosing the questions}\label{sec:strategies}
+
+The uniform order was a symmetry choice, not a strategy. Werner
+can do better along two independent axes: how far he looks ahead,
+and whether he commits to an order beforehand or lets each
+question depend on the answers so far. \emph{Greedy} asks, at
+every step, the single question with the largest expected drop of
+$H(M)$: one step of lookahead. \emph{$\ell$-optimal} maximizes the
+expected knowledge after exactly $\ell$ questions, looking the
+whole horizon ahead. All four combinations are straightforward
+with the machinery at hand.
+
+\begin{center}
+\begin{tabular}{|c|>{\raggedright\arraybackslash}m{5.35cm}|>{\raggedright\arraybackslash}m{5.35cm}|}
+\hline
+ & \textbf{order fixed beforehand} & \textbf{contingent on answers} \\
+\hline
+\rotatebox{90}{~\textbf{greedy}~} &
+Grow the asked set one question at a time, each maximizing the
+expected drop of $H(M)$ averaged over the still-unseen answers.
+One pass of the bookkeeping of
+equation~\eqref{eq:Gk-pj}; front-loads the cheap destruction, but
+cannot react to luck. &
+Recompute the forecasts of Section~\ref{sec:general} after every
+answer and ask the current argmax: the walkthrough's play. One
+update per step; beats its fixed twin whenever an answer
+reshuffles the ranking. \\
+\hline
+\rotatebox{90}{~\textbf{$\ell$-optimal}~} &
+Updating commutes, so a fixed plan is just a set: search the
+$\binom{2^n}{\ell}$ subsets for the smallest expected remainder
+$\sum_{q' \notin S} H(A_{q'} \mid A_S)$. The best non-adaptive
+knowledge; sees correlations that the one-step view misses. &
+Backward induction over posteriors,
+$V_t = \min_q \mathbb{E}_a\, V_{t-1}$ with $V_0 = H(M)$. The
+Bayes-optimal policy: dearest to compute, and the ceiling the
+other three approximate. \\
+\hline
+\end{tabular}
+\end{center}
+
+Expected knowledge improves left to right and top to bottom. The
+dynamic program in the last cell is exact but grows quickly: its
+states are the reachable posteriors, one per pair of asked set and
+answer pattern, $(1 + 2^m)^{2^n}$ in all. That is $81$ for the
+guiding example and astronomical beyond; its policy is also
+horizon-dependent, since the best first question for $\ell = 1$
+need not open the best plan for $\ell = 2$. For
+the guiding prior, contingent greedy already attains the
+contingent optimum at every horizon: expected remaining $1.821$,
+$0.903$, $0.334$ bits, against the uniform $2.113$, $1.328$,
+$0.608$. That is a kindness of this prior, not a law: a prior that
+stores its knowledge in deep shells can defeat greedy in either
+column, since a question worth little now may unlock a cascade
+later.
 
 \end{document}
