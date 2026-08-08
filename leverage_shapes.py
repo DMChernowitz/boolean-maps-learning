@@ -7,14 +7,15 @@ step at zero (de Finetti), hence the 1 + c/x hyperbola.  Block priors
 give tunable gamma:
 
   cliques (r equal answers):        gamma = (1-x)^{r-1}   -> L == r  (flat)
-  parity groups (r answers sum 0):  gamma = 1 - x^{r-1}   -> L rises 1 -> r/(r-1)
-  MDS code groups (any k of r
+  parity blocks (r answers sum 0):  gamma = 1 - x^{r-1}   -> L rises 1 -> r/(r-1)
+  MDS code blocks (any k of r
     determine the rest) + fresh:    gamma = w Fbar(x) + 1-w -> mid-run peak
   coins + code + fresh:             dive, dip, resurgent peak, decay
 
-All finite-n curves are EXACT: for a product-of-groups prior,
-G_k = sum_groups E_{j ~ Hypergeom(2^n, r, k)} H_group(j), with
-H_group(j) closed form per block type.  Output:
+All finite-n curves are EXACT: for a prior that is a product over the
+blocks of a partition of the questions,
+G_k = sum_blocks E_{j ~ Hypergeom(2^n, r, k)} H_block(j), with
+H_block(j) closed form per block type.  Output:
 figures/leverage_shapes.png"""
 import math
 
@@ -33,7 +34,7 @@ def lchoose(a, b):
 
 
 # ---- coin-mixture block: G table for N iid-given-theta sites ----
-COINS = [(0.2, 0.5), (0.7, 0.5)]
+COINS = [(0.2, 0.25), (0.7, 0.75)]
 TBAR = sum(th*wt for th, wt in COINS)
 GBAR = sum(wt*h(th) for th, wt in COINS)
 
@@ -54,7 +55,7 @@ def coin_G_table(Nmax):
 
 # ---- exact finite-n machinery ----
 def G_series(Q, blocks):
-    """blocks: list of (count, group_size_r, Hfun(j)).  Exact G_k."""
+    """blocks: list of (count, block_size_r, Hfun(j)).  Exact G_k."""
     G = [0.0]*(Q+1)
     for k in range(Q+1):
         tot = 0.0
@@ -105,6 +106,23 @@ def limit_from_gamma(gam0, gam, npts=2000):
 
 M = 4                      # answer bits per question (alphabet 16 for RS)
 RCODE, KCODE = 16, 4       # MDS code: any 4 of 16 answers determine all
+DELTA = 0.1                # lapse probability of a cocktail code block
+BF = 0.3                   # cocktail fresh-question site bias
+HF = h(BF)
+
+
+def H_lapsed(j, k=KCODE, m=M, d=DELTA):
+    """entropy of j symbols of a lapsed RS block: mixture of a uniform
+    codeword (prob 1-d) and fully random answers (prob d).  Pattern
+    masses take two values (consistent / inconsistent)."""
+    if j <= k:
+        return m*j
+    u = 2.0**(m*(k-j))
+    A = (1-d) + d*u
+    return A*(k*m - math.log2(A)) + d*(1-u)*(j*m - math.log2(d))
+
+
+ETA_CODE = [H_lapsed(i+1) - H_lapsed(i) for i in range(RCODE)]
 
 
 def blocks_clique(Q, r):
@@ -120,10 +138,10 @@ def blocks_code_fresh(Q):   # 3/4 code, 1/4 fresh
             (Q//4, 1, lambda j: M*j)]
 
 
-def blocks_cocktail(Q, GT):  # 1/4 coins, 1/2 code, 1/4 fresh
+def blocks_cocktail(Q, GT):  # 1/4 coins, 1/2 lapsed code, 1/4 biased fresh
     return [(1, Q//4, lambda j: GT[M*j]),
-            (Q//(2*RCODE), RCODE, lambda j: M*min(j, KCODE)),
-            (Q//4, 1, lambda j: M*j)]
+            (Q//(2*RCODE), RCODE, H_lapsed),
+            (Q//4, 1, lambda j: M*HF*j)]
 
 
 GT = coin_G_table(M*(2**10)//4)
@@ -136,7 +154,7 @@ PANELS = [
      [(n, r, blocks_clique(2**n, r)) for n, r in ((8, 2), (8, 4))],
      [(lambda x: 2.0, "$r=2$"), (lambda x: 4.0, "$r=4$")],
      (0.9, 4.6)),
-    ("parity groups ($r=4$):  rising $1 \\to 4/3$",
+    ("parity blocks ($r=4$):  rising $1 \\to 4/3$",
      [(n, None, blocks_parity(2**n, 4)) for n in (6, 8, 10)],
      [(lambda x: (1 - (1-x)*(1-x**3)) / (x - x**4/4), None)],
      (0.97, 1.4)),
@@ -144,7 +162,7 @@ PANELS = [
      [(n, None, blocks_code_fresh(2**n)) for n in (6, 8, 10)],
      [(None, None)],
      (0.9, 3.2)),
-    ("coins + code + fresh:  dive, dip, peak",
+    ("coins + lapsed code + fresh:  dive, dip, peak",
      [(n, None, blocks_cocktail(2**n, GT)) for n in (6, 8, 10)],
      [(None, None)],
      (0.9, 4.0)),
@@ -157,9 +175,10 @@ def limit_code_fresh(x):
 
 
 def limit_cocktail(x):
-    fb = Fbar(x, RCODE, KCODE)
-    gam = CO*GBAR + CK*fb + CI
-    gam0 = CO*h(TBAR) + CK + CI
+    ghat = sum(math.comb(RCODE-1, i) * x**i * (1-x)**(RCODE-1-i)
+               * ETA_CODE[i] for i in range(RCODE))/M
+    gam = CO*GBAR + CK*ghat + CI*HF
+    gam0 = CO*h(TBAR) + CK + CI*HF
     return gam, gam0
 
 

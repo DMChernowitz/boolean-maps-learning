@@ -2124,7 +2124,10 @@ p_j = \int_0^1 \theta^{W}(1-\theta)^{2^n - W}\, d\theta
     = \frac{1}{(2^n+1)\binom{2^n}{W_j}},
 $$
 
-a function of the weight $W_j$ alone (Bayes–Laplace). Exchangeability
+a function of the weight $W_j$ alone (Bayes–Laplace; the uniform
+*mixing measure* is load-bearing here — it is what yields the closed
+forms below — while any other smooth density lands in the same
+Clarke–Barron class). Exchangeability
 makes every $\ell$-subset equivalent, and the predictive is **Laplace's
 rule of succession** $P(\text{next}=1 \mid k \text{ ones in } \ell) =
 \tfrac{k+1}{\ell+2}$, giving the closed form
@@ -2394,30 +2397,31 @@ $$
 Jensen's inequality on the concave $h$ gives
 $h(\bar\theta) \ge \bar g$, so $c \ge 0$, with equality only for a
 single coin — the product prior, $L \equiv 1$. Worked pair
-$\theta \in \{0.2, 0.7\}$ with equal weights:
-$\gamma(0) = h(0.45) = 0.9928$, $\bar g = 0.8016$, $c = 0.2385$, and
+$\theta \in \{0.2, 0.7\}$ with weights $(\tfrac14, \tfrac34)$:
+$\gamma(0) = h(0.575) = 0.9837$, $\bar g = 0.8415$, $c = 0.1691$, and
 the exact finite-$n$ leverage converges onto the law
 (`continuum.py`):
 
 | $x$   | $n=4$  | $n=6$  | $n=8$  | $n=10$ | $1 + c/x$ |
 |-------|--------|--------|--------|--------|-----------|
-| 0.125 | 1.5718 | 2.3178 | 2.7937 | 2.8797 | 2.9078    |
-| 0.25  | 1.4281 | 1.7895 | 1.9165 | 1.9444 | 1.9539    |
-| 0.5   | 1.2781 | 1.4210 | 1.4627 | 1.4734 | 1.4770    |
-| 0.75  | 1.2001 | 1.2846 | 1.3095 | 1.3158 | 1.3180    |
-| 1.0   | 1.1538 | 1.2148 | 1.2325 | 1.2370 | 1.2385    |
+| 0.125 | 1.3683 | 1.9259 | 2.2795 | 2.3349 | 2.3525    |
+| 0.25  | 1.2892 | 1.5611 | 1.6514 | 1.6700 | 1.6763    |
+| 0.5   | 1.1926 | 1.2985 | 1.3281 | 1.3356 | 1.3381    |
+| 0.75  | 1.1390 | 1.2013 | 1.2193 | 1.2239 | 1.2254    |
+| 1.0   | 1.1065 | 1.1517 | 1.1647 | 1.1680 | 1.1691    |
 
 The fixed-$p$ spike lands on the same $1 + c/x$ shape, and that is
 no coincidence: it too is a prior with one global secret.
 
 ![coin-mixture leverage: 1, 2, 3, 10 coins](figures/coin_mixture_leverage.png)
 
-One, two, three and ten coins (`coin_mixture_plots.py`): a single
-coin is the product prior, flat at $L \equiv 1$; the others converge
-onto their hyperbolas from below. The limiting curve depends on the
-mixing measure only through the *two* averages $h(\bar\theta)$ and
-$\bar g$ — note that three coins give a *smaller* $c$ ($0.147$) than
-two ($0.238$), because the added middle coin raises $\bar g$. The
+One, two, three and ten coins, all with unequal weights
+(`coin_mixture_plots.py`): a single coin is the product prior, flat
+at $L \equiv 1$; the others converge onto their hyperbolas from
+below. The limiting curve depends on the mixing measure only through
+the *two* averages $h(\bar\theta)$ and $\bar g$ — note that three
+coins, weights $(0.2, 0.5, 0.3)$, give a *smaller* $c$ ($0.103$)
+than two ($0.169$), because the added middle coin raises $\bar g$. The
 number of coins as such never enters the limit; it only sets the
 finite-$n$ approach rate — exponential identification for
 well-separated atoms, the $\tfrac{d}{2}\log\ell$ Clarke–Barron
@@ -2444,6 +2448,833 @@ behavior). So "one step above uniform" is exactly right about the
 dynamics — one latent scalar more than uniform — and exactly wrong
 about the totals. The priors that need the full theory are the ones
 whose stores must be unlocked shell by shell.
+
+### Sculpting the limit: five ensembles and the shapes of leverage
+
+The previous section ended in a diagnosis: an exchangeable prior can
+only ever produce the hyperbola $1 + c/x$. This section treats that
+as a challenge. The master formula
+
+$$
+L(x) = \frac{\gamma(0) - (1 - x)\,\gamma(x)}{g(x)},
+\qquad g(x) = \int_0^x \gamma(t)\, dt,
+$$
+
+says the prior reaches the limit through one function, the profile
+$\gamma$. So the program is: build microscopic ensembles $p^{(n)}$
+whose profiles can be computed by hand, and read off the shapes. The
+five constructions below produce, in order, a hyperbola (two coins), a
+perfectly flat line (cliques), a monotonically rising curve (parity
+blocks), a mid-run peak (code blocks diluted with fresh questions),
+and a combination that dives, dips, peaks and decays (the cocktail).
+
+![leverage shapes: cliques, parity, code+fresh, cocktail](figures/leverage_shapes.png)
+
+The solid curves are *exact* at $n = 6, 8, 10$ (the hypergeometric
+formula of Step 0 below, no sampling, no asymptotics;
+`leverage_shapes.py`); the dashed curves are the $n \to \infty$ limits
+derived in this section. First panel: cliques of size $r$, flat at
+$L \equiv r$ to within $10^{-10}$ at every finite $\ell$. Second:
+parity blocks, rising from $1$ to $r/(r-1)$. Third: Reed–Solomon
+blocks (rate $\rho = 1/4$, size $r = 16$) mixed with fresh questions,
+a genuine interior maximum. Fourth: coins, lapsed code and biased
+fresh together — the one panel with *full support*, every map
+allowed.
+
+**Step 0: block priors, and an exact finite-$n$ formula.** The
+microscopic recipe shared by everything except the coins. Choose a
+*partition* of the question set: split the $2^n$ questions into
+disjoint *blocks*, every question belonging to exactly one block.
+The prior draws each block's answers independently, from a
+distribution that is symmetric under permuting the block's members;
+correlations exist inside a block, never across two blocks. Independence makes joint entropy
+additive, so for any question set $S$,
+
+$$
+H(A_S) = \sum_{\text{blocks } g} H\big(A_{S \cap g}\big),
+$$
+
+and symmetry makes $H(A_{S\cap g})$ depend only on the *count*
+$j = |S \cap g|$; call it $H_g(j)$. Now average over a uniformly
+random $\ell$-subset $S$. The count $j$ of a fixed block of size $r$
+that lands in $S$ is hypergeometric — choosing $\ell$ questions out
+of $2^n$, the probability that exactly $j$ of them come from the
+block is $\binom{r}{j}\binom{2^n - r}{\ell - j}/\binom{2^n}{\ell}$ —
+so
+
+$$
+G_\ell = \sum_{\text{blocks}} \;\sum_{j=0}^{r}
+\frac{\binom{r}{j}\binom{2^n - r}{\ell - j}}{\binom{2^n}{\ell}}\,
+H_g(j).
+$$
+
+The counts of different blocks are correlated (they sum to $\ell$),
+but linearity of expectation does not care. This formula is exact at
+every finite $n$; it is what the solid curves in the figure plot.
+
+For the profile it is cleaner to work with the increment directly.
+By the chain rule, $\gamma_n(\ell) = G_{\ell+1} - G_\ell$ is the
+expected entropy of a fresh answer given $\ell$ random answers.
+Independence across blocks means only the fresh question's *own*
+block conditions it, and within the block only the count $i$ of its
+$r - 1$ partners already asked matters. Writing
+$\eta_g(i) := H_g(i+1) - H_g(i)$ for the entropy of one more member
+given $i$,
+
+$$
+\gamma_n(\ell)
+= \sum_{\text{block types}} w_{\text{type}}
+\sum_{i=0}^{r-1}
+P\big(\mathrm{Hyp}(2^n{-}1,\, r{-}1,\, \ell) = i\big)\; \eta(i),
+$$
+
+with $w_{\text{type}}$ the fraction of questions living in blocks of
+that type.
+
+**Step 1: the one limit, and where each assumption is spent.** Fix
+$x \in (0,1]$, set $\ell = \lfloor x 2^n \rfloor$, and send
+$n \to \infty$ *holding the block parameters fixed*. The only
+analytic event is the hypergeometric turning binomial. Undergrad
+proof: the probability that $i$ *specific* partners are among the
+$\ell$ asked and the other $r - 1 - i$ are not is a product of
+$r - 1$ factors of the form $\tfrac{\ell - a}{2^n - 1 - b}$ or
+$\tfrac{2^n - 1 - \ell - a}{2^n - 1 - b}$ with $a, b < r$ fixed; each
+factor converges to $x$ or $1 - x$ respectively, and a product of a
+*fixed* number of convergent factors converges to the product of the
+limits. Multiplying by the $\binom{r-1}{i}$ arrangements,
+
+$$
+P\big(\mathrm{Hyp}(2^n{-}1, r{-}1, \ell) = i\big)
+\;\longrightarrow\;
+\binom{r-1}{i} x^i (1-x)^{r-1-i}
+=: b_i(x),
+$$
+
+the statement that sampling without replacement from an enormous pool
+looks like sampling with replacement (the error is $O(r^2/2^n)$).
+Therefore
+
+$$
+\gamma(x) = \sum_{\text{types}} w_{\text{type}} \sum_{i=0}^{r-1}
+b_i(x)\, \eta(i)
+$$
+
+— a *Bernstein polynomial* in $x$ with the microscopic conditional
+entropies $\eta(i)$ as coefficients. That observation will return at
+the end of the section. Bookkeeping against the three failure modes
+of the previous section, so it is explicit what is assumed where:
+
+1. *Extensivity* is spent when the finite-$n$ laws are divided by
+   $2^n$. It holds by construction: $H(p) = \sum_g H_g(r)$ is a fixed
+   positive entropy per block times $\Theta(2^n)$ blocks.
+2. *Self-averaging* is spent when a single limiting profile is
+   claimed. Here it is automatic: $\gamma_n(\ell)$ is already an
+   average, and the limit above exists for every $x$ because the
+   construction does not change character with $n$ (same block types,
+   same fractions). No oscillation is possible.
+3. *Bounded convergence* (with the bound $\eta \le m$) is spent
+   turning the telescoped Riemann sum $G_{\lfloor x2^n\rfloor}/2^n$
+   into $g(x) = \int_0^x \gamma$, exactly as in Step 2 of the
+   previous section.
+4. *Positivity* of $\gamma$ on $[0,1)$ must be checked per ensemble;
+   at fixed $r$ it will hold everywhere below. It degenerates only in
+   a *secondary* limit $r \to \infty$, taken after $n \to \infty$,
+   discussed at the code ensemble.
+
+**Adding noise without breaking the limit.** The hard ensembles
+below (cliques, parity, codes) put zero mass on most maps. Whenever
+full support is wanted, the recipe is: *soften locally* — per block
+or per site, never through a shared latent. Flip each bit with a
+small probability, mix each block with an i.i.d. block at rate
+$\delta$ (a *lapse*), or float each clique's value. Local softening
+changes none of the bookkeeping: blocks stay independent and
+internally symmetric, so assumptions 1–3 hold verbatim and the
+machinery applies with the $\eta(i)$ simply recomputed. Two
+consequences follow. At *fixed* $\delta$ the limit exists and is a
+continuous deformation of the hard one — the limit depends on the
+noise only through the finitely many $\eta(i)$, which move
+continuously with $\delta$ — so the shape (flat, rising, peaked)
+survives, shifted by terms of size $O(h(\delta))$; note the
+deformation is priced in the noise's *entropy*, not its rate, and
+entropy is expensive ($h(0.05) = 0.29$ bits). And under any
+vanishing schedule $\delta_n \to 0$, the prior has full support at
+every finite $n$ while $\gamma$ and $L$ converge to the hard
+ensemble's limit *exactly*: the zeros are only needed at
+$n = \infty$. (The coin ensemble needs none of this: any
+$\theta_r \in (0,1)$ already gives $p_j > 0$ everywhere.) What the
+recipe deliberately avoids is *global* softening — blurring the
+block structure itself, say by averaging over many partitions: a
+latent with extensive entropy floods the received channel and can
+erase the very store the ensemble was built to spend.
+
+**Ensemble 1: two coins — the hyperbola, rederived from the
+microscope.** Not a block prior: one global secret couples all
+questions, which is exactly what will make the shape different. The
+ensemble: nature secretly picks coin $r \in \{1, 2\}$ with
+probability $w_r$, then answers every question independently, $1$
+with probability $\theta_r$. A map $j$ with Hamming weight $W_j$
+gets
+
+$$
+p_j = \sum_{r} w_r\, \theta_r^{W_j} (1 - \theta_r)^{2^n - W_j}.
+$$
+
+*Worked tables.* Reading indices as answer numerals — $j =
+\phi(1)\phi(0)$ at $n = 1$ and $j = \phi(11)\phi(10)\phi(01)\phi(00)$
+at $n = 2$, as in the examples earlier in this document — the coins
+$\theta \in \{0.2, 0.7\}$ with weights $w = (\tfrac14, \tfrac34)$
+give at $(n, m) = (1, 1)$:
+
+| $j$    | 00       | 01       | 10       | 11       |
+|--------|----------|----------|----------|----------|
+| $p_j$  | $0.2275$ | $0.1975$ | $0.1975$ | $0.3775$ |
+
+($W = 0$ is $\tfrac14\, 0.8^2 + \tfrac34\, 0.3^2$, and so on.) At
+$(2, 1)$, with $p_j$ a function of the weight alone — $0.108475$,
+$0.039775$, $0.039475$, $0.078775$, $0.180475$ for
+$W = 0, \ldots, 4$:
+
+| $j$  | $p_j$      | $j$  | $p_j$      | $j$  | $p_j$      | $j$  | $p_j$      |
+|------|------------|------|------------|------|------------|------|------------|
+| 0000 | $0.108475$ | 0001 | $0.039775$ | 0010 | $0.039775$ | 0011 | $0.039475$ |
+| 0100 | $0.039775$ | 0101 | $0.039475$ | 0110 | $0.039475$ | 0111 | $0.078775$ |
+| 1000 | $0.039775$ | 1001 | $0.039475$ | 1010 | $0.039475$ | 1011 | $0.078775$ |
+| 1100 | $0.039475$ | 1101 | $0.078775$ | 1110 | $0.078775$ | 1111 | $0.180475$ |
+
+The unequal weights tilt the whole table toward the heavy coin
+($p_{1111}$ is now the largest mass), but the mixture's fingerprint
+survives the asymmetry: weight-$2$ maps remain *rarer* than both
+their neighbors ($0.039475$ against $0.039775$ and $0.078775$) —
+neither coin likes half-and-half tables.
+
+After $\ell$ answers containing $k$ ones, Bayes gives the posterior
+$\pi_r \propto w_r \theta_r^k (1-\theta_r)^{\ell - k}$ and the
+predictive $P(\text{next} = 1 \mid \text{data}) = \sum_r \pi_r
+\theta_r$, so $\gamma_n(\ell) = \mathbb{E}\, h(\text{predictive})$.
+At $\ell = 0$ the predictive is the mean coin:
+$\gamma_n(0) = h(\bar\theta)$, $\bar\theta = \sum_r w_r\theta_r$.
+For fixed $x > 0$ the number of answers $\ell = x 2^n \to \infty$,
+and the coin gets identified. Concretely: if the truth is coin $1$,
+the log posterior odds of coin $2$ are
+
+$$
+\log\frac{\pi_2}{\pi_1}
+= \log\frac{w_2}{w_1}
++ \ell\left[\frac{k}{\ell}\log\frac{\theta_2}{\theta_1}
++ \Big(1 - \frac{k}{\ell}\Big)
+  \log\frac{1-\theta_2}{1-\theta_1}\right],
+$$
+
+and by the law of large numbers $k/\ell \to \theta_1$, making the
+bracket converge to $-\mathrm{KL}(\theta_1 \| \theta_2) < 0$: the
+wrong coin's posterior dies like $e^{-\ell\,\mathrm{KL}}$. The
+predictive converges to $\theta_{\text{true}}$; $h$ is continuous
+and bounded, so dominated convergence gives
+
+$$
+\gamma(x) = \bar g := \sum_r w_r\, h(\theta_r)
+\quad \text{for every } x > 0.
+$$
+
+The profile is a step: $h(\bar\theta)$ at the single point $x = 0$,
+$\bar g$ everywhere else. A single point has measure zero, so the
+integral ignores it, $g(x) = \bar g x$, and
+
+$$
+L(x) = \frac{h(\bar\theta) - (1-x)\bar g}{\bar g x}
+= 1 + \frac{c}{x},
+\qquad
+c = \frac{h(\bar\theta) - \bar g}{\bar g} \ge 0
+$$
+
+by Jensen on the concave $h$. Note where the limit is *not* uniform:
+at every finite $n$ there is an initial window of $O(1)$ questions in
+which the coin is not yet known; in fraction-time that window shrinks
+onto the point $x = 0$. Pointwise convergence tolerates this, and the
+divergence of $L$ at $0^+$ is the scar the vanished window leaves.
+
+*Are two coins fully general?* In the limit, yes — in a precise and
+slightly deflating sense. First, the totals never see the mixing
+measure beyond two numbers: conditioning on the coin,
+$\ell \bar g \le G_\ell \le H(\text{coin}) + \ell \bar g$, and
+$H(\text{coin}) \le \log_2 R$ (or the $\tfrac{d}{2}\log\ell$
+Clarke–Barron term for a continuous mixture) is subextensive, wiped
+out by the division by $2^n$. So the limiting curve depends on the
+mixture only through the pair $(h(\bar\theta), \bar g)$, i.e. through
+the single number $c$. Second, two atoms already sweep every
+achievable pair: fixing $\bar\theta$ and widening the spread of
+$\{\theta_1, \theta_2\}$ moves $\bar g$ continuously from $h(\bar
+\theta)$ (zero spread, $c = 0$) down toward $0$ (coins approaching
+$\{0, 1\}$, $c \to \infty$, where extensivity fails at the edge), and
+the intermediate value theorem hands us every $c \in [0, \infty)$ in
+between. Third, de Finetti closes the class: any prior family that is
+exchangeable at every $n$ *is* a coin mixture for some mixing
+measure. Conclusion: two coins exhaust everything exchangeability can
+do in the limit — but that "everything" is just the one-parameter
+hyperbola family. Full richness inside a straitjacket. Escaping the
+family requires breaking exchangeability, which is what the block
+ensembles do next.
+
+**Ensemble 2: cliques — flat leverage, and which constants are
+possible.** The simplest block prior: partition the questions into
+blocks of size $r$ whose members all share one answer. Nature draws,
+per block $g$, a single $m$-bit value from an arbitrary,
+block-specific distribution $\nu_g$ and copies it to every member:
+
+$$
+p_j = \prod_{\text{blocks } g} \nu_g\big(v_g(j)\big)\,
+\mathbf{1}\big[\phi_j \text{ constant on } g\big],
+\qquad v_g(j) := \text{the value } \phi_j \text{ takes on } g,
+$$
+
+so $H(p) = \sum_g H(\nu_g) = \tfrac{2^n}{r}\langle H(\nu)\rangle$:
+extensive. (A uniform value, $H(\nu) = m$, is a special case;
+nothing below needs it.)
+
+*Worked tables.* At $(1, 1)$ the partition has a single block, both
+questions cliqued ($r = 2$); take the biased value
+$\nu(1) = 0.7$:
+
+| $j$    | 00     | 01  | 10  | 11     |
+|--------|--------|-----|-----|--------|
+| $p_j$  | $0.3$  | $0$ | $0$ | $0.7$  |
+
+At $(2, 1)$, pair the questions as $\{11, 10\}$ and $\{01, 00\}$
+(any other pairing is a relabeling) with *different* biases,
+$\nu_a(1) = 0.7$ and $\nu_b(1) = 0.4$: $p_j =
+\nu_a(\phi(11))\,\nu_b(\phi(01))$ when $\phi(11) = \phi(10)$ and
+$\phi(01) = \phi(00)$, zero otherwise,
+
+| $j$  | $p_j$  | $j$  | $p_j$ | $j$  | $p_j$ | $j$  | $p_j$  |
+|------|--------|------|-------|------|-------|------|--------|
+| 0000 | $0.18$ | 0001 | $0$   | 0010 | $0$   | 0011 | $0.12$ |
+| 0100 | $0$    | 0101 | $0$   | 0110 | $0$   | 0111 | $0$    |
+| 1000 | $0$    | 1001 | $0$   | 1010 | $0$   | 1011 | $0$    |
+| 1100 | $0.42$ | 1101 | $0$   | 1110 | $0$   | 1111 | $0.28$ |
+
+The leverage is exactly $2$ all the same: the scales $h(0.7)$ and
+$h(0.4)$ cancel event by event. One clique of size $r = 4$ instead
+gives $p = (1 - \theta, \theta)$ on $\{0000, 1111\}$, any $\theta$:
+the $L \equiv 4$ line of the first panel.
+
+The microscopic increments are
+the crudest possible: $\eta_g(0) = H(\nu_g)$ (the shared value is
+unknown) and $\eta_g(i) = 0$ for $i \ge 1$ (any one partner reveals
+it). The master formula keeps only the $i = 0$ term,
+
+$$
+\gamma(x) = \langle H(\nu)\rangle\, b_0(x)
+= \langle H(\nu)\rangle\,(1 - x)^{r-1}
+$$
+
+(at finite $n$: the probability that none of the $r-1$ partners is
+among the $\ell$ asked, a falling-factorial product whose factors
+each tend to $1 - x$). Substituting $u = 1 - t$,
+$g(x) = \langle H(\nu)\rangle \tfrac1r\big(1 - (1-x)^r\big)$,
+while destroyed $= \langle H(\nu)\rangle\big[1 -
+(1-x)\cdot(1-x)^{r-1}\big] = \langle H(\nu)\rangle\big[1 -
+(1-x)^r\big] = r\, g(x)$: the $x$-dependence *and* the scale cancel
+completely,
+
+$$
+L(x) \equiv r.
+$$
+
+The cancellation is no accident. Every question is either the first
+of its block to be asked — receive the $H(\nu_g)$ fresh bits of the
+shared value (in expectation), and all $r$ columns of the block,
+each holding $H(\nu_g)$ bits, collapse at once: a ratio-$r$ event
+whatever the bias — or a repeat, receiving nothing and destroying
+nothing, a null event. A run built only of ratio-$r$ events and null
+events has running ratio exactly $r$ after every single question,
+which is why the first panel is flat at every finite $n$ as well
+(deviation $10^{-10}$, float noise). The timing density is
+$\mathrm{Beta}(1, r)$, maximally front-loaded, yet the curve does not
+fall: front-loading tilts $L$ downward only when early deductions are
+paid for by *earlier* receptions. The coin mixture separates payment
+(the first few answers) from windfall (everything after); the clique
+never does — each windfall arrives bundled with its own reception at
+a fixed exchange rate.
+
+*Which constant leverages are possible?* Ask the master formula
+directly: $L \equiv A$ means $\gamma(0) - (1-x)\gamma(x) = A\,g(x)$
+for all $x$. Differentiate both sides (product rule on the left,
+fundamental theorem of calculus on the right):
+
+$$
+\gamma - (1-x)\gamma' = A\gamma
+\;\;\Longleftrightarrow\;\;
+(1-x)\,\gamma' = (1 - A)\,\gamma,
+$$
+
+a separable ODE: $\int d\gamma/\gamma = (A-1)\int d(1-x)/(1-x)$, so
+
+$$
+\gamma(x) = \gamma(0)\,(1-x)^{A-1},
+$$
+
+uniquely. Monotonicity of the profile forces the exponent to be
+nonnegative, $A \ge 1$ (there is no prior with constant leverage
+below one), $A = 1$ is the product prior, and $A = r$ recovers the
+clique. So *every* real $A \ge 1$ corresponds to exactly one
+admissible profile — but which are realizable? Exactly, only the
+integers: any ensemble with finite block sizes has a *polynomial*
+profile (the Bernstein form of Step 1), and $(1-x)^{A-1}$ is a
+polynomial only for integer $A$. To arbitrary precision, all of
+them: $(1-x)^{A-1}$ is continuous and nonincreasing on $[0,1]$ for
+$A \ge 1$, so the completeness construction at the end of this
+section approximates $L \equiv 2.5$, or $L \equiv \pi$, as closely
+as desired — never exactly, with blocks of bounded size. One warning
+about the obvious route: *mixing clique sizes does not interpolate.*
+With fractions $w_r$ of questions in size-$r$ cliques, destroyed
+$= \sum_r w_r(1 - (1-x)^r)$ and received $= \sum_r \tfrac{w_r}{r}(1 -
+(1-x)^r)$; expanding at the ends, $L(0^+) = \sum_r w_r r$, the
+arithmetic mean of the sizes, while $L(1) = 1/\sum_r (w_r/r)$, the
+harmonic mean. By AM–HM these differ whenever two sizes are present:
+a mixture of flat curves is a *falling* curve. The reason is
+selection over time: large cliques are touched (and cashed, at their
+high ratio) earlier, since a size-$8$ block survives untouched with
+probability $(1-x)^8$ against a pair's $(1-x)^2$, so the late run is
+dominated by low-ratio events.
+
+*Full support:* noisy copies, $a_q = v_g \oplus
+\mathrm{Bern}(\delta)$ per bit, give $p_j > 0$ everywhere; $\eta(0)$
+barely moves while $\eta(i \ge 1)$ lifts from $0$ to the
+$O(h(2\delta))$ scale, and the curve sags below flat accordingly —
+at $r = 3$, $L$ stays within $[2.90, 2.96]$ for $\delta = 10^{-3}$,
+but already drops to $[1.65, 2.09]$ at $\delta = 0.05$. *Exactly*
+flat leverage genuinely needs the zeros: $L \equiv A > 1$ forces
+$\gamma \propto (1-x)^{A-1}$, which vanishes at $x = 1$, while a
+full-support prior always charges something for the last answer.
+Vanishing noise $\delta_n \to 0$ gives both: full support at every
+$n$, exact flatness in the limit.
+
+**Ensemble 3: parity blocks — leverage that accelerates.** Partition
+the questions into $2^n/r$ blocks of size $r$. Within a block $g$,
+fix a target parity $\beta_g \in \{0, 1\}$ — each block its own —
+and let the prior be uniform on the $2^{r-1}$ answer strings whose
+bits sum to $\beta_g$ mod $2$, independent across blocks:
+
+$$
+p_j = \prod_{\text{blocks } g}
+2^{-(r-1)}\,
+\mathbf{1}\big[\textstyle\bigoplus_{q \in g} \phi_j(q) = \beta_g\big],
+$$
+
+so $H(p) = (1 - \tfrac1r)\, 2^n$: extensive, assumption 1 banked.
+One symmetry here is load-bearing *for the clean profile*: only
+equally likely admissible strings make every partial view exactly
+uninformative, giving $1 - x^{r-1}$ on the nose. Tilting the weights
+does not destroy the ensemble — the deductive cliff at the last
+member survives exactly — it bends the profile, computably; the
+tilted variant closes this ensemble below. The coset choice
+$\beta_g$ is entirely free.
+
+*Worked tables.* At $(1, 1)$ the only size is $r = 2$; take the odd
+coset $\beta = 1$, forcing *unequal* bits:
+
+| $j$    | 00  | 01    | 10    | 11  |
+|--------|-----|-------|-------|-----|
+| $p_j$  | $0$ | $1/2$ | $1/2$ | $0$ |
+
+(The even coset would reproduce the clique's table: at block size
+$2$ the parity family consists of the clique and this anti-clique,
+and $r = 3$ is the smallest size at which parity is a genuinely new
+mechanism.) At $(2, 1)$, one parity block of all four questions
+($r = 4$) with $\beta = 1$: $p_j = 1/8$ on the eight odd-weight
+answer strings,
+
+| $j$  | $p_j$ | $j$  | $p_j$ | $j$  | $p_j$ | $j$  | $p_j$ |
+|------|-------|------|-------|------|-------|------|-------|
+| 0000 | $0$   | 0001 | $1/8$ | 0010 | $1/8$ | 0011 | $0$   |
+| 0100 | $1/8$ | 0101 | $0$   | 0110 | $0$   | 0111 | $1/8$ |
+| 1000 | $1/8$ | 1001 | $0$   | 1010 | $0$   | 1011 | $1/8$ |
+| 1100 | $0$   | 1101 | $1/8$ | 1110 | $1/8$ | 1111 | $0$   |
+
+The microscopic conditional entropies come from a counting lemma: fix
+any $i \le r - 1$ coordinates of an admissible string at any values;
+the completions number $2^{r-1-i}$ regardless of the values chosen
+(one parity constraint on the $r - i \ge 1$ free coordinates). So the
+projection onto any $i \le r-1$ coordinates is uniform: partial
+knowledge of a parity block reveals *nothing* about its other
+members. Hence
+
+$$
+\eta(i) = 1 \;\; (i \le r-2),
+\qquad
+\eta(r-1) = 0:
+$$
+
+a fresh member is a fair coin until the last partner arrives, then it
+is free. Step 1's master formula gives
+
+$$
+\gamma(x) = \sum_{i=0}^{r-2} b_i(x)
+= 1 - P\big(\text{all } r{-}1 \text{ partners asked}\big)
+= 1 - x^{\,r-1},
+$$
+
+(at finite $n$ the last term is the falling-factorial product
+$\tfrac{\ell}{2^n-1}\cdot\tfrac{\ell-1}{2^n-2}\cdots$, each factor
+$\to x$). The power rule gives $g(x) = x - x^r/r$, and, expanding the
+numerator, $1 - (1-x)(1 - x^{r-1}) = x + (1-x)x^{r-1}$:
+
+$$
+L(x) = \frac{x + (1-x)\,x^{r-1}}{x - x^r/r}.
+$$
+
+Endpoints by first-year calculus: dividing through by $x$ and letting
+$x \to 0$ kills the $x^{r-2}$ terms (for $r \ge 3$), so $L(0^+) = 1$;
+at $x = 1$, $L(1) = 1/(1 - 1/r) = r/(r-1)$. In between the curve
+rises monotonically (second panel): the opposite shape to the
+hyperbola, leverage that *builds*. The mechanism is timing. The
+deduced density is
+
+$$
+\frac{d}{dx}\big[\text{destroyed} - \text{received}\big]
+= \frac{d}{dx}\Big[(1-x)x^{r-1} + \tfrac{x^r}{r}\Big]
+= (r-1)\,x^{r-2}(1-x),
+$$
+
+a $\mathrm{Beta}(r{-}1, 2)$ shape peaked at $x = \tfrac{r-2}{r-1}$,
+late in the run. Microscopic cross-check: a block's free bit unlocks
+when its $(r{-}1)$-th member is asked, i.e. at the $(r{-}1)$-th order
+statistic of $r$ uniform ask-times, whose density is
+$r(r-1)x^{r-2}(1-x)$; one deduced bit per $r$ questions rescales this
+to $(r-1)x^{r-2}(1-x)$. The two computations agree. Parity blocks
+back-load their deductions, so the running average $L$ can only
+climb.
+
+*Breaking the last symmetry: tilted parity.* The uniform weights can
+be abandoned too, at the cost of the clean formula. Draw the block's
+bits i.i.d. $\mathrm{Bernoulli}(\theta)$ *conditioned* on the parity
+coming out $\beta$ (uniform is $\theta = \tfrac12$):
+
+$$
+p(a) \propto \prod_{q \in g} \theta^{a_q}(1-\theta)^{1-a_q}\,
+\mathbf{1}\big[\textstyle\bigoplus_q a_q = \beta\big].
+$$
+
+The conditionals stay closed-form. With $\varepsilon := 1 - 2\theta$,
+$u$ members still unseen and their parity forced to $\gamma$, a fresh
+bit is $1$ with probability
+
+$$
+q(u, 0) = \frac{\theta\,(1 - \varepsilon^{u-1})}{1 + \varepsilon^u},
+\qquad
+q(u, 1) = \frac{\theta\,(1 + \varepsilon^{u-1})}{1 - \varepsilon^u},
+$$
+
+and $\eta(i)$ is the expected $h\big(q(r-i, \cdot)\big)$ over the
+seen parity. Two structural facts survive the tilt exactly:
+$\eta(r-1) = 0$ (the last member is still determined — the deductive
+cliff is untouched) and $\eta(i) = h(\theta) + O(\varepsilon^{r-i})$
+far from the cliff. What the tilt costs is the exact all-or-nothing:
+partial views now leak $O(\varepsilon^{r-i})$ bits about the unseen.
+Worked at $r = 4$, $\theta = 0.3$, $\beta = 1$: $\eta = (0.9124,
+0.8989, 0.8113, 0)$ — a sagging plateau, then the cliff — and $L$
+rises from $1.045$ to $1.392$ (uniform: $1$ to $4/3$): the
+acceleration survives, with a softened onset and a slightly higher
+endpoint. The $(2, 1)$ table, one tilted block of all four
+questions, $p_j \propto 0.3^{W_j}\, 0.7^{\,4 - W_j}$ on the
+odd-weight strings ($Z = P(\oplus = 1) = 0.4872$):
+
+| $j$  | $p_j$    | $j$  | $p_j$    | $j$  | $p_j$    | $j$  | $p_j$    |
+|------|----------|------|----------|------|----------|------|----------|
+| 0000 | $0$      | 0001 | $0.2112$ | 0010 | $0.2112$ | 0011 | $0$      |
+| 0100 | $0.2112$ | 0101 | $0$      | 0110 | $0$      | 0111 | $0.0388$ |
+| 1000 | $0.2112$ | 1001 | $0$      | 1010 | $0$      | 1011 | $0.0388$ |
+| 1100 | $0$      | 1101 | $0.0388$ | 1110 | $0.0388$ | 1111 | $0$      |
+
+*Full support:* flip every bit of the block independently with
+probability $\delta$ after drawing the parity string. The noise
+composes neatly: flipping an even-coset string toggles its coset by
+the parity of the flips, so the noisy block is simply a *mixture of
+the two cosets* with weights $\tfrac12\big(1 \pm (1-2\delta)^r\big)$,
+uniform within each — and all $2^r$ strings are covered. Partial
+views of $\le r - 1$ coordinates are uniform in both cosets, so
+$\eta(i) = 1$ survives *exactly* for $i \le r - 2$; only the cliff
+softens, $\eta(r-1) = h\big(\tfrac{1 - (1-2\delta)^r}{2}\big)
+\approx h(r\delta)$, and the profile stays closed form:
+$\gamma(x) = 1 - \big(1 - \eta(r-1)\big)\,x^{r-1}$.
+
+**Ensemble 4: MDS code blocks — a movable threshold, and a peak.**
+Parity gives no control over *when* the deduction fires: always at
+the last member. The general tool fires at the $k$-th member, for any
+chosen $k$. Let answers carry $m$ bits, read as symbols of the field
+$\mathbb{F}_q$ with $q = 2^m \ge r$. A block of $r$ questions is
+assigned $r$ distinct field points $\alpha_1, \ldots, \alpha_r$;
+nature draws a uniformly random polynomial $f$ of degree $< k$ over
+$\mathbb{F}_q$ (there are $q^k$ of them) and answers question $i$
+with $f(\alpha_i)$ — a random Reed–Solomon codeword. The prior is
+uniform on the codebook, product across blocks; $H(p) = km$ bits per
+block, extensive. As with parity, the uniformity *on* the codebook
+is the load-bearing symmetry (it is what makes any $j \le k$ answers
+exactly uniform below); the codebook itself may be shifted freely —
+uniform on any coset $y_g + C$, a different fixed offset word per
+block, has identical entropies. Two classical facts, both
+elementary:
+
+- *Any $k$ answers determine all $r$* (Lagrange interpolation: a
+  polynomial of degree $< k$ is pinned by $k$ point values).
+- *Any $j \le k$ answers are jointly uniform on $\mathbb{F}_q^j$*:
+  prescribe values at $j$ points, extend to $k$ points by choosing
+  the remaining $k - j$ values freely, and interpolate — exactly
+  $q^{k-j}$ polynomials match, the same count for every
+  prescription.
+
+So $H_g(j) = m \min(j, k)$: all-or-nothing at the threshold (this
+entropy profile is precisely Shamir's $(k, r)$ threshold
+secret-sharing scheme). The increments are $\eta(i) = m$ for
+$i \le k - 1$ and $0$ after, and the master formula gives, per site,
+
+$$
+\frac{\gamma(x)}{m}
+= \sum_{i=0}^{k-1} b_i(x)
+= P\big(\mathrm{Bin}(r{-}1, x) \le k - 1\big)
+=: \bar F(x).
+$$
+
+Parity and cliques are the two *binary* members of this family:
+$k = r - 1$ gives $\bar F = 1 - x^{r-1}$ (Ensemble 3), and $k = 1$
+is the repetition code, all $r$ answers equal, with
+$\bar F = (1-x)^{r-1}$ (Ensemble 2). Over $\mathbb{F}_2$ these are
+the *only* MDS codes; the movable threshold genuinely needs the
+bigger alphabet, $m > 1$.
+
+*Worked tables at $m = 1$.* The collapse is visible at the requested
+sizes: a binary code block is a clique table ($k = 1$, Ensemble 2), a
+parity table ($k = r - 1$, Ensemble 3), or the uniform prior
+$p_j = 1/16$ ($k = r$: the "code" is the whole space, i.e. fresh
+questions). What $(2, 1)$ *can* show is the diluted skeleton of the
+peak construction, every ingredient asymmetric: one repetition pair
+on $\{11, 10\}$ with shared value $\nu(1) = 0.7$ (the code half) and
+two biased fresh questions, $P(\phi(01) = 1) = 0.6$ and
+$P(\phi(00) = 1) = 0.15$, giving $p_j = \nu(\phi(11))\,
+P(\phi(01))\, P(\phi(00))$ when $\phi(11) = \phi(10)$ and zero
+otherwise:
+
+| $j$  | $p_j$   | $j$  | $p_j$   | $j$  | $p_j$   | $j$  | $p_j$   |
+|------|---------|------|---------|------|---------|------|---------|
+| 0000 | $0.102$ | 0001 | $0.018$ | 0010 | $0.153$ | 0011 | $0.027$ |
+| 0100 | $0$     | 0101 | $0$     | 0110 | $0$     | 0111 | $0$     |
+| 1000 | $0$     | 1001 | $0$     | 1010 | $0$     | 1011 | $0$     |
+| 1100 | $0.238$ | 1101 | $0.042$ | 1110 | $0.357$ | 1111 | $0.063$ |
+
+The smallest prior with a strictly interior threshold lives at
+$(n, m) = (2, 2)$: Reed–Solomon over $\mathbb{F}_4$ with $r = 4$,
+$k = 2$ — sixteen codewords among the $256$ maps, any two answers
+determining the other two while any two alone are uniform. For full
+support, lapse the blocks — mix each with an i.i.d. uniform block at
+rate $\delta$ — as Ensemble 5 does below: below-threshold uniformity
+survives exactly and $H_g(j)$ stays closed form.
+
+For general $k$ the received total obeys a pretty identity:
+
+$$
+\int_0^1 \bar F
+= \sum_{i=0}^{k-1} \binom{r-1}{i} \int_0^1 x^i (1-x)^{r-1-i}\,dx
+= \sum_{i=0}^{k-1} \binom{r-1}{i}\,
+\frac{i!\,(r-1-i)!}{r!}
+= \sum_{i=0}^{k-1}\frac{1}{r}
+= \frac{k}{r} = \rho,
+$$
+
+(the Beta integral $\int_0^1 x^a(1-x)^b dx = \tfrac{a!\,b!}{(a+b+1)!}$
+term by term): the code *rate* is exactly the fraction of the run's
+information that must be paid for. As $r \to \infty$ at fixed $\rho$,
+the law of large numbers squeezes $\mathrm{Bin}(r{-}1,x)/(r{-}1)$
+onto $x$, so $\bar F$ steepens into the indicator of $x < \rho$
+(width $\sim \sqrt{x(1-x)/r}$, de Moivre–Laplace). Important order of
+limits: $n \to \infty$ is taken first, at fixed $r$, where everything
+is smooth and positivity holds ($\bar F > 0$ strictly on $[0,1)$);
+sharpening $r$ is a second, separate limit, and only in that double
+limit does the pure code reproduce failure mode 3 of the previous
+section, the discontinuous jump $L = 1 \to 1/\rho$.
+
+A pure code plateaus after its threshold; to get a *peak* the run
+must keep receiving after the deductions dry up. Dilute: fraction $w$
+of questions in code blocks, fraction $1 - w$ *fresh* (singleton
+blocks with uniform $m$-bit answers, $\eta \equiv m$). Then
+$\gamma/m = w\bar F + (1 - w)$ and
+
+$$
+L(x)
+= \frac{w\big(1 - (1-x)\bar F(x)\big) + (1-w)\,x}
+       {w \int_0^x \bar F + (1-w)\,x}.
+$$
+
+(Here $w$ is the code's share of questions when the fresh answers
+are fair; the fresh questions may just as well be biased coins, each
+with its own bias — then $w$ reads as the code's share of *entropy*,
+and the formula is unchanged: only entropy shares ever enter.)
+
+Three regimes, visible in the third panel ($r = 16$, $k = 4$,
+$\rho = \tfrac14$, $w = \tfrac34$):
+
+- $x$ well below $\rho$: $\bar F \approx 1$, numerator $\approx$
+  denominator $\approx x$, so $L \approx 1$. A code block below
+  threshold reveals nothing about its unasked members: no deductions
+  exist to be had, every answer is bought at full price.
+- $x$ near $\rho$: each block crossing its threshold dumps its
+  entire windfall, $(r - k)m$ bits, in a burst; the numerator jumps
+  toward $w + (1-w)x$ while the denominator has only banked
+  $\approx w\rho + (1-w)x$. The curve climbs steeply to its maximum,
+  $L = 2.86$ at $x \approx 0.40$ here.
+- $x$ above $\rho$: the code is spent; fresh questions keep adding
+  to numerator and denominator at marginal ratio $1$, and a running
+  average fed below-average increments must fall (the batting-average
+  effect). $L$ decays to $L(1) = 1/(1 - w(1 - \rho)) = 16/7 \approx
+  2.286$.
+
+The timing computation generalizes verbatim: the deduced density is
+$-w(1-x)\bar F'(x) = w(r-1)\binom{r-2}{k-1} x^{k-1}(1-x)^{r-k}$, a
+$\mathrm{Beta}(k, r-k+1)$ shape with mode $\tfrac{k-1}{r-1} \approx
+\rho$ and total mass $w(1-\rho)$ — microscopically, the block
+saturates at the $k$-th order statistic of its members' ask-times.
+The three panels are one family, distinguished only by where that
+order statistic sits: $k = 1$ front-loads it (cliques, flat), $k =
+r-1$ back-loads it (parity, rising), intermediate $k$ concentrates it
+mid-run (peak, once diluted).
+
+**Ensemble 5: the cocktail — with full support.** Superpose all
+three mechanisms on disjoint blocks of questions ($m = 4$ bits per
+answer throughout): a quarter of the questions form one *coin* block
+(a single global latent $\theta \in \{0.2, 0.7\}$ with weights
+$(\tfrac14, \tfrac34)$, every answer bit i.i.d. $\theta$ given the
+coin); half form *lapsed* Reed–Solomon blocks ($r = 16$, $k = 4$):
+with probability $1 - \delta$ the block carries a codeword, with
+probability $\delta = 0.1$ its answers are i.i.d. uniform, an
+independent lapse per block; and a quarter are fresh questions with
+site bias $0.3$. The prior is the product of the sub-priors, and now
+$p_j > 0$ for *every* map: coin sites and biased fresh sites put
+positive mass on every string, and the lapse covers every code
+block's strings. The softening costs almost nothing below threshold:
+any $j \le k$ symbols of a lapsed block are still *exactly* uniform
+(a mixture of two uniforms), so $\eta(i) = m$ for $i \le k - 1$ is
+untouched; above threshold the block keeps paying at rate
+$\eta(i) \approx \delta m$ (the lapse acts as a built-in fresh
+stream) instead of falling silent. The block entropies stay closed
+form — pattern masses take two values, as in the parity counting:
+
+$$
+H_g(j) = A\big(km - \log_2 A\big)
++ \delta\,(1 - q^{k-j})\big(jm - \log_2 \delta\big),
+\qquad A := (1-\delta) + \delta\, q^{k-j}
+\quad (j \ge k).
+$$
+
+Independence adds entropies, so the profile is the weighted average
+of the pieces, per site:
+
+$$
+\gamma(0) = \tfrac14 h(\bar\theta) + \tfrac12 + \tfrac14 h(0.3)
+= 0.966,
+\qquad
+\gamma(x) = \tfrac14 \bar g + \tfrac12 \hat\gamma(x)
++ \tfrac14 h(0.3)
+\quad (x > 0),
+$$
+
+with $\hat\gamma(x) = \sum_i b_i(x)\,\eta(i)/m$ the lapsed code's
+per-site profile: $\approx \bar F(x)$ up to the threshold, then a
+$\delta$-tail instead of zero. The master formula assembles the
+whole curve:
+
+$$
+L(x)
+= \frac{\tfrac14\big(h(\bar\theta) - (1-x)\bar g\big)
+      + \tfrac12\big(1 - (1-x)\hat\gamma(x)\big)
+      + \tfrac14 h(0.3)\, x}
+       {\tfrac14 \bar g\, x + \tfrac12 \int_0^x \hat\gamma
+        + \tfrac14 h(0.3)\, x}.
+$$
+
+Four regimes (fourth panel):
+
+1. *Dive.* As $x \to 0^+$ the numerator tends to the constant
+   $\tfrac14(h(\bar\theta) - \bar g) = \tfrac14(0.9837 - 0.8415) =
+   0.0356$ (the coin block's instantly-cashed secret,
+   $\bar\theta = 0.575$) while the denominator vanishes linearly:
+   $L(x) \approx 0.038/x$ plus order-one terms, the hyperbola's
+   ghost.
+2. *Dip.* The coin is spent, the code is still below threshold, and
+   most answers arrive at marginal ratio $1$, dragging the average
+   down to $L = 1.61$ at $x \approx 0.09$.
+3. *Peak.* The code blocks saturate around $x = \rho = \tfrac14$ and
+   dump their windfalls; the average climbs to $L = 2.15$ at
+   $x \approx 0.35$ (lagging $\rho$ because the average keeps rising
+   while bursts continue; the lapse shaves the peak — the hard-code
+   cocktail would reach $2.29$).
+4. *Decay.* Fresh questions and the lapse tails dilute, and the
+   curve relaxes to
+   $L(1) = \dfrac{\tfrac14 h(\bar\theta) + \tfrac12 + \tfrac14 h(0.3)}
+   {\tfrac14 \bar g + \tfrac12 \int_0^1 \hat\gamma + \tfrac14 h(0.3)}
+   = \dfrac{0.966}{0.597} = 1.619,$ with $\int_0^1 \hat\gamma =
+   \tfrac{1}{r}\sum_i \eta(i)/m = 0.332$ (against $\rho = \tfrac14$
+   for the hard code).
+
+The exact finite-$n$ curves ($n = 6, 8, 10$) converge onto this shape
+from below, the coin identification being the slowest ingredient. And
+nothing near the run's end is degenerate: $\gamma(1) = \tfrac14\bar g
++ \tfrac12\,\eta(r{-}1)/m + \tfrac14 h(0.3) = 0.481 > 0$ — even the
+last answer still costs something, the signature of full support.
+
+*Worked tables.* $(1, 1)$ is too small: with two questions a single
+block already fills the space (the cocktail degenerates to whichever
+ensemble occupies it), and a block of size one hides its mechanism —
+a one-question coin block is indistinguishable from a biased fresh
+question. At $(2, 1)$ two mechanisms fit: a coin block on
+$\{11, 10\}$ (the two-coin latent, answers i.i.d. $\theta$ given the
+coin) and a *lapsed* repetition pair on $\{01, 00\}$ with value bias
+$\nu(1) = 0.4$ and lapse $\delta = 0.2$ (the $m = 1$ stand-in for
+the lapsed code block): with probability $0.8$ the pair copies the
+biased value, with probability $0.2$ its two answers are i.i.d.
+fair, giving lower-pair masses $(0.53, 0.05, 0.05, 0.37)$ on the
+patterns $(00, 01, 10, 11)$. The prior is the product of the
+Ensemble 1 table at $n = 1$ (upper index bits) and that factor
+(lower):
+
+| $j$  | $p_j$      | $j$  | $p_j$      | $j$  | $p_j$      | $j$  | $p_j$      |
+|------|------------|------|------------|------|------------|------|------------|
+| 0000 | $0.120575$ | 0001 | $0.011375$ | 0010 | $0.011375$ | 0011 | $0.084175$ |
+| 0100 | $0.104675$ | 0101 | $0.009875$ | 0110 | $0.009875$ | 0111 | $0.073075$ |
+| 1000 | $0.104675$ | 1001 | $0.009875$ | 1010 | $0.009875$ | 1011 | $0.073075$ |
+| 1100 | $0.200075$ | 1101 | $0.018875$ | 1110 | $0.018875$ | 1111 | $0.139675$ |
+
+Rows carry the coin table $(0.2275, 0.1975, 0.1975, 0.3775)$;
+columns multiply by the lapsed-pair factor. Every entry is positive
+— the smallest masses sit on the lapse-only patterns (unequal lower
+bits) — and every asymmetry of the full cocktail is here in
+miniature, including its full support. What is missing at this size
+is only *room*: no dilution to speak of, and a code block too short
+to hold an interior threshold.
+
+**The dial, and a completeness theorem in miniature.** All four
+shapes are one statement: *the shape of $L$ is the timing of the
+deductions relative to the reception.* A global secret read off
+instantly (coins, or the fixed-$p$ spike) front-loads everything:
+falling hyperbola. Local secrets cashed at first touch, at fixed
+exchange rate (cliques): flat. Cashed at last touch (parity): rising.
+Cashed at the $k$-th touch and then diluted (codes + fresh): a
+movable, tunable peak — position set by the rate $\rho$, sharpness by
+the block size $r$, height against the plateau by the dilution $w$.
+
+And the construction kit is complete. Step 1 exhibited every block
+profile as a Bernstein polynomial $\sum_i \eta(i)\, b_i(x)$; mixing
+MDS blocks of a common size $r$ with weights $u_k$ produces
+coefficients $c_i = \sum_{k > i} u_k$ — every nonincreasing sequence
+in $[0,1]$ arises this way (take $u_k = c_{k-1} - c_k$, with slack
+going to frozen, zero-entropy blocks). Bernstein's classical theorem
+(his proof of Weierstrass approximation) says that as $r$ grows, the
+polynomials $\sum_i \gamma(\tfrac{i}{r-1})\, b_i(x)$ converge
+uniformly to any continuous $\gamma$ — and sampling a nonincreasing
+function keeps the coefficients nonincreasing. So *every* continuous
+nonincreasing profile on $[0,1]$ is the exact limit of a sequence of
+block priors (add a coin block for a jump at $0$). The admissible
+profiles of Step 1 of the previous section are not just an outer
+bound on what priors can do; block priors realize all of them, and
+with them every leverage curve the master formula can express.
 
 ## $\epsilon_j$ under uniform $P(q)$
 

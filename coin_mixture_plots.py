@@ -39,9 +39,9 @@ def L_curve(n, coins):
 
 FAMILIES = [
     ("1 coin",  [(0.45, 1.0)]),
-    ("2 coins", [(0.2, 0.5), (0.7, 0.5)]),
-    ("3 coins", [(0.2, 1/3), (0.45, 1/3), (0.7, 1/3)]),
-    ("10 coins", [(0.05 + 0.1*i, 0.1) for i in range(10)]),
+    ("2 coins", [(0.2, 0.25), (0.7, 0.75)]),
+    ("3 coins", [(0.2, 0.2), (0.45, 0.5), (0.7, 0.3)]),
+    ("10 coins", [(0.05 + 0.1*i, (i+1)/55) for i in range(10)]),
 ]
 
 fig, axes = plt.subplots(1, 4, figsize=(14, 3.6), sharey=True)
