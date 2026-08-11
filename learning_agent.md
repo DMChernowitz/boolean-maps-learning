@@ -2397,35 +2397,32 @@ $$
 Jensen's inequality on the concave $h$ gives
 $h(\bar\theta) \ge \bar g$, so $c \ge 0$, with equality only for a
 single coin — the product prior, $L \equiv 1$. Worked pair
-$\theta \in \{0.2, 0.7\}$ with weights $(\tfrac14, \tfrac34)$:
-$\gamma(0) = h(0.575) = 0.9837$, $\bar g = 0.8415$, $c = 0.1691$, and
-the exact finite-$n$ leverage converges onto the law
-(`continuum.py`):
+$\theta \in \{0.1, 0.9\}$ with equal weights:
+$\gamma(0)=h(1/2)=1$, $\bar g=h(0.1)=0.4690$,
+$c=1.1322$, and the exact finite-$n$ leverage converges onto the law
+(`coin_mixture_plots.py`):
 
 | $x$   | $n=4$  | $n=6$  | $n=8$  | $n=10$ | $1 + c/x$ |
 |-------|--------|--------|--------|--------|-----------|
-| 0.125 | 1.3683 | 1.9259 | 2.2795 | 2.3349 | 2.3525    |
-| 0.25  | 1.2892 | 1.5611 | 1.6514 | 1.6700 | 1.6763    |
-| 0.5   | 1.1926 | 1.2985 | 1.3281 | 1.3356 | 1.3381    |
-| 0.75  | 1.1390 | 1.2013 | 1.2193 | 1.2239 | 1.2254    |
-| 1.0   | 1.1065 | 1.1517 | 1.1647 | 1.1680 | 1.1691    |
+| 0.125 | 4.6125 | 7.9133 | 9.4294 | 9.8929 | 10.0577   |
+| 0.25  | 3.5571 | 4.8785 | 5.3506 | 5.4832 | 5.5289    |
+| 0.5   | 2.5760 | 3.0605 | 3.2109 | 3.2509 | 3.2644    |
+| 0.75  | 2.1310 | 2.4029 | 2.4821 | 2.5027 | 2.5096    |
+| 1.0   | 1.8815 | 2.0635 | 2.1146 | 2.1278 | 2.1322    |
 
 The fixed-$p$ spike lands on the same $1 + c/x$ shape, and that is
 no coincidence: it too is a prior with one global secret.
 
-![coin-mixture leverage: 1, 2, 3, 10 coins](figures/coin_mixture_leverage.png)
+![matched two-component and ten-component coin mixtures](figures/coin_mixture_leverage.png)
 
-One, two, three and ten coins, all with unequal weights
-(`coin_mixture_plots.py`): a single coin is the product prior, flat
-at $L \equiv 1$; the others converge onto their hyperbolas from
-below. The limiting curve depends on the mixing measure only through
-the *two* averages $h(\bar\theta)$ and $\bar g$ — note that three
-coins, weights $(0.2, 0.5, 0.3)$, give a *smaller* $c$ ($0.103$)
-than two ($0.169$), because the added middle coin raises $\bar g$. The
-number of coins as such never enters the limit; it only sets the
-finite-$n$ approach rate — exponential identification for
-well-separated atoms, the $\tfrac{d}{2}\log\ell$ Clarke–Barron
-redundancy for continuous mixing.
+The two panels deliberately have the same $h(\bar\theta)=1$, the same
+$\bar g=h(0.1)$, and therefore the same limiting hyperbola. The left
+uses the worked pair above. The right uses ten equally weighted,
+complement-symmetric biases chosen to preserve $\bar g$. Their exact
+finite-$n$ approaches differ because the posterior-identification
+correction retains the full directing measure. The number of coins
+as such never enters the limit and does not by itself determine the
+approach rate; component weights and separations matter.
 
 **Step 5: rich or trivial?** Both, in different currencies. In
 *totals* the coin mixture is as rich as anything in this document:
@@ -3442,7 +3439,7 @@ ways — the limiting cases of "all eggs in the fewest baskets" versus
 - **Twin ansatz (A):** one other map $\phi_\circ$ carries $1-p$;
   every remaining map has weight $0$.
 - **Spike ansatz (B):** all other $N-1$ maps share the rest evenly,
-  $\beta := (1-p)/(N-1)$ each.
+  $\omega := (1-p)/(N-1)$ each.
 
 Both are candidates for "the most intelligent prior" in opposite
 senses: A commits to a two-world hypothesis (minimal support), B
@@ -3491,9 +3488,9 @@ same: the special answer carries the spike plus its share of
 background, the other $2^m - 1$ answers carry background only,
 
 $$
-M_{\phi_\star(q),q} = p + \Big(\tfrac{N}{2^m}-1\Big)\beta \;=:\; M_\star,
+M_{\phi_\star(q),q} = p + \Big(\tfrac{N}{2^m}-1\Big)\omega \;=:\; M_\star,
 \qquad
-M_{a \neq \phi_\star(q),q} = \tfrac{N}{2^m}\,\beta \;=:\; M_\circ,
+M_{a \neq \phi_\star(q),q} = \tfrac{N}{2^m}\,\omega \;=:\; M_\circ,
 $$
 
 which for large $N$ tend to $p + (1-p)2^{-m}$ and $(1-p)2^{-m}$. So
@@ -3712,19 +3709,19 @@ $\langle\Delta H(M)\rangle_1 / I$ is ill-behaved at both ends — it
 diverges at the uniform prior, where the destroyed bit is received
 rather than freed, and vanishes at the delta.)
 
-For the spike prior everything is closed-form, because
-spike-plus-uniform is *exchangeable* across questions: the block
-entropy depends only on the block size,
+For the spike prior everything is closed-form: every $k$-question
+subset has the same answer-block entropy, so that entropy depends only
+on the block size,
 
 $$
 G_k = -P_k \log_2 P_k - \big((2^m)^k - 1\big)\, u_k \log_2 u_k,
 \qquad
-P_k = p + \Big(\tfrac{N}{(2^m)^k} - 1\Big)\beta,
+P_k = p + \Big(\tfrac{N}{(2^m)^k} - 1\Big)\omega,
 \quad
-u_k = \tfrac{N}{(2^m)^k}\,\beta,
+u_k = \tfrac{N}{(2^m)^k}\,\omega,
 $$
 
-with $\beta = (1-p)/(N-1)$, so the master trajectory law gives
+with $\omega = (1-p)/(N-1)$, so the master trajectory law gives
 $\mathrm{received}(1) = G_1$, $\mathrm{remaining}(1) =
 (2^n{-}1)(G_2 - G_1)$, and $D_1$, $C$, $X_1$ follow in elementary
 functions (verified against brute force at $(2,1)$ and $(2,2)$;
@@ -3732,16 +3729,36 @@ functions (verified against brute force at $(2,1)$ and $(2,2)$;
 
 ![extraction ratio X1 = D1/C for the spike prior](figures/extraction_ratio.png)
 
-$X_1$ rises monotonically from $0$ at the uniform prior — nothing
-stored, nothing freed — to the **delta limit**
+The uniform prior occurs at $p=1/N$, not at $p=0$. Exactly there,
+both the stored information and the amount freed vanish, so $X_1$ is
+$0/0$ and is not defined. The open circles in the figure show the
+continuous one-sided limit from the spike family,
+
+$$
+X_1 \;\xrightarrow{\;p\downarrow1/N\;}\;
+\frac{(2^n-1)(2^m-1)^2}
+{N-1-2^n(2^m-1)}.
+$$
+
+From that endpoint the curves rise monotonically to the exact finite-$N$
+**delta limit**
 
 $$
 X_1 \;\xrightarrow{\;p \to 1\;}\;
-\frac{(2^n - 1)\big(1 - 2^{-m}\big)^2}{2^n\big(1 - 2^{-m}\big) - 1},
+\frac{(2^n - 1)N\big(1 - 2^{-m}\big)^2}
+{2^nN\big(1 - 2^{-m}\big)-(N-1)}.
 $$
 
-approached logarithmically slowly, as usual for this prior. Three
-readings of the formula:
+Dropping the finite-map correction gives
+
+$$
+\frac{(2^n - 1)\big(1 - 2^{-m}\big)^2}
+{2^n\big(1 - 2^{-m}\big)-1},
+$$
+
+but this is an additional large-$N$ approximation, not the exact
+finite-$(n,m)$ result. The exact limit is approached logarithmically
+slowly, as usual for this prior. Four readings of the formula:
 
 - **$m \to \infty$: the limit is $1$.** With a huge answer alphabet
   one confirming answer identifies the map outright; the first
@@ -3750,10 +3767,10 @@ readings of the formula:
   once more. On a large question space, the fraction of the tower one
   question frees equals the fraction of hypothesis space one answer
   kills. For $m = 1$ that is $\tfrac12$: a sharp binary spike frees
-  half its stored knowledge on the first ask ($0.75$ at $n=2$,
-  $0.536$ at $n=4$, $0.508$ at $n=6$).
-- **Larger $m$ at fixed $n$ raises the whole curve** ($0.586, 0.79,
-  0.89, 0.95$ for $m = 1..4$ at $n = 3$): richer answers free
+  half its stored knowledge asymptotically ($12/17\simeq0.706$ at
+  $n=2$, $0.536$ at $n=4$, $0.508$ at $n=6$).
+- **Larger $m$ at fixed $n$ raises the whole curve** ($0.583, 0.787,
+  0.893, 0.947$ for $m = 1..4$ at $n = 3$): richer answers free
   storage faster at every confidence level, not just in the limit.
 - **Proportional scaling $n = c\,m \to \infty$: the limit is $1$ for
   every $c$**, with deficit $1 - X_1 \simeq 2^{-m} = 2^{-n/c}$.
@@ -3865,7 +3882,7 @@ survives $k$ questions only by faking, at $2^{-mk}$.
 
 - The induction is Bayes in one shot: $q_k$ equals the predictive
   probability of the entire special answer block,
-  $q_k = p_0 + (N2^{-mk} - 1)\beta$ exactly at finite $N$ — the
+  $q_k = p_0 + (N2^{-mk} - 1)\omega$ exactly at finite $N$ — the
   chain rule of conditional probabilities telescopes the $k$
   transitions into one block probability. (The large-$N$ closed form
   above misses it by at most $(1-p_0)/(N-1)$, uniformly in $k$.)

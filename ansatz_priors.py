@@ -24,7 +24,7 @@ def update(p, q, a):
 jstar = 27  # digits (0,1,2,3) at q=3,2,1,0 -> psi = NOT q map
 pw = 0.3
 
-# ---------- Case B: spike + uniform background ----------
+# ---------- Spike prior: special map + uniform background ----------
 beta = (1 - pw) / (N - 1)
 p = [beta] * N
 p[jstar] = pw
@@ -40,7 +40,7 @@ for q in range(NQ):
             assert abs(cols[q][a] - Moth_pred) < 1e-12
 Hcol = H([Mstar_pred] + [Moth_pred] * (K - 1))
 assert abs(HM(p) - NQ * Hcol) < 1e-12
-print(f"B before: M* = {Mstar_pred:.6f}, M_oth = {Moth_pred:.6f}, "
+print(f"spike before: M* = {Mstar_pred:.6f}, M_oth = {Moth_pred:.6f}, "
       f"H_col = {Hcol:.6f}, H(M) = {HM(p):.6f}")
 
 q0 = 1
@@ -58,7 +58,8 @@ Mstar2 = pprime + (Nprime // K - 1) * beta / Z
 Moth2 = (Nprime // K) * beta / Z
 Hcol2 = H([Mstar2] + [Moth2] * (K - 1))
 assert abs(HM(p_conf) - (NQ - 1) * Hcol2) < 1e-12
-print(f"B confirm: prob {Z:.4f}, surprisal {s_conf:.4f}, p' = {pprime:.4f}, "
+print(f"spike confirm: prob {Z:.4f}, surprisal {s_conf:.4f}, "
+      f"p' = {pprime:.4f}, "
       f"H(M') = {HM(p_conf):.6f} = 3 * {Hcol2:.6f}, "
       f"reduction = {HM(p) - HM(p_conf):.6f}")
 
@@ -70,13 +71,13 @@ assert abs(Z2 - Moth_pred) < 1e-12
 live = [x for x in p_dis if x > 0]
 assert len(live) == N // K and all(abs(x - 1/(N//K)) < 1e-15 for x in live)
 assert abs(HM(p_dis) - (NQ - 1) * m) < 1e-12
-print(f"B refute:  prob {Z2:.4f}, surprisal {s_dis:.4f}, "
+print(f"spike refute:  prob {Z2:.4f}, surprisal {s_dis:.4f}, "
       f"H(M') = {HM(p_dis):.6f} (= (2^n-1)m), "
-      f"reduction = {HM(p) - HM(p_dis):.6f}  <-- negative!")
+      f"reduction = {HM(p) - HM(p_dis):.6f}")
 
 # expected reduction must be >= 0 (mutual information)
 exp_red = Z * (HM(p) - HM(p_conf)) + (K - 1) * Z2 * (HM(p) - HM(p_dis))
-print(f"B expected reduction = {exp_red:.6f} (must be >= 0)")
+print(f"spike expected reduction = {exp_red:.6f} (must be >= 0)")
 
 # ---------- Case A: two maps ----------
 # rival differs from jstar at d = 2 questions (q = 0 and q = 2)

@@ -2262,4 +2262,1002 @@ stores its knowledge in deep shells can defeat greedy in either
 column, since a question worth little now may unlock a cascade
 later.
 
+\section{The Gibbs complexity prior}\label{sec:gibbs}
+
+Every prior so far was engineered: a mechanism first, a distribution
+second. This section builds the prior the other way around, from a
+single principle -- simple explanations are likelier -- with circuit
+complexity as the measure of simplicity, made quantitative as a Gibbs
+ensemble over the hypothesis space.
+
+\subsection{NAND complexity, and two cheaper descriptors}
+\label{sec:nandcomplexity}
+
+Fix the universal gate: the two-input NAND. The complexity $X_j$ of a
+map $\phi_j$ is the fewest gates in any feed-forward circuit that
+computes it. For the bookkeeping we count in the equivalent
+\emph{and-inverter} form: two-input AND gates of unit cost, with
+inversion free on every wire -- an edge attribute, not a gate. De
+Morgan's laws push inverters along wires and into gates, so an
+and-inverter circuit converts to a NAND-only circuit of the same gate
+count and back; $X_j$ is the standard AIG-size metric of logic
+synthesis. Reference values: AND, OR, NAND and NOR all cost $1$; XOR
+costs $3$; constants, projections and negations cost $0$. For $m > 1$
+outputs, $X_j$ is the size of one \emph{joint} circuit computing all
+output bits together, gates shared -- the honest minimum-hardware
+cost, smaller in general than the sum of per-output circuits.
+
+The tabulation is feasible because $X_j$ is invariant under
+relabeling: permuting or negating inputs, negating or (for $m = 2$)
+swapping outputs are all free operations, so the $65{,}536$ maps of
+the $(4,1)$ and $(3,2)$ spaces collapse to $222$ and $308$
+equivalence classes. The $(4,1)$ class values are published optimal
+AIG sizes\footnote{The \texttt{github.com/krinkin/bounds}
+reproducibility dataset, cross-checked against our own SAT-based
+synthesizer on random classes with zero mismatches.}; the $(3,2)$
+values come from that synthesizer: circuit sizes $r = 0, 1, 2,
+\ldots$ are encoded as satisfiability instances, and the first
+satisfiable $r$ is provably minimal, every smaller size having been
+refuted.
+
+Alongside the interior cost $X_j$, which takes a SAT solver to see,
+two descriptors are visible in one pass over the truth table:
+%
+\begin{itemize}
+\item the \emph{footprint} $F_j = n I_j + S_j$, where the support
+  $S_j$ counts the input bits the map actually depends on and the
+  image size $I_j$ counts the distinct answers it attains (from $1$
+  for constants up to $2^m$). The combination is lossless --
+  base-$n$ digits, quotient $I$, remainder $S$ -- and reads as the
+  map's \emph{interface}: does it react to all its inputs, does it
+  use all its values?
+\item the \emph{bias} $B_j$: the number of $1$s minus the number of
+  $0$s among the $m \cdot 2^n$ truth-table bits. This is the
+  symmetry breaker: $X_j$ and $F_j$ are even under negating all
+  outputs, $B_j$ is odd -- an energy term coupling to it acts like a
+  magnetic field, switching on the odd correlator shells that a pure
+  complexity prior forbids.
+\end{itemize}
+
+For the guiding $(2,1)$ space:
+
+\begin{center}
+\begin{tabular}{clccccc}
+\toprule
+$j$ & map & $X_j$ & $S_j$ & $I_j$ & $F_j$ & $B_j$ \\
+\midrule
+0  & FALSE                          & 0 & 0 & 1 & 2 & $-4$ \\
+1  & $\lnot(b_1 \vee b_0)$ (NOR)    & 1 & 2 & 2 & 6 & $-2$ \\
+2  & $\lnot b_1 \wedge b_0$         & 1 & 2 & 2 & 6 & $-2$ \\
+3  & $\lnot b_1$                    & 0 & 1 & 2 & 5 & $0$  \\
+4  & $b_1 \wedge \lnot b_0$         & 1 & 2 & 2 & 6 & $-2$ \\
+5  & $\lnot b_0$                    & 0 & 1 & 2 & 5 & $0$  \\
+6  & $b_1 \oplus b_0$ (XOR)         & 3 & 2 & 2 & 6 & $0$  \\
+7  & $\lnot(b_1 \wedge b_0)$ (NAND) & 1 & 2 & 2 & 6 & $+2$ \\
+8  & $b_1 \wedge b_0$ (AND)         & 1 & 2 & 2 & 6 & $-2$ \\
+9  & $b_1 = b_0$ (XNOR)             & 3 & 2 & 2 & 6 & $0$  \\
+10 & $b_0$ (projection)             & 0 & 1 & 2 & 5 & $0$  \\
+11 & $b_1 \to b_0$                  & 1 & 2 & 2 & 6 & $+2$ \\
+12 & $b_1$ (projection)             & 0 & 1 & 2 & 5 & $0$  \\
+13 & $b_0 \to b_1$                  & 1 & 2 & 2 & 6 & $+2$ \\
+14 & $b_1 \vee b_0$ (OR)            & 1 & 2 & 2 & 6 & $+2$ \\
+15 & TRUE                           & 0 & 0 & 1 & 2 & $+4$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Grouped by the full tuple $(X, F, B)$, the sixteen maps fall into six
+energy classes:
+
+\begin{center}
+\begin{tabular}{cc@{\hskip 2em}cc}
+\toprule
+$(X, F, B)$ & members & $(X, F, B)$ & members \\
+\midrule
+$(0, 2, -4)$ & 1 & $(1, 6, -2)$ & 4 \\
+$(0, 2, +4)$ & 1 & $(1, 6, +2)$ & 4 \\
+$(0, 5, 0)$  & 4 & $(3, 6, 0)$  & 2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At the larger sizes the tuple breakdown runs to hundreds of rows
+($102$ distinct tuples at $(4,1)$, $196$ at $(3,2)$), so we tabulate
+the complexity tiers alone:
+
+\begin{center}
+\begin{tabular}{crrr}
+\toprule
+$X$ & $(2,1)$ & $(4,1)$ & $(3,2)$ \\
+\midrule
+0  & 6   & 10       & 64       \\
+1  & 8   & 48       & 432      \\
+2  & --- & 256      & 2{,}064  \\
+3  & 2   & 940      & 4{,}860  \\
+4  & --- & 2{,}336  & 10{,}832 \\
+5  & --- & 6{,}464  & 16{,}208 \\
+6  & --- & 10{,}616 & 17{,}060 \\
+7  & --- & 18{,}984 & 10{,}672 \\
+8  & --- & 17{,}680 & 3{,}312  \\
+9  & --- & 7{,}882  & 32       \\
+10 & --- & 320      & ---      \\
+\midrule
+total & 16 & 65{,}536 & 65{,}536 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The tiers are thin at both ends: ten gate-free maps at $(4,1)$ (two
+constants, eight literals) against only $320$ at the ceiling
+$X = 10$. The typical function is middling-complex, and it is
+exactly this bulk that a complexity energy pushes against. Note also
+that $(2,1)$ skips $X = 2$ entirely: with two inputs, nothing a
+two-gate circuit computes is out of reach of one gate or zero.
+
+\subsection{The ensemble}
+
+Take the energy linear in the three descriptors and the prior as its
+Boltzmann weight,
+%
+\begin{equation}
+E_j = \beta\, X_j + \alpha\, F_j + \mu\, B_j,
+\qquad
+p_j = \frac{e^{-E_j}}{\sum_k e^{-E_k}},
+\label{eq:gibbs}
+\end{equation}
+%
+with no overall temperature: the couplings are the fields. Positive
+$\beta$ suppresses complex maps, positive $\alpha$ suppresses large
+footprints, and $\mu$ couples to the signed bias, $\mu < 0$ tilting
+toward $1$-heavy tables and thereby breaking the output-negation
+symmetry. Two settings are explored below:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & $\beta$ & $\alpha$ & $\mu$ \\
+\midrule
+setting $A$ (pure Occam)      & $1$   & $0$   & $0$    \\
+setting $B$ (colder, interface-averse, tilted) & $1.5$ & $0.5$ & $-0.2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Trajectories}\label{sec:gibbstraj}
+
+Figures~\ref{fig:gibbs21}--\ref{fig:gibbs41} show the expected
+cumulative leverage $\langle L_\ell \rangle$ under both settings,
+for the uniform-order average and the strategy grid of
+Section~\ref{sec:strategies}. The $\ell$-optimal pair targets the
+halfway horizon $\ell^* = 2^n/2$ and is plotted only up to it: past
+its own horizon the optimizer's continuation is not defined. Inside
+the optimal \emph{set}, the fixed variant asks in random order. At
+$(4,1)$ only the contingent optimum is dropped -- its state space is
+$(1+2^m)^{2^n} = 3^{16} \approx 4 \cdot 10^7$ -- while its fixed
+twin, a search over $\binom{16}{8} = 12{,}870$ sets, stays
+affordable. Two anchors
+hold in every panel: all schedules agree at $\ell = 1$, because
+input relabeling acts transitively on the questions and the Gibbs
+energies are relabeling-invariant, so single questions are
+exchangeable; and every full-length curve ends at the same
+$L_{2^n} = H(M)_0/H(p)$, since any policy that asks everything
+receives exactly $H(p)$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=6cm,
+  title={setting $A$: $(\beta,\alpha,\mu)=(1,0,0)$},
+  title style={font=\small},
+  xlabel={$\ell$}, ylabel={$\langle L_\ell \rangle$},
+  xtick={1,2,3,4}, grid=major, grid style={black!12},
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend style={font=\tiny, at={(0.03,0.03)}, anchor=south west},
+  legend cell align=left]
+\addplot[black!60, densely dashed, mark=*, mark size=1.3]
+  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
+\addplot[blue!45, mark=square*, mark size=1.5]
+  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.6]
+  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.8]
+  coordinates {(1,1.0963)(2,1.1027)};
+\addplot[red!60!black, mark=o, mark size=2.1]
+  coordinates {(1,1.0963)(2,1.1027)};
+\legend{average, greedy fixed, greedy contingent,
+  $\ell^*$-opt.\ fixed, $\ell^*$-opt.\ contingent}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=6cm,
+  title={setting $B$: $(\beta,\alpha,\mu)=(1.5,0.5,-0.2)$},
+  title style={font=\small},
+  xlabel={$\ell$}, xtick={1,2,3,4}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.3]
+  coordinates {(1,1.6810)(2,1.5625)(3,1.5422)(4,1.4786)};
+\addplot[blue!45, mark=square*, mark size=1.5]
+  coordinates {(1,1.6810)(2,1.5965)(3,1.5422)(4,1.4786)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.6]
+  coordinates {(1,1.6810)(2,1.5965)(3,1.5422)(4,1.4786)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.8]
+  coordinates {(1,1.6810)(2,1.5965)};
+\addplot[red!60!black, mark=o, mark size=2.1]
+  coordinates {(1,1.6810)(2,1.5965)};
+\end{axis}
+\end{tikzpicture}
+\caption{Expected leverage under the Gibbs prior at $(2,1)$,
+$\ell^* = 2$. Left: under pure Occam all five schedules coincide
+exactly. Right: the fields split the schedules at $\ell = 2$.}
+\label{fig:gibbs21}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=6cm,
+  title={setting $A$: $(\beta,\alpha,\mu)=(1,0,0)$},
+  title style={font=\small},
+  xlabel={$\ell$}, ylabel={$\langle L_\ell \rangle$},
+  xtick={1,...,8}, grid=major, grid style={black!12},
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend style={font=\tiny, at={(0.03,0.03)}, anchor=south west},
+  legend cell align=left]
+\addplot[black!60, densely dashed, mark=*, mark size=1.3]
+  coordinates {(1,1.1681)(2,1.1666)(3,1.1656)(4,1.1636)(5,1.1595)
+    (6,1.1528)(7,1.1435)(8,1.1287)};
+\addplot[blue!45, mark=square*, mark size=1.5]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)(5,1.1724)
+    (6,1.1573)(7,1.1435)(8,1.1287)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.6]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)(5,1.1710)
+    (6,1.1563)(7,1.1407)(8,1.1287)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.8]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)};
+\addplot[red!60!black, mark=o, mark size=2.1]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)};
+\legend{average, greedy fixed, greedy contingent,
+  $\ell^*$-opt.\ fixed, $\ell^*$-opt.\ contingent}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=6cm,
+  title={setting $B$: $(\beta,\alpha,\mu)=(1.5,0.5,-0.2)$},
+  title style={font=\small},
+  xlabel={$\ell$}, xtick={1,...,8}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.3]
+  coordinates {(1,2.3915)(2,2.2226)(3,2.1497)(4,2.0894)(5,2.0296)
+    (6,1.9764)(7,1.9335)(8,1.8938)};
+\addplot[blue!45, mark=square*, mark size=1.5]
+  coordinates {(1,2.3915)(2,2.3292)(3,2.1726)(4,2.0895)(5,2.0271)
+    (6,1.9767)(7,1.9335)(8,1.8938)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.6]
+  coordinates {(1,2.3915)(2,2.3225)(3,2.1644)(4,2.0800)(5,2.0120)
+    (6,1.9570)(7,1.9168)(8,1.8938)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.8]
+  coordinates {(1,2.3915)(2,2.2299)(3,2.1744)(4,2.0879)};
+\addplot[red!60!black, mark=o, mark size=2.1]
+  coordinates {(1,2.3915)(2,2.2299)(3,2.1731)(4,2.0849)};
+\end{axis}
+\end{tikzpicture}
+\caption{Expected leverage under the Gibbs prior at $(3,2)$,
+$\ell^* = 4$. Right: at the horizon the $\ell^*$-optimal schedules
+know the most and post the \emph{lowest} leverage of the strategic
+four -- knowledge and leverage are different objectives.}
+\label{fig:gibbs32}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=6cm,
+  title={setting $A$: $(\beta,\alpha,\mu)=(1,0,0)$},
+  title style={font=\small},
+  xlabel={$\ell$}, ylabel={$\langle L_\ell \rangle$},
+  xtick={2,4,6,8,10,12,14,16}, grid=major, grid style={black!12},
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend style={font=\tiny, at={(0.03,0.03)}, anchor=south west},
+  legend cell align=left]
+\addplot[black!60, densely dashed, mark=*, mark size=1.3]
+  coordinates {(1,1.2529)(2,1.2482)(3,1.2445)(4,1.2413)(5,1.2385)
+    (6,1.2357)(7,1.2327)(8,1.2296)(9,1.2260)(10,1.2220)(11,1.2175)
+    (12,1.2124)(13,1.2065)(14,1.1999)(15,1.1922)(16,1.1831)};
+\addplot[blue!45, mark=square*, mark size=1.5]
+  coordinates {(1,1.2529)(2,1.2549)(3,1.2586)(4,1.2626)(5,1.2635)
+    (6,1.2542)(7,1.2501)(8,1.2493)(9,1.2506)(10,1.2403)(11,1.2295)
+    (12,1.2197)(13,1.2104)(14,1.2018)(15,1.1922)(16,1.1831)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.6]
+  coordinates {(1,1.2529)(2,1.2549)(3,1.2614)(4,1.2679)(5,1.2601)
+    (6,1.2555)(7,1.2511)(8,1.2464)(9,1.2417)(10,1.2341)(11,1.2227)
+    (12,1.2121)(13,1.2029)(14,1.1946)(15,1.1882)(16,1.1831)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.8]
+  coordinates {(1,1.2529)(2,1.2534)(3,1.2546)(4,1.2561)(5,1.2576)
+    (6,1.2592)(7,1.2606)(8,1.2619)};
+\legend{average, greedy fixed, greedy contingent,
+  $\ell^*$-opt.\ fixed}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=6cm,
+  title={setting $B$: $(\beta,\alpha,\mu)=(1.5,0.5,-0.2)$},
+  title style={font=\small},
+  xlabel={$\ell$}, xtick={2,4,6,8,10,12,14,16}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.3]
+  coordinates {(1,3.4484)(2,3.2350)(3,3.1022)(4,3.0001)(5,2.9151)
+    (6,2.8424)(7,2.7796)(8,2.7246)(9,2.6759)(10,2.6320)(11,2.5921)
+    (12,2.5560)(13,2.5235)(14,2.4945)(15,2.4689)(16,2.4461)};
+\addplot[blue!45, mark=square*, mark size=1.5]
+  coordinates {(1,3.4484)(2,3.4276)(3,3.1457)(4,3.0104)(5,2.9005)
+    (6,2.8169)(7,2.7522)(8,2.6813)(9,2.6444)(10,2.6090)(11,2.5767)
+    (12,2.5459)(13,2.5187)(14,2.4926)(15,2.4689)(16,2.4461)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.6]
+  coordinates {(1,3.4484)(2,3.3692)(3,3.1218)(4,2.9832)(5,2.8799)
+    (6,2.7919)(7,2.7019)(8,2.6338)(9,2.5889)(10,2.5466)(11,2.5156)
+    (12,2.4915)(13,2.4737)(14,2.4591)(15,2.4514)(16,2.4461)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.8]
+  coordinates {(1,3.4484)(2,3.2378)(3,3.1055)(4,2.9995)(5,2.9057)
+    (6,2.8232)(7,2.7522)(8,2.6813)};
+\end{axis}
+\end{tikzpicture}
+\caption{Expected leverage under the Gibbs prior at $(4,1)$; only
+the contingent optimum is omitted. Under both settings the best
+fixed eight questions form a parity class of the input hypercube.
+The setting moves the curves by a factor of two and more; the
+schedule, by a few percent.}
+\label{fig:gibbs41}
+\end{figure}
+
+Three observations, one per system size.
+
+At $(2,1)$, under pure Occam, the strategy grid collapses
+\emph{exactly}: all six question pairs share a single joint entropy
+($1.9679$ bits), so every subset of every size is equivalent and
+every schedule is the uniform order. A complexity-only energy at
+this size creates correlation without preference. Setting $B$ breaks
+the degeneracy -- the footprint and bias fields split the pair
+orbits, and the strategic schedules lift above the average at
+$\ell = 2$ ($1.5965$ against $1.5625$), greedy attaining the
+optimum. The scale jumps too: the colder ensemble stores
+$C_0 = 1.074$ bits against setting $A$'s $0.306$.
+
+At $(3,2)$, setting $A$ rewards greed completely: the greedy fixed
+set is already the optimal set, and it is the four even-weight
+inputs $\{000, 011, 101, 110\}$ -- a maximally spread design, the
+questions pairwise at Hamming distance two. Setting $B$ stages the
+sharpest lesson of the section. The optimal set
+$\{001, 010, 100, 111\}$ differs from greedy's
+$\{000, 010, 100, 111\}$ by one question and knows $0.66$ bits more
+at the horizon (expected remaining $1.26$ against $1.92$ bits) at an
+extra price of $0.32$ received bits -- and its leverage is
+\emph{lower}: $2.088$ against greedy's $2.090$. The $\ell$-optimal
+schedule maximizes knowledge, not leverage, and a ratio is perfectly
+happy with cheaper ignorance. Leverage measures how intelligently a
+learner spends, not how much they end up knowing.
+
+At $(4,1)$ the fixed optimum recovers the spread design at scale:
+under \emph{both} settings the best eight questions are a parity
+class of the input hypercube -- the even-weight inputs, pairwise
+Hamming distance two apart (input negation maps the class to its odd
+twin, an exactly equivalent design). Under setting $B$ greedy-fixed
+lands on that odd twin, and the two curves merge at $\ell = 7, 8$;
+under pure Occam greedy's eight questions are \emph{not} a parity
+class, and greedy both knows less at the horizon and posts the lower
+leverage ($1.249$ against the optimum's $1.262$ -- note the optimal
+curve is the only one that \emph{rises} all the way to its horizon).
+Setting $B$ pushes the ratio-versus-knowledge caution to its
+extreme: at $\ell = 8$ even the strategyless average out-levers the
+optimum ($2.725$ against $2.681$) while knowing half as much
+(remaining $0.64$ against $0.31$ bits) -- the typical random set is
+full of questions the cold prior half-knows already, so it pays
+$1.27$ received bits where the maximally informative parity class
+pays $1.41$.
+Beyond the schedules, the two settings differ far more than the
+schedules within either: setting $A$'s curves sit within one percent
+of one another, while setting $B$ -- a cold ensemble in earnest,
+$H(p) = 1.68$ bits across $65{,}536$ maps -- runs from $3.45$ down
+to $2.45$. In the Gibbs world the dominant lever on leverage is the
+ensemble's coldness, not the question schedule.
+
+\section{The thermodynamic limit}\label{sec:tdl}
+
+The exact machinery lives on $2^n$ questions; this chapter sends
+$n \to \infty$. Time is measured as the asked fraction
+$x = \ell / 2^n$, and the object of study is the limiting curve
+$L(x)$: what leverage survives when the question space becomes a
+continuum. One toy example first, then the general calculus, then a
+family of priors solvable in closed form.
+
+\subsection{A toy example: the spike prior}\label{sec:spike}
+
+The simplest prior with something to teach: all conviction on one
+map, an honest hedge on the rest. Fix a special map $\phi_\star$
+and a weight $p$, and set
+%
+\begin{equation}
+p_\star = p,
+\qquad
+p_j = \beta := \frac{1-p}{N-1} \quad (j \neq \star),
+\qquad N = 2^{m2^n}.
+\label{eq:spikeprior}
+\end{equation}
+%
+What makes the spike worth a section is \emph{self-similarity}: the
+form \eqref{eq:spikeprior} is closed under the update rule. Asking
+any question leaves one of exactly two states. Either the answer
+confirms $\phi_\star$ -- probability
+%
+\begin{equation}
+M_\star(p) = p + \Big(\tfrac{N}{2^m} - 1\Big)\beta
+\;=\; 2^{-m} + \big(1 - 2^{-m}\big)\,p + O(1/N),
+\label{eq:mstar}
+\end{equation}
+%
+and the posterior is again a spike, on the $N 2^{-m}$ surviving
+maps, with the sharper weight $p' = p / M_\star(p)$ -- or it refutes
+$\phi_\star$, and the posterior is uniform on the survivors, an
+absorbing state: a uniform belief stays uniform forever. Because a
+single question reproduces the ansatz one size smaller, the spike
+lets us zoom in on the effect of \emph{one} question and iterate.
+Writing $q_k$ for the probability that the spike has survived $k$
+questions,
+%
+\begin{equation}
+q_{k+1} = q_k\, M_\star(p_k),
+\qquad
+p_{k+1} = \frac{p_k}{M_\star(p_k)},
+\qquad q_0 = 1, \; p_0 = p,
+\label{eq:spikeflow}
+\end{equation}
+%
+and the product is conserved, $q_k p_k = p_0$ for all $k$: Werner's
+unconditional belief in $\phi_\star$ cannot drift in expectation
+(the law of iterated expectations -- eliminated maps carry weight
+zero, they do not leave the space). The invariant linearizes the
+recursion, and with the large-$N$ transition \eqref{eq:mstar},
+%
+\begin{equation}
+q_k = p_0 + (1 - p_0)\,2^{-mk},
+\qquad
+p_k = \frac{p_0}{p_0 + (1-p_0)\,2^{-mk}}:
+\label{eq:spikeclosed}
+\end{equation}
+%
+in odds, each confirming answer delivers exactly $m$ bits of
+evidence, and $q_\infty = p_0$ -- the probability of never being
+refuted converges to the probability of being right.
+
+Every one-question quantity is now elementary. The two surprisals
+are $s_{\checkmark} = -\log_2 M_\star(p)$ and
+$s_{\times} = -\log_2\big(1 - M_\star(p)\big)$; the answer-matrix
+entropy before the question is $2^n H_{\mathrm{col}}(p)$ with the
+column entropy
+%
+\begin{equation}
+H_{\mathrm{col}}(p)
+= -P_\star \log_2 P_\star - \big(2^m - 1\big)\,u' \log_2 u',
+\qquad
+P_\star = p + \tfrac{1-p}{2^m},
+\quad u' = \tfrac{1-p}{2^m},
+\label{eq:hcol}
+\end{equation}
+%
+and after it, $(2^n - 1) H_{\mathrm{col}}(p_1)$ on the confirming
+branch against $(2^n - 1)\,m$ on the refuting one. Splitting the
+expected drop of $H(M)$ into received and deduced, and measuring the
+deduced part against the store $C = H(M) - H(p)$, gives the
+\emph{extraction ratio} $X_1 = D_1 / C \in [0,1]$: the proportion of
+the stored knowledge that one question frees.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=7.2cm, height=5.2cm,
+  title={branch surprisals}, title style={font=\small},
+  xlabel={$p$}, ylabel={bits}, xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=4cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ $s_{\checkmark},\,s_{\times}$, various $(n,m)$};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=7.2cm, height=5.2cm,
+  title={$H(M)$ before and after one question},
+  title style={font=\small},
+  xlabel={$p$}, ylabel={bits}, xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=4cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ before / confirmed / refuted};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{2mm}
+\begin{tikzpicture}
+\begin{axis}[width=7.2cm, height=5.2cm,
+  title={extraction ratio $X_1$}, title style={font=\small},
+  xlabel={$p$}, ylabel={$X_1$}, xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=4cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ various $(n,m)$};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=7.2cm, height=5.2cm,
+  title={leverage of the first question},
+  title style={font=\small},
+  xlabel={$p$}, ylabel={$\langle L_1 \rangle$}, xmin=0, xmax=1,
+  ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=4cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ various $(n,m)$};
+\end{axis}
+\end{tikzpicture}
+\caption{\emph{Placeholder.} One-question anatomy of the spike prior
+as a function of the spike weight $p$, for several $(n, m)$: the two
+branch surprisals; the answer-matrix entropy before the question and
+on the two branches after it; the extraction ratio; the first
+question's leverage.}
+\label{fig:spikeone}
+\end{figure}
+
+Both ratios have clean sharp limits. As $p \to 1$,
+%
+\begin{equation}
+X_1 \;\longrightarrow\;
+\frac{(2^n - 1)\big(1 - 2^{-m}\big)^2}{2^n\big(1 - 2^{-m}\big) - 1}
+\;\xrightarrow{\;n \to \infty\;} 1 - 2^{-m},
+\qquad
+\langle L_1 \rangle \;\longrightarrow\; 2^n - (2^n - 1)\,2^{-m},
+\label{eq:spikedelta}
+\end{equation}
+%
+so the first question's leverage is \emph{extensive}, and scaled by
+the question count it converges to the same constant:
+%
+\begin{equation}
+\frac{\langle L_1 \rangle}{2^n}
+\;\xrightarrow{\;p \to 1,\; n \to \infty\;}\;
+1 - 2^{-m}.
+\label{eq:cullingratio}
+\end{equation}
+%
+The constant is the \emph{culling ratio}: one answer kills the
+fraction $1 - 2^{-m}$ of hypothesis space, and for a near-delta
+prior that is also the fraction of every column the answer settles.
+The deficit $2^{-m}$ is the probability that total ignorance fakes
+the expected answer. The limit is not decoration but necessity: at
+$p = 1$ exactly the prior has $H(p) = 0$, the first question
+receives nothing and frees nothing, and $L_1$ is the undefined
+$0/0$. The spike weight must approach certainty without reaching it,
+and the approach is logarithmically slow -- the price of a prior
+whose entire store sits one answer deep.
+
+The other order of limits gives the whole trajectory. Fix $p < 1$
+and send $n \to \infty$ at asked fraction $x = k/2^n$: the spike
+branch sharpens to a delta within $O(1)$ questions -- a vanishing
+fraction -- so at every $x > 0$ the two branches have long settled,
+and the cumulative leverage converges to a pure hyperbola,
+%
+\begin{equation}
+\big\langle L_{x2^n} \big\rangle
+\;\xrightarrow{\;n \to \infty\;}\;
+1 + \frac{c(p, m)}{x},
+\qquad
+c(p, m)
+= \frac{H_{\mathrm{col}}(p) - (1-p)\,m}{(1-p)\,m},
+\label{eq:spikehyp}
+\end{equation}
+%
+with $H_{\mathrm{col}}$ from \eqref{eq:hcol}. The reading: the
+entire store is freed inside a vanishing fraction of the run, and
+what the curve records afterwards is that early windfall diluting
+into the growing received total. The two orderings do not commute --
+$p \to 1$ first gives the extensive plateau
+\eqref{eq:cullingratio}, flat in $x$; $n \to \infty$ first gives a
+finite hyperbola for every $p < 1$, with $c$ diverging
+logarithmically as $p \to 1$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=9.5cm, height=6cm,
+  xlabel={$x = \ell/2^n$}, ylabel={$\langle L \rangle$},
+  xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=6cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ $1 + c(p,m)/x$ for
+   $p \in \{0.001, 0.1, 0.5, 0.9, 0.999\}$};
+\end{axis}
+\end{tikzpicture}
+\caption{\emph{Placeholder.} The limiting spike leverage
+\eqref{eq:spikehyp} against the asked fraction, for spike weights
+spanning six orders of hedging. All curves share the $1/x$ shape;
+the weight only sets the coefficient.}
+\label{fig:spikehyp}
+\end{figure}
+
+\subsection{Thermodynamic limit calculus}\label{sec:tdlcalc}
+
+The spike's hyperbola is one instance of a general calculus. Recall
+the two exact laws of Section~\ref{sec:expectations}: under a random
+question order and a truth drawn from the prior, the expected
+received after $\ell$ questions is the mean block entropy $G_\ell$,
+and the expected remaining answer-matrix entropy is
+$(2^n - \ell)(G_{\ell+1} - G_\ell)$. Everything in the limit is
+generated by the increments. Define the \emph{profile}
+%
+\begin{equation}
+\gamma(x) := \lim_{n \to \infty}
+\big(G_{\lfloor x 2^n \rfloor + 1} - G_{\lfloor x 2^n \rfloor}\big),
+\label{eq:profile}
+\end{equation}
+%
+the expected entropy of one more answer given a random $x$-fraction
+of the table. By the chain rule this is a conditional entropy, so it
+is nonincreasing in $x$ and trapped in $[0, m]$: monotone and
+bounded, the best-behaved objects in analysis. Telescoping,
+$G_\ell = \sum_{k < \ell} \gamma_n(k)$ is a Riemann sum of the
+staircase $t \mapsto \gamma_n(\lfloor t2^n \rfloor)$, and if the
+staircase converges pointwise the bounded-convergence theorem passes
+it to the integral. Dividing the laws by $2^n$:
+%
+\begin{equation}
+\frac{\mathrm{received}}{2^n} \to g(x) := \int_0^x \gamma(t)\,dt,
+\qquad
+\frac{\mathrm{remaining}}{2^n} \to (1 - x)\,\gamma(x),
+\qquad
+L(x) = \frac{\gamma(0) - (1-x)\,\gamma(x)}{g(x)}.
+\label{eq:tdlmaster}
+\end{equation}
+%
+Endpoints by first-order expansion: $L(0^+) = 1 -
+\gamma'(0)/\gamma(0) \ge 1$ for a differentiable profile, and
+$L(1) = \gamma(0)/g(1) = H(M)_0 / H(p)$, the whole-run ratio.
+
+Three assumptions were spent, and each names a way for a prior
+family to break the limit. \emph{Extensivity}, at the division:
+$H(p^{(n)})$ must scale like $2^n$, or the learning lives on a
+sublinear clock and $L$ diverges. \emph{Self-averaging}, at the
+pointwise convergence: the staircases of the family
+$p^{(n)}$ must settle on a single profile rather than oscillate
+with $n$. \emph{Positivity}, $\gamma > 0$ on $[0, 1)$, not needed
+for the limit but needed for $L(x)$ to stay regular: a profile that
+hits zero at $x^\ast < 1$ compresses an extensive avalanche of
+deduction into that instant. Nothing in
+\eqref{eq:profile}--\eqref{eq:tdlmaster} chooses a prior: $\gamma$
+is computed from any concrete $p^{(n)}$ through its block entropies,
+and the rest of this chapter is a gallery of priors whose $\gamma$
+comes out in closed form.
+
+\subsection{The coin-flip prior}\label{sec:coins}
+
+The simplest scaling family, worked like a calculus exercise. Take
+$R$ coins with biases $\theta_r$ and mixing weights $w_r$: nature
+picks coin $r$ with probability $w_r$, then answers every question
+independently, each answer bit $1$ with probability $\theta_r$. A
+map with $W_j$ ones among its $m2^n$ table bits gets
+%
+\begin{equation}
+p_j = \sum_{r=1}^{R} w_r\,
+\theta_r^{W_j} (1 - \theta_r)^{m2^n - W_j}.
+\label{eq:coinprior}
+\end{equation}
+%
+At $(2,1)$ with the running example $\theta \in \{0.2, 0.7\}$,
+$w = (\tfrac14, \tfrac34)$, the sixteen maps get weights ranging
+from $0.0395$ (the half-and-half tables, which neither coin likes)
+to $0.1805$ (TRUE): [worked table to be placed here alongside the
+derivation steps].
+
+The derivation runs in four steps, each elementary. \emph{One}: at
+$\ell = 0$ the predictive is the mean coin, $\gamma(0) =
+h(\bar\theta)$ with $\bar\theta = \sum_r w_r \theta_r$. \emph{Two}:
+after $\ell$ answers with $k$ ones, the posterior odds between two
+coins contain the factor $\ell\big[\tfrac{k}{\ell}\log
+\tfrac{\theta_s}{\theta_r} + (1 - \tfrac{k}{\ell})\log
+\tfrac{1-\theta_s}{1-\theta_r}\big]$; by the law of large numbers
+$k/\ell \to \theta_{\mathrm{true}}$, the bracket converges to a
+negative relative entropy, and the wrong coins die exponentially.
+\emph{Three}: the predictive converges to the true coin, so for
+every fixed $x > 0$ the profile equals the mean coin entropy,
+$\gamma(x) = \bar g := \sum_r w_r h(\theta_r)$ -- a step function,
+$h(\bar\theta)$ at the single point $x = 0$ and $\bar g$ after.
+\emph{Four}: a single point has measure zero, so $g(x) = \bar g x$,
+and the master formula collapses to
+%
+\begin{equation}
+L(x) = 1 + \frac{c}{x},
+\qquad
+c = \frac{h(\bar\theta) - \bar g}{\bar g} \;\ge\; 0
+\label{eq:coinhyp}
+\end{equation}
+%
+by Jensen's inequality on the concave $h$. One coin gives $c = 0$,
+the product prior, $L \equiv 1$: trivial. And two coins already
+exhaust the family: the limit sees the mixture only through the pair
+$(h(\bar\theta), \bar g)$, two atoms sweep every admissible pair by
+the intermediate value theorem, and de Finetti's theorem closes the
+class -- any consistently exchangeable family \emph{is} a coin
+mixture. In the thermodynamic limit, two parameters is all the
+richness exchangeability has.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=5.6cm,
+  title={$m = 1$}, title style={font=\small},
+  xlabel={$x = \ell/2^n$}, ylabel={$\langle L \rangle$},
+  xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=4.2cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ $n = 4, 6, 8, 10$ vs $1 + c/x$};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=7.4cm, height=5.6cm,
+  title={$m = 2$}, title style={font=\small},
+  xlabel={$x = \ell/2^n$},
+  xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize, align=center, text width=4.2cm] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder \\ $n = 4, 6, 8$ vs $1 + c/x$};
+\end{axis}
+\end{tikzpicture}
+\caption{\emph{Placeholder.} Exact finite-$n$ coin-mixture leverage
+converging onto the hyperbola \eqref{eq:coinhyp}, at two answer
+widths.}
+\label{fig:cointdl}
+\end{figure}
+
+The family line is worth drawing: the coin mixture and the spike are
+the same mechanism. Both hide \emph{one global secret} -- which
+coin, which map -- read off within a vanishing fraction of the run;
+both then coast on independent leftovers. That is why both land on
+$1 + c/x$: the hyperbola is not a shape the prior chooses but the
+signature of front-loaded deduction diluting into the denominator.
+Escaping it requires a prior whose secrets cannot all be read at the
+start.
+
+\subsection{Non-hyperbolic solvable priors}\label{sec:nonhyp}
+
+What must break is \emph{exchangeability}. A prior invariant under
+permuting the questions is, consistently across $n$, a coin mixture,
+and Section~\ref{sec:coins} showed those only produce hyperbolas.
+Non-hyperbolic limits therefore need priors that treat blocks of
+questions differently -- correlations with an address.
+
+The construction: partition the $2^n$ questions into disjoint
+\emph{blocks} of size $r$; draw each block's answers independently,
+from a distribution symmetric under permuting the block's members.
+Independence makes block entropies add; within-block symmetry makes
+them depend only on how many of the block's questions have been
+asked. Writing $\eta(i)$ for the entropy of one more member given
+$i$ already-asked members of its block, the profile follows from a
+single limit -- the number of asked partners of a fresh question is
+hypergeometric, and sampling without replacement from an enormous
+pool becomes binomial:
+%
+\begin{equation}
+\gamma(x)
+= \sum_{i=0}^{r-1} b_i(x)\,\eta(i),
+\qquad
+b_i(x) := \binom{r-1}{i} x^i (1-x)^{r-1-i}.
+\label{eq:blockprofile}
+\end{equation}
+%
+The $b_i$ are the \emph{Bernstein basis polynomials}: degree
+$r - 1$, positive on $(0,1)$, summing to one, the $i$-th peaked at
+$x = i/(r-1)$. At degree three, for instance,
+%
+\begin{equation}
+b_0 = (1-x)^3,\quad
+b_1 = 3x(1-x)^2,\quad
+b_2 = 3x^2(1-x),\quad
+b_3 = x^3.
+\label{eq:bernstein3}
+\end{equation}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=9.5cm, height=5.6cm,
+  xlabel={$x$}, ylabel={$b_i(x)$},
+  xmin=0, xmax=1, ymin=0, ymax=1.02,
+  domain=0:1, samples=100, smooth,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={font=\scriptsize}, legend pos=north east,
+  legend cell align=left]
+\addplot[blue!45, thick] {(1-x)^3};
+\addplot[blue!75!black, thick] {3*x*(1-x)^2};
+\addplot[orange!85!black, thick] {3*x^2*(1-x)};
+\addplot[red!60!black, thick] {x^3};
+\legend{$b_0$, $b_1$, $b_2$, $b_3$}
+\end{axis}
+\end{tikzpicture}
+\caption{The degree-three Bernstein basis \eqref{eq:bernstein3}:
+bump functions scanning left to right, each peaked at $i/3$. A block
+profile is a positive combination of such bumps, weighted by the
+microscopic conditional entropies $\eta(i)$.}
+\label{fig:bernstein}
+\end{figure}
+
+Equation \eqref{eq:blockprofile} is the whole theory of block
+priors: the profile is a Bernstein polynomial whose coefficients are
+the block's microscopic conditional entropies, necessarily
+nonincreasing in $i$. The shape of $L$ is then a question about
+\emph{where the coefficients drop}. Coefficients falling at $i = 0$
+front-load the deduction (hyperbola-like decay); a drop at the last
+index back-loads it and $L(x)$ \emph{rises}; a drop at an interior
+index concentrates the windfall mid-run, and with fresh entropy
+after it the leverage becomes non-monotonic -- a genuine interior
+peak, impossible for any exchangeable prior.
+
+\subsection{An exotic zoo of solvable priors}\label{sec:zoo}
+
+Five members, each solvable because its $\eta(i)$ is explicit. For
+each: the block rule, the profile, the shape.
+
+\emph{Cliques.} All $r$ members share one value, drawn from an
+arbitrary block-specific distribution $\nu$: $\eta = (H(\nu), 0,
+\ldots, 0)$, so $\gamma(x) = \langle H(\nu)\rangle (1-x)^{r-1}$ and
+the scale cancels between destroyed and received:
+$L \equiv r$, exactly flat -- every question is either the first
+touch of its block (one value received, $r$ columns collapse) or a
+free repeat.
+
+\emph{Parity blocks.} Uniform on the strings of fixed parity
+$\beta$: any partial view is uniform, so
+$\eta = (1, \ldots, 1, 0)$, $\gamma(x) = 1 - x^{r-1}$, and $L$
+rises monotonically from $1$ to $r/(r-1)$: the windfall fires only
+at a block's last member, deduction back-loaded.
+
+\emph{Tilted parity.} Draw the block's bits i.i.d.\
+$\mathrm{Bernoulli}(\theta)$ conditioned on the parity: the general
+form, with $\varepsilon := 1 - 2\theta$ as the new parameter. The
+conditionals stay closed-form; $\eta(i) = h(\theta) +
+O(\varepsilon^{\,r-i})$ far from the cliff and $\eta(r-1) = 0$
+exactly: the uniform case is $\varepsilon = 0$, and the tilt lets
+partial views leak $O(\varepsilon^{\,r-i})$ bits early, softening
+the onset without touching the final deduction.
+
+\emph{MDS blocks.} The block carries a uniformly random codeword of
+a code where any $k$ symbols determine all $r$ and any $j \le k$
+reveal nothing (Reed--Solomon over $2^m$-ary answers): $\eta = m$
+up to $i = k-1$, then $0$, so $\gamma(x)/m = \Pr[\mathrm{Bin}(r{-}1,
+x) \le k - 1]$: a movable threshold at $x \approx k/r$. Diluted
+with fresh questions the curve climbs to an interior peak and
+relaxes -- the non-monotonic shape promised above.
+
+\emph{The cocktail.} A quarter coins, half MDS, a quarter fresh, on
+disjoint blocks: profiles average, and the curve inherits all three
+mechanisms in sequence -- a hyperbolic dive, a dip, a resurgent
+peak, a final decay.
+
+None of the hard members has full support, and all can be given it
+without disturbing the limit. The recipe is \emph{local} noise: flip
+bits with probability $\delta$ inside a block, or lapse each block
+to an i.i.d.\ one with probability $\delta$ -- never a latent shared
+across blocks. Locality preserves independence and within-block
+symmetry, so the machinery applies verbatim and the noise acts
+term by term on the coefficients: the clique's $\eta(i \ge 1)$
+lifts from $0$ to the $O(h(2\delta))$ scale; the parity cliff
+$\eta(r-1)$ lifts to $h\big(\tfrac{1 - (1-2\delta)^r}{2}\big)$; the
+MDS tail lifts to $\approx \delta m$. At fixed $\delta$ the limit
+exists and is a continuous deformation of the hard one -- the limit
+depends on the noise only through the finitely many $\eta(i)$ --
+and under any vanishing schedule $\delta_n \to 0$ the prior has
+full support at every finite $n$ while the limit is \emph{exactly}
+the hard curve. What must be avoided is global softening: a shared
+latent with extensive entropy floods the received channel and can
+erase the store outright.
+
+Nothing here is finely tuned. An \emph{arbitrary} mixture of block
+types -- fractions $w_t$ of questions in blocks of size $r_t$ with
+any within-block-symmetric distributions -- is solvable by the same
+one formula,
+%
+\begin{equation}
+\gamma(x) = \sum_{t} w_t \sum_{i=0}^{r_t - 1}
+b^{(r_t - 1)}_i(x)\,\eta_t(i),
+\label{eq:zoomix}
+\end{equation}
+%
+symbolically, before any constituent is specified: the $\eta_t(i)$
+are the only inputs, and mixing blocks mixes their profiles
+linearly (the leverage, a ratio, then mixes as a mediant). The
+solvability is a property of the block structure, not of a lucky
+choice of members.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=4.1cm, height=4.4cm,
+  title={cliques}, title style={font=\small},
+  xlabel={$x$}, ylabel={$\langle L \rangle$},
+  xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=4.1cm, height=4.4cm,
+  title={parity}, title style={font=\small},
+  xlabel={$x$}, xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=4.1cm, height=4.4cm,
+  title={MDS + fresh}, title style={font=\small},
+  xlabel={$x$}, xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}
+\begin{axis}[width=4.1cm, height=4.4cm,
+  title={cocktail}, title style={font=\small},
+  xlabel={$x$}, xmin=0, xmax=1, ymin=0, ymax=1,
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\node[gray, font=\scriptsize] at (rel axis cs:0.5,0.5)
+  {\scshape placeholder};
+\end{axis}
+\end{tikzpicture}
+\caption{\emph{Placeholder.} The zoo side by side: flat, rising,
+peaked, and the cocktail's dive--dip--peak--decay, each with exact
+finite-$n$ curves converging on its limit.}
+\label{fig:zoo}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+member & block rule & $\eta(i)$ & $\gamma(x)$ & $L(x)$ \\
+\midrule
+cliques & one shared value $\nu$ &
+  $H(\nu), 0, \ldots$ &
+  $\langle H(\nu)\rangle(1{-}x)^{r-1}$ &
+  $\equiv r$, flat \\
+parity & uniform, $\oplus = \beta$ &
+  $1, \ldots, 1, 0$ &
+  $1 - x^{r-1}$ &
+  rises to $\tfrac{r}{r-1}$ \\
+tilted parity & i.i.d.\ $\theta$ given $\oplus = \beta$ &
+  plateau, cliff &
+  closed form in $\varepsilon$ &
+  rises, soft onset \\
+MDS $+$ fresh & uniform codebook &
+  $m, \ldots, m, 0, \ldots$ &
+  $w\bar F + (1{-}w)$ &
+  peak near $k/r$ \\
+cocktail & coins, code, fresh &
+  mixture &
+  mixture &
+  dive, dip, peak \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The zoo earns a closing remark. Each member's limiting curve is the
+visible fingerprint of an invisible structure: hyperbolas betray one
+global secret, flat lines betray duplication, rising curves betray
+constraints that bind only when complete, peaks betray thresholds.
+The inference runs backwards as well as forwards. A well pre-trained
+model traces an empirical $L(x)$ as it learns, and the shape of that
+learning curve -- falling, flat, rising, peaked -- is evidence about
+which class of prior the real world's regularities are drawn from.
+Measuring how a learner's leverage evolves may be the most practical
+window we have onto the distribution type of the world itself.
+
 \end{document}

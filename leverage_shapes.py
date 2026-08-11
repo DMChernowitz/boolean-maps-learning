@@ -8,8 +8,8 @@ give tunable gamma:
 
   cliques (r equal answers):        gamma = (1-x)^{r-1}   -> L == r  (flat)
   parity blocks (r answers sum 0):  gamma = 1 - x^{r-1}   -> L rises 1 -> r/(r-1)
-  MDS code blocks (any k of r
-    determine the rest) + fresh:    gamma = w Fbar(x) + 1-w -> mid-run peak
+  MDS code blocks (any k of r determine the rest) + fresh:
+    gamma = w Pr[Bin(r-1,x) <= k-1] + 1-w                 -> mid-run peak
   coins + code + fresh:             dive, dip, resurgent peak, decay
 
 All finite-n curves are EXACT: for a prior that is a product over the
@@ -35,8 +35,7 @@ def lchoose(a, b):
 
 # ---- coin-mixture block: G table for N iid-given-theta sites ----
 COINS = [(0.2, 0.25), (0.7, 0.75)]
-TBAR = sum(th*wt for th, wt in COINS)
-GBAR = sum(wt*h(th) for th, wt in COINS)
+H_COND_COIN = sum(wt*h(th) for th, wt in COINS)
 
 
 def coin_G_table(Nmax):
@@ -82,7 +81,7 @@ def L_curve(Q, blocks):
 
 
 # ---- limit-curve helpers (per-site units) ----
-def Fbar(x, r, k):
+def binomial_cdf(x, r, k):
     """P(Bin(r-1, x) <= k-1): a fresh code answer is still uninferable."""
     if x <= 0:
         return 1.0
@@ -106,20 +105,22 @@ def limit_from_gamma(gam0, gam, npts=2000):
 
 M = 4                      # answer bits per question (alphabet 16 for RS)
 RCODE, KCODE = 16, 4       # MDS code: any 4 of 16 answers determine all
-DELTA = 0.1                # lapse probability of a cocktail code block
+LAPSE_PROB = 0.1           # lapse probability of a cocktail code block
 BF = 0.3                   # cocktail fresh-question site bias
 HF = h(BF)
 
 
-def H_lapsed(j, k=KCODE, m=M, d=DELTA):
+def H_lapsed(j, k=KCODE, m=M, lapse_prob=LAPSE_PROB):
     """entropy of j symbols of a lapsed RS block: mixture of a uniform
-    codeword (prob 1-d) and fully random answers (prob d).  Pattern
-    masses take two values (consistent / inconsistent)."""
+    codeword (prob 1-lapse_prob) and fully random answers (prob
+    lapse_prob).  Pattern masses take two values (consistent /
+    inconsistent)."""
     if j <= k:
         return m*j
     u = 2.0**(m*(k-j))
-    A = (1-d) + d*u
-    return A*(k*m - math.log2(A)) + d*(1-u)*(j*m - math.log2(d))
+    A = (1-lapse_prob) + lapse_prob*u
+    return (A*(k*m - math.log2(A))
+            + lapse_prob*(1-u)*(j*m - math.log2(lapse_prob)))
 
 
 ETA_CODE = [H_lapsed(i+1) - H_lapsed(i) for i in range(RCODE)]
@@ -145,6 +146,7 @@ def blocks_cocktail(Q, GT):  # 1/4 coins, 1/2 lapsed code, 1/4 biased fresh
 
 
 GT = coin_G_table(M*(2**10)//4)
+F_M_COIN_PER_BIT = GT[M] / M
 
 WC = 0.75   # code weight in panel (c)
 CO, CK, CI = 0.25, 0.5, 0.25   # cocktail weights
@@ -170,16 +172,33 @@ PANELS = [
 
 
 def limit_code_fresh(x):
-    fb = Fbar(x, RCODE, KCODE)
-    return WC*fb + (1-WC), 1.0
+    unresolved_probability = binomial_cdf(x, RCODE, KCODE)
+    return WC*unresolved_probability + (1-WC), 1.0
 
 
 def limit_cocktail(x):
-    ghat = sum(math.comb(RCODE-1, i) * x**i * (1-x)**(RCODE-1-i)
-               * ETA_CODE[i] for i in range(RCODE))/M
-    gam = CO*GBAR + CK*ghat + CI*HF
-    gam0 = CO*h(TBAR) + CK + CI*HF
+    gamma_lapse = sum(
+        math.comb(RCODE-1, i) * x**i * (1-x)**(RCODE-1-i)
+        * ETA_CODE[i] for i in range(RCODE)
+    ) / M
+    gam = CO*H_COND_COIN + CK*gamma_lapse + CI*HF
+    gam0 = CO*F_M_COIN_PER_BIT + CK + CI*HF
     return gam, gam0
+
+
+# Chapter (5.21)--(5.24): exact ingredients and quoted landmarks.
+GAMMA_LAPSE_INTEGRAL = sum(ETA_CODE) / (M * RCODE)
+H_COCKTAIL = limit_cocktail(0)[1]
+GAMMA_COCKTAIL_ZERO = limit_cocktail(0)[0]
+COCKTAIL_SINGULAR_COEFFICIENT = (
+    (H_COCKTAIL - GAMMA_COCKTAIL_ZERO) / GAMMA_COCKTAIL_ZERO
+)
+assert math.isclose(F_M_COIN_PER_BIT, 0.94828746, abs_tol=5e-9)
+assert math.isclose(H_COND_COIN, 0.84145020, abs_tol=5e-9)
+assert math.isclose(GAMMA_LAPSE_INTEGRAL, 0.33232806, abs_tol=5e-9)
+assert math.isclose(H_COCKTAIL, 0.95739459, abs_tol=5e-9)
+assert math.isclose(COCKTAIL_SINGULAR_COEFFICIENT, 0.02870,
+                    abs_tol=5e-5)
 
 
 fig, axes = plt.subplots(1, 4, figsize=(15, 3.8))
@@ -207,7 +226,7 @@ for ax, (title, finites, limits, ylim) in zip(axes, PANELS):
         xs, Ls = limit_from_gamma(gam0, gam_only)
         ax.plot(xs, Ls, "--", color="#eb6834", lw=1.6, label="limit")
     ax.set_title(title, fontsize=10)
-    ax.set_xlabel("$x = \\ell/2^n$")
+    ax.set_xlabel("$x = \\ell/|Q|$")
     ax.set_xlim(0, 1)
     ax.set_ylim(*ylim)
     ax.grid(alpha=0.25)
@@ -228,6 +247,12 @@ for name, gfun in (("code+fresh", limit_code_fresh),
     xp, Lp = max(body, key=lambda t: t[1])
     xd, Ld = min((t for t in body if t[0] < xp), key=lambda t: t[1],
                  default=(float("nan"), float("nan")))
+    if name == "cocktail":
+        assert math.isclose(xd, 0.0836, abs_tol=8e-4)
+        assert math.isclose(Ld, 1.499, abs_tol=8e-4)
+        assert math.isclose(xp, 0.350, abs_tol=8e-4)
+        assert math.isclose(Lp, 2.114, abs_tol=8e-4)
+        assert math.isclose(Ls[-1], 1.60408, abs_tol=8e-5)
     print(f"{name}: dip L={Ld:.3f} at x={xd:.3f}; "
           f"peak L={Lp:.3f} at x={xp:.3f}; L(1)={Ls[-1]:.3f}")
 
