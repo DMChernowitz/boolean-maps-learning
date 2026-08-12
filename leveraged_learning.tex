@@ -3063,88 +3063,123 @@ ever leaves.
   flow/.style={-{Stealth[length=5pt]}, black!70, line width=0.8pt},
   alab/.style={font=\scriptsize, fill=white, inner sep=1.5pt}]
 
+  % ---------------- occupancy column headers ----------------
+  \node[font=\small] at (-0.7,2.3) {$P_k$};
+  \node[font=\small] at (11.3,2.3) {$1 - P_k$};
+
   % ---------------- row k = 0 ----------------
-  \node[font=\small] at (1.75,2.35) {$P_0 = 1$};
+  \node[font=\small] at (-2.15,0.95) {$k = 0$};
+  \draw[black!55] (-1.05,0.35) -- (-0.35,0.35);
+  \fill[blue!45] (-0.84,0.35) rectangle (-0.56,1.45);
+  \node[font=\scriptsize] at (-0.7,1.62) {$1$};
+
   \draw[state] (0,0) rectangle (3.5,1.9);
   \node[font=\scriptsize, anchor=north west] at (0.06,1.86)
     {spike, $65{,}536$ maps};
   \draw[black!55] (0.25,0.35) -- (3.25,0.35);
   \fill[blue!45] (0.5,0.35) rectangle (0.78,0.575);
   \node[font=\scriptsize] at (0.64,0.76) {$p_0 = 0.3$};
-  \fill[blue!45] (1.3,0.35) rectangle (1.58,0.385);
-  \node[font=\scriptsize] at (1.44,0.56) {$\omega$};
-  \node[font=\scriptsize, align=left, anchor=west] at (1.8,0.82)
-    {$1 - p_0 = 0.7$\\[-2pt] on $65{,}535$ maps};
+  \fill[blue!45] (1.35,0.35) rectangle (1.63,0.385);
+  \fill[blue!45] (1.8,0.35) rectangle (2.08,0.385);
+  \node at (2.42,0.42) {$\cdots$};
+  \fill[blue!45] (2.75,0.35) rectangle (3.03,0.385);
+  \node[font=\scriptsize] at (1.49,0.17) {$\omega$};
+  \node[font=\scriptsize] at (2.19,0.82) {$0.7$};
 
   \draw[state] (7,0) rectangle (10.5,1.9);
   \node[font=\scriptsize, anchor=north west] at (7.06,1.86)
     {uniform, $65{,}536$ maps};
   \draw[black!55] (7.3,0.35) -- (10.2,0.35);
-  \foreach \xx in {7.7,8.25} \fill[blue!45]
+  \foreach \xx in {7.5,8.05} \fill[blue!45]
     (\xx,0.35) rectangle (\xx+0.28,0.62);
-  \node at (8.75,0.47) {$\cdots$};
-  \foreach \xx in {8.97,9.52} \fill[blue!45]
+  \node at (8.87,0.47) {$\cdots$};
+  \foreach \xx in {9.4,9.95} \fill[blue!45]
     (\xx,0.35) rectangle (\xx+0.28,0.62);
+
+  \draw[black!55] (10.95,0.35) -- (11.65,0.35);
+  \node[font=\scriptsize] at (11.3,0.55) {$0$};
 
   % ---------------- transitions 0 -> 1 ----------------
   \draw[flow] (1.75,0) -- (1.75,-1.2)
-    node[alab, midway, left=1pt] {$P_1/P_0 = 0.475$};
+    node[alab, midway, left=1pt] {$\times\,0.475$};
   \draw[flow] (3.1,0) -- (7.6,-1.2)
-    node[alab, pos=0.45] {$1 - P_1/P_0 = 0.525$};
+    node[alab, pos=0.45] {$\times\,0.525$};
   \draw[flow] (8.75,0) -- (8.75,-1.2)
-    node[alab, midway, right=1pt] {$1$};
+    node[alab, midway, right=1pt] {$\times\,1$};
 
   % ---------------- row k = 1 ----------------
+  \node[font=\small] at (-2.15,-2.15) {$k = 1$};
+  \draw[black!55] (-1.05,-2.75) -- (-0.35,-2.75);
+  \fill[blue!45] (-0.84,-2.75) rectangle (-0.56,-2.23);
+  \node[font=\scriptsize] at (-0.7,-2.06) {$0.475$};
+
   \draw[state] (0,-3.1) rectangle (3.5,-1.2);
   \node[font=\scriptsize, anchor=north west] at (0.06,-1.24)
     {spike, $16{,}384$ maps};
   \draw[black!55] (0.25,-2.75) -- (3.25,-2.75);
   \fill[blue!45] (0.5,-2.75) rectangle (0.78,-2.276);
   \node[font=\scriptsize] at (0.64,-2.09) {$p_1 = 0.632$};
-  \fill[blue!45] (1.3,-2.75) rectangle (1.58,-2.71);
-  \node[font=\scriptsize] at (1.44,-2.54) {$\omega_1$};
-  \node[font=\scriptsize, align=left, anchor=west] at (1.8,-2.28)
-    {$1 - p_1 = 0.368$\\[-2pt] on $16{,}383$ maps};
+  \fill[blue!45] (1.35,-2.75) rectangle (1.63,-2.71);
+  \fill[blue!45] (1.8,-2.75) rectangle (2.08,-2.71);
+  \node at (2.42,-2.68) {$\cdots$};
+  \fill[blue!45] (2.75,-2.75) rectangle (3.03,-2.71);
+  \node[font=\scriptsize] at (1.49,-2.93) {$\omega_1$};
+  \node[font=\scriptsize] at (2.19,-2.28) {$0.368$};
 
   \draw[state] (7,-3.1) rectangle (10.5,-1.2);
   \node[font=\scriptsize, anchor=north west] at (7.06,-1.24)
     {uniform, $16{,}384$ maps};
   \draw[black!55] (7.3,-2.75) -- (10.2,-2.75);
-  \foreach \xx in {7.7,8.25} \fill[blue!45]
+  \foreach \xx in {7.5,8.05} \fill[blue!45]
     (\xx,-2.75) rectangle (\xx+0.28,-2.48);
-  \node at (8.75,-2.63) {$\cdots$};
-  \foreach \xx in {8.97,9.52} \fill[blue!45]
+  \node at (8.87,-2.63) {$\cdots$};
+  \foreach \xx in {9.4,9.95} \fill[blue!45]
     (\xx,-2.75) rectangle (\xx+0.28,-2.48);
+
+  \draw[black!55] (10.95,-2.75) -- (11.65,-2.75);
+  \fill[orange!70] (11.16,-2.75) rectangle (11.44,-2.17);
+  \node[font=\scriptsize] at (11.3,-2.0) {$0.525$};
 
   % ---------------- transitions 1 -> 2 ----------------
   \draw[flow] (1.75,-3.1) -- (1.75,-4.3)
-    node[alab, midway, left=1pt] {$P_2/P_1 = 0.724$};
+    node[alab, midway, left=1pt] {$\times\,0.724$};
   \draw[flow] (3.1,-3.1) -- (7.6,-4.3)
-    node[alab, pos=0.45] {$1 - P_2/P_1 = 0.276$};
+    node[alab, pos=0.45] {$\times\,0.276$};
   \draw[flow] (8.75,-3.1) -- (8.75,-4.3)
-    node[alab, midway, right=1pt] {$1$};
+    node[alab, midway, right=1pt] {$\times\,1$};
 
   % ---------------- row k = 2 ----------------
+  \node[font=\small] at (-2.15,-5.25) {$k = 2$};
+  \draw[black!55] (-1.05,-5.85) -- (-0.35,-5.85);
+  \fill[blue!45] (-0.84,-5.85) rectangle (-0.56,-5.47);
+  \node[font=\scriptsize] at (-0.7,-5.3) {$0.344$};
+
   \draw[state] (0,-6.2) rectangle (3.5,-4.3);
   \node[font=\scriptsize, anchor=north west] at (0.06,-4.34)
     {spike, $4{,}096$ maps};
   \draw[black!55] (0.25,-5.85) -- (3.25,-5.85);
   \fill[blue!45] (0.5,-5.85) rectangle (0.78,-5.195);
   \node[font=\scriptsize] at (0.64,-5.0) {$p_2 = 0.873$};
-  \fill[blue!45] (1.3,-5.85) rectangle (1.58,-5.81);
-  \node[font=\scriptsize] at (1.44,-5.64) {$\omega_2$};
-  \node[font=\scriptsize, align=left, anchor=west] at (1.8,-5.38)
-    {$1 - p_2 = 0.127$\\[-2pt] on $4{,}095$ maps};
+  \fill[blue!45] (1.35,-5.85) rectangle (1.63,-5.81);
+  \fill[blue!45] (1.8,-5.85) rectangle (2.08,-5.81);
+  \node at (2.42,-5.78) {$\cdots$};
+  \fill[blue!45] (2.75,-5.85) rectangle (3.03,-5.81);
+  \node[font=\scriptsize] at (1.49,-6.03) {$\omega_2$};
+  \node[font=\scriptsize] at (2.19,-5.38) {$0.127$};
 
   \draw[state] (7,-6.2) rectangle (10.5,-4.3);
   \node[font=\scriptsize, anchor=north west] at (7.06,-4.34)
     {uniform, $4{,}096$ maps};
   \draw[black!55] (7.3,-5.85) -- (10.2,-5.85);
-  \foreach \xx in {7.7,8.25} \fill[blue!45]
+  \foreach \xx in {7.5,8.05} \fill[blue!45]
     (\xx,-5.85) rectangle (\xx+0.28,-5.58);
-  \node at (8.75,-5.73) {$\cdots$};
-  \foreach \xx in {8.97,9.52} \fill[blue!45]
+  \node at (8.87,-5.73) {$\cdots$};
+  \foreach \xx in {9.4,9.95} \fill[blue!45]
     (\xx,-5.85) rectangle (\xx+0.28,-5.58);
+
+  \draw[black!55] (10.95,-5.85) -- (11.65,-5.85);
+  \fill[orange!70] (11.16,-5.85) rectangle (11.44,-5.13);
+  \node[font=\scriptsize] at (11.3,-4.96) {$0.656$};
 
   % ---------------- trailing flow ----------------
   \draw[flow, black!45] (1.75,-6.2) -- (1.75,-6.9);
@@ -3155,12 +3190,13 @@ ever leaves.
 \end{tikzpicture}
 \end{center}
 
-The two columns are the macrostates of \eqref{eq:spikeflow}, the
-arrows carry the transition probabilities, and each row's map space
-is one quarter of the row above. The invariant $P_k p_k = p$ is
-visible down the left column: the spike bar climbs exactly as fast
-as its branch loses probability, $0.3 = 1 \times 0.3 = 0.475 \times
-0.632 = 0.344 \times 0.873$.
+The two columns of boxes are the macrostates of \eqref{eq:spikeflow},
+the arrows carry their multipliers, and each row's map space is one
+quarter of the row above. The outer columns track the branch
+probabilities $P_k$ and $1 - P_k$, and the invariant $P_k p_k = p$ is
+visible between the $P_k$ bars and the spike bars: the spike climbs
+exactly as fast as its branch loses probability,
+$0.3 = 1 \times 0.3 = 0.475 \times 0.632 = 0.344 \times 0.873$.
 \end{example}
 
 For $0 \le k < Q$ and $p < 1$ the exact odds on the surviving branch
