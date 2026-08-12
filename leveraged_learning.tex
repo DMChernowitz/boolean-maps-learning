@@ -196,6 +196,8 @@ an answer over here settles expectations over there. This ability
 to extrapolate is codified here as \emph{leverage}.
 \end{enumerate}
 
+\tableofcontents
+\newpage
 
 \section{A thought experiment}\label{sec:thought}
 
@@ -3020,7 +3022,7 @@ giving
   = r_k + (u N_k - 1)\,\omega_k
   = \frac{P_{k+1}}{P_k},
   \qquad
-  \boxed{\;P_k\, r_k \;=\; p\;}
+  P_k\, r_k \;=\; p
   \label{eq:spikeinvariant}
 \end{equation}
 %
@@ -3190,7 +3192,7 @@ The two columns of boxes are the macrostates of \eqref{eq:spikeflow},
 the arrows carry their multipliers, and each row's map space is one
 quarter of the row above. The outer columns track the branch
 probabilities $P_k$ and $1 - P_k$, and the invariant $P_k r_k = p$ is
-visible between the $P_k$ bars and the $r_k$ bars: the spike climbs
+visible between the $P_k$ bars and the $r_k=p_0$ bars: the spike climbs
 exactly as fast as its branch loses probability,
 $0.3 = 1 \times 0.3 = 0.475 \times 0.632 = 0.344 \times 0.873$.
 \end{example}
@@ -3265,9 +3267,8 @@ entropy $G_{k+1} - G_k$, and
 \begin{equation}
   \big\langle H\big(M^{(k)}\big)\big\rangle = (Q-k)(G_{k+1}-G_k),
   \qquad
-  \boxed{\;
   \langle L_k\rangle
-  = \frac{Q\,G_1 - (Q-k)(G_{k+1}-G_k)}{G_k}\;}
+  = \frac{Q\,G_1 - (Q-k)(G_{k+1}-G_k)}{G_k}
   \label{eq:spikeLk}
 \end{equation}
 %
@@ -3389,11 +3390,10 @@ whereas the expected leverage is the ratio of the two expected
 totals,
 %
 \begin{equation}
-  \boxed{\;
   \langle L_1\rangle
   = \frac{P\big[Q G_1 - (Q-1)H_{\rm c}\big]
     + (A-1)U\big[Q G_1 - (Q-1)m\big]}{G_1}
-  = \frac{Q G_1 - (Q-1)(G_2-G_1)}{G_1}. \;}
+  = \frac{Q G_1 - (Q-1)(G_2-G_1)}{G_1}. 
   \label{eq:spikeL1}
 \end{equation}
 %
@@ -3451,9 +3451,8 @@ drop beyond the received entropy $G_1$ comes out of that store, so
 when $C > 0$ the share of it freed by a single question is
 %
 \begin{equation}
-  \boxed{\;
   R_1 \;:=\; \frac{\langle \Delta H(M)\rangle - G_1}{C}
-  \;=\; \frac{(Q-1)(2G_1 - G_2)}{Q G_1 - G_Q}. \;}
+  \;=\; \frac{(Q-1)(2G_1 - G_2)}{Q G_1 - G_Q}. 
   \label{eq:extraction}
 \end{equation}
 %
@@ -3475,9 +3474,8 @@ expanding \eqref{eq:spikeGk} with $\varepsilon = 1 - p \to 0^+$ gives
 the exact finite-$(n,m)$ ratio limit
 %
 \begin{equation}
-  \boxed{\;
   \lim_{p\to1^-}R_1(p)
-  = \frac{(Q-1)N(1-u)^2}{Q N(1-u) - (N-1)}, \;}
+  = \frac{(Q-1)N(1-u)^2}{Q N(1-u) - (N-1)}, 
   \qquad
   \frac{(Q-1)(1-u)^2}{Q(1-u)-1}
   \label{eq:extractionsharp}
@@ -3488,8 +3486,7 @@ At $(n,m) = (2,1)$ the exact value is $12/17 \simeq 0.706$ against
 the approximation's $0.75$. Both share the thermodynamic limit
 %
 \begin{equation}
-  \boxed{\;
-  \lim_{n\to\infty}\lim_{p\to1^-}R_1(p) \;=\; 1 - u \;=\; 1 - 2^{-m}. \;}
+  \lim_{n\to\infty}\lim_{p\to1^-}R_1(p) \;=\; 1 - u \;=\; 1 - 2^{-m}. 
   \label{eq:extractiontdl}
 \end{equation}
 
@@ -3505,11 +3502,11 @@ the approximation's $0.75$. Both share the thermodynamic limit
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
   legend cell align=left]
-\dataplot{cf1}{p}{ratio}{figures/data/extraction_n2.dat}
-\dataplot{cf2}{p}{ratio}{figures/data/extraction_n3.dat}
-\dataplot{cf3}{p}{ratio}{figures/data/extraction_n4.dat}
-\dataplot{cf4}{p}{ratio}{figures/data/extraction_n5.dat}
-\dataplot{cf5}{p}{ratio}{figures/data/extraction_n6.dat}
+\dataplot{cf1, thick}{p}{ratio}{figures/data/extraction_n2.dat}
+\dataplot{cf2, thick}{p}{ratio}{figures/data/extraction_n3.dat}
+\dataplot{cf3, thick}{p}{ratio}{figures/data/extraction_n4.dat}
+\dataplot{cf4, thick}{p}{ratio}{figures/data/extraction_n5.dat}
+\dataplot{cf5, thick}{p}{ratio}{figures/data/extraction_n6.dat}
 \datalegend{{$n=2$}, {$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}}
 \addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.7059};
 \addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.5826};
@@ -3527,10 +3524,10 @@ the approximation's $0.75$. Both share the thermodynamic limit
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
   legend cell align=left]
-\dataplot{cf1}{p}{ratio}{figures/data/extraction_m1.dat}
-\dataplot{cf2}{p}{ratio}{figures/data/extraction_m2.dat}
-\dataplot{cf3}{p}{ratio}{figures/data/extraction_m3.dat}
-\dataplot{cf4}{p}{ratio}{figures/data/extraction_m4.dat}
+\dataplot{cf1, thick}{p}{ratio}{figures/data/extraction_m1.dat}
+\dataplot{cf2, thick}{p}{ratio}{figures/data/extraction_m2.dat}
+\dataplot{cf3, thick}{p}{ratio}{figures/data/extraction_m3.dat}
+\dataplot{cf4, thick}{p}{ratio}{figures/data/extraction_m4.dat}
 \datalegend{{$m=1$}, {$m=2$}, {$m=3$}, {$m=4$}}
 \addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.5826};
 \addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.7875};
@@ -3573,11 +3570,10 @@ cancels the common factor $\varepsilon\log_2(1/\varepsilon)$ and
 leaves, for $1 \le k \le Q$,
 %
 \begin{equation}
-  \boxed{\;
   \lim_{p\to1^-}\langle L_k\rangle
   = (1-u)\,\frac{Q - (Q-k)u^k}{1-u^k}
   = \underbrace{Q(1-u)}_{\text{extensive plateau}}
-  + \underbrace{(1-u)\frac{k\,u^k}{1-u^k}}_{O(1)\ \text{boundary layer}} .\;}
+  + \underbrace{(1-u)\frac{k\,u^k}{1-u^k}}_{O(1)\ \text{boundary layer}} .
   \label{eq:sharpLk}
 \end{equation}
 %
@@ -3586,9 +3582,8 @@ $Q$ at all. In particular
 $\lim_{p\to1^-}\langle L_1\rangle = Q - (Q-1)2^{-m}$, so
 %
 \begin{equation}
-  \boxed{\;
   \lim_{n\to\infty}\lim_{p\to1^-}\frac{\langle L_1\rangle}{Q}
-  \;=\; 1 - 2^{-m}. \;}
+  \;=\; 1 - 2^{-m}. 
   \label{eq:culling}
 \end{equation}
 %
@@ -3699,11 +3694,10 @@ h_{\rm spike}(p,m)$, dividing the numerator and denominator of
 \eqref{eq:spikeLk} by $Q$ gives
 %
 \begin{equation}
-  \boxed{\;
   L_p(x)
   = \frac{h_{\rm spike}(p,m) - (1-x)(1-p)m}{x(1-p)m}
   = 1 + \frac{h_{\rm spike}(p,m) - (1-p)m}{x(1-p)m},
-  \qquad 0 < x \le 1. \;}
+  \qquad 0 < x \le 1. 
   \label{eq:spikehyperbola}
 \end{equation}
 %
@@ -3789,9 +3783,8 @@ $G_{k+1}-G_k \sim \varepsilon_n m$, and substitution into
 \eqref{eq:spikeLk} gives the crossover
 %
 \begin{equation}
-  \boxed{\;
   \frac{L_{p_n,n}(x)}{Q}
-  \longrightarrow (1-u)\,\frac{\lambda}{\lambda + mx}. \;}
+  \longrightarrow (1-u)\,\frac{\lambda}{\lambda + mx}. 
   \label{eq:crossover}
 \end{equation}
 %
@@ -3870,10 +3863,8 @@ for $0 \le \ell < Q$, with zero remaining entropy at $\ell = Q$, and
 equation~\eqref{eq:Lk-G} becomes
 %
 \begin{equation}
-  \boxed{\;
   \langle L_{n,\ell}\rangle
   = \frac{Q\,G_{n,1} - (Q-\ell)\,\gamma_{n,\ell}}{G_{n,\ell}}
-  \;}
   \qquad (1 \le \ell < Q),
   \qquad
   \langle L_{n,Q}\rangle = \frac{Q\,G_{n,1}}{G_{n,Q}} .
@@ -3932,16 +3923,109 @@ $(Q-\ell_n)\gamma_{n,\ell_n}/Q \to (1-x)\gamma(x)$. Substituting both
 into \eqref{eq:finitelev} proves
 %
 \begin{equation}
-  \boxed{\;
   L(x) \;=\; \frac{h_0 - (1-x)\,\gamma(x)}{g(x)},
   \qquad
   g(x) = \int_0^x \gamma(t)\,dt,
-  \qquad 0 < x < 1. \;}
+  \qquad 0 < x < 1. 
   \label{eq:master}
 \end{equation}
 %
 Since $\gamma$ is nonnegative and nonincreasing, a positive integral
 makes $g(x) > 0$ for every $x > 0$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[line cap=round]
+  % ---------------- panel 1: Q = 8 ----------------
+  % parity blocks of size four: gamma_{n,k} = 1 - k(k-1)(k-2)/210
+  \node[font=\small] at (2.1,3.75) {$Q = 8$};
+  \foreach \k in {0,...,4}{
+    \pgfmathsetmacro\h{3.2*(1 - \k*(\k-1)*(\k-2)/210)}
+    \fill[blue!45] ({\k*4.2/8},0) rectangle ({(\k+1)*4.2/8},\h);
+    \draw[black!35, line width=0.3pt]
+      ({\k*4.2/8},0) rectangle ({(\k+1)*4.2/8},\h);}
+  \foreach \k in {5,6,7}{
+    \pgfmathsetmacro\h{3.2*(1 - \k*(\k-1)*(\k-2)/210)}
+    \fill[blue!15] ({\k*4.2/8},0) rectangle ({(\k+1)*4.2/8},\h);
+    \draw[black!35, line width=0.3pt]
+      ({\k*4.2/8},0) rectangle ({(\k+1)*4.2/8},\h);}
+  \draw[orange!85!black, dashed, line width=0.9pt]
+    plot[domain=0:4.2, samples=80] (\x, {3.2*(1-(\x/4.2)^3)});
+  \draw[->] (0,0) -- (4.5,0);
+  \draw[->] (0,0) -- (0,3.55);
+  \draw (-0.06,3.2) -- (0.06,3.2)
+    node[left=3pt, font=\scriptsize] {$1$};
+  \draw (2.625,-0.05) -- (2.625,0.05);
+  \node[font=\scriptsize, below] at (2.625,-0.06) {$\ell/Q$};
+  \node[font=\scriptsize, below] at (0,-0.06) {$0$};
+  \draw (4.2,-0.05) -- (4.2,0.05);
+  \node[font=\scriptsize, below] at (4.2,-0.06) {$1$};
+  \node[font=\scriptsize, fill=white, inner sep=1.5pt]
+    at (1.31,1.5) {$G_{n,\ell}/Q$};
+  \node[font=\scriptsize, anchor=west] at (3.35,2.95) {$\gamma_{n,k}$};
+  \draw[black!60, line width=0.4pt, -{Stealth[length=3.5pt]}]
+    (3.33,2.95) -- (2.9,2.4);
+  \draw[decorate, decoration={brace, mirror, amplitude=2.5pt},
+        black!70] (0.525,-0.42) -- (1.05,-0.42);
+  \node[font=\scriptsize, below] at (0.79,-0.5) {$1/Q$};
+
+  % ---------------- panel 2: Q = 32 ----------------
+  \begin{scope}[shift={(5.5,0)}]
+  \node[font=\small] at (2.1,3.75) {$Q = 32$};
+  \foreach \k in {0,...,19}{
+    \pgfmathsetmacro\h{3.2*(1 - (\k/31)*((\k-1)/30)*((\k-2)/29))}
+    \fill[blue!45] ({\k*4.2/32},0) rectangle ({(\k+1)*4.2/32},\h);
+    \draw[white, line width=0.25pt]
+      ({(\k+1)*4.2/32},0) -- ({(\k+1)*4.2/32},\h);}
+  \foreach \k in {20,...,31}{
+    \pgfmathsetmacro\h{3.2*(1 - (\k/31)*((\k-1)/30)*((\k-2)/29))}
+    \fill[blue!15] ({\k*4.2/32},0) rectangle ({(\k+1)*4.2/32},\h);
+    \draw[white, line width=0.25pt]
+      ({\k*4.2/32},0) -- ({\k*4.2/32},\h);}
+  \draw[orange!85!black, dashed, line width=0.9pt]
+    plot[domain=0:4.2, samples=80] (\x, {3.2*(1-(\x/4.2)^3)});
+  \draw[->] (0,0) -- (4.5,0);
+  \draw[->] (0,0) -- (0,3.55);
+  \draw (2.625,-0.05) -- (2.625,0.05);
+  \node[font=\scriptsize, below] at (2.625,-0.06) {$\ell/Q$};
+  \node[font=\scriptsize, below] at (0,-0.06) {$0$};
+  \draw (4.2,-0.05) -- (4.2,0.05);
+  \node[font=\scriptsize, below] at (4.2,-0.06) {$1$};
+  \end{scope}
+  \node[black!60] at (4.95,1.6) {$\longrightarrow$};
+
+  % ---------------- panel 3: the limit ----------------
+  \begin{scope}[shift={(11,0)}]
+  \node[font=\small] at (2.1,3.75) {$Q \to \infty$};
+  \fill[blue!45] (0,0) --
+    plot[domain=0:2.625, samples=50] (\x, {3.2*(1-(\x/4.2)^3)})
+    -- (2.625,0) -- cycle;
+  \draw[orange!85!black, line width=1pt]
+    plot[domain=0:4.2, samples=80] (\x, {3.2*(1-(\x/4.2)^3)});
+  \draw[->] (0,0) -- (4.5,0);
+  \draw[->] (0,0) -- (0,3.55);
+  \draw (2.625,-0.05) -- (2.625,0.05);
+  \node[font=\scriptsize, below] at (2.625,-0.06) {$x$};
+  \node[font=\scriptsize, below] at (0,-0.06) {$0$};
+  \draw (4.2,-0.05) -- (4.2,0.05);
+  \node[font=\scriptsize, below] at (4.2,-0.06) {$1$};
+  \node[font=\scriptsize, fill=white, inner sep=1.5pt]
+    at (1.31,1.5) {$g(x)$};
+  \node[font=\scriptsize, anchor=west, orange!85!black]
+    at (3.1,1.9) {$\gamma(x)$};
+  \end{scope}
+  \node[black!60] at (10.45,1.6) {$\longrightarrow$};
+\end{tikzpicture}
+\caption{From the finite increments to the profile, drawn for parity
+blocks of size four, whose limit is $\gamma(x) = 1 - x^3$ (dashed).
+Each bar has width $1/Q$ and height $\gamma_{n,k}$, so the shaded
+bars sum -- the telescoping identity \eqref{eq:riemann} -- to
+exactly $G_{n,\ell}/Q$, here at $\ell/Q = 5/8$. Refining $Q$ shrinks
+the bars onto the staircase's limit, and dominated convergence turns
+the shaded sum into the area $g(x) = \int_0^x \gamma$: received
+information per question becomes the area under the profile.}
+\label{fig:riemann}
+\end{figure}
 
 Monotonicity and boundedness guarantee convergent subsequences by a
 Helly selection argument, but they do not guarantee that the full
@@ -4012,8 +4096,7 @@ that
 are the entropy of one answer before anything is known and the
 entropy per question once the component is known.
 
-Because the construction treats all questions alike, $H(\psi(\mathcal
-T))$ takes the same value $G_k$ for every $\mathcal S$ of size $k$.
+Because the construction treats all questions alike, $H(\psi(\mathcal S))$ takes the same value $G_k$ for every $\mathcal S$ of size $k$.
 Applying the chain rule to the joint distribution of $Z$ and
 $\psi(\mathcal S)$ in both orders,
 %
@@ -4086,11 +4169,9 @@ $0 < x < 1$. Then $g(x) = x\,h_{\rm cond}$ and \eqref{eq:master}
 collapses to
 %
 \begin{equation}
-  \boxed{\;
   L(x) = 1 + \frac cx,
   \qquad
   c = \frac{H(\nu_{\rm mix}) - h_{\rm cond}}{h_{\rm cond}} \;\ge\; 0,
-  \;}
   \label{eq:coinhyperbola}
 \end{equation}
 %
@@ -4276,6 +4357,12 @@ the scale.}
 \label{fig:cointdl}
 \end{figure}
 
+That sameness is de Finetti's theorem at work: a projectively
+consistent exchangeable binary prior keeps only $h_0$ and
+$h_{\rm cond}$ in the limit, and two Bernoulli components already
+realize every finite $c$ -- two coins are all the richness
+exchangeability has.
+
 \subsubsection{What changes when \texorpdfstring{$m>1$}{m>1}}
 
 For $m > 1$ the categorical construction \eqref{eq:coinprior} is the
@@ -4323,10 +4410,9 @@ and since the latent contributes only subextensive information,
 $F_s/s \to \sum_r w_r h_2(\theta_r)$, giving
 %
 \begin{equation}
-  \boxed{\;
   L_m(x) = 1 + \frac{c_m}{x},
   \qquad
-  c_m = \frac{F_m - h_{{\rm cond},m}}{h_{{\rm cond},m}} \;}
+  c_m = \frac{F_m - h_{{\rm cond},m}}{h_{{\rm cond},m}} 
   \label{eq:coinhyperbolam}
 \end{equation}
 %
@@ -4387,41 +4473,6 @@ $m$ and the coefficient stays $c_1$. With \emph{a fresh component
 redrawn at every question}, the answers are i.i.d.\ with distribution
 $\nu_{\rm mix}$, so $G_\ell = \ell H(\nu_{\rm mix})$ and $L \equiv 1$:
 there is no persistent latent variable to learn.
-
-\subsubsection{What ``two coins are enough'' means}
-
-For binary answers, a projectively consistent infinitely exchangeable
-prior is a mixture of i.i.d.\ Bernoulli laws by de Finetti's theorem.
-Projective consistency matters: an arbitrary exchangeable prior at
-each finite $n$, or an arbitrary sequence of such priors, need not
-come from one directing measure and need not converge. For a fixed
-directing measure the macroscopic curve retains only the two entropy
-summaries $h_0 = h_2(\mathbb E\Theta)$ and
-$h_{\rm cond} = \mathbb E[h_2(\Theta)]$, and after taking a
-dimensionless ratio only $c = (h_0-h_{\rm cond})/h_{\rm cond}$. For a
-possibly continuous directing measure the empirical frequency
-identifies the directing parameter almost surely, so
-$H(\psi(q)\mid\psi(\mathcal S)) \downarrow \mathbb E[h_2(\Theta)]$
-and $H(\psi(\mathcal S))/k \to h_{\rm cond}$; the finite-component
-bound on $I_k$ is not needed for this extension.
-
-Two Bernoulli components realize every finite value of $c \ge 0$. At
-fixed mean $0 < \mu < 1$ take weights $(1-\mu, \mu)$ and biases
-$\theta_1 = (1-\xi)\mu$, $\theta_2 = (1-\xi)\mu + \xi$, whose mean
-remains $\mu$; as $\xi$ moves from $0$ toward $1$ their mean
-conditional entropy moves continuously from $h_2(\mu)$ toward $0$, so
-every positive intermediate value is attained. The endpoint $\xi = 1$
-has zero entropy density and is excluded from the finite
-thermodynamic law. This does \emph{not} mean that two atoms reproduce
-an arbitrary exchangeable prior, its finite-$n$ corrections, or its
-posterior concentration rate; for $A > 2$, de Finetti gives mixtures
-of i.i.d.\ categorical distributions and two atoms do not in general
-reproduce every marginal-and-entropy pair. The precise conclusion is
-narrower: every fixed, projectively consistent exchangeable binary
-prior with positive conditional entropy density has a hyperbolic
-macroscopic curve; that curve contains only two entropy summaries;
-and a two-coin model realizes every finite value of their scale-free
-ratio, one effective coin being the trivial case $L \equiv 1$.
 
 \subsection{Non-hyperbolic solvable priors}\label{sec:nonhyp}
 
@@ -4532,10 +4583,9 @@ that exactly $i$ of the fresh question's $r-1$ partners have been
 asked by macroscopic time $x$. The limiting profile is therefore
 %
 \begin{equation}
-  \boxed{\;
   \gamma(x)
   = \sum_\kappa w_\kappa\sum_{i=0}^{r_\kappa-1}
-  \beta_{r_\kappa-1,i}(x)\,\eta_\kappa(i). \;}
+  \beta_{r_\kappa-1,i}(x)\,\eta_\kappa(i). 
   \label{eq:bernsteinprofile}
 \end{equation}
 %
@@ -4721,7 +4771,7 @@ $h_{\mathcal V}$,
   \qquad
   g(x) = \frac{h_{\rm clique}}{r}\big[1-(1-x)^r\big],
   \qquad
-  \boxed{\;L(x)\equiv r.\;}
+  L(x)\equiv r.
   \label{eq:clique}
 \end{equation}
 %
@@ -4749,8 +4799,7 @@ $0\le i\le r-2$ and $\eta(r-1) = 0$, giving
 $\gamma(x) = 1-x^{r-1}$, $g(x) = x - x^r/r$ and
 %
 \begin{equation}
-  \boxed{\;
-  L(x) = \frac{x + (1-x)x^{r-1}}{x - x^r/r}. \;}
+  L(x) = \frac{x + (1-x)x^{r-1}}{x - x^r/r}. 
   \label{eq:parity}
 \end{equation}
 %
@@ -4830,9 +4879,8 @@ a code fraction $w$ with a fresh fraction $1-w$:
 \begin{equation}
   \frac{\gamma(x)}m = w\,\tau_{r,k}(x) + (1-w),
   \qquad
-  \boxed{\;
   L(x) = \frac{w\big[1-(1-x)\tau_{r,k}(x)\big] + (1-w)x}
-    {w\int_0^x\tau_{r,k}(t)\,dt + (1-w)x} . \;}
+    {w\int_0^x\tau_{r,k}(t)\,dt + (1-w)x} . 
   \label{eq:mdsfresh}
 \end{equation}
 %
@@ -4850,12 +4898,11 @@ $P_{\mathcal V,\delta} = (1-\delta)P_{\mathcal V}
 becomes
 %
 \begin{equation}
-  \boxed{\;
   p_{\delta,j}
   = \prod_{\mathcal V\in\mathcal P_n}
   \Big[(1-\delta_{\mathcal V,n})
     P_{\mathcal V}\big(\phi_j(\mathcal V)\big)
-    + \delta_{\mathcal V,n}A^{-|\mathcal V|}\Big] . \;}
+    + \delta_{\mathcal V,n}A^{-|\mathcal V|}\Big] . 
   \label{eq:lapse}
 \end{equation}
 %
@@ -4910,10 +4957,9 @@ $\gamma = \sum_\kappa w_\kappa\gamma_\kappa$ and
 $g = \sum_\kappa w_\kappa g_\kappa$, and therefore
 %
 \begin{equation}
-  \boxed{\;
   L(x)
   = \frac{\sum_\kappa w_\kappa g_\kappa(x)L_\kappa(x)}
-         {\sum_\kappa w_\kappa g_\kappa(x)} . \;}
+         {\sum_\kappa w_\kappa g_\kappa(x)} . 
   \label{eq:mixture}
 \end{equation}
 %
@@ -5114,11 +5160,10 @@ counts sum to $\ell$, but entropy adds across independent blocks and
 expectation is linear, so
 %
 \begin{equation}
-  \boxed{\;
   G_{n,\ell}
   = \sum_{\mathcal V\in\mathcal P_n}\sum_{j=0}^{|\mathcal V|}
   \frac{\binom{|\mathcal V|}{j}\binom{Q-|\mathcal V|}{\ell-j}}
-       {\binom{Q}{\ell}}\,H_{\mathcal V}(j) \;}
+       {\binom{Q}{\ell}}\,H_{\mathcal V}(j) 
   \label{eq:appGnl}
 \end{equation}
 %
@@ -5139,12 +5184,11 @@ mean conditional entropy even without entropy homogeneity, so for
 $0\le\ell<Q$,
 %
 \begin{equation}
-  \boxed{\;
   \gamma_{n,\ell}
   = G_{n,\ell+1}-G_{n,\ell}
   = \sum_\kappa w_{\kappa,n}\sum_{i=0}^{r_\kappa-1}
   \frac{\binom{r_\kappa-1}{i}\binom{Q-r_\kappa}{\ell-i}}
-       {\binom{Q-1}{\ell}}\,\eta_\kappa(i) . \;}
+       {\binom{Q-1}{\ell}}\,\eta_\kappa(i) . 
   \label{eq:appgamma}
 \end{equation}
 
@@ -5433,9 +5477,8 @@ on total parity $\sigma$,
     \big[1+(-1)^{\sigma\oplus z}\varepsilon^{\,v}\big]}
     {2\big[1+(-1)^\sigma\varepsilon^{\,r}\big]},
   \qquad
-  \boxed{\;
   \eta(i) = \sum_{z=0}^1\Pr(\sigma_{\rm seen} = z\mid\sigma)\,
-  h_2\big(P_{\rm next}(v,\sigma\oplus z)\big). \;}
+  h_2\big(P_{\rm next}(v,\sigma\oplus z)\big). 
   \label{eq:apptiltedeta}
 \end{equation}
 %
@@ -5458,9 +5501,8 @@ the uncertainty in the final bit is exactly the uncertainty in the
 resulting parity label:
 %
 \begin{equation}
-  \boxed{\;
   \gamma_\delta(x)
-  = 1-\big[1-h_2(P_{\rm odd}(r,\delta))\big]x^{r-1}. \;}
+  = 1-\big[1-h_2(P_{\rm odd}(r,\delta))\big]x^{r-1}. 
   \label{eq:appnoisyparity}
 \end{equation}
 %
@@ -5525,11 +5567,10 @@ $r$ questions. For a pure code prior
 $g(x) = m\int_0^x\tau_{r,k}$ and
 %
 \begin{equation}
-  \boxed{\;
   L_{\rm code}(x)
   = \frac{1-(1-x)\tau_{r,k}(x)}{\int_0^x\tau_{r,k}(t)\,dt},
   \qquad
-  L_{\rm code}(1) = \frac1\rho = \frac rk . \;}
+  L_{\rm code}(1) = \frac1\rho = \frac rk . 
   \label{eq:appmdsL}
 \end{equation}
 %
@@ -5572,9 +5613,8 @@ $1\le k<r$ differentiating the binomial tail gives
 $\tau_{r,k}'(x) = -(r-1)\binom{r-2}{k-1}x^{k-1}(1-x)^{r-1-k}$, so
 %
 \begin{equation}
-  \boxed{\;
   -(1-x)\gamma'(x)
-  = w\,m\,(r-1)\binom{r-2}{k-1}x^{k-1}(1-x)^{r-k} \;}
+  = w\,m\,(r-1)\binom{r-2}{k-1}x^{k-1}(1-x)^{r-k} 
   \label{eq:appmdsrelease}
 \end{equation}
 %
@@ -5601,12 +5641,11 @@ A^{k-j}\big]$, while the other $A^j-A^k$ patterns each have
 probability $\delta A^{-j}$. Summing the two entropy contributions,
 %
 \begin{equation}
-  \boxed{\;
   H_\delta(j)
   = \Lambda\big[km-\log_2\Lambda\big]
   + \delta\big(1-A^{\,k-j}\big)\big[jm-\log_2\delta\big],
   \qquad
-  \Lambda := (1-\delta)+\delta A^{\,k-j},\;}
+  \Lambda := (1-\delta)+\delta A^{\,k-j},
   \label{eq:applapsed}
 \end{equation}
 %
@@ -5815,9 +5854,8 @@ If instead $h_0>\gamma(0^+)>0$, an initial boundary layer has
 disappeared into $x = 0$ and
 %
 \begin{equation}
-  \boxed{\;
   L(x)\;\sim\;\frac{h_0-\gamma(0^+)}{\gamma(0^+)}\,\frac1x
-  \qquad (x\downarrow0), \;}
+  \qquad (x\downarrow0), 
   \label{eq:boundarylayer}
 \end{equation}
 %
