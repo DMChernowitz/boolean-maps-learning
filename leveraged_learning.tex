@@ -2167,8 +2167,7 @@ $\ell$:
   nd/.style={draw=black!35, rounded corners=1.5pt, inner sep=1.6pt,
              fill=white, font=\tiny},
   ed/.style={draw=black!22, line width=0.3pt},
-  up/.style={draw=orange!85!black, line width=0.9pt},
-  dn/.style={draw=blue!65!black, line width=0.9pt}]
+  up/.style={draw=blue!65!black, line width=0.9pt}]
   % rank 0 and rank 4
   \node[nd] (r0) at (0,0) {$\emptyset$};
   \node[nd] (r4) at (0,6) {$\{11,10,01,00\}$};
@@ -2198,14 +2197,13 @@ $\ell$:
                      b4/c1, b4/c4, b5/c1, b5/c3, b6/c1, b6/c2}
     \draw[ed] (\s) -- (\t);
   \foreach \s in {c1,c2,c3,c4} \draw[ed] (\s) -- (r4);
-  % highlighted: the three children of one node, the two parents of another
+  % highlighted: the three children of one node
   \foreach \t in {b1,b2,b3} \draw[up] (a11) -- (\t);
-  \foreach \s in {a01,a00} \draw[dn] (\s) -- (b6);
+  \foreach \s in {a01,a00} \draw[ed] (\s) -- (b6);
   % rank labels
-  \foreach \y/\g/\c in {0/{$G_0$}/1, 1.5/{$G_1$}/4, 3/{$G_2$}/6,
-                        4.5/{$G_3$}/4, 6/{$G_4$}/1}
-    \node[font=\scriptsize, anchor=east] at (-6.95,\y)
-      {\g\;\raisebox{0.1ex}{\tiny(\c)}};
+  \foreach \y/\g in {0/{$G_0$}, 1.5/{$G_1$}, 3/{$G_2$},
+                     4.5/{$G_3$}, 6/{$G_4$}}
+    \node[font=\scriptsize, anchor=east] at (-6.95,\y) {\g};
 \end{tikzpicture}
 \end{center}
 
@@ -2218,11 +2216,11 @@ questions still unasked, and their weights are exactly the column
 entropies of the posterior table, averaged over the answers: \emph{the
 remaining table entropy of an asked set is the total weight of the
 up-edges leaving its node}. There are $Q - \ell$ of them, drawn in
-orange above for $\mathcal S = \{11\}$.
+blue above for $\mathcal S = \{11\}$.
 
 Now average across a rank. Each of the $\binom{Q}{\ell+1}$ nodes on
-rank $\ell+1$ is reached by $\ell + 1$ edges from below, drawn in
-blue above for $\{01, 00\}$, so the same edges counted from either
+rank $\ell+1$ is reached by $\ell + 1$ edges from below, so the same
+edges counted from either
 side give $(Q - \ell)\binom{Q}{\ell} = (\ell{+}1)\binom{Q}{\ell+1}$.
 Hence the mean edge weight between the two ranks is precisely
 $G_{\ell+1} - G_\ell$, and multiplying it by the $Q - \ell$ edges
