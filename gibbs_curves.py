@@ -261,7 +261,9 @@ def opt_contingent_curve(sys, p, HM0, lstar):
 
 
 # ---------------- run ----------------
-PARAMS = [("A", 1.0, 0.0, 0.0), ("B", 1.5, 0.5, -0.2)]
+PARAMS = [("Occam", 1.0, 0.0, 0.0),
+          ("Occamer", 2.0, 0.0, 0.0),
+          ("Pragmatist", 1.5, 1.0, -0.3)]
 
 
 def gibbs(sys, beta, alpha, mu):
