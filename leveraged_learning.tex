@@ -3065,6 +3065,8 @@ ever leaves.
 
   % ---------------- occupancy column headers ----------------
   \node[font=\small] at (-0.7,2.3) {$P_k$};
+  \node[font=\small] at (1.75,2.3) {spike};
+  \node[font=\small] at (8.75,2.3) {uniform};
   \node[font=\small] at (11.3,2.3) {$1 - P_k$};
 
   % ---------------- row k = 0 ----------------
@@ -3075,25 +3077,22 @@ ever leaves.
   \node[font=\scriptsize] at (-0.7,1.62) {$1$};
 
   \draw[state] (0,0) rectangle (3.5,1.9);
-  \node[font=\scriptsize, anchor=north west] at (0.06,1.86)
-    {spike};
-  \draw[black!55] (0.25,0.35) -- (3.25,0.35);
+    \draw[black!55] (0.25,0.35) -- (3.25,0.35);
   \fill[blue!45] (0.5,0.35) rectangle (0.78,0.575);
-  \node[font=\scriptsize] at (0.64,0.76) {$p_0 = 0.3$};
+  \node[font=\scriptsize, align=center] at (0.64,0.98) {$p_0$\\[-2pt]$0.3$};
   \fill[blue!45] (1.35,0.35) rectangle (1.63,0.385);
   \fill[blue!45] (1.8,0.35) rectangle (2.08,0.385);
   \node at (2.42,0.42) {$\cdots$};
   \fill[blue!45] (2.75,0.35) rectangle (3.03,0.385);
   \node[font=\scriptsize] at (1.49,0.17) {$\omega$};
-  \node[font=\scriptsize] at (2.19,0.82) {$0.7$};
+  \node[font=\scriptsize, align=center] at (2.55,1.5) {$1-p_0$\\[-2pt]$0.7$};
 
   \draw[state] (7,0) rectangle (10.5,1.9);
-  \node[font=\scriptsize, anchor=north west] at (7.06,1.86)
-    {uniform};
-  \draw[black!55] (7.3,0.35) -- (10.2,0.35);
+    \draw[black!55] (7.3,0.35) -- (10.2,0.35);
   \foreach \xx in {7.5,8.05} \fill[blue!45]
     (\xx,0.35) rectangle (\xx+0.28,0.62);
   \node at (8.87,0.47) {$\cdots$};
+  \node[font=\scriptsize] at (8.75,0.85) {$p_j$};
   \foreach \xx in {9.4,9.95} \fill[blue!45]
     (\xx,0.35) rectangle (\xx+0.28,0.62);
 
@@ -3116,25 +3115,22 @@ ever leaves.
   \node[font=\scriptsize] at (-0.7,-2.06) {$0.475$};
 
   \draw[state] (0,-3.1) rectangle (3.5,-1.2);
-  \node[font=\scriptsize, anchor=north west] at (0.06,-1.24)
-    {spike};
-  \draw[black!55] (0.25,-2.75) -- (3.25,-2.75);
+    \draw[black!55] (0.25,-2.75) -- (3.25,-2.75);
   \fill[blue!45] (0.5,-2.75) rectangle (0.78,-2.276);
-  \node[font=\scriptsize] at (0.64,-2.09) {$p_1 = 0.632$};
+  \node[font=\scriptsize, align=center] at (0.64,-1.9) {$p_1$\\[-2pt]$0.632$};
   \fill[blue!45] (1.35,-2.75) rectangle (1.63,-2.71);
   \fill[blue!45] (1.8,-2.75) rectangle (2.08,-2.71);
   \node at (2.42,-2.68) {$\cdots$};
   \fill[blue!45] (2.75,-2.75) rectangle (3.03,-2.71);
   \node[font=\scriptsize] at (1.49,-2.93) {$\omega_1$};
-  \node[font=\scriptsize] at (2.19,-2.28) {$0.368$};
+  \node[font=\scriptsize, align=center] at (2.55,-1.6) {$1-p_1$\\[-2pt]$0.368$};
 
   \draw[state] (7,-3.1) rectangle (10.5,-1.2);
-  \node[font=\scriptsize, anchor=north west] at (7.06,-1.24)
-    {uniform};
-  \draw[black!55] (7.3,-2.75) -- (10.2,-2.75);
+    \draw[black!55] (7.3,-2.75) -- (10.2,-2.75);
   \foreach \xx in {7.5,8.05} \fill[blue!45]
     (\xx,-2.75) rectangle (\xx+0.28,-2.48);
   \node at (8.87,-2.63) {$\cdots$};
+  \node[font=\scriptsize] at (8.75,-2.25) {$p_j$};
   \foreach \xx in {9.4,9.95} \fill[blue!45]
     (\xx,-2.75) rectangle (\xx+0.28,-2.48);
 
@@ -3158,25 +3154,22 @@ ever leaves.
   \node[font=\scriptsize] at (-0.7,-5.3) {$0.344$};
 
   \draw[state] (0,-6.2) rectangle (3.5,-4.3);
-  \node[font=\scriptsize, anchor=north west] at (0.06,-4.34)
-    {spike};
-  \draw[black!55] (0.25,-5.85) -- (3.25,-5.85);
+    \draw[black!55] (0.25,-5.85) -- (3.25,-5.85);
   \fill[blue!45] (0.5,-5.85) rectangle (0.78,-5.195);
-  \node[font=\scriptsize] at (0.64,-5.0) {$p_2 = 0.873$};
+  \node[font=\scriptsize, align=center] at (0.64,-4.82) {$p_2$\\[-2pt]$0.873$};
   \fill[blue!45] (1.35,-5.85) rectangle (1.63,-5.81);
   \fill[blue!45] (1.8,-5.85) rectangle (2.08,-5.81);
   \node at (2.42,-5.78) {$\cdots$};
   \fill[blue!45] (2.75,-5.85) rectangle (3.03,-5.81);
   \node[font=\scriptsize] at (1.49,-6.03) {$\omega_2$};
-  \node[font=\scriptsize] at (2.19,-5.38) {$0.127$};
+  \node[font=\scriptsize, align=center] at (2.55,-4.7) {$1-p_2$\\[-2pt]$0.127$};
 
   \draw[state] (7,-6.2) rectangle (10.5,-4.3);
-  \node[font=\scriptsize, anchor=north west] at (7.06,-4.34)
-    {uniform};
-  \draw[black!55] (7.3,-5.85) -- (10.2,-5.85);
+    \draw[black!55] (7.3,-5.85) -- (10.2,-5.85);
   \foreach \xx in {7.5,8.05} \fill[blue!45]
     (\xx,-5.85) rectangle (\xx+0.28,-5.58);
   \node at (8.87,-5.73) {$\cdots$};
+  \node[font=\scriptsize] at (8.75,-5.35) {$p_j$};
   \foreach \xx in {9.4,9.95} \fill[blue!45]
     (\xx,-5.85) rectangle (\xx+0.28,-5.58);
 
