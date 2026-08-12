@@ -3231,7 +3231,7 @@ each of the $Q - k$ unasked questions carries mean conditional
 entropy $G_{k+1} - G_k$, and
 %
 \begin{equation}
-  \mathbb E[H(M_k)] = (Q-k)(G_{k+1}-G_k),
+  \big\langle H\big(M^{(k)}\big)\big\rangle = (Q-k)(G_{k+1}-G_k),
   \qquad
   \boxed{\;
   \langle L_k\rangle
@@ -3258,7 +3258,7 @@ The surprisals are
   \qquad
   s_{\rm wrong} = -\log_2 U,
   \qquad
-  \mathbb E[s] = P\,s_{\rm correct} + (A-1)U\,s_{\rm wrong} = G_1 ,
+  \langle s\rangle = P\,s_{\rm correct} + (A-1)U\,s_{\rm wrong} = G_1 ,
   \label{eq:spikesurprisal}
 \end{equation}
 %
@@ -3285,7 +3285,7 @@ $A$ symbols and $H_{\rm after, wrong} = (Q-1)m$. Weighting the two
 branches,
 %
 \begin{equation}
-  \mathbb E[H(M_1)]
+  \big\langle H\big(M^{(1)}\big)\big\rangle
   = P\,H_{\rm after, correct} + (A-1)U\,H_{\rm after, wrong}
   = (Q-1)(G_2 - G_1),
   \label{eq:spikebranchavg}
@@ -3313,8 +3313,8 @@ case of \eqref{eq:spikeLk}.
 \dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_4to1.dat}
 \dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_4to1.dat}
 \datalegend{{before}, {$s_{\rm correct}$}, {$s_{\rm wrong}$},
-  {$\mathbb E[s]$}, {after (correct)},
-  {after (wrong)}, {$\mathbb E[H(M_1)]$}}
+  {$\langle s\rangle$}, {after (correct)},
+  {after (wrong)}, {$\langle H(M^{(1)})\rangle$}}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -3420,7 +3420,7 @@ when $C > 0$ the share of it freed by a single question is
 %
 \begin{equation}
   \boxed{\;
-  R_1 \;:=\; \frac{\mathbb E[\Delta H(M)] - G_1}{C}
+  R_1 \;:=\; \frac{\langle \Delta H(M)\rangle - G_1}{C}
   \;=\; \frac{(Q-1)(2G_1 - G_2)}{Q G_1 - G_Q}. \;}
   \label{eq:extraction}
 \end{equation}
@@ -3661,7 +3661,7 @@ At any fixed $x > 0$ the conditional height $p_k$ on a surviving
 branch has approached one within a vanishing fraction of the run. The
 branch itself still occurs with limiting probability $p$, and the
 complementary probability $1-p$ lies on uniform refuted branches, so
-$\mathbb E[H(M_{\lfloor xQ\rfloor})]/Q \to (1-x)(1-p)m$ and
+$\langle H(M^{(\lfloor xQ\rfloor)})\rangle/Q \to (1-x)(1-p)m$ and
 $G_{\lfloor xQ\rfloor}/Q \to x(1-p)m$. Since $G_1 \to
 h_{\rm spike}(p,m)$, dividing the numerator and denominator of
 \eqref{eq:spikeLk} by $Q$ gives
@@ -3778,7 +3778,8 @@ over subsets.
 For each fixed question set $\mathcal S \subseteq \mathcal Q$ the vector
 $\psi(\mathcal S)$ collects the answers to those questions, and its
 entropy is taken under the prior law of $\psi$ with $\mathcal S$ held
-fixed. Define
+fixed. The mean block entropy is that of
+equation~\eqref{eq:Gk}, now carrying the system size explicitly:
 %
 \begin{equation}
   G_{n,k}
@@ -3793,32 +3794,23 @@ so that $G_{n,0} = 0$ and $G_{n,Q} = H(\psi) = H(p^{(n)})$, where
 $p^{(n)}$ is the prior law of the random map at size $n$, with
 increments $\gamma_{n,k} := G_{n,k+1} - G_{n,k}$.
 
-The entropy chain rule separates uncertainty already present in one
-variable from what is left in another once the first is known: for
-discrete $X_1, X_2$,
-%
-\begin{equation}
-  H(X_1,X_2) = H(X_1) + H(X_2\mid X_1),
-  \qquad
-  H(X_2\mid X_1) = \sum_x \Pr(X_1 = x)\,H(X_2 \mid X_1 = x).
-  \label{eq:chainrule}
-\end{equation}
-%
-Applying it to $\psi(\mathcal S)$ and one fresh answer $\psi(q)$,
-$q \in \mathcal Q \setminus \mathcal S$,
-with $i \notin \mathcal S$, and averaging over the externally
-selected questions, gives
+By the entropy chain rule, exactly as in the derivation of
+equation~\eqref{eq:law-remaining}, the increment is the mean
+conditional entropy of one fresh answer,
 %
 \begin{equation}
   \gamma_{n,k}
-  \;=\; \mathbb E_{\mathcal S, i}
-  \big[H\big(\psi(q)\mid\psi(\mathcal S)\big)\big].
+  \;=\; \mathbb E_{\mathcal S, q}
+  \big[H\big(\psi(q)\mid\psi(\mathcal S)\big)\big],
+  \qquad
+  |\mathcal S| = k,
+  \quad q \in \mathcal Q \setminus \mathcal S.
   \label{eq:gammank}
 \end{equation}
 %
 There are two separate averages here: the conditional entropy
 averages over answer histories under the prior on the random map,
-while $\mathbb E_{\mathcal S, i}$ averages that entropy over which
+while $\mathbb E_{\mathcal S, q}$ averages that entropy over which
 questions were selected. Conditioning reduces entropy, so coupling a
 random $k$-set to a random $(k{+}1)$-set yields
 %
@@ -3831,17 +3823,19 @@ random $k$-set to a random $(k{+}1)$-set yields
 This monotonicity is deterministic, the truth and the subset having
 already been averaged over. It should not be called self-averaging;
 concentration of individual learning trajectories would be a separate
-result. The exact finite-$n$ identities are then
+result. The two laws \eqref{eq:law-received} and
+\eqref{eq:law-remaining} then read
 %
 \begin{equation}
-  \mathbb E[\text{received through }\ell] = G_{n,\ell},
+  \Big\langle \sum_{i=1}^{\ell} s_i \Big\rangle = G_{n,\ell},
   \qquad
-  \mathbb E[\text{remaining table entropy}]
+  \big\langle H\big(M^{(\ell)}\big) \big\rangle
   = (Q-\ell)\,\gamma_{n,\ell},
   \label{eq:finitelaws}
 \end{equation}
 %
-for $0 \le \ell < Q$, with zero remaining entropy at $\ell = Q$, so
+for $0 \le \ell < Q$, with zero remaining entropy at $\ell = Q$, and
+equation~\eqref{eq:Lk-G} becomes
 %
 \begin{equation}
   \boxed{\;
@@ -4187,8 +4181,8 @@ $0.365$ and the other six each $0.045$. Hence
   \label{eq:coinworkedG}
 \end{equation}
 %
-with increments $(1,\ 0.680077,\ 0.589327,\ 0.528517)$ and exact
-cumulative leverages
+with increments $(1,\ 0.680077,\ 0.589327,\ 0.528517)$ and, by the
+leverage law \eqref{eq:finitelev}, exact cumulative leverages
 $1.95977,\ 1.67930,\ 1.52969,\ 1.42963$. The conditional entropy
 density and hyperbola coefficient are
 $h_{\rm cond} = h_2(0.1) = 0.468996$ and
