@@ -2947,31 +2947,6 @@ $\psi$ is drawn at the start of a run and supplies every answer in
 it; posteriors are conditional distributions of that same random map,
 and expected trajectories average over its prior law.
 
-Fix an ordering $q_1, \ldots, q_Q$ of the questions. For an index set
-$\mathcal T \subseteq \{1, \ldots, Q\}$ write
-%
-\begin{equation}
-  \psi(\mathcal T)
-  \;:=\; \big(\psi(q_k)\big)_{k \in \mathcal T}
-  \;\in\; \mathcal A^{|\mathcal T|},
-  \qquad
-  \Pr\big(\psi(\mathcal T) = y\big)
-  \;=\; \sum_{j=0}^{N-1} p_j\,
-  \mathbf 1\big[\phi_j(\mathcal T) = y\big],
-  \label{eq:answerblock}
-\end{equation}
-%
-components in increasing order of $k$, with the parallel notation
-$\phi_j(\mathcal T)$ for a fixed candidate map. The entropy
-$H(\psi(\mathcal T))$ measures uncertainty in those answers, not
-uncertainty about which questions were selected: $\mathcal T$ is
-held fixed. As in Chapter~\ref{sec:expectations}, the truth is drawn
-from the learner's prior and the questions are asked in uniformly
-random order, and leverage is always the ratio of expected totals,
-never the expectation of branchwise ratios. Binary entropy is written
-$h_2(z) = -z\log_2 z - (1-z)\log_2(1-z)$ with $0\log 0 := 0$;
-categorical entropies keep $H$.
-
 \subsection{A toy example: the spike prior and its renormalization
 flow}\label{sec:spike}
 
@@ -3007,14 +2982,16 @@ surviving spike sharpens toward one.
 
 \subsubsection{The two-state flow and exact leverage}
 
-Let $\mathcal T_k := \{1, \ldots, k\}$ in the fixed ordering. A
-history remains on the spike branch for $k$ steps exactly when
-$\psi(\mathcal T_k) = 0^{mk}$, and exactly $N_k := N u^k$ maps produce
-that confirming history, one of which is $\phi_0$. Its prior
+Ask the questions one at a time, in any order: by the symmetry of
+the prior, which questions cannot matter, only how many. Write
+$\mathcal S \subseteq \mathcal Q$ for the set asked so far, with
+$|\mathcal S| = k$. A history remains on the spike branch exactly
+when $\psi(\mathcal S) = 0^{mk}$, and exactly $N_k := N u^k$ maps
+produce that confirming history, one of which is $\phi_0$. Its prior
 probability is therefore
 %
 \begin{equation}
-  P_k \;:=\; \Pr\big(\psi(\mathcal T_k) = 0^{mk}\big)
+  P_k \;:=\; \Pr\big(\psi(\mathcal S) = 0^{mk}\big)
   \;=\; p + (N_k - 1)\,\omega
   \;=\; p + (N u^k - 1)\,\omega .
   \label{eq:spikePk}
@@ -3024,7 +3001,7 @@ On that event the posterior is another spike on those $N_k$ maps,
 %
 \begin{equation}
   p_k \;=\; \Pr\big(\psi = \phi_0 \mid
-  \psi(\mathcal T_k) = 0^{mk}\big) \;=\; \frac{p}{P_k},
+  \psi(\mathcal S) = 0^{mk}\big) \;=\; \frac{p}{P_k},
   \qquad
   \omega_k \;=\; \frac{\omega}{P_k},
   \label{eq:spikeposterior}
@@ -3032,13 +3009,14 @@ On that event the posterior is another spike on those $N_k$ maps,
 %
 so $p_k$ is the time-indexed posterior height of the spike evaluated
 on the realized confirming branch, equal at $k = 0$ to the original
-weight $p$. For $0 \le k < Q$ the next zero answer is predicted by
+weight $p$. For $0 \le k < Q$ the next zero answer, at any fresh
+question $q \in \mathcal Q \setminus \mathcal S$, is predicted by
 the special map and by $u N_k - 1$ of the surviving background maps,
 giving
 %
 \begin{equation}
-  \Pr\big(\psi(q_{k+1}) = 0^m \mid
-  \psi(\mathcal T_k) = 0^{mk}\big)
+  \Pr\big(\psi(q) = 0^m \mid
+  \psi(\mathcal S) = 0^{mk}\big)
   = p_k + (u N_k - 1)\,\omega_k
   = \frac{P_{k+1}}{P_k},
   \qquad
@@ -3050,7 +3028,7 @@ The boxed product is the Bayesian consistency condition that
 organizes the example. The probability $P_k$ of remaining on the
 spike branch decreases while the conditional height $p_k$ increases,
 and their product stays equal to the original mass. Equivalently
-$\Pr(\psi = \phi_0 \mid \psi(\mathcal T_k))$ is a martingale under the
+$\Pr(\psi = \phi_0 \mid \psi(\mathcal S))$ is a martingale under the
 Bayes average over histories: it equals $p_k$ after $k$ confirmations
 and zero after refutation, so its expectation is always $P_k p_k = p$.
 Renormalization sharpens the surviving spike without creating
@@ -3072,6 +3050,119 @@ macrostates and their directions are therefore
   \label{eq:spikeflow}
 \end{equation}
 %
+\begin{example}
+The flow at $(n, m) = (3, 2)$, so $A = 4$ and $N = 4^8 = 65{,}536$,
+started from $p_0 = 0.3$. Each confirmed answer divides the
+surviving map space by four and renormalizes the spike upward; each
+refutation drops the belief into the uniform class, which nothing
+ever leaves.
+
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm,
+  state/.style={draw=black!50, rounded corners=2pt, fill=gray!6},
+  flow/.style={-{Stealth[length=5pt]}, black!70, line width=0.8pt},
+  alab/.style={font=\scriptsize, fill=white, inner sep=1.5pt}]
+
+  % ---------------- row k = 0 ----------------
+  \node[font=\small] at (1.75,2.35) {$P_0 = 1$};
+  \draw[state] (0,0) rectangle (3.5,1.9);
+  \node[font=\scriptsize, anchor=north west] at (0.06,1.86)
+    {spike, $65{,}536$ maps};
+  \draw[black!55] (0.25,0.35) -- (3.25,0.35);
+  \fill[blue!45] (0.5,0.35) rectangle (0.78,0.575);
+  \node[font=\scriptsize] at (0.64,0.76) {$p_0 = 0.3$};
+  \fill[blue!45] (1.3,0.35) rectangle (1.58,0.385);
+  \node[font=\scriptsize] at (1.44,0.56) {$\omega$};
+  \node[font=\scriptsize, align=left, anchor=west] at (1.8,0.82)
+    {$1 - p_0 = 0.7$\\[-2pt] on $65{,}535$ maps};
+
+  \draw[state] (7,0) rectangle (10.5,1.9);
+  \node[font=\scriptsize, anchor=north west] at (7.06,1.86)
+    {uniform, $65{,}536$ maps};
+  \draw[black!55] (7.3,0.35) -- (10.2,0.35);
+  \foreach \xx in {7.7,8.25} \fill[blue!45]
+    (\xx,0.35) rectangle (\xx+0.28,0.62);
+  \node at (8.75,0.47) {$\cdots$};
+  \foreach \xx in {8.97,9.52} \fill[blue!45]
+    (\xx,0.35) rectangle (\xx+0.28,0.62);
+
+  % ---------------- transitions 0 -> 1 ----------------
+  \draw[flow] (1.75,0) -- (1.75,-1.2)
+    node[alab, midway, left=1pt] {$P_1/P_0 = 0.475$};
+  \draw[flow] (3.1,0) -- (7.6,-1.2)
+    node[alab, pos=0.45] {$1 - P_1/P_0 = 0.525$};
+  \draw[flow] (8.75,0) -- (8.75,-1.2)
+    node[alab, midway, right=1pt] {$1$};
+
+  % ---------------- row k = 1 ----------------
+  \draw[state] (0,-3.1) rectangle (3.5,-1.2);
+  \node[font=\scriptsize, anchor=north west] at (0.06,-1.24)
+    {spike, $16{,}384$ maps};
+  \draw[black!55] (0.25,-2.75) -- (3.25,-2.75);
+  \fill[blue!45] (0.5,-2.75) rectangle (0.78,-2.276);
+  \node[font=\scriptsize] at (0.64,-2.09) {$p_1 = 0.632$};
+  \fill[blue!45] (1.3,-2.75) rectangle (1.58,-2.71);
+  \node[font=\scriptsize] at (1.44,-2.54) {$\omega_1$};
+  \node[font=\scriptsize, align=left, anchor=west] at (1.8,-2.28)
+    {$1 - p_1 = 0.368$\\[-2pt] on $16{,}383$ maps};
+
+  \draw[state] (7,-3.1) rectangle (10.5,-1.2);
+  \node[font=\scriptsize, anchor=north west] at (7.06,-1.24)
+    {uniform, $16{,}384$ maps};
+  \draw[black!55] (7.3,-2.75) -- (10.2,-2.75);
+  \foreach \xx in {7.7,8.25} \fill[blue!45]
+    (\xx,-2.75) rectangle (\xx+0.28,-2.48);
+  \node at (8.75,-2.63) {$\cdots$};
+  \foreach \xx in {8.97,9.52} \fill[blue!45]
+    (\xx,-2.75) rectangle (\xx+0.28,-2.48);
+
+  % ---------------- transitions 1 -> 2 ----------------
+  \draw[flow] (1.75,-3.1) -- (1.75,-4.3)
+    node[alab, midway, left=1pt] {$P_2/P_1 = 0.724$};
+  \draw[flow] (3.1,-3.1) -- (7.6,-4.3)
+    node[alab, pos=0.45] {$1 - P_2/P_1 = 0.276$};
+  \draw[flow] (8.75,-3.1) -- (8.75,-4.3)
+    node[alab, midway, right=1pt] {$1$};
+
+  % ---------------- row k = 2 ----------------
+  \draw[state] (0,-6.2) rectangle (3.5,-4.3);
+  \node[font=\scriptsize, anchor=north west] at (0.06,-4.34)
+    {spike, $4{,}096$ maps};
+  \draw[black!55] (0.25,-5.85) -- (3.25,-5.85);
+  \fill[blue!45] (0.5,-5.85) rectangle (0.78,-5.195);
+  \node[font=\scriptsize] at (0.64,-5.0) {$p_2 = 0.873$};
+  \fill[blue!45] (1.3,-5.85) rectangle (1.58,-5.81);
+  \node[font=\scriptsize] at (1.44,-5.64) {$\omega_2$};
+  \node[font=\scriptsize, align=left, anchor=west] at (1.8,-5.38)
+    {$1 - p_2 = 0.127$\\[-2pt] on $4{,}095$ maps};
+
+  \draw[state] (7,-6.2) rectangle (10.5,-4.3);
+  \node[font=\scriptsize, anchor=north west] at (7.06,-4.34)
+    {uniform, $4{,}096$ maps};
+  \draw[black!55] (7.3,-5.85) -- (10.2,-5.85);
+  \foreach \xx in {7.7,8.25} \fill[blue!45]
+    (\xx,-5.85) rectangle (\xx+0.28,-5.58);
+  \node at (8.75,-5.73) {$\cdots$};
+  \foreach \xx in {8.97,9.52} \fill[blue!45]
+    (\xx,-5.85) rectangle (\xx+0.28,-5.58);
+
+  % ---------------- trailing flow ----------------
+  \draw[flow, black!45] (1.75,-6.2) -- (1.75,-6.9);
+  \draw[flow, black!45] (3.1,-6.2) -- (5.0,-6.85);
+  \draw[flow, black!45] (8.75,-6.2) -- (8.75,-6.9);
+  \node at (1.75,-7.25) {$\vdots$};
+  \node at (8.75,-7.25) {$\vdots$};
+\end{tikzpicture}
+\end{center}
+
+The two columns are the macrostates of \eqref{eq:spikeflow}, the
+arrows carry the transition probabilities, and each row's map space
+is one quarter of the row above. The invariant $P_k p_k = p$ is
+visible down the left column: the spike bar climbs exactly as fast
+as its branch loses probability, $0.3 = 1 \times 0.3 = 0.475 \times
+0.632 = 0.344 \times 0.873$.
+\end{example}
+
 For $0 \le k < Q$ and $p < 1$ the exact odds on the surviving branch
 are $p_k/(1-p_k) = p(N-1)\big/\big[(1-p)(N u^k - 1)\big]$, and for
 fixed $p > 0$,
@@ -3102,7 +3193,7 @@ $N_k$ background maps and therefore carries the common probability
 \begin{equation}
   U_k \;:=\; \frac{1 - P_k}{u^{-k} - 1} \;=\; N_k\,\omega,
   \qquad\text{so}\qquad
-  \Pr(\psi(\mathcal T) = y)
+  \Pr(\psi(\mathcal S) = y)
   =\begin{cases}
     P_k, & y = 0^{mk},\\
     U_k, & y \neq 0^{mk},
@@ -3110,7 +3201,7 @@ $N_k$ background maps and therefore carries the common probability
   \label{eq:spikeUk}
 \end{equation}
 %
-for any index set $\mathcal T$ of size $k$. The entropy of that block
+for any question set $\mathcal S$ of size $k$. The entropy of that block
 distribution is
 %
 \begin{equation}
@@ -3118,7 +3209,7 @@ distribution is
   \label{eq:spikeGk}
 \end{equation}
 %
-Every choice of $k$ question indices obeys the same law, so
+Every choice of $k$ questions obeys the same law, so
 \eqref{eq:spikeGk} is also the mean $k$-question block entropy of
 Chapter~\ref{sec:expectations}. In particular $G_0 = 0$,
 $G_Q = H(\psi)$ and $H(M)_0 = Q\,G_1$, with the exact prior entropy
@@ -3684,16 +3775,16 @@ over subsets.
 
 \subsubsection{The finite sequence from which the limit is taken}
 
-For each fixed $\mathcal T \subseteq \{1,\ldots,Q\}$ the vector
-$\psi(\mathcal T)$ collects the answers at those indices, and its
-entropy is taken under the prior law of $\psi$ with $\mathcal T$ held
+For each fixed question set $\mathcal S \subseteq \mathcal Q$ the vector
+$\psi(\mathcal S)$ collects the answers to those questions, and its
+entropy is taken under the prior law of $\psi$ with $\mathcal S$ held
 fixed. Define
 %
 \begin{equation}
   G_{n,k}
   \;:=\; \binom{Q}{k}^{-1}
-  \sum_{\substack{\mathcal T \subseteq \{1,\ldots,Q\}\\
-    |\mathcal T| = k}} H\big(\psi(\mathcal T)\big),
+  \sum_{\substack{\mathcal S \subseteq \mathcal Q\\
+    |\mathcal S| = k}} H\big(\psi(\mathcal S)\big),
   \qquad 0 \le k \le Q,
   \label{eq:Gnk}
 \end{equation}
@@ -3713,20 +3804,21 @@ discrete $X_1, X_2$,
   \label{eq:chainrule}
 \end{equation}
 %
-Applying it to $\psi(\mathcal T)$ and one fresh answer $\psi(q_i)$
-with $i \notin \mathcal T$, and averaging over the externally
-selected indices, gives
+Applying it to $\psi(\mathcal S)$ and one fresh answer $\psi(q)$,
+$q \in \mathcal Q \setminus \mathcal S$,
+with $i \notin \mathcal S$, and averaging over the externally
+selected questions, gives
 %
 \begin{equation}
   \gamma_{n,k}
-  \;=\; \mathbb E_{\mathcal T, i}
-  \big[H\big(\psi(q_i)\mid\psi(\mathcal T)\big)\big].
+  \;=\; \mathbb E_{\mathcal S, i}
+  \big[H\big(\psi(q)\mid\psi(\mathcal S)\big)\big].
   \label{eq:gammank}
 \end{equation}
 %
 There are two separate averages here: the conditional entropy
 averages over answer histories under the prior on the random map,
-while $\mathbb E_{\mathcal T, i}$ averages that entropy over which
+while $\mathbb E_{\mathcal S, i}$ averages that entropy over which
 questions were selected. Conditioning reduces entropy, so coupling a
 random $k$-set to a random $(k{+}1)$-set yields
 %
@@ -3895,25 +3987,25 @@ are the entropy of one answer before anything is known and the
 entropy per question once the component is known.
 
 Because the construction treats all questions alike, $H(\psi(\mathcal
-T))$ takes the same value $G_k$ for every $\mathcal T$ of size $k$.
+T))$ takes the same value $G_k$ for every $\mathcal S$ of size $k$.
 Applying the chain rule to the joint distribution of $Z$ and
-$\psi(\mathcal T)$ in both orders,
+$\psi(\mathcal S)$ in both orders,
 %
 \begin{equation}
-  H\big(Z,\psi(\mathcal T)\big)
-  = H(Z) + H\big(\psi(\mathcal T)\mid Z\big)
-  = H\big(\psi(\mathcal T)\big) + H\big(Z\mid\psi(\mathcal T)\big),
+  H\big(Z,\psi(\mathcal S)\big)
+  = H(Z) + H\big(\psi(\mathcal S)\mid Z\big)
+  = H\big(\psi(\mathcal S)\big) + H\big(Z\mid\psi(\mathcal S)\big),
   \label{eq:coinchain}
 \end{equation}
 %
 and using conditional independence,
-$H(\psi(\mathcal T)\mid Z) = k\,h_{\rm cond}$, the two expansions
+$H(\psi(\mathcal S)\mid Z) = k\,h_{\rm cond}$, the two expansions
 rearrange into the exact decomposition
 %
 \begin{equation}
   G_k = k\,h_{\rm cond} + I_k,
   \qquad
-  I_k := I\big(Z;\psi(\mathcal T)\big),
+  I_k := I\big(Z;\psi(\mathcal S)\big),
   \qquad
   \gamma_k = h_{\rm cond} + (I_{k+1}-I_k),
   \label{eq:coindecomp}
@@ -3922,7 +4014,7 @@ rearrange into the exact decomposition
 in which $I_k$ is the mutual information between the selected
 component and the first $k$ answers. The correction has the
 conditional-information form
-$I_{k+1}-I_k = I(Z;\psi(q_i)\mid\psi(\mathcal T)) \ge 0$, exactly the
+$I_{k+1}-I_k = I(Z;\psi(q)\mid\psi(\mathcal S)) \ge 0$, exactly the
 additional information that the next answer reveals about which
 component was selected. Substituting into \eqref{eq:finitelev} gives
 the exact finite-$n$ leverage
@@ -3949,8 +4041,11 @@ $\nu_r^{\otimes\infty}$,
 %
 \begin{equation}
   \frac1k\log_2
-  \frac{\Pr(Z = s\mid\psi(\mathcal T_k))}
-       {\Pr(Z = r\mid\psi(\mathcal T_k))}
+  \frac{\Pr(Z = s\mid\psi(\mathcal S_k))}
+       {\Pr(Z = r\mid\psi(\mathcal S_k))}
+  \qquad
+  (\mathcal S_1 \subset \mathcal S_2 \subset \cdots,
+   \;|\mathcal S_k| = k)
   \;\longrightarrow\;
   -D_{\rm KL}(\nu_r\Vert\nu_s) \;<\; 0,
   \label{eq:coinodds}
@@ -4017,9 +4112,9 @@ this probability, so
 %
 the posterior component weights being defined for count classes with
 $P_{\ell,k} > 0$. Consequently the next-answer probability is
-$\Pr(\psi(q_i) = 1\mid\psi(\mathcal T) = y)
-= \sum_r w_r(\ell,k)\theta_r$ for $|\mathcal T| = \ell$,
-$i \notin \mathcal T$ and $y$ of weight $k$, and averaging its binary
+$\Pr(\psi(q) = 1\mid\psi(\mathcal S) = y)
+= \sum_r w_r(\ell,k)\theta_r$ for $|\mathcal S| = \ell$,
+$i \notin \mathcal S$ and $y$ of weight $k$, and averaging its binary
 entropy over all count classes gives
 %
 \begin{equation}
@@ -4280,8 +4375,8 @@ $h_{\rm cond} = \mathbb E[h_2(\Theta)]$, and after taking a
 dimensionless ratio only $c = (h_0-h_{\rm cond})/h_{\rm cond}$. For a
 possibly continuous directing measure the empirical frequency
 identifies the directing parameter almost surely, so
-$H(\psi(q_i)\mid\psi(\mathcal T)) \downarrow \mathbb E[h_2(\Theta)]$
-and $H(\psi(\mathcal T))/k \to h_{\rm cond}$; the finite-component
+$H(\psi(q)\mid\psi(\mathcal S)) \downarrow \mathbb E[h_2(\Theta)]$
+and $H(\psi(\mathcal S))/k \to h_{\rm cond}$; the finite-component
 bound on $I_k$ is not needed for this extension.
 
 Two Bernoulli components realize every finite value of $c \ge 0$. At
@@ -4978,11 +5073,11 @@ averaged over all $j$-subsets of it,
 \end{equation}
 %
 every term of which is equal when the block is entropy homogeneous.
-If $\mathcal T$ is a uniformly random $\ell$-subset of $\mathcal Q$
+If $\mathcal S$ is a uniformly random $\ell$-subset of $\mathcal Q$
 then its intersection count with $\mathcal V$ is hypergeometric,
 %
 \begin{equation}
-  \Pr(|\mathcal T\cap\mathcal V| = j)
+  \Pr(|\mathcal S\cap\mathcal V| = j)
   = \frac{\binom{|\mathcal V|}{j}\binom{Q-|\mathcal V|}{\ell-j}}
          {\binom{Q}{\ell}} .
   \label{eq:apphyper}
