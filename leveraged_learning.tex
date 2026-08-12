@@ -2217,55 +2217,34 @@ entropies of the posterior table, averaged over the answers: \emph{the
 remaining table entropy of an asked set is the total weight of the
 up-edges leaving its node}. There are $Q - \ell$ of them, drawn in
 blue above for $\mathcal S = \{11\}$.
-
-Now average across a rank. Each of the $\binom{Q}{\ell+1}$ nodes on
-rank $\ell+1$ is reached by $\ell + 1$ edges from below, so the same
-edges counted from either
-side give $(Q - \ell)\binom{Q}{\ell} = (\ell{+}1)\binom{Q}{\ell+1}$.
-Hence the mean edge weight between the two ranks is precisely
-$G_{\ell+1} - G_\ell$, and multiplying it by the $Q - \ell$ edges
-that leave a typical node returns
-equation~\eqref{eq:law-remaining}. The difference of two adjacent
-block entropies is one rung of the lattice; the remaining table
-entropy is a whole node's worth of rungs.
-
-A Venn-style information diagram is the other candidate here, and
-the poorer one: past three variables its regions can take negative
-values, and it displays how the answers \emph{overlap} rather than
-how many of them are known, whereas $G_\ell$ is an average over sets
-of equal \emph{size} --- exactly one rank of this lattice.
 \end{example}
 
-By conservation, destruction and deduction
-are the differences $H(M)_0 - \langle H(M^{(\ell)}) \rangle$ and
-$H(M)_0 - \langle H(M^{(\ell)}) \rangle - G_\ell$, and
+Putting together \eqref{eq:law-received} and \eqref{eq:law-remaining}, 
 equation~\eqref{eq:Lk-avg} becomes
 \begin{equation}\label{eq:Lk-G}
   \langle L_\ell \rangle \;=\;
-  \frac{H(M)_0 - (Q - \ell)\big(G_{\ell+1} - G_\ell\big)}
+  \frac{H(M^{(0)}) - (Q - \ell)\big(G_{\ell+1} - G_\ell\big)}
        {G_\ell}\;.
 \end{equation}
 In terms of the prior, the block entropies are explicit. The maps
-that answer the pattern $b$ on the asked set $\mathcal S$ form a residue
+that answer the pattern $y$ on the asked set $\mathcal S$ form a residue
 class, with mass
 \begin{equation}\label{eq:Gk-pj}
   G_\ell \;=\; -\binom{Q}{\ell}^{-1} \sum_{|\mathcal S| = \ell}\;
-  \sum_{b} P_{S,b} \log_2 P_{S,b},
+  \sum_{y} P_{S,y} \log_2 P_{S,y},
   \qquad
-  P_{S,b} \;:=\; \sum_{j \,:\, \phi_j(q) = b_q \;\forall q \in \mathcal S}
+  P_{S,y} \;:=\; \sum_{j \,:\, \phi_j(q_i) = y_i \;\forall q_i \in \mathcal S}
   p_j,
 \end{equation}
-the inner sum running over the $2^\ell$ answer patterns $b$ on
-$\mathcal S$. Nothing here is specific to $m = 1$: blocks of $m$-bit
-answers obey the same laws verbatim, with $b$ running over the
-$A^\ell$ patterns of the block.
+the inner sum running over the $A^\ell$ answer patterns $y$ on the block
+$\mathcal S$. Nothing here is specific to $m = 1$.
 
 Some observations.
 \begin{itemize}
   \item Expectation kills the windfall. Each step has
     $\langle \Delta H(p) - s \rangle = 0$, so the expected deduced
     part is a pure tower withdrawal:
-    $H(M)_0 - \langle H(M^{(\ell)}) \rangle - G_\ell
+    $H(M^{(0)}) - \langle H(M^{(\ell)}) \rangle - G_\ell
     = C_0 - \langle C_\ell \rangle$, with
     $\langle C_\ell \rangle =
     \langle H(M^{(\ell)}) \rangle - \big(H(p) - G_\ell\big)$. It
@@ -2277,22 +2256,20 @@ Some observations.
     leveraged.
   \item $\langle L_\ell \rangle \geq 1$ always, but it need not be
     monotone. The endpoint is forced:
-    $\langle L_{Q} \rangle = H(M)_0 / H(p) = 1 + C_0/H(p)$, the
+    $\langle L_{Q} \rangle = H(M^{(0)}) / H(p) = 1 + C_0/H(p)$, the
     run ratio quoted in Section~\ref{sec:general}. This is also
     why equation~\eqref{eq:Lk-avg} is a ratio of expectations: the
     expectation of the ratio is dominated by lucky runs with
     vanishing denominators.
-  \item Sanity: $\ell = 0$ returns $H(M)_0 = Q G_1$, and at
-    $n = 1$ the laws reproduce the one-parameter world of
-    Section~\ref{sec:oneparam}.
+  \item Sanity: $\ell = 0$ returns $H(M^{(0)}) = Q G_1$, and at
+    $n = 1$, half-support prior, the laws reproduce the one-parameter world of
+    Section~\ref{sec:oneparam}. 
 \end{itemize}
 
 There is also a monotonicity theorem hiding in $G$. Entropy is
 submodular, so the increments $G_\ell - G_{\ell-1}$, which are
 the expected surprisals of the $\ell$-th answer, decrease with
-$\ell$: answers get cheaper as evidence accumulates. Greedy play
-does the opposite on purpose, seeking out the most expensive
-question on the board.
+$\ell$: answers get cheaper as evidence accumulates. This of course only holds on uniformly random question order.
 
 \begin{example}
 For the guiding prior the block-entropy sequence is
@@ -2471,9 +2448,9 @@ Alongside the interior cost $X_j$, which takes a SAT solver to see,
 two descriptors are visible in one pass over the truth table:
 %
 \begin{itemize}
-\item the \emph{footprint} $F_j = n I_j + S_j$, where the support
-  $S_j$ counts the input bits the map actually depends on and the
-  image size $I_j$ counts the distinct answers it attains (from $1$
+\item the \emph{footprint} $F_j = n \cdot \text{[Image]} + \text{[Support]}$, where the support
+ counts the input bits the map actually depends on and the
+  image size counts the distinct answers it attains (from $1$
   for constants up to $A$). The combination is lossless --
   base-$n$ digits, quotient $I$, remainder $S$ -- and reads as the
   map's \emph{interface}: does it react to all its inputs, does it
@@ -2491,7 +2468,7 @@ For the guiding $(2,1)$ space:
 \begin{center}
 \begin{tabular}{clccccc}
 \toprule
-$j$ & map & $X_j$ & $S_j$ & $I_j$ & $F_j$ & $B_j$ \\
+$j$ & map & $X_j$ & Support & Image & $F_j$ & $B_j$ \\
 \midrule
 0  & FALSE                          & 0 & 0 & 1 & 2 & $-4$ \\
 1  & $\lnot(b_1 \vee b_0)$ (NOR)    & 1 & 2 & 2 & 6 & $-2$ \\

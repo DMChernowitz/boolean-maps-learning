@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gibbs learning curves</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --blue: #2a78d6; --orange: #eb6834; --aqua: #1baf7a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --blue: #3987e5; --orange: #d95926; --aqua: #199e70;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 26px 22px 60px;
+  background: var(--page); color: var(--ink);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+}
+main { max-width: 1180px; margin: 0 auto; }
+h1 { font-size: 21px; font-weight: 600; margin: 0 0 4px; }
+p.lede { color: var(--ink2); margin: 0 0 22px; max-width: 66ch; }
+p.lede code { font-size: 13px; }
+
+/* ---- controls ---- */
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 26px;
+}
+.sliders { display: grid; gap: 14px 26px;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.slider { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px;
+  align-items: center; }
+.slider label { font-size: 13.5px; color: var(--ink2); }
+.slider label b { color: var(--ink); font-weight: 600; }
+.slider output {
+  font-variant-numeric: tabular-nums; font-size: 13px;
+  color: var(--ink); min-width: 4.2em; text-align: right;
+}
+.slider input { grid-column: 1 / -1; width: 100%; accent-color: var(--blue); }
+.status { margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.status b { color: var(--ink2); font-weight: 600; }
+
+/* ---- rows of charts ---- */
+section { margin-bottom: 30px; }
+.rowhead { display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 8px 18px; margin-bottom: 10px; }
+.rowhead h2 { font-size: 15.5px; font-weight: 600; margin: 0; }
+.rowhead .note { font-size: 13px; color: var(--muted); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--ink2); }
+.legend i { width: 17px; height: 0; border-top-width: 2.5px;
+  border-top-style: solid; display: inline-block; }
+.grid3 { display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px 6px; }
+.card h3 { margin: 0 0 2px; font-size: 12.5px; font-weight: 600;
+  color: var(--ink2); font-variant-numeric: tabular-nums; }
+.card .sub { margin: 0 0 4px; font-size: 11.5px; color: var(--muted);
+  font-variant-numeric: tabular-nums; }
+svg { display: block; width: 100%; height: auto; }
+text { fill: var(--muted); font-size: 9.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+text.axis { fill: var(--ink2); font-size: 10px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Gibbs learning curves</h1>
+<p class="lede">
+  Every map <code>&phi;<sub>j</sub></code> in each hypothesis space carries an
+  energy <code>E<sub>j</sub> = &beta;X<sub>j</sub> + &alpha;F<sub>j</sub> +
+  &mu;B<sub>j</sub></code> built from its circuit complexity, its footprint
+  and its bias, and the prior is the Boltzmann weight
+  <code>p<sub>j</sub> &propto; e<sup>&minus;E<sub>j</sub></sup></code>.
+  The sliders move the three fields; every curve below is recomputed
+  exactly, over the whole space.
+</p>
+
+<div class="panel">
+  <div class="sliders">
+    <div class="slider">
+      <label for="beta"><b>&beta;</b> &middot; complexity X</label>
+      <output id="betaOut">1.00</output>
+      <input id="beta" type="range" min="0" max="3" step="0.01" value="1">
+    </div>
+    <div class="slider">
+      <label for="alpha"><b>&alpha;</b> &middot; footprint F</label>
+      <output id="alphaOut">0.00</output>
+      <input id="alpha" type="range" min="-1" max="1" step="0.01" value="0">
+    </div>
+    <div class="slider">
+      <label for="mu"><b>&mu;</b> &middot; bias B</label>
+      <output id="muOut">0.000</output>
+      <input id="mu" type="range" min="-0.5" max="0.5" step="0.005" value="0">
+    </div>
+  </div>
+  <div class="status" id="status">preparing&hellip;</div>
+</div>
+
+<section>
+  <div class="rowhead">
+    <h2>Uniform random question order</h2>
+    <span class="note">averaged over all orders and over &psi; from the prior</span>
+    <span class="legend">
+      <span><i style="border-color:var(--blue)"></i>information learned</span>
+      <span><i style="border-color:var(--orange)"></i>surprisal received</span>
+    </span>
+  </div>
+  <div class="grid3" id="rowUni"></div>
+</section>
+
+<section>
+  <div class="rowhead">
+    <h2>Greedy order</h2>
+    <span class="note">each question the largest expected drop of H(M); order fixed in advance</span>
+    <span class="legend">
+      <span><i style="border-color:var(--blue)"></i>information learned</span>
+      <span><i style="border-color:var(--orange)"></i>surprisal received</span>
+    </span>
+  </div>
+  <div class="grid3" id="rowGre"></div>
+</section>
+
+<section>
+  <div class="rowhead">
+    <h2>Optimal set at half the questions</h2>
+    <span class="note">the best set of size Q/2, asked in random order inside it</span>
+    <span class="legend">
+      <span><i style="border-color:var(--blue)"></i>information learned</span>
+      <span><i style="border-color:var(--orange)"></i>surprisal received</span>
+    </span>
+  </div>
+  <div class="grid3" id="rowOpt"></div>
+</section>
+
+<section>
+  <div class="rowhead">
+    <h2>Leverage</h2>
+    <span class="note">information learned per bit received, all three schedules</span>
+    <span class="legend">
+      <span><i style="border-color:var(--aqua)"></i>uniform</span>
+      <span><i style="border-color:var(--blue)"></i>greedy</span>
+      <span><i style="border-color:var(--orange)"></i>optimal set</span>
+    </span>
+  </div>
+  <div class="grid3" id="rowLev"></div>
+</section>
+</main>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------
+   The three hypothesis spaces. Only the circuit complexity of each map
+   is baked in, one hex digit apiece; footprint and bias are rebuilt
+   here from the truth tables (the builder verifies that they agree with
+   the classification tables on every map).
+------------------------------------------------------------------- */
+const SPECS = [
+  { key: "41", n: 4, m: 1, hex: "__C41__" },
+  { key: "32", n: 3, m: 2, hex: "__C32__" },
+  { key: "21", n: 2, m: 1, hex: "__C21__" }
+];
+
+/* Reference values from gibbs_curves.py at (beta, alpha, mu) = (1, 0, 0),
+   used as a self-test once the engine is built. */
+const REFERENCE = {
+  "41": { HM0: 16.0, Hp: 13.5239, uni1: 1.2529, uniQ: 1.1831,
+          greH: 1.2493, optH: 1.2619 },
+  "32": { HM0: 16.0, Hp: 14.1754, uni1: 1.1681, uniQ: 1.1287,
+          greH: 1.1903, optH: 1.1903 },
+  "21": { HM0: 4.0, Hp: 3.6939, uni1: 1.0963, uniQ: 1.0829,
+          greH: 1.1027, optH: 1.1027 }
+};
+
+function permutations(items) {
+  if (items.length <= 1) return [items.slice()];
+  const out = [];
+  for (let i = 0; i < items.length; i++) {
+    const rest = items.slice(0, i).concat(items.slice(i + 1));
+    for (const tail of permutations(rest)) out.push([items[i]].concat(tail));
+  }
+  return out;
+}
+
+function entropyOf(arr, len) {
+  let h = 0;
+  for (let i = 0; i < len; i++) {
+    const p = arr[i];
+    if (p > 1e-300) h -= p * Math.log2(p);
+  }
+  return h;
+}
+
+class System {
+  constructor(spec) {
+    this.key = spec.key;
+    this.n = spec.n;
+    this.m = spec.m;
+    this.Q = 1 << spec.n;               // questions
+    this.A = 1 << spec.m;               // answers per question
+    this.numMasks = 1 << this.Q;        // subsets of questions
+    this.halfway = this.Q >> 1;
+    this.label = `(n,m) = (${spec.n},${spec.m})`;
+
+    this.powers = new Int32Array(this.Q + 1);
+    this.powers[0] = 1;
+    for (let k = 1; k <= this.Q; k++) this.powers[k] = this.powers[k - 1] * this.A;
+    this.numMaps = this.powers[this.Q];
+
+    this.complexity = new Int8Array(this.numMaps);
+    for (let j = 0; j < this.numMaps; j++) {
+      this.complexity[j] = parseInt(spec.hex[j], 16);
+    }
+    this.deriveDescriptors();
+    this.buildOrbits();
+
+    this.energy = new Float64Array(this.numMaps);
+    this.prior = new Float64Array(this.numMaps);
+    this.joint = new Float64Array(this.numMaps);
+    this.blockEntropy = new Float64Array(this.numMasks);
+    this.seen = new Uint8Array(this.numMasks);
+    this.buffers = [];
+    for (let k = 0; k <= this.Q; k++) {
+      this.buffers.push(new Float64Array(this.powers[k]));
+    }
+  }
+
+  /* The Q answers of map j, in the layout the classification tables use. */
+  answersOf(j, out) {
+    const Q = this.Q;
+    if (this.m === 1) {
+      for (let q = 0; q < Q; q++) out[q] = (j >> q) & 1;
+    } else {                                   // (3,2): high byte, low byte
+      const hi = j >> 8, lo = j & 0xff;
+      for (let q = 0; q < Q; q++) out[q] = (((hi >> q) & 1) << 1) | ((lo >> q) & 1);
+    }
+    return out;
+  }
+
+  /* footprint F = n I + S, bias B = 2|table| - mQ, and the reindexing
+     that puts answer q on digit q of the joint distribution. */
+  deriveDescriptors() {
+    const { numMaps, Q, n, m } = this;
+    this.footprint = new Int16Array(numMaps);
+    this.bias = new Int16Array(numMaps);
+    this.toJointIndex = new Int32Array(numMaps);
+    const answers = new Int32Array(Q);
+    const distinct = new Uint8Array(this.A);
+    for (let j = 0; j < numMaps; j++) {
+      this.answersOf(j, answers);
+      let support = 0;
+      for (let i = 0; i < n; i++) {
+        const flip = 1 << i;
+        for (let q = 0; q < Q; q++) {
+          if (answers[q] !== answers[q ^ flip]) { support++; break; }
+        }
+      }
+      distinct.fill(0);
+      let image = 0;
+      for (let q = 0; q < Q; q++) {
+        if (!distinct[answers[q]]) { distinct[answers[q]] = 1; image++; }
+      }
+      let ones = 0, bits = j;
+      while (bits) { ones += bits & 1; bits >>>= 1; }
+      let idx = 0;
+      for (let q = 0; q < Q; q++) idx += answers[q] * this.powers[q];
+      this.footprint[j] = n * image + support;
+      this.bias[j] = 2 * ones - m * Q;
+      this.toJointIndex[j] = idx;
+    }
+  }
+
+  /* Permuting and negating the input bits relabels the questions and
+     leaves X, F and B untouched, so subset entropies are constant on the
+     orbits of that group. One entropy evaluation per orbit suffices:
+     402 of them at (4,1), against 65536 subsets. */
+  buildOrbits() {
+    const { n, Q, numMasks } = this;
+    const group = [];
+    for (const sigma of permutations([...Array(n).keys()])) {
+      for (let flip = 0; flip < Q; flip++) {
+        const g = new Int32Array(Q);
+        for (let q = 0; q < Q; q++) {
+          let r = 0;
+          for (let b = 0; b < n; b++) if ((q >> b) & 1) r |= 1 << sigma[b];
+          g[q] = r ^ flip;
+        }
+        group.push(g);
+      }
+    }
+    this.groupOrder = group.length;
+    this.representative = new Int32Array(numMasks).fill(-1);
+    this.orbitCount = 0;
+    for (let mask = 0; mask < numMasks; mask++) {
+      if (this.representative[mask] >= 0) continue;
+      this.orbitCount++;
+      for (const g of group) {
+        let image = 0;
+        for (let q = 0; q < Q; q++) if ((mask >> q) & 1) image |= 1 << g[q];
+        this.representative[image] = mask;
+      }
+    }
+    this.popcount = new Uint8Array(numMasks);
+    for (let mask = 1; mask < numMasks; mask++) {
+      this.popcount[mask] = this.popcount[mask >> 1] + (mask & 1);
+    }
+  }
+
+  /* Sum one axis out of a marginal array. Axis a of a mask of size k is
+     the a-th smallest question in it, with stride A^a. */
+  sumOutAxis(src, k, a, dst) {
+    const A = this.A, stride = this.powers[a], block = stride * A;
+    const len = this.powers[k];
+    let out = 0;
+    for (let base = 0; base < len; base += block) {
+      for (let low = 0; low < stride; low++) {
+        let total = 0;
+        for (let d = 0; d < A; d++) total += src[base + low + d * stride];
+        dst[out + low] = total;
+      }
+      out += stride;
+    }
+  }
+
+  /* Depth-first descent through the subset lattice: every mask is
+     reached once, but only orbit representatives pay for a logarithm. */
+  descend(mask, k) {
+    const arr = this.buffers[k];
+    if (this.representative[mask] === mask) {
+      this.blockEntropy[mask] = entropyOf(arr, this.powers[k]);
+    }
+    let axis = 0;
+    for (let q = 0; q < this.Q; q++) {
+      if (!((mask >> q) & 1)) continue;
+      const child = mask ^ (1 << q);
+      if (!this.seen[child]) {
+        this.seen[child] = 1;
+        this.sumOutAxis(arr, k, axis, this.buffers[k - 1]);
+        this.descend(child, k - 1);
+      }
+      axis++;
+    }
+  }
+
+  remainingAfter(mask) {
+    let total = 0;
+    const here = this.blockEntropy[mask];
+    for (let q = 0; q < this.Q; q++) {
+      if (!((mask >> q) & 1)) total += this.blockEntropy[mask | (1 << q)] - here;
+    }
+    return total;
+  }
+
+  compute(beta, alpha, mu) {
+    const { numMaps, Q } = this;
+    let lowest = Infinity;
+    for (let j = 0; j < numMaps; j++) {
+      const e = beta * this.complexity[j] + alpha * this.footprint[j]
+              + mu * this.bias[j];
+      this.energy[j] = e;
+      if (e < lowest) lowest = e;
+    }
+    let total = 0;
+    for (let j = 0; j < numMaps; j++) {
+      const w = Math.exp(-(this.energy[j] - lowest));
+      this.prior[j] = w;
+      total += w;
+    }
+    for (let j = 0; j < numMaps; j++) {
+      this.joint[this.toJointIndex[j]] = this.prior[j] / total;
+    }
+
+    const full = this.numMasks - 1;
+    this.seen.fill(0);
+    this.seen[full] = 1;
+    this.buffers[Q].set(this.joint);
+    this.descend(full, Q);
+    for (let mask = 0; mask <= full; mask++) {
+      this.blockEntropy[mask] = this.blockEntropy[this.representative[mask]];
+    }
+    return this.trajectories();
+  }
+
+  trajectories() {
+    const { Q, halfway, blockEntropy, popcount } = this;
+    const full = this.numMasks - 1;
+
+    const G = new Float64Array(Q + 1), count = new Float64Array(Q + 1);
+    for (let mask = 0; mask <= full; mask++) {
+      G[popcount[mask]] += blockEntropy[mask];
+      count[popcount[mask]]++;
+    }
+    for (let l = 0; l <= Q; l++) G[l] /= count[l];
+    const initial = Q * G[1];
+
+    const uniform = { received: [], learned: [] };
+    for (let l = 1; l <= Q; l++) {
+      const rest = l < Q ? (Q - l) * (G[l + 1] - G[l]) : 0;
+      uniform.received.push(G[l]);
+      uniform.learned.push(initial - rest);
+    }
+
+    const greedy = { received: [], learned: [] };
+    let asked = 0;
+    for (let l = 1; l <= Q; l++) {
+      let pick = -1, best = Infinity;
+      for (let q = 0; q < Q; q++) {
+        if ((asked >> q) & 1) continue;
+        const rest = this.remainingAfter(asked | (1 << q));
+        if (rest < best - 1e-12) { best = rest; pick = q; }
+      }
+      asked |= 1 << pick;
+      greedy.received.push(blockEntropy[asked]);
+      greedy.learned.push(initial - this.remainingAfter(asked));
+    }
+
+    let bestSet = 0, bestRest = Infinity;
+    for (let mask = 0; mask <= full; mask++) {
+      if (popcount[mask] !== halfway) continue;
+      const rest = this.remainingAfter(mask);
+      if (rest < bestRest - 1e-12) { bestRest = rest; bestSet = mask; }
+    }
+    const members = [];
+    for (let q = 0; q < Q; q++) if ((bestSet >> q) & 1) members.push(q);
+    const sumRec = new Float64Array(halfway + 1);
+    const sumLea = new Float64Array(halfway + 1);
+    const subsets = new Float64Array(halfway + 1);
+    for (let s = 0; s < (1 << halfway); s++) {
+      let mask = 0, size = 0;
+      for (let i = 0; i < halfway; i++) {
+        if ((s >> i) & 1) { mask |= 1 << members[i]; size++; }
+      }
+      sumRec[size] += blockEntropy[mask];
+      sumLea[size] += initial - this.remainingAfter(mask);
+      subsets[size]++;
+    }
+    const optimal = { received: [], learned: [] };
+    for (let l = 1; l <= halfway; l++) {
+      optimal.received.push(sumRec[l] / subsets[l]);
+      optimal.learned.push(sumLea[l] / subsets[l]);
+    }
+
+    const leverage = (c) => c.received.map((r, i) => c.learned[i] / r);
+    return {
+      initial, priorEntropy: G[Q], bestSet: members.slice(),
+      uniform, greedy, optimal,
+      leverageUniform: leverage(uniform),
+      leverageGreedy: leverage(greedy),
+      leverageOptimal: leverage(optimal)
+    };
+  }
+}
+
+/* ------------------------------------------------------------------
+   Charts. Plain SVG: a frame, a few gridlines, one polyline per series.
+------------------------------------------------------------------- */
+const W = 330, HT = 196, ML = 40, MR = 10, MT = 8, MB = 26;
+
+function niceTicks(hi, lo) {
+  const span = hi - lo;
+  const raw = span / 4;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].find((s) => s * mag >= raw * 0.999) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
+    out.push(Math.abs(v) < 1e-12 ? 0 : v);
+  }
+  return out;
+}
+
+function drawChart(host, opts) {
+  const { xmax, ymin, ymax, series, ylabel } = opts;
+  const px = (x) => ML + (x / xmax) * (W - ML - MR);
+  const py = (y) => HT - MB - ((y - ymin) / (ymax - ymin)) * (HT - MT - MB);
+  const parts = [];
+
+  const ticks = niceTicks(ymax, ymin);
+  const step = ticks.length > 1 ? ticks[1] - ticks[0] : 1;
+  const places = Math.max(0, Math.min(6, Math.ceil(-Math.log10(step)) + 1));
+  const label = (v) => v.toFixed(places).replace(/\.?0+$/, "") || "0";
+  for (const t of ticks) {
+    const y = py(t).toFixed(1);
+    parts.push(`<line x1="${ML}" y1="${y}" x2="${W - MR}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>`);
+    parts.push(`<text class="axis" x="${ML - 6}" y="${y}" text-anchor="end" dominant-baseline="middle">${label(t)}</text>`);
+  }
+  const xticks = [0];
+  for (let i = 1; i <= 4; i++) xticks.push(Math.round((xmax * i) / 4));
+  for (const t of [...new Set(xticks)]) {
+    const x = px(t).toFixed(1);
+    parts.push(`<line x1="${x}" y1="${MT}" x2="${x}" y2="${HT - MB}" stroke="var(--grid)" stroke-width="1"/>`);
+    parts.push(`<text class="axis" x="${x}" y="${HT - MB + 13}" text-anchor="middle">${t}</text>`);
+  }
+  parts.push(`<line x1="${ML}" y1="${HT - MB}" x2="${W - MR}" y2="${HT - MB}" stroke="var(--axis)" stroke-width="1.2"/>`);
+  parts.push(`<line x1="${ML}" y1="${MT}" x2="${ML}" y2="${HT - MB}" stroke="var(--axis)" stroke-width="1.2"/>`);
+
+  for (const s of series) {
+    const pts = s.points.map(([x, y]) => `${px(x).toFixed(1)},${py(y).toFixed(1)}`).join(" ");
+    parts.push(`<polyline fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${pts}"/>`);
+    for (const [x, y] of s.points) {
+      parts.push(`<circle cx="${px(x).toFixed(1)}" cy="${py(y).toFixed(1)}" r="1.9" fill="${s.color}"/>`);
+    }
+  }
+  parts.push(`<text x="${ML - 6}" y="${MT + 2}" text-anchor="end">${ylabel}</text>`);
+  parts.push(`<text x="${W - MR}" y="${HT - 4}" text-anchor="end">questions asked k</text>`);
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${HT}" role="img">${parts.join("")}</svg>`;
+}
+
+/* ------------------------------------------------------------------
+   Page wiring
+------------------------------------------------------------------- */
+const ROWS = ["rowUni", "rowGre", "rowOpt", "rowLev"];
+const systems = [];
+const cards = {};
+
+function buildCards() {
+  for (const id of ROWS) {
+    const host = document.getElementById(id);
+    host.innerHTML = "";
+    cards[id] = {};
+    for (const sys of systems) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<h3>${sys.label}</h3><p class="sub" id="${id}-${sys.key}-sub"></p><div id="${id}-${sys.key}-plot"></div>`;
+      host.appendChild(card);
+      cards[id][sys.key] = {
+        plot: card.querySelector(`#${id}-${sys.key}-plot`),
+        sub: card.querySelector(`#${id}-${sys.key}-sub`)
+      };
+    }
+  }
+}
+
+function pairSeries(curve, count) {
+  const learned = [], received = [];
+  for (let i = 0; i < count; i++) {
+    learned.push([i + 1, curve.learned[i]]);
+    received.push([i + 1, curve.received[i]]);
+  }
+  return [
+    { color: "var(--blue)", points: [[0, 0]].concat(learned) },
+    { color: "var(--orange)", points: [[0, 0]].concat(received) }
+  ];
+}
+
+function render(results) {
+  for (const sys of systems) {
+    const r = results[sys.key];
+    const ceiling = sys.Q * sys.m;
+    const rows = [
+      ["rowUni", r.uniform, sys.Q,
+       `H(M)&#8320; = ${r.initial.toFixed(3)}, H(p) = ${r.priorEntropy.toFixed(3)} bits`],
+      ["rowGre", r.greedy, sys.Q, `greedy order, ${sys.Q} questions`],
+      ["rowOpt", r.optimal, sys.halfway,
+       `best ${sys.halfway}: {${r.bestSet.join(", ")}}`]
+    ];
+    for (const [id, curve, count, subtitle] of rows) {
+      const target = cards[id][sys.key];
+      target.sub.innerHTML = subtitle;
+      drawChart(target.plot, {
+        xmax: sys.Q, ymin: 0, ymax: ceiling,
+        ylabel: "bits", series: pairSeries(curve, count)
+      });
+    }
+
+    const levs = [
+      ["var(--aqua)", r.leverageUniform, sys.Q],
+      ["var(--blue)", r.leverageGreedy, sys.Q],
+      ["var(--orange)", r.leverageOptimal, sys.halfway]
+    ];
+    let hi = 1;
+    for (const [, values] of levs) for (const v of values) hi = Math.max(hi, v);
+    const target = cards.rowLev[sys.key];
+    target.sub.innerHTML =
+      `run leverage ${r.leverageUniform[sys.Q - 1].toFixed(4)} = H(M)&#8320;/H(p)`;
+    drawChart(target.plot, {
+      xmax: sys.Q, ymin: 1, ymax: hi * 1.02 + 1e-3, ylabel: "L",
+      series: levs.map(([color, values, count]) => ({
+        color,
+        points: values.slice(0, count).map((v, i) => [i + 1, v])
+      }))
+    });
+  }
+}
+
+function selfTest(results) {
+  const failures = [];
+  for (const sys of systems) {
+    const r = results[sys.key], ref = REFERENCE[sys.key];
+    const checks = [
+      ["H(M)0", r.initial, ref.HM0],
+      ["H(p)", r.priorEntropy, ref.Hp],
+      ["L_uniform(1)", r.leverageUniform[0], ref.uni1],
+      ["L_uniform(Q)", r.leverageUniform[sys.Q - 1], ref.uniQ],
+      ["L_greedy(Q/2)", r.leverageGreedy[sys.halfway - 1], ref.greH],
+      ["L_optimal(Q/2)", r.leverageOptimal[sys.halfway - 1], ref.optH]
+    ];
+    for (const [name, got, want] of checks) {
+      if (Math.abs(got - want) > 5e-4) {
+        failures.push(`${sys.label} ${name}: ${got.toFixed(5)} vs ${want}`);
+      }
+    }
+  }
+  return failures;
+}
+
+const status = document.getElementById("status");
+const inputs = {
+  beta: document.getElementById("beta"),
+  alpha: document.getElementById("alpha"),
+  mu: document.getElementById("mu")
+};
+const outputs = {
+  beta: document.getElementById("betaOut"),
+  alpha: document.getElementById("alphaOut"),
+  mu: document.getElementById("muOut")
+};
+
+function fields() {
+  return {
+    beta: parseFloat(inputs.beta.value),
+    alpha: parseFloat(inputs.alpha.value),
+    mu: parseFloat(inputs.mu.value)
+  };
+}
+
+function recompute() {
+  const { beta, alpha, mu } = fields();
+  outputs.beta.textContent = beta.toFixed(2);
+  outputs.alpha.textContent = alpha.toFixed(2);
+  outputs.mu.textContent = mu.toFixed(3);
+  const started = performance.now();
+  const results = {};
+  for (const sys of systems) results[sys.key] = sys.compute(beta, alpha, mu);
+  render(results);
+  return { results, ms: performance.now() - started };
+}
+
+let queued = false;
+function schedule() {
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => {
+    queued = false;
+    const { ms } = recompute();
+    status.innerHTML = statusPrefix + ` &middot; redrawn in <b>${ms.toFixed(0)} ms</b>`;
+  });
+}
+
+let statusPrefix = "";
+(function start() {
+  const built = performance.now();
+  // (2,1) and (3,2) first, so the cheap columns appear promptly
+  for (const spec of [SPECS[2], SPECS[1], SPECS[0]]) systems.push(new System(spec));
+  systems.sort((a, b) => SPECS.findIndex((s) => s.key === a.key)
+                       - SPECS.findIndex((s) => s.key === b.key));
+  buildCards();
+  const setup = performance.now() - built;
+  const { results } = recompute();
+  const failures = selfTest(results);
+  const orbits = systems.map((s) => `${s.label.slice(8)} ${s.orbitCount}/${s.numMasks}`).join(", ");
+  statusPrefix = `exact over ${systems.map((s) => s.numMaps).join(" + ")} maps`
+    + ` &middot; entropy evaluations per orbit: ${orbits}`
+    + ` &middot; setup <b>${setup.toFixed(0)} ms</b>`
+    + (failures.length
+        ? ` &middot; <b>self-test FAILED</b>: ${failures.join("; ")}`
+        : " &middot; <b>self-test passed</b>");
+  status.innerHTML = statusPrefix;
+  for (const key of Object.keys(inputs)) {
+    inputs[key].addEventListener("input", schedule);
+  }
+})();
+</script>
+</body>
+</html>
