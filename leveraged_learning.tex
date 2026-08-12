@@ -136,6 +136,19 @@
 \definecolor{cf4}{HTML}{EDA100}
 \definecolor{cf5}{HTML}{E87BA4}
 
+% ---- draft switch for fast iteration -------------------------------
+% The tabulated curves of the thermodynamic-limit chapter are the bulk
+% of the compile time. With \draftdatatrue the axes, analytic curves,
+% labels and captions are all still typeset; only the readings of
+% figures/data/*.dat are skipped. Set \draftdatafalse for the real run.
+\newif\ifdraftdata
+\draftdatatrue
+% \dataplot{style}{x column}{y column}{file}
+\newcommand{\dataplot}[4]{%
+  \ifdraftdata\else\addplot[#1] table[x=#2, y=#3] {#4};\fi}
+% a legend whose entries belong to those curves, so it must go with them
+\newcommand{\datalegend}[1]{\ifdraftdata\else\legend{#1}\fi}
+
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}[theorem]{Definition}
@@ -177,7 +190,6 @@ Let us start with a small thought experiment, by introducing
   % Faces run from the apex (0,3.2) to the base corners at y = -2.2;
   % the ray crosses at y = 0.1, entering and leaving at x = -+1.951.
   \fill[black!4] (0,3.2) -- (-3.4,-2.2) -- (3.4,-2.2) -- cycle;
-  \draw[black!30, line width=0.9pt] (-1.951,0.1) -- (1.951,0.1);
   \draw[very thick] (0,3.2) -- (-3.4,-2.2) -- (3.4,-2.2) -- cycle;
 
   % Lucide brain-circuit icon (lucide.dev, ISC license), 24x24 viewBox;
@@ -220,7 +232,7 @@ Let us start with a small thought experiment, by introducing
     -42/violet}
     \draw[\col, line width=1.6pt, -{Stealth[length=5pt]}]
       (1.951,0.1) -- ++(\ang:3.3);
-  \node[font=\small] at (6.55,-1.20) {prediction};
+  \node[font=\small] at (4.55,0.62) {prediction};
 
   % name plate
   \node[font=\small] at (0,-2.72) {\textsc{Werner}};
@@ -3017,18 +3029,14 @@ case of \eqref{eq:spikeLk}.
   legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north,
     legend columns=4, /tikz/every even column/.append style={column sep=4pt}},
   legend cell align=left, restrict y to domain=0:20]
-\addplot[cpre, dotted, very thick] table[x=p, y=hbefore]
-  {figures/data/spike_one_4to1.dat};
-\addplot[cok] table[x=p, y=scorrect] {figures/data/spike_one_4to1.dat};
-\addplot[cbad] table[x=p, y=swrong] {figures/data/spike_one_4to1.dat};
-\addplot[cexp] table[x=p, y=sexpected] {figures/data/spike_one_4to1.dat};
-\addplot[cok, dashed] table[x=p, y=hcorrect]
-  {figures/data/spike_one_4to1.dat};
-\addplot[cbad, dashed] table[x=p, y=hwrong]
-  {figures/data/spike_one_4to1.dat};
-\addplot[cexp, dashed] table[x=p, y=hexpected]
-  {figures/data/spike_one_4to1.dat};
-\legend{{before}, {$s_{\rm correct}$}, {$s_{\rm wrong}$},
+\dataplot{cpre, dotted, very thick}{p}{hbefore}{figures/data/spike_one_4to1.dat}
+\dataplot{cok}{p}{scorrect}{figures/data/spike_one_4to1.dat}
+\dataplot{cbad}{p}{swrong}{figures/data/spike_one_4to1.dat}
+\dataplot{cexp}{p}{sexpected}{figures/data/spike_one_4to1.dat}
+\dataplot{cok, dashed}{p}{hcorrect}{figures/data/spike_one_4to1.dat}
+\dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_4to1.dat}
+\dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_4to1.dat}
+\datalegend{{before}, {$s_{\rm correct}$}, {$s_{\rm wrong}$},
   {$\mathbb E[s]$}, {after (correct)},
   {after (wrong)}, {$\mathbb E[H(M_1)]$}}
 \end{axis}
@@ -3039,17 +3047,13 @@ case of \eqref{eq:spikeLk}.
   xlabel={$p$}, xmin=0, xmax=1, ymin=0, ymax=18,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12}, restrict y to domain=0:20]
-\addplot[cpre, dotted, very thick] table[x=p, y=hbefore]
-  {figures/data/spike_one_3to2.dat};
-\addplot[cok] table[x=p, y=scorrect] {figures/data/spike_one_3to2.dat};
-\addplot[cbad] table[x=p, y=swrong] {figures/data/spike_one_3to2.dat};
-\addplot[cexp] table[x=p, y=sexpected] {figures/data/spike_one_3to2.dat};
-\addplot[cok, dashed] table[x=p, y=hcorrect]
-  {figures/data/spike_one_3to2.dat};
-\addplot[cbad, dashed] table[x=p, y=hwrong]
-  {figures/data/spike_one_3to2.dat};
-\addplot[cexp, dashed] table[x=p, y=hexpected]
-  {figures/data/spike_one_3to2.dat};
+\dataplot{cpre, dotted, very thick}{p}{hbefore}{figures/data/spike_one_3to2.dat}
+\dataplot{cok}{p}{scorrect}{figures/data/spike_one_3to2.dat}
+\dataplot{cbad}{p}{swrong}{figures/data/spike_one_3to2.dat}
+\dataplot{cexp}{p}{sexpected}{figures/data/spike_one_3to2.dat}
+\dataplot{cok, dashed}{p}{hcorrect}{figures/data/spike_one_3to2.dat}
+\dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_3to2.dat}
+\dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_3to2.dat}
 \end{axis}
 \end{tikzpicture}
 \caption{One-question anatomy of the spike prior against the special
@@ -3103,13 +3107,10 @@ branch ratios.
   legend cell align=left]
 \addplot[black, thin, forget plot, domain=0:1] {0};
 \addplot[cpre, dotted, thick, domain=0:1] {1};
-\addplot[cok, thick] table[x=p, y=lcorrect]
-  {figures/data/spike_lev_4to1.dat};
-\addplot[cbad, thick] table[x=p, y=lwrong]
-  {figures/data/spike_lev_4to1.dat};
-\addplot[cexp, thick] table[x=p, y=lexpected]
-  {figures/data/spike_lev_4to1.dat};
-\legend{{uniform baseline $L=1$}, {correct}, {wrong}, {expected}}
+\dataplot{cok, thick}{p}{lcorrect}{figures/data/spike_lev_4to1.dat}
+\dataplot{cbad, thick}{p}{lwrong}{figures/data/spike_lev_4to1.dat}
+\dataplot{cexp, thick}{p}{lexpected}{figures/data/spike_lev_4to1.dat}
+\datalegend{{uniform baseline $L=1$}, {correct}, {wrong}, {expected}}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -3120,12 +3121,9 @@ branch ratios.
   grid=major, grid style={black!12}, restrict y to domain=-6:14]
 \addplot[black, thin, domain=0:1] {0};
 \addplot[cpre, dotted, thick, domain=0:1] {1};
-\addplot[cok, thick] table[x=p, y=lcorrect]
-  {figures/data/spike_lev_3to2.dat};
-\addplot[cbad, thick] table[x=p, y=lwrong]
-  {figures/data/spike_lev_3to2.dat};
-\addplot[cexp, thick] table[x=p, y=lexpected]
-  {figures/data/spike_lev_3to2.dat};
+\dataplot{cok, thick}{p}{lcorrect}{figures/data/spike_lev_3to2.dat}
+\dataplot{cbad, thick}{p}{lwrong}{figures/data/spike_lev_3to2.dat}
+\dataplot{cexp, thick}{p}{lexpected}{figures/data/spike_lev_3to2.dat}
 \end{axis}
 \end{tikzpicture}
 \caption{Branchwise \eqref{eq:spikebranchlev} and expected
@@ -3199,12 +3197,12 @@ the approximation's $0.75$. Both share the thermodynamic limit
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
   legend cell align=left]
-\addplot[cf1] table[x=p, y=ratio] {figures/data/extraction_n2.dat};
-\addplot[cf2] table[x=p, y=ratio] {figures/data/extraction_n3.dat};
-\addplot[cf3] table[x=p, y=ratio] {figures/data/extraction_n4.dat};
-\addplot[cf4] table[x=p, y=ratio] {figures/data/extraction_n5.dat};
-\addplot[cf5] table[x=p, y=ratio] {figures/data/extraction_n6.dat};
-\legend{{$n=2$}, {$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}}
+\dataplot{cf1}{p}{ratio}{figures/data/extraction_n2.dat}
+\dataplot{cf2}{p}{ratio}{figures/data/extraction_n3.dat}
+\dataplot{cf3}{p}{ratio}{figures/data/extraction_n4.dat}
+\dataplot{cf4}{p}{ratio}{figures/data/extraction_n5.dat}
+\dataplot{cf5}{p}{ratio}{figures/data/extraction_n6.dat}
+\datalegend{{$n=2$}, {$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}}
 \addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.7059};
 \addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.5826};
 \addplot[cf3, dashed, thin, forget plot, domain=0:1] {0.5357};
@@ -3221,11 +3219,11 @@ the approximation's $0.75$. Both share the thermodynamic limit
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
   legend cell align=left]
-\addplot[cf1] table[x=p, y=ratio] {figures/data/extraction_m1.dat};
-\addplot[cf2] table[x=p, y=ratio] {figures/data/extraction_m2.dat};
-\addplot[cf3] table[x=p, y=ratio] {figures/data/extraction_m3.dat};
-\addplot[cf4] table[x=p, y=ratio] {figures/data/extraction_m4.dat};
-\legend{{$m=1$}, {$m=2$}, {$m=3$}, {$m=4$}}
+\dataplot{cf1}{p}{ratio}{figures/data/extraction_m1.dat}
+\dataplot{cf2}{p}{ratio}{figures/data/extraction_m2.dat}
+\dataplot{cf3}{p}{ratio}{figures/data/extraction_m3.dat}
+\dataplot{cf4}{p}{ratio}{figures/data/extraction_m4.dat}
+\datalegend{{$m=1$}, {$m=2$}, {$m=3$}, {$m=4$}}
 \addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.5826};
 \addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.7875};
 \addplot[cf3, dashed, thin, forget plot, domain=0:1] {0.8932};
@@ -3323,7 +3321,7 @@ correction to the unnormalized leverage.
 \addplot[cpre, only marks, mark=*, mark size=1.4]
   coordinates {(1,0.5)(2,0.75)(3,0.875)(4,0.9375)(5,0.96875)
     (6,0.984375)(7,0.9921875)(8,0.99609)(9,0.998047)(10,0.999023)};
-\legend{{limit $m$ large}, {$1-2^{-m}$}}
+\datalegend{{limit $m$ large}, {$1-2^{-m}$}}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -3334,14 +3332,14 @@ correction to the unnormalized leverage.
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
   legend cell align=left]
-\addplot[cf1] table[x=x, y=lev] {figures/data/spikeflow_sharp_n3.dat};
-\addplot[cf2] table[x=x, y=lev] {figures/data/spikeflow_sharp_n4.dat};
-\addplot[cf3] table[x=x, y=lev] {figures/data/spikeflow_sharp_n5.dat};
-\addplot[cf4] table[x=x, y=lev] {figures/data/spikeflow_sharp_n6.dat};
-\addplot[cf5] table[x=x, y=lev] {figures/data/spikeflow_sharp_n8.dat};
-\addplot[black!55] table[x=x, y=lev] {figures/data/spikeflow_sharp_n10.dat};
+\dataplot{cf1}{x}{lev}{figures/data/spikeflow_sharp_n3.dat}
+\dataplot{cf2}{x}{lev}{figures/data/spikeflow_sharp_n4.dat}
+\dataplot{cf3}{x}{lev}{figures/data/spikeflow_sharp_n5.dat}
+\dataplot{cf4}{x}{lev}{figures/data/spikeflow_sharp_n6.dat}
+\dataplot{cf5}{x}{lev}{figures/data/spikeflow_sharp_n8.dat}
+\dataplot{black!55}{x}{lev}{figures/data/spikeflow_sharp_n10.dat}
 \addplot[black, dashed, domain=0:1] {0.5};
-\legend{{$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}, {$n=8$}, {$n=10$},
+\datalegend{{$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}, {$n=8$}, {$n=10$},
   {$1-2^{-m}$}}
 \end{axis}
 \end{tikzpicture}\hfill
@@ -3353,12 +3351,12 @@ correction to the unnormalized leverage.
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
   legend cell align=left]
-\addplot[cf1] table[x=x, y=e2] {figures/data/spikeflow_eps.dat};
-\addplot[cf2] table[x=x, y=e4] {figures/data/spikeflow_eps.dat};
-\addplot[cf3] table[x=x, y=e8] {figures/data/spikeflow_eps.dat};
-\addplot[cf4] table[x=x, y=e12] {figures/data/spikeflow_eps.dat};
-\addplot[black, dashed] table[x=x, y=sharp] {figures/data/spikeflow_eps.dat};
-\legend{{$10^{-2}$}, {$10^{-4}$}, {$10^{-8}$}, {$10^{-12}$},
+\dataplot{cf1}{x}{e2}{figures/data/spikeflow_eps.dat}
+\dataplot{cf2}{x}{e4}{figures/data/spikeflow_eps.dat}
+\dataplot{cf3}{x}{e8}{figures/data/spikeflow_eps.dat}
+\dataplot{cf4}{x}{e12}{figures/data/spikeflow_eps.dat}
+\dataplot{black, dashed}{x}{sharp}{figures/data/spikeflow_eps.dat}
+\datalegend{{$10^{-2}$}, {$10^{-4}$}, {$10^{-8}$}, {$10^{-12}$},
   {sharp limit}}
 \end{axis}
 \end{tikzpicture}
@@ -3423,7 +3421,7 @@ afterwards.
 \addplot[cf4, thick] {1+1.86397/x};
 \addplot[cf5, thick] {1+5.20406/x};
 \addplot[black, dotted, forget plot] {1};
-\legend{{$p=0.001$}, {$p=0.1$}, {$p=0.5$}, {$p=0.9$}, {$p=0.999$}}
+\datalegend{{$p=0.001$}, {$p=0.1$}, {$p=0.5$}, {$p=0.9$}, {$p=0.999$}}
 \end{semilogyaxis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -3933,13 +3931,13 @@ its endpoint is $1.42963$ against the limiting $1 + c = 2.13222$.
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
   legend cell align=left]
-\addplot[cn1] table[x=x, y=lev] {figures/data/cointwo_n4.dat};
-\addplot[cn2] table[x=x, y=lev] {figures/data/cointwo_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/cointwo_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/cointwo_n10.dat};
+\dataplot{cn1}{x}{lev}{figures/data/cointwo_n4.dat}
+\dataplot{cn2}{x}{lev}{figures/data/cointwo_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/cointwo_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/cointwo_n10.dat}
 \addplot[clim, dashed, thick, domain=0.15:1, samples=80]
   {1+1.132216/x};
-\legend{{$n=4$}, {$n=6$}, {$n=8$}, {$n=10$}, {$1+c_1/x$}}
+\datalegend{{$n=4$}, {$n=6$}, {$n=8$}, {$n=10$}, {$1+c_1/x$}}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -3950,10 +3948,10 @@ its endpoint is $1.42963$ against the limiting $1 + c = 2.13222$.
   xmin=0.15, xmax=1, ymin=0.95, ymax=9,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12}]
-\addplot[cn1] table[x=x, y=lev] {figures/data/cointen_n4.dat};
-\addplot[cn2] table[x=x, y=lev] {figures/data/cointen_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/cointen_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/cointen_n10.dat};
+\dataplot{cn1}{x}{lev}{figures/data/cointen_n4.dat}
+\dataplot{cn2}{x}{lev}{figures/data/cointen_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/cointen_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/cointen_n10.dat}
 \addplot[clim, dashed, thick, domain=0.15:1, samples=80]
   {1+1.132216/x};
 \end{axis}
@@ -4043,12 +4041,12 @@ initial answer entropy, not $2h_2(1/2) = 2$.
   grid=major, grid style={black!12},
   legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
   legend cell align=left]
-\addplot[cn1] table[x=x, y=lev] {figures/data/coinm1_n4.dat};
-\addplot[cn2] table[x=x, y=lev] {figures/data/coinm1_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/coinm1_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/coinm1_n10.dat};
+\dataplot{cn1}{x}{lev}{figures/data/coinm1_n4.dat}
+\dataplot{cn2}{x}{lev}{figures/data/coinm1_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/coinm1_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/coinm1_n10.dat}
 \addplot[clim, dashed, thick, domain=0.15:1, samples=80] {1+1.132216/x};
-\legend{{$n=4$}, {$n=6$}, {$n=8$}, {$n=10$}, {$1+c_m/x$}}
+\datalegend{{$n=4$}, {$n=6$}, {$n=8$}, {$n=10$}, {$1+c_m/x$}}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -4059,10 +4057,10 @@ initial answer entropy, not $2h_2(1/2) = 2$.
   xmin=0.15, xmax=1, ymin=0.95, ymax=9,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12}]
-\addplot[cn1] table[x=x, y=lev] {figures/data/coinm2_n4.dat};
-\addplot[cn2] table[x=x, y=lev] {figures/data/coinm2_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/coinm2_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/coinm2_n10.dat};
+\dataplot{cn1}{x}{lev}{figures/data/coinm2_n4.dat}
+\dataplot{cn2}{x}{lev}{figures/data/coinm2_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/coinm2_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/coinm2_n10.dat}
 \addplot[clim, dashed, thick, domain=0.15:1, samples=80] {1+0.791144/x};
 \end{axis}
 \end{tikzpicture}
@@ -4314,11 +4312,11 @@ Leverage itself need not be monotone.
   legend style={font=\scriptsize, at={(0.5,0.97)}, anchor=north,
     legend columns=4},
   legend cell align=left]
-\addplot[cn1, thick] table[x=x, y=b0] {figures/data/bernstein3.dat};
-\addplot[cn2, thick] table[x=x, y=b1] {figures/data/bernstein3.dat};
-\addplot[cn3, thick] table[x=x, y=b2] {figures/data/bernstein3.dat};
-\addplot[cn4, thick] table[x=x, y=b3] {figures/data/bernstein3.dat};
-\legend{$\beta_{3,0}$, $\beta_{3,1}$, $\beta_{3,2}$, $\beta_{3,3}$}
+\dataplot{cn1, thick}{x}{b0}{figures/data/bernstein3.dat}
+\dataplot{cn2, thick}{x}{b1}{figures/data/bernstein3.dat}
+\dataplot{cn3, thick}{x}{b2}{figures/data/bernstein3.dat}
+\dataplot{cn4, thick}{x}{b3}{figures/data/bernstein3.dat}
+\datalegend{$\beta_{3,0}$, $\beta_{3,1}$, $\beta_{3,2}$, $\beta_{3,3}$}
 \end{axis}
 \end{tikzpicture}
 \caption{The degree-three Bernstein basis: bump functions scanning
@@ -4670,8 +4668,8 @@ received after the code deductions have mostly been released.
   xmin=0, xmax=1, ymin=0.9, ymax=4.6,
   tick label style={font=\tiny}, label style={font=\scriptsize},
   grid=major, grid style={black!12}]
-\addplot[cn3] table[x=x, y=lev] {figures/data/zoo_clique_r2.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/zoo_clique_r4.dat};
+\dataplot{cn3}{x}{lev}{figures/data/zoo_clique_r2.dat}
+\dataplot{cn3}{x}{lev}{figures/data/zoo_clique_r4.dat}
 \addplot[clim, dashed, domain=0:1] {2};
 \addplot[clim, dashed, domain=0:1] {4};
 \end{axis}
@@ -4682,9 +4680,9 @@ received after the code deductions have mostly been released.
   xlabel={$x$}, xmin=0, xmax=1, ymin=0.97, ymax=1.4,
   tick label style={font=\tiny}, label style={font=\scriptsize},
   grid=major, grid style={black!12}]
-\addplot[cn1] table[x=x, y=lev] {figures/data/zoo_parity_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/zoo_parity_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/zoo_parity_n10.dat};
+\dataplot{cn1}{x}{lev}{figures/data/zoo_parity_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/zoo_parity_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/zoo_parity_n10.dat}
 \addplot[clim, dashed, domain=0.02:1, samples=80]
   {(x+(1-x)*x^3)/(x-x^4/4)};
 \end{axis}
@@ -4695,11 +4693,10 @@ received after the code deductions have mostly been released.
   xlabel={$x$}, xmin=0, xmax=1, ymin=0.9, ymax=3.2,
   tick label style={font=\tiny}, label style={font=\scriptsize},
   grid=major, grid style={black!12}]
-\addplot[cn1] table[x=x, y=lev] {figures/data/zoo_mds_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/zoo_mds_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/zoo_mds_n10.dat};
-\addplot[clim, dashed] table[x=x, y=lev]
-  {figures/data/zoo_mds_limit.dat};
+\dataplot{cn1}{x}{lev}{figures/data/zoo_mds_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/zoo_mds_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/zoo_mds_n10.dat}
+\dataplot{clim, dashed}{x}{lev}{figures/data/zoo_mds_limit.dat}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -4708,11 +4705,10 @@ received after the code deductions have mostly been released.
   xlabel={$x$}, xmin=0, xmax=1, ymin=0.9, ymax=4,
   tick label style={font=\tiny}, label style={font=\scriptsize},
   grid=major, grid style={black!12}]
-\addplot[cn1] table[x=x, y=lev] {figures/data/zoo_cocktail_n6.dat};
-\addplot[cn3] table[x=x, y=lev] {figures/data/zoo_cocktail_n8.dat};
-\addplot[cn4] table[x=x, y=lev] {figures/data/zoo_cocktail_n10.dat};
-\addplot[clim, dashed] table[x=x, y=lev]
-  {figures/data/zoo_cocktail_limit.dat};
+\dataplot{cn1}{x}{lev}{figures/data/zoo_cocktail_n6.dat}
+\dataplot{cn3}{x}{lev}{figures/data/zoo_cocktail_n8.dat}
+\dataplot{cn4}{x}{lev}{figures/data/zoo_cocktail_n10.dat}
+\dataplot{clim, dashed}{x}{lev}{figures/data/zoo_cocktail_limit.dat}
 \end{axis}
 \end{tikzpicture}
 \caption{Finite learning curves at $n = 6, 8, 10$ (light to dark)
