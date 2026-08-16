@@ -2067,6 +2067,695 @@ The central scale distinction is now explicit:
 
 For Bayesian priors, this means that a finite-dimensional global latent may profoundly affect early learning yet disappear from the interior profile. To obtain nontrivial behavior throughout $0<x<1$, the prior must distribute uncertainty and correlations across $\Theta(|Q|)$ local degrees of freedom. Macroscopic leverage classifies when stored information becomes available, not every detail of how the prior represents it.
 
+## 6. Beyond blocks: shape-based priors (proposal)
+
+The zoo breaks question-permutation symmetry by decree, with a partition into blocks. This section records a construction that breaks it through the geometry of $\mathcal Q$ itself, so that $p_j$ is determined by the *shape* of the map $\phi_j$, and that is still solvable in the limit.
+
+Two constraints drive the design. First, a projectively consistent exchangeable prior has a flat interior profile by the de Finetti argument, hence a hyperbola: a non-hyperbolic prior **must** be non-exchangeable. Second, refusing blocks leaves only one natural structure on $\mathcal Q=\{0,1\}^n$ to break the symmetry with: the hypercube.
+
+### 6.1 The low-degree (Reed--Muller) prior: definition and rate
+
+Every map $\phi:\{0,1\}^n\to\{0,1\}$ is uniquely an $\mathbb F_2$ polynomial in the input bits, its *algebraic normal form*
+
+$$
+\phi(x)=\bigoplus_{S\subseteq[n]}a_S\prod_{i\in S}x_i,
+\qquad
+a_S=\bigoplus_{y\,:\,\mathrm{supp}(y)\subseteq S}\phi(y),
+$$
+
+the coefficients recovered by M\"obius inversion: $a_S$ is the XOR of the truth-table entries on the subcube below $S$ (uniqueness because the $2^n$ monomials are triangular in the subset order, hence independent). The full coefficient vector costs $n2^{n-1}$ in-place XORs by the standard butterfly, whose per-bit kernel $Z=\binom{1\ 0}{1\ 1}$ is the triangular half of the Walsh--Hadamard kernel of the correlator ledger:
+
+$$
+W=\begin{pmatrix}1&1\\1&-1\end{pmatrix}
+=Z\begin{pmatrix}1&0\\0&-2\end{pmatrix}Z^{\mathsf T},
+\qquad
+W^{\otimes n}=Z^{\otimes n}\,\mathrm{diag}_S\big((-2)^{|S|}\big)\,(Z^{\mathsf T})^{\otimes n}.
+$$
+
+The Walsh--Hadamard transform is two M\"obius passes with a $(-2)^{|S|}$ rescaling between them, the matrix form of the spin expansion $\prod_q(1-2y_q)=\sum_T(-2)^{|T|}\prod_{q\in T}y_q$; reducing mod $2$ kills the middle diagonal, makes $Z$ self-inverse, and leaves exactly the XOR butterfly. Same tensor machine, two arithmetics ($W^2=2I$ over $\mathbb R$, $Z^2=I$ over $\mathbb F_2$) and two cubes: the ledger transform acts on the map-space cube $\{0,1\}^Q$, the normal form on the question cube $\{0,1\}^n$. Write $\deg\phi$ for the largest $|S|$ with $a_S=1$. Take
+
+$$
+p_j\;\propto\;\mathbf 1[\deg\phi_j\le d(n)],
+\tag{6.1}
+$$
+
+so the support is the Reed--Muller code $\mathrm{RM}(d,n)$, a linear code of length $Q=2^n$ and dimension
+
+$$
+K=\sum_{i=0}^{d}\binom ni
+=Q\cdot\Pr\Big[\operatorname{Bin}\big(n,\tfrac12\big)\le d\Big].
+\tag{6.2}
+$$
+
+The dimension counts monomials, and the binomial form dictates where the interesting degrees live. For fixed $d$ (or $d=\alpha n$ with $\alpha<\tfrac12$) the rate $R_n=K/Q$ tends to $0$; for $\alpha>\tfrac12$ it tends to $1$. Extensive-rate priors sit at the binomial median: by de Moivre--Laplace,
+
+$$
+d(n)=\frac n2+\frac c2\sqrt n
+\qquad\Longrightarrow\qquad
+R_n\to R=\Phi(c)\in(0,1).
+\tag{6.3}
+$$
+
+The family interpolates between the zoo's two extreme members stretched over the whole table: $\mathrm{RM}(0,n)$ is the repetition code, i.e.\ a single global clique (two constant maps), and $\mathrm{RM}(n-1,n)$ is the even-weight code, i.e.\ a single global parity block. Both are degenerate in the limit ($R\to0$ and $R\to1$); the median-degree regime between them is where a genuine macroscopic profile lives.
+
+**Why a hard cutoff rather than a Gibbs weight on degree.** One can write $p_j\propto e^{-\beta\deg\phi_j}$, but the density of states collapses it back onto (6.1). There are $2^{K_k}$ maps of degree $\le k$, so allowing one more degree adds $\binom n{k+1}\ln2$ nats of entropy against a linear energy cost $\beta$: the balance point pins an effective degree $d^*$ with $\binom n{d^*}\approx\beta/\ln2$, the degree concentrates there, and lower degrees occupy a $2^{-\binom n{d^*}}$ fraction of the support. Canonical equals microcanonical in extreme form: $e^{-\beta\deg}$ is asymptotically uniform on $\mathrm{RM}(d^*,n)$, with $\beta$ forced to scale like $\ln2\binom n{d^*}$ and an equilibrium that exists only on the decreasing flank $d^*\ge n/2$, i.e.\ $R\ge\tfrac12$. The soft variant that stays solvable is the mixture over cutoffs of 6.6; the per-map alternative $p_j\propto e^{-\lambda\,\#\{\text{monomials}\}}$ (iid Bernoulli coefficients in the polynomial basis) is natural but breaks the rank identity (6.4), which requires uniform coefficients.
+
+### 6.2 Exact finite-$n$ structure: entropies are ranks
+
+Write $\psi=u^{\mathsf T}G$ with $G$ a $K\times Q$ generator matrix and $u$ uniform on $\mathbb F_2^K$. For any question set $\mathcal S$, the answer vector $\psi(\mathcal S)$ is uniform on the image of the column submatrix, so
+
+$$
+H\big(\psi(\mathcal S)\big)=\operatorname{rank}\big(G_{\cdot,\mathcal S}\big)
+\quad\text{bits, exactly at every finite }n.
+\tag{6.4}
+$$
+
+Three consequences, all before any limit is taken:
+
+- $h_0=G_{n,1}=1$: the all-ones word (degree $0$) is in the code, so every column of $G$ is nonzero and a single answer is a fair bit.
+- $\gamma_{n,\ell}=G_{n,\ell+1}-G_{n,\ell}=\Pr[\text{a fresh random column increases the rank}]$, i.e.\ the probability that question $\ell+1$ is *not* determined by $\ell$ random answers. Monotonicity of $\gamma_{n,\ell}$ in $\ell$ is submodularity of matroid rank; the boundedness and monotonicity hypotheses of the macroscopic-limit statement hold with no entropy argument.
+- The completion leverage is exact: $G_{n,Q}=H(\psi)=K$, so
+$$
+\langle L_{Q}\rangle=\frac{Q\,G_{n,1}}{G_{n,Q}}=\frac QK=\frac1{R_n}
+\qquad\text{at every finite }n.
+\tag{6.5}
+$$
+
+For small $n$ every $G_{n,\ell}$ is computable by enumerating subsets and taking ranks, giving exact finite-size curves converging to the limit below.
+
+### 6.3 The EXIT identity and the area theorem
+
+The **average EXIT function** of a code at erasure rate $\varepsilon$ is the mean entropy of one coordinate given all others observed through a $\mathrm{BEC}(\varepsilon)$:
+
+$$
+h_n(\varepsilon)=\frac1Q\sum_{q}H\big(\psi(q)\mid \psi(\mathcal S_\varepsilon\setminus q)\big),
+\qquad \mathcal S_\varepsilon=\{\text{unerased coordinates}\}.
+\tag{6.6}
+$$
+
+On the erasure channel there is no soft information: a coordinate is either determined by the revealed set (conditional entropy $0$) or uniform given it (entropy $1$), so $h_n(\varepsilon)$ is again a rank statement, the probability of *not* being determined. The only difference from $\gamma_{n,\ell}$ is Bernoulli sampling of the revealed set instead of a fixed size $\ell$. Since rank changes by at most $1$ per coordinate and the Bernoulli count concentrates, the two agree in the limit:
+
+$$
+\gamma_{n,\lfloor tQ\rfloor}=h_n(1-t)+o(1).
+\tag{6.7}
+$$
+
+The area theorem is the telescoping identity in this notation:
+
+$$
+\int_0^1\gamma_n\big(t\big)\,dt=\frac{G_{n,Q}}Q=R_n\;\to\;R.
+\tag{6.8}
+$$
+
+Received information per question over the whole run is the rate, exactly.
+
+### 6.4 Capacity forces the step
+
+The imported theorem (Kudekar--Kumar--Mondelli--Pfister--\c Sa\c so\u glu--Urbanke, IEEE-IT 2017): Reed--Muller codes of rate $R_n\to R$ achieve capacity on the BEC under bit-MAP decoding. On the erasure channel "bit-MAP error $\to0$" *is* the entropy statement: for every $\varepsilon<1-R$ the probability that a coordinate is undetermined tends to $0$. In profile language, revealing a fraction $t>R$ determines a fresh answer with probability $\to1$:
+
+$$
+\gamma(t)=0\qquad\text{for } t>R.
+\tag{6.9}
+$$
+
+The other half needs no second theorem, only the area. $\gamma$ is nonincreasing and bounded by $h_0=1$, it vanishes on $(R,1)$, and its integral must be $R$ by (6.8); the mass has nowhere to sit except at height $1$ on $(0,R)$:
+
+$$
+\int_0^{R}\gamma= R,\quad \gamma\le1
+\qquad\Longrightarrow\qquad
+\gamma(t)=1\ \text{ for } 0<t<R.
+\tag{6.10}
+$$
+
+So the profile is the exact step $\gamma(t)=\mathbf 1[t<R]$, obtained from a one-sided decoding theorem plus bookkeeping.
+
+### 6.5 The curve
+
+Integrate and substitute into the master law with $h_0=1$:
+
+$$
+g(t)=\int_0^t\gamma=\min(t,R),
+\qquad
+L(t)=\frac{1-(1-t)\gamma(t)}{g(t)}
+=\begin{cases}
+\dfrac{1-(1-t)}{t}=1, & t<R,\\[8pt]
+\dfrac{1-0}{R}=\dfrac1R, & t>R.
+\end{cases}
+\tag{6.11}
+$$
+
+Before $t=R$ every answer is a fresh fair bit and nothing can be deduced: leverage sits exactly at the uniform baseline. At $t=R$ the $K$ received bits pin the codeword, and every one of the remaining $(1-R)Q$ answers is deduced for free; thereafter the cumulative ratio is locked at $1/R$, in agreement with the exact finite-$n$ completion value (6.5). For the median degree $c=0$: $R=\tfrac12$, and $L$ jumps from $1$ to $2$ at half time. At finite $n$ the jump is an analytic S-curve through $t=R_n$ (computable exactly by (6.4) for small $n$), sharpening as $n$ grows.
+
+The information is held until a tunable macroscopic time $t=R=\Phi(c)$, the curve is a step rather than a hyperbola, no blocks appear anywhere, and $p_j$ reads only the algebraic shape of the map. This also upgrades 5.4: the MDS step needed blocks plus the secondary limit $r\to\infty$; here the same profile is a single thermodynamic limit, the law of large numbers replaced by the capacity theorem.
+
+![Reed--Muller profiles and leverage](figures/rm_step.png)
+
+*Median-degree Reed--Muller priors at $R=\tfrac12$ exactly ($n$ odd). Left: the exact $n=3$ profile (full subset enumeration) and Monte Carlo rank profiles at $n=5,7$ (6000 and 2500 random question orders), sharpening onto the step $\mathbf 1[t<\tfrac12]$. Right: the finite-$n$ leverage from the exact law (51), converging to the step $1\to1/R=2$ at half time.*
+
+### 6.6 Extensions
+
+- **Degree mixtures.** $p_j\propto\sum_d w_d\,\mathbf 1[\deg\phi_j\le d]$ with distinct limiting rates gives a staircase $\gamma$; refining the mixture approximates any nonincreasing profile with purely shape-based ensembles. The latent "which $d$" carries $O(\log n)$ bits and vanishes from the interior.
+- **The multicanonical continuum.** No temperature schedule $\beta_n$ on the degree escapes the step: consecutive-degree mass ratios move by factors $e^{\Theta(2^n/n)}$ through the critical window, so any $\beta_n$ concentrates the degree on at most two adjacent values, one limiting rate. What does work is cancelling the density of states. Weight
+$$
+p_j\;\propto\;2^{-K_{\deg\phi_j}}\;g\!\Big(\frac{2\deg\phi_j-n}{\sqrt n}\Big),
+\tag{6.15}
+$$
+a flat-histogram (Wang--Landau) reweighting with an arbitrary fixed density $g$ on the CLT window. The rate $R=\Phi(c)$ then inherits a continuous law $\mu$, and the profile is the mixture of steps $\gamma(t)=\mu(R>t)$: the continuum staircase. In particular $g=$ standard normal makes $R$ uniform on $(0,1)$, so $\gamma(t)=1-t$, $g(t)=t-t^2/2$, and the master law collapses to
+$$
+L(t)=\frac{1-(1-t)^2}{t-t^2/2}\;\equiv\;2:
+\tag{6.16}
+$$
+constant leverage, the clique signature, from a blockless mechanism -- a sharp example for Appendix H that the flattest curve does not identify its microscopics.
+- **What cancelling the density of states means.** Three readings of (6.15). *Hierarchical Bayes*: the nested classes $\mathrm{RM}(0)\subset\cdots\subset\mathrm{RM}(n)$ are model classes; a temperature prices hypotheses and is always outbid by the doubly exponential class sizes, while the reweighting prices the class itself and is indifferent within it -- Occam on classes, the only level where Occam survives super-exponential multiplicity. *Two-part MDL*: $-\log_2 p_j\approx|\text{class code}|+K_{\deg\phi_j}$, the exact codelength of writing the hypothesis down; the honest energy of a degree step is its $\binom nk$ coefficient bits, and $2^{-K}$ charges precisely that where $e^{-\beta k}$ charged a constant. *Statistical mechanics*: at a strongly first-order transition the canonical ensemble pins the order parameter; the flat-histogram ensemble holds the whole coexistence interval open, and here the order parameter is the rate $R$, whose law $\mu$ becomes a free dial.
+- **Profile completeness.** The family realizes *every* admissible profile at $m=1$. A limiting profile must be nonincreasing with $0\le\gamma\le h_0=1$; any such $\gamma$ is its own layer-cake mixture of steps,
+$$
+\mu=-d\gamma\ \text{on}\ (0,1)\;+\;\big(1-\gamma(0^+)\big)\,\delta_0\;+\;\gamma(1^-)\,\delta_1,
+\qquad
+\gamma(t)=\mu(R>t),
+\tag{6.17}
+$$
+realized by pulling $\mu$ back through $R=\Phi(c)$ into the window weight $g$. The atoms are meaningful: mass at $R=0$ is boundary-layer components ($\gamma(0^+)<1$), mass at $R=1$ is a uniform component ($\gamma(1^-)>0$), and an atom at interior $R$ is an interior jump of $\gamma$ -- primary here, in one limit, where the block machinery needs the secondary limit $r\to\infty$. Monotone-bounded being the complete constraint on profiles, no prior of any kind can reach outside this family's range.
+- **The inverse recipe.** Given a target curve $L(t)$ and $h_0=1$: (i) solve the linear ODE of the inverse problem, $(1-t)g'+L\,g=1$, $g(0)=0$, by integrating factor $I(t)=\exp\int_0^t\frac{L(s)}{1-s}ds$, so $g=I^{-1}\int_0^tI(s)/(1-s)\,ds$; (ii) set $\gamma=g'$; (iii) check $\gamma$ nonincreasing with values in $[0,1]$ -- if it fails, *no* prior produces this $L$; (iv) layer-cake $\gamma$ into $\mu$ by (6.17); (v) at size $n$, give degree class $d$ the weight $w_d=\mu\big((R_{n,d-1},R_{n,d}]\big)$, the slice of $\mu$ between consecutive rates, i.e.
+$$
+p_j=\sum_d w_d\,2^{-K_d}\,\mathbf 1[\deg\phi_j\le d].
+\tag{6.18}
+$$
+For $L\equiv2$ the recipe returns $g=t-t^2/2$, $\gamma=1-t$, $\mu$ uniform: each class weighted by the rate gap it spans, recovering (6.16).
+- **Full support with every class alive.** Demand that $\mu$ have a strictly positive density $f$ on $(0,1)$. The consecutive rates differ by $\Delta R_d=\binom nd/2^n$, so
+$$
+w_d=\int_{R_{n,d-1}}^{R_{n,d}}f(R)\,dR\;\approx\;f(R_d)\,\frac{\binom nd}{2^n}\;>\;0
+\quad\text{for every } d\in\{0,\dots,n\},
+\tag{6.19}
+$$
+and since $\mathrm{RM}(n,n)$ is the whole map space, $p_j\ge w_n2^{-Q}>0$ everywhere: full support at every finite $n$ with no noise channel, from the nested supports alone. Each class contributes visibly: $w_d=\gamma(R_{d-1})-\gamma(R_d)$ is the profile's drop across the class's own rate gap, so class identity survives as the local slope of $\gamma$; the individual weights necessarily vanish (as $f/\sqrt n$ in the window, exponentially on the flanks), but the ratio weight-to-rate-gap is the invariant $f$. The support floor $w_n2^{-Q}$ is doubly exponentially thin; a fat floor requires an atom $\bar w$ at $R=1$ and costs exactly $\gamma(1^-)=\bar w$, a permanent full-support tail. In the inverse recipe, this version is available precisely when $\gamma=g'$ comes out strictly decreasing and continuous.
+- **Full support.** Passing answers through the bit-flip channel of Appendix E preserves the limit for vanishing noise and smooths the step at fixed noise, exactly as for the block codes.
+- **Other code families.** Any code sequence with a proven EXIT limit yields a solvable shape-based prior; the EXIT literature (polar, spatially coupled, LDPC under density evolution) is a dictionary of achievable profiles.
+
+### 6.7 A worked prescription: a smooth interior maximum
+
+The requirements: a simply constructible microscopic prior, monotone in complexity (every more complex map strictly less likely than every simpler one), full support, all classes contributing, and clean algebra ending in a smooth $L(t)$ with an interior peak. The prescription:
+
+$$
+\mu\;=\;w\,\mathrm{Beta}(2,2)\;+\;(1-w)\,\delta_1,
+\qquad
+f_{\mathrm{Beta}(2,2)}(R)=6R(1-R).
+\tag{6.20}
+$$
+
+Microscopically: flip a $w$-coin. Heads: draw $R$ as the *median of three uniform numbers* (that is the Beta(2,2) law), find the degree class whose rate gap contains $R$, and draw a uniform polynomial of that class. Tails: draw a fully uniform map. The class weights are the slices $w_d=w\int_{R_{n,d-1}}^{R_{n,d}}6R(1-R)\,dR$ plus the atom $(1-w)$ on $d=n$; all are positive, so every class contributes, $p_j\ge(1-w)2^{-Q}>0$ has a fat full-support floor, and $p_j$ is strictly decreasing in $\deg\phi_j$ because the classes are nested.
+
+The promised cancellation is the beta--binomial duality: the Beta(2,2) survival function with integer parameters is a Bernstein sum, and precisely the smoothstep polynomial already tabulated at (5.9),
+
+$$
+\mu\big((t,1)\big)\Big/w\;\Big|_{\rm cont}
+=1-I_t(2,2)=\tau_{4,2}(t)=1-3t^2+2t^3,
+\qquad
+\gamma(t)=1-w\big(3t^2-2t^3\big).
+\tag{6.21}
+$$
+
+Everything downstream is polynomial:
+
+$$
+g(t)=t-w\,t^3\Big(1-\frac t2\Big),
+\qquad
+1-(1-t)\gamma(t)=t\big[1+w\,t(1-t)(3-2t)\big],
+$$
+
+$$
+L(t)=\frac{1+w\,t(1-t)(3-2t)}{1-w\,t^2\big(1-\tfrac t2\big)}.
+\tag{6.22}
+$$
+
+Endpoints: $\gamma'(0)=0$, so $L(0^+)=1$ exactly with initial slope $L'(0)=3w>0$, and $g(1)=\mathbb E_\mu[R]=1-\tfrac w2$ gives $L(1)=1/\mathbb E_\mu[R]$, an instance of the general identity that completion leverage is the reciprocal mean class rate. Since $L'(0)>0$ and $L'(1)<0$ (this $\gamma$ is the interior-maximum example of 4.3 with $m=1$), the peak is interior and smooth: numerically $L^*=1.44$ at $t^*=0.65$ for $w=0.55$, $L^*=1.70$ at $t^*=0.75$ for $w=0.8$, and $L^*=1.91$ at $t^*=0.87$ for $w=0.95$, against the endpoint values $1/(1-w/2)=1.38,\,1.67,\,1.90$.
+
+![Multicanonical beta-bump profiles and leverage](figures/rm_peak.png)
+
+*The prescription (6.20) at $w=0.55,\,0.8,\,0.95$: smoothstep profiles (left) and leverage curves with smooth interior maxima (right, dots), computed from (6.22).*
+
+The timing story: early on most classes have rates above $t$, so answers are mostly fresh and $L$ hugs the baseline; as $t$ sweeps through the beta bump, class after class is exhausted and deductions surge; past the bump only the uniform remnant keeps paying full price with no deductions left, and the cumulative ratio sags toward $1/\mathbb E_\mu[R]$. Sharper beliefs steepen the surge: replacing $\mathrm{Beta}(2,2)$ by $\mathrm{Beta}(k,r-k)$ concentrates the bump, raises the peak toward the step of 6.4--6.5, and moves it to $t\approx k/r$, with all integrals staying polynomial by the same duality.
+
+### 6.8 The smoothness (Ising) prior: model and derivation roadmap
+
+The geometric alternative encodes "similar questions have similar answers." Encode answers as spins $\sigma_q(\phi):=(-1)^{\phi(q)}$ and weight maps by agreement along the $nQ/2$ hypercube edges:
+
+$$
+p_j\;\propto\;\exp\Big(\beta\sum_{q\sim q'}\sigma_q(\phi_j)\,\sigma_{q'}(\phi_j)\Big),
+\qquad q\sim q'\iff\text{Hamming distance }1.
+\tag{6.12}
+$$
+
+This is a ferromagnetic Ising model whose lattice is the $n$-cube and whose spins are the answers; agreements and the spin product differ only by constants absorbed into $\beta$. It is non-exchangeable, block-free, full-support, and its $p_j$ depends only on the geometry of the map. The derivation it would take, in order:
+
+1. **Choose the scaling.** Each edge carries mutual information $\Theta(\beta^2)$, and there are $nQ/2$ edges, so extensive stored correlation, $\Theta(Q)$ bits, requires $\beta=b/\sqrt n$. The neighboring scalings both degenerate: at $\beta=\Theta(1)$ the diverging degree freezes the model onto the two constant maps (a global clique), and at $\beta=\Theta(1/n)$ the correlation store is $O(Q/n)$, subextensive, and the profile is flat.
+2. **Symmetries first.** At zero external field the $\pm$ gauge gives $h_0=1$ exactly. Full support means $\gamma(1)>0$: unlike the code priors, the profile does not vanish at the end of the run.
+3. **Condition on a macroscopic subset.** $\gamma(t)$ is the mean conditional entropy of one unrevealed spin given the answers on a uniform $tQ$-subset. The cavity field on an unrevealed question is $(b/\sqrt n)\big[\sum_{\text{revealed nbrs}}\sigma+\sum_{\text{unrevealed nbrs}}\langle\sigma\rangle\big]$: a sum of $\approx tn$ pinned terms and $(1-t)n$ fluctuating ones, each of size $1/\sqrt n$. By the CLT the field converges to a centered Gaussian of variance $v(t)$.
+4. **Close the self-consistency.** The variance obeys a fixed point coupling the revealed density to the conditional magnetizations of the unrevealed spins,
+$$
+v(t)=b^2\big[t+(1-t)\,q(t)\big],
+\qquad
+q(t)=\mathbb E_Z\tanh^2\!\big(\sqrt{v(t)}\,Z\big),
+\tag{6.13}
+$$
+the ferromagnetic analogue of a replica-symmetric cavity equation. For $b<1$ the paramagnetic branch is unique; for $b>1$ a one-bit global latent (the pure-state sign) appears and the computation proceeds within a pure state.
+5. **Read off the profile.** $\gamma(t)=\mathbb E_Z\,h_2\big(\tfrac12(1+\tanh(\sqrt{v(t)}\,Z))\big)$. Sanity checks: $v(0)=0$ in the paramagnetic phase, so $\gamma(0^+)=1=h_0$, a genuinely smooth curve with **no boundary layer**; $v$ increases with $t$, so $\gamma$ decreases; $v(1)=b^2$ gives $\gamma(1)>0$.
+6. **Integrate and substitute.** $g(t)=\int_0^t\gamma$ and the master law give a smooth $L(t)$ with no jumps or singularities. Its starting value is *not* the baseline: expanding the fixed point for small $t$ ($q\approx v$, $v\approx b^2t/(1-b^2)$, $\gamma\approx1-v/(2\ln2)$) gives a finite slope for $\gamma$ at zero and hence
+$$
+L(0^+)=1+\frac{|\gamma'(0)|}{h_0}
+=1+\frac{b^2}{2\ln2\,(1-b^2)},
+\tag{6.14}
+$$
+from which $L$ *declines* smoothly toward $L(1)$. The timing is first-touch, clique-like but saturating: early answers immediately bias all their neighbours, and later answers are increasingly redundant. This is a shape the zoo does not contain in pure form: a smooth declining curve with full support, no jump at $t=0$ and no $1/t$ singularity.
+
+![Ising smoothness-prior profiles and leverage](figures/ising_smooth.png)
+
+*The cavity fixed point (6.13) solved numerically at $b=0.35,\,0.7,\,0.95$. Left: smooth profiles with $\gamma(0^+)=h_0=1$ (no boundary layer) and $\gamma(1)>0$ (full support). Right: the leverage starts at the finite plateau (6.14), equal to $1.10$, $1.69$ and $7.68$ respectively, and declines smoothly with no jumps.*
+
+Two honest caveats. In this scaling the cube's geometry washes out: any $n$-regular expander with $1/\sqrt n$ couplings gives the same limit, so the "smoothness on the cube" story survives as motivation while the answer is mean-field universal. And step 3--4 are cavity-method level: provable by Gaussian interpolation at high temperature ($b$ small), open near criticality. It is the right second target; the code prior is the first.
+
+### 6.9 Instructive failures
+
+- **$k$-junta priors** (map depends on a random set of $k$ relevant inputs): the latent is $2^k m=O(1)$ bits, so everything collapses into the boundary layer and the interior is a hyperbola-with-jump.
+- **Bias-Gibbs priors** ($p_j$ a function of the truth-table weight): exchangeable, hence a coin mixture in the limit, hence a hyperbola.
+- **Uniform over monotone maps**: entropy $\sim\binom{n}{n/2}=Q/\Theta(\sqrt n)$ is subextensive, so the normalized profile degenerates.
+
+Each fails one constraint; together they show that a non-hyperbolic block-free prior needs $\Theta(Q)$ bits of stored structure organized non-exchangeably, and the low-degree prior is the minimal natural object that does it.
+
+## 7. The finite law as the engine: from a sampling rule to $L(t)$
+
+This chapter is self-contained: every object is introduced where it first
+appears. The engine is the exact finite law (2.8),
+
+$$
+\langle L_{n,\ell}\rangle
+=\frac{Q\,G_{n,1}-(Q-\ell)\,\gamma_{n,\ell}}{G_{n,\ell}},
+\qquad \ell=\lfloor tQ\rfloor,
+\tag{7.1}
+$$
+
+whose three ingredients -- the prior table entropy $Q\,G_{n,1}$, the
+received entropy $G_{n,\ell}$, and the per-question increment
+$\gamma_{n,\ell}=G_{n,\ell+1}-G_{n,\ell}$ -- will each be computed for a
+prior built from a *generic* sampling rule: a single random number $R$
+drawn from an arbitrary distribution. The three limits come out as
+functionals of that distribution alone, the leverage curve follows for
+the whole family at once, and only at the very end is the distribution
+chosen, to recover one concrete curve.
+
+### 7.1 The hypothesis classes
+
+The truth is a Boolean map $\phi:\{0,1\}^n\to\{0,1\}$, a table of
+$Q=2^n$ answer bits. To organize the $2^Q$ candidate maps by
+complexity, write them as polynomials. The arithmetic lives in
+$\mathbb F_2$, the two-element field $\{0,1\}$ in which addition is XOR
+($1\oplus1=0$) and multiplication is AND; all linear algebra in this
+chapter -- spans, ranks, matrix products -- is over this field. Since a
+bit satisfies $x^2=x$, no variable is ever squared, so a monomial is
+labelled by the *set* $S\subseteq\{1,\dots,n\}$ of variables it
+contains, and every map is a formal XOR of monomials,
+
+$$
+\phi(x)=\bigoplus_{S}a_S\prod_{i\in S}x_i,
+\qquad a_S\in\{0,1\}.
+$$
+
+The *coefficients* $a_S$ are single bits: monomial $S$ is present or
+absent. The *weight* of a monomial is $|S|$, and the *degree* of the
+map, $\deg\phi$, is the largest weight of a present monomial. There are
+$2^n$ monomials, hence $2^Q$ coefficient vectors -- exactly as many as
+maps, and the correspondence is a bijection (the *algebraic normal
+form*): the coefficients are recovered from the truth table by M\"obius
+inversion, $a_S=\bigoplus_{y\subseteq S}\phi(y)$, an XOR over the
+subcube below $S$. Example: OR answers $1$ except at $00$, and
+$\mathrm{OR}=b_1b_0\oplus b_1\oplus b_0$ (check all four inputs), so
+its degree is $2$.
+
+Mechanically the inversion is the $Z$-butterfly. Per bit it is an
+upper-triangular $2\times2$ kernel, and on $n$ bits its tensor power is
+the subset indicator; in the document's descending question order
+$11,10,01,00$ (per bit: $1,0$),
+
+$$
+Z=\begin{pmatrix}1&1\\0&1\end{pmatrix},
+\qquad
+\big(Z^{\otimes n}\big)_{S,y}=\mathbf 1[\,y\subseteq S\,],
+\qquad\text{e.g.}\quad
+Z^{\otimes 2}=
+\begin{pmatrix}
+1&1&1&1\\
+0&1&0&1\\
+0&0&1&1\\
+0&0&0&1
+\end{pmatrix}.
+$$
+
+(Here $\mathbf 1[\cdot]$, used throughout, is the *indicator*: a
+function that evaluates a statement to a bit, $1$ if true and $0$ if
+false.) Over $\mathbb F_2$ the kernel is its own inverse, $Z^2=I$. As
+an in-place algorithm: for each bit $i$, for every input $x$ with
+$x_i=1$, do $T[x]\mathrel{\oplus=}T[x\text{ with bit }i\text{
+cleared}]$; $n2^{n-1}$ XORs in total. The name "triangular half of
+Walsh--Hadamard" is the factorization (same $1,0$ order)
+
+$$
+W=\begin{pmatrix}-1&1\\1&1\end{pmatrix}
+=Z\begin{pmatrix}-2&0\\0&1\end{pmatrix}Z^{\mathsf T},
+$$
+
+so the correlator ledger's transform is two $Z$-passes with a
+$(-2)^{|S|}$ rescaling between them; mod $2$ the rescaling dies and the
+XOR butterfly is what remains. Worked at $n=2$, truth tables written in
+the numeral convention $T=(\phi(11),\phi(10),\phi(01),\phi(00))$ -- so
+that $T$ read as a binary number *is* the map index $j$ -- and
+coefficients ordered $(a_{b_1b_0},a_{b_1},a_{b_0},a_\emptyset)$:
+
+| map ($j$) | $T$ | $a$ | polynomial | $\deg$ |
+|---|---|---|---|---|
+| TRUE (15) | $(1,1,1,1)$ | $(0,0,0,1)$ | $1$ | $0$ |
+| $\lnot b_1$ (3) | $(0,0,1,1)$ | $(0,1,0,1)$ | $b_1\oplus 1$ | $1$ |
+| XOR (6) | $(0,1,1,0)$ | $(0,1,1,0)$ | $b_1\oplus b_0$ | $1$ |
+| AND (8) | $(1,0,0,0)$ | $(1,0,0,0)$ | $b_1b_0$ | $2$ |
+| NAND (7) | $(0,1,1,1)$ | $(1,0,0,1)$ | $b_1b_0\oplus 1$ | $2$ |
+| $b_1\to b_0$ (11) | $(1,0,1,1)$ | $(1,1,0,1)$ | $b_1b_0\oplus b_1\oplus 1$ | $2$ |
+
+Now grade the hypothesis space by degree. The *class*
+$\mathrm{RM}(d,n)$ -- the Reed--Muller code -- is the set of all maps
+of degree at most $d$: a linear space of dimension
+$K_d=\sum_{i\le d}\binom ni$ (one fair coin per allowed monomial), and
+the classes are nested, $\mathrm{RM}(0,n)\subset\cdots\subset
+\mathrm{RM}(n,n)$, the last being the entire map space. The *rate* of a
+class is its dimension per question,
+
+$$
+R_{n,d}=\frac{K_d}Q\in(0,1],
+$$
+
+and it will turn out to be the fraction of a full run after which the
+class's member is pinned. Consecutive rates slice $(0,1]$ into the
+*rate gaps* $(R_{n,d-1},R_{n,d}]$ of lengths
+$\Delta R_d=\binom nd/2^n\le\sqrt{2/\pi n}$: a partition of the unit
+interval, one cell per class, refining as $n$ grows.
+
+### 7.2 The sampling rule and the prior
+
+The prior is built by a lottery with one free choice. Fix a
+distribution $\mu$ on $[0,1]$ -- described equivalently by its CDF
+$F(x)=\Pr(R\le x)$ or, when it has one, its density $f=F'$ -- and:
+
+1. draw a single random number $R\sim\mu$ (the *statistic*);
+2. let $D$ be the class whose rate gap contains $R$;
+3. draw the truth uniformly from class $D$: each of the $K_D$ allowed
+   monomial coefficients by a fair coin.
+
+In every expectation below, $\mathbb E[\min(t,R)]$, $\mathbb E_\mu[R]$,
+the random object is this one draw $R$; the $R_{n,d}$ are the
+deterministic grid it lands among. The class index $D$ is a *latent
+label*: latent because Werner never observes it directly, a label
+because it is one value among $n+1$, hence worth at most
+$\log_2(n+1)$ bits. Integrating the lottery, the class weights are the
+$\mu$-masses of the gaps, and the prior weight of a map is the sum over
+the classes that contain it -- by nestedness, all classes at or above
+its degree:
+
+$$
+w_d=F(R_{n,d})-F(R_{n,d-1}),
+\qquad
+p_j=\sum_{d\ge\deg\phi_j}w_d\,2^{-K_d},
+\tag{7.2}
+$$
+
+with $\sum_dw_d=F(1)-F(0)=1$ telescoping. Two structural properties,
+inherited from nestedness alone. If $F$ increases across every gap
+(e.g.\ $\mu$ has a positive density), then every $w_d>0$, so $p_j$ is
+*strictly decreasing in the degree*: Occam, with each degree step
+costing a factor of roughly $2^{-\binom nd}$. And the $d=n$ term gives
+$p_j\ge w_n2^{-Q}>0$ for every map: *full support*, with no noise
+channel, from the nested supports alone. Atoms of $\mu$ are allowed --
+an atom inside a gap simply loads that one class -- at the price that
+classes in any flat stretch of $F$ carry zero weight.
+
+### 7.3 Term one: the prior table entropy
+
+A class is a linear code, and it pays to make its linear structure
+explicit once. The *generator matrix* $\mathsf G$ of class $d$
+(sans serif, to keep it distinct from the block entropies $G_{n,\ell}$)
+is the $K_d\times Q$ matrix over $\mathbb F_2$ whose rows are the
+allowed monomials evaluated at every question,
+$\mathsf G_{S,q}=\prod_{i\in S}q_i$; a uniform member of the class is
+$\psi=u^{\mathsf T}\mathsf G$ with $u$ uniform on $\{0,1\}^{K_d}$.
+
+One column of the answer matrix is the law of a single answer
+$\psi(q)$. The $q$-column of $\mathsf G$ is nonzero -- its
+constant-monomial entry is $\prod_{i\in\emptyset}q_i=1$ -- so
+$\psi(q)$ is the image of a uniform $u$ under a surjective linear map
+onto $\mathbb F_2$: a fair bit, exactly, in every class, whatever the
+class. A mixture of fair bits is a fair bit. Hence at every finite
+$n$, with no limit taken and no reference to $\mu$,
+
+$$
+G_{n,1}=1,
+\qquad
+H\big(M^{(0)}\big)=Q .
+\tag{7.3}
+$$
+
+The entropy reading: this prior predicts nothing about any single
+answer; its entire content is correlational. The identity entropy is
+$H(p)\approx\sum_dw_dK_d\to Q\,\mathbb E_\mu[R]$, so the dependency
+stock is extensive, $C=H(M^{(0)})-H(p)\approx Q\int_0^1F$: the fraction
+of the table stored in correlations is the area *under* the CDF.
+
+### 7.4 Term two: the received entropy
+
+$G_{n,\ell}$ is the mean entropy of the answers to $\ell$ uniformly
+random questions. Four elementary steps take it to a functional of
+$F$.
+
+**(a) Ungroup the mixture.** Computing the joint entropy
+$H(\psi(\mathcal S),D)$ by the chain rule in both orders and
+rearranging,
+
+$$
+H\big(\psi(\mathcal S)\big)
+=\sum_dw_d\,H_d\big(\psi(\mathcal S)\big)
++I\big(D;\psi(\mathcal S)\big),
+\qquad
+0\le I\le H(w)\le\log_2(n+1):
+\tag{7.4}
+$$
+
+mixture entropy is mean class entropy plus the information the answers
+carry about the latent label. The learner does learn *which class*
+along the way, but that is a label among $n+1$ options -- at most
+$\log_2(n+1)$ bits across the whole run, $o(1)$ per question.
+Identifying the class is cheap; identifying the member is the expensive
+part. Averaged over question sets:
+$G_{n,\ell}=\sum_dw_dG^{(d)}_{n,\ell}+O(\log n)$.
+
+**(b) Class entropy is rank.** Within class $d$, the answers on
+$\mathcal S$ are $\psi(\mathcal S)=u^{\mathsf T}\mathsf
+G_{\cdot,\mathcal S}$: a uniform $u$ pushed through the column
+submatrix, hence uniform on its image, a subspace whose size is
+$2^{\mathrm{rank}}$. So $H_d(\psi(\mathcal S))
+=\operatorname{rank}(\mathsf G_{\cdot,\mathcal S})$ exactly, where the
+*rank* of a set of columns is the dimension of their span over
+$\mathbb F_2$ -- operationally, the number of bits needed to describe
+those answers.
+
+**(c) The clipped clock.** Trivially
+$\mathrm{rank}\le\min(\ell,K_d)$: a rank is bounded by its column count
+and by the ambient dimension. Three facts force the matching limit.
+*Monotone increments*: the mean increment
+$\gamma^{(d)}_{n,\ell}=\Pr[\text{a fresh column is independent of }\ell
+\text{ random ones}]$ is nonincreasing in $\ell$ by rank
+*submodularity* -- diminishing returns,
+$\mathrm{rank}(\mathcal B\cup q)-\mathrm{rank}(\mathcal B)
+\le\mathrm{rank}(\mathcal A\cup q)-\mathrm{rank}(\mathcal A)$ for
+$\mathcal A\subseteq\mathcal B$: what is dependent on few columns is
+dependent on more. *The finite-$n$ area theorem*: increments telescope
+to the dimension, $\sum_{\ell<Q}\gamma^{(d)}_{n,\ell}=K_d$ -- received
+information over a complete run equals the size of what there was to
+learn (in coding theory, the area under the EXIT curve equals the
+rate). *The capacity theorem*, the one imported result
+(Kudekar--Kumar--Mondelli--Pfister--\c Sa\c so\u glu--Urbanke, 2017:
+Reed--Muller codes achieve capacity on the binary erasure channel): if
+a fraction $t>R_{n,d}$ of the questions is revealed, a fresh answer is
+determined with probability tending to one, i.e.\
+$\gamma^{(d)}_{n,\lfloor tQ\rfloor}\to0$ for $t>R_d$. A bounded
+nonincreasing sequence with area $R_d$ and no mass above $R_d$ has
+nowhere to sit but at height $1$ below, so every subsequential limit is
+the step $\mathbf 1[t<R_d]$ -- read as a function of $t$ with $R_d$
+fixed, the map $[0,1]\to\{0,1\}$ that is $1$ before $R_d$ and $0$
+after -- and therefore
+
+$$
+\frac{G^{(d)}_{n,\lfloor tQ\rfloor}}Q
+=\frac1Q\sum_{\ell'<tQ}\gamma^{(d)}_{n,\ell'}
+\;\longrightarrow\;
+\int_0^t\mathbf 1[x<R_d]\,dx=\min(t,R_d):
+\tag{7.5}
+$$
+
+each class pays one full bit per question until its clock stops at its
+own rate, and nothing after.
+
+**(d) From the class grid to the statistic.** Let $R^{(n)}$ be the
+draw $R$ rounded up to the rate at the top of its gap, so that
+$\sum_dw_d\min(t,R_{n,d})=\mathbb E[\min(t,R^{(n)})]$. Since
+$\min(t,\cdot)$ is $1$-Lipschitz and the rounding moves $R$ by at most
+the largest gap, the error is at most
+$\max_d\Delta R_d\le\sqrt{2/\pi n}\to0$, uniformly in $t$. Hence
+
+$$
+\frac{G_{n,\lfloor tQ\rfloor}}Q
+\;\longrightarrow\;
+\mathbb E_\mu\big[\min(t,R)\big]
+\;=\;\int_0^t\big(1-F(x)\big)\,dx\;=:\;g(t).
+\tag{7.6}
+$$
+
+The last equality is the *layer-cake* identity, and it deserves one
+line: pointwise, $\min(t,R)=\int_0^t\mathbf 1[x<R]\,dx$ (if $R\ge t$
+the integral is $t$, otherwise it stops at $R$); take expectations and
+swap integral and expectation, and $\mathbb E\,\mathbf 1[x<R]
+=\Pr(R>x)=1-F(x)$. Received information per question is the average of
+clipped clocks, and equals the area under the survival function up to
+time $t$.
+
+### 7.5 Term three: the increment
+
+The sequence $\ell\mapsto G_{n,\ell}$ is concave: its increments
+$\gamma_{n,\ell}$ are nonincreasing, by the same conditioning argument
+as in the general theory. Slopes of concave functions converge wherever
+the limit is differentiable -- the elementary convexity lemma of
+calculus -- and by (7.6) the normalized values converge to $g$, which
+is differentiable at every continuity point of $F$. Therefore
+
+$$
+\gamma_{n,\lfloor tQ\rfloor}
+\;\longrightarrow\;
+g'(t)=1-F(t)=\Pr(R>t),
+\tag{7.7}
+$$
+
+at every such point. This is the heart of the construction, and it is
+worth saying in words: the mean conditional entropy of a fresh answer
+is the probability that the true class is not yet exhausted. The
+survival function of the statistic is not a postulate; it *is* the
+increment term of the finite law. The remaining-entropy term follows by
+multiplying by the unasked fraction:
+
+$$
+\frac{(Q-\ell)\,\gamma_{n,\ell}}Q
+\;\longrightarrow\;
+(1-t)\,\big(1-F(t)\big).
+\tag{7.8}
+$$
+
+### 7.6 The generic curve
+
+Substitute (7.3), (7.6), (7.8) into (7.1) and cancel the common factor
+$Q$. The numerator tidies up: $1-(1-t)(1-F(t))=t+(1-t)F(t)$. So, for
+any sampling law with CDF $F$,
+
+$$
+L_F(t)
+=\frac{t+(1-t)\,F(t)}{\displaystyle\int_0^t\big(1-F(x)\big)\,dx}.
+\tag{7.9}
+$$
+
+The numerator has its own entropy reading: destroyed table density
+equals the asked fraction $t$ (every asked column is settled by its own
+answer) plus $F(t)$ per *unasked* column -- an unasked answer is
+deducible exactly when the class died before $t$, an event of
+probability $F(t)$. Asked plus deduced over received. Two generic
+endpoint identities follow by expanding at the ends:
+
+$$
+L_F(0^+)=1+\lim_{t\downarrow0}\frac{F(t)}t=1+f(0^+),
+\qquad
+L_F(1)=\frac1{\int_0^1(1-F)}=\frac1{\mathbb E_\mu[R]}:
+$$
+
+the curve starts at the baseline plus the density of the statistic at
+zero, and completes at the reciprocal mean rate. Since any nonincreasing
+profile is the survival function of exactly one law (the layer-cake
+read backwards, as in 6.6), equation (7.9) is not one family among
+many: it is the general admissible curve written in microscopic form,
+with the statistic as its parameter.
+
+### 7.7 Recovering the curve: $R=\max(U_1,U_2)$
+
+Now make the one free choice. Draw two uniform numbers and keep the
+larger. Both draws land below $x$ with probability $x\cdot x$, so
+
+$$
+F(x)=x^2,
+\qquad
+f(x)=2x,
+\qquad
+\mathbb E[R]=\int_0^1(1-x^2)\,dx=\tfrac23 .
+\tag{7.10}
+$$
+
+The weights (7.2) become gaps of squared rates,
+$w_d=R_{n,d}^2-R_{n,d-1}^2$. Worked at $n=2$: the classes have
+$(K_0,K_1,K_2)=(1,3,4)$ and rates $(\tfrac14,\tfrac34,1)$, so
+$w=(\tfrac1{16},\tfrac12,\tfrac7{16})$, and (7.2) prices the sixteen
+maps of the butterfly table in three tiers: the two constants at
+$\tfrac1{16}\cdot\tfrac12+\tfrac12\cdot\tfrac18+\tfrac7{16}\cdot
+\tfrac1{16}=\tfrac{31}{256}$, the six affine maps at $\tfrac{23}{256}$,
+the eight curved maps at $\tfrac{7}{256}$; the check
+$2\cdot31+6\cdot23+8\cdot7=256$ closes.
+
+The three terms specialize in one line each:
+
+$$
+g(t)=\int_0^t(1-x^2)\,dx=t-\frac{t^3}3,
+\qquad
+\gamma(t)=1-t^2,
+\qquad
+t+(1-t)t^2=t\,(1+t-t^2),
+$$
+
+and (7.9) becomes
+
+$$
+L(t)=\frac{t\,(1+t-t^2)}{t\,\dfrac{3-t^2}3}
+=\frac{3\,(1+t-t^2)}{3-t^2}.
+\tag{7.11}
+$$
+
+The generic endpoint identities check out: $L(0^+)=1+f(0^+)=1$ (the
+density vanishes at zero, so the curve leaves the baseline flat), and
+$L(1)=1/\mathbb E[R]=\tfrac32$; in between $L'\propto(1-t)(3-t)>0$, a
+smooth strictly rising curve.
+
+![Order-statistic class priors](figures/rm_orderstat.png)
+
+*One uniform draw ($F=t$) gives $L\equiv2$; the smaller of two draws
+($1-F=(1-t)^2$) gives the clique-triple profile with $L\equiv3$; the
+larger of two draws gives (7.11), rising from $1$ to $\tfrac32$.*
+
+Other choices of the statistic, all through the same (7.9):
+
+| statistic | $F(t)$ | $\gamma(t)=1-F$ | $L_F(t)$ |
+|---|---|---|---|
+| one draw $U$ | $t$ | $1-t$ | $\equiv2$ |
+| $\min(U_1,U_2)$ | $2t-t^2$ | $(1-t)^2$ | $\equiv3$ (clique triple) |
+| $\max(U_1,U_2)$ | $t^2$ | $1-t^2$ | rising $1\to\tfrac32$, eq.\ (7.11) |
+| $k$-th of $m$ draws | $I_t(k,m{+}1{-}k)$ | $\tau_{m+1,k}(t)$ | the MDS family of 5.4 |
+| $k/m\to\rho$, $m\to\infty$ | $\to\mathbf 1[t\ge\rho]$ | $\to\mathbf 1[t<\rho]$ | the capacity step of 6.5 |
+| any of the above $+\,(1-w)\delta_1$ | $wF$ | $1-wF$ | tail tilts down; interior peak as in 6.7 |
+
+Choosing the statistic is choosing the timetable on which complexity
+classes exhaust: early-loaded statistics ($\min$) front-load the
+deductions and flatten the curve to a clique-like constant, late-loaded
+ones ($\max$, higher order statistics) delay them and make the curve
+rise, concentration sharpens toward the step, and an atom at $R=1$ -- a
+share of "anything goes" -- keeps paying fresh bits forever and bends
+the tail down into an interior maximum.
+
 # Appendices
 
 Appendices A--F derive the block formulas used above in a common order:
