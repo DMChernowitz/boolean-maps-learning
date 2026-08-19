@@ -3664,1235 +3664,450 @@ between two constructions on even and odd $n$. At the prior level one
 therefore needs a coherent construction, such as a fixed exchangeable
 directing measure or fixed local block types with convergent
 frequencies, or must take profile convergence itself as a hypothesis.
-Endpoint expansions, boundary-layer singularities and discontinuous
-profiles are collected in Appendix~\ref{app:endpoints}.
 
-\subsection{The coin-mixture prior}\label{sec:coins}
 
-The simplest exchangeable scaling family is a mixture of
-independent-answer models. It gives a complete calculus exercise and
-a clean example of the boundary layer at $t = 0$. Throughout this
-section the answer width $m$ and the component family are fixed while
-$n \to \infty$.
+\subsection{A constructive complexity prior}\label{sec:shapeprior}
 
-\subsubsection{Categorical formulation}
+The Gibbs prior of Section~\ref{sec:gibbs} priced maps by circuit
+complexity: a principled Occam, but one whose complexities had to be
+tabulated by force, map by map, and which therefore stops at small
+$n$. This section builds an Occam prior from a complexity notion that
+is \emph{constructive} -- computable from the truth table by a fast
+transform -- and tractable at every $n$: the degree of the map
+written as a polynomial. Two ideas carry the section. First, a
+non-hyperbolic macroscopic curve requires a non-exchangeable prior
+(de Finetti flattens any consistent exchangeable family), and the
+polynomial structure of the question cube supplies the asymmetry
+without any partition of the questions into blocks. Second, weighting
+complexity by a single temperature fails for a counting reason made
+precise below: only a thin shell of maps would contribute. The repair
+is to \emph{sample} the complexity level rather than price it, which
+keeps every level -- and every single map -- at positive weight all
+the way into the thermodynamic limit. Throughout this section the
+answer width is $m = 1$, so $u = \tfrac12$ and a fresh fair answer
+carries one bit.
 
-Let $Z$ take values in a finite set of components indexed by $r$, with
-$\Pr(Z = r) = w_r$ summing to one. The mixture defines a joint
-distribution for the component $Z$ and the random map $\psi$, the
-component being sampled once for the entire map rather than once per
-question. Conditional on $Z = r$ the answers at distinct question
-indices are independent with categorical distribution $\nu_r$ on the
-$A$ possible answers:
+\subsubsection{Polynomials over
+\texorpdfstring{$\mathbb F_2$}{F2}, and the butterfly}
+
+Write $\mathbb F_2$ for the two-element field $\{0,1\}$, in which
+addition is XOR ($1 \oplus 1 = 0$) and multiplication is AND; all
+linear algebra in this section is over $\mathbb F_2$. Since a bit
+obeys $b^2 = b$, no variable is ever squared, and a monomial in the
+input bits $b_{n-1} \cdots b_0$ of a question is labelled by the
+\emph{set} $S$ of bits it contains. Every map is a XOR of monomials,
+and the correspondence is one-to-one: there are $2^n$ monomials,
+hence $2^Q = N$ coefficient vectors, exactly as many as maps. This is
+the \emph{algebraic normal form},
 %
 \begin{equation}
-  \nu_r : \mathcal A \to [0,1],
+  \phi(q) \;=\; \bigoplus_{S} a_S \prod_{i \in S} b_i,
   \qquad
-  \sum_{a\in\mathcal A}\nu_r(a) = 1,
-  \qquad
-  \Pr\big(\psi(q_i) = a \mid Z = r\big) = \nu_r(a).
-  \label{eq:coincomponent}
+  a_S \;=\; \bigoplus_{y\,:\,\mathrm{supp}(y) \subseteq S} \phi(y),
+  \label{eq:anf}
 \end{equation}
 %
-Thus $\nu_r$ acts on \emph{one possible answer} $a$, not on a whole
-map: it returns the probability that component $r$ assigns to that
-answer at any question. For $m=1$ a Bernoulli component with bias
-$\theta_r$ has $\nu_r(1) = \theta_r$; for $m = 2$ a component could
-instead be the table $\nu_r(00),\ldots,\nu_r(11)
-= \tfrac12,\tfrac14,\tfrac18,\tfrac18$, a distribution on the four
-two-bit answers that need not factor into independent bits. The joint
-law is
-%
-\begin{equation}
-  \Pr(Z = r, \psi = \phi_j)
-  = w_r\prod_{i=1}^{Q}\nu_r\big(\phi_j(q_i)\big),
-  \qquad
-  p_j = \sum_r w_r\prod_{i=1}^{Q}\nu_r\big(\phi_j(q_i)\big),
-  \label{eq:coinprior}
-\end{equation}
-%
-the product being the map's probability conditional on component $r$
-and the outer sum averaging those likelihoods. Write
-$\nu_{\rm mix} := \sum_r w_r\nu_r$ for the one-question mixture, so
-that
-%
-\begin{equation}
-  h_0 = H(\nu_{\rm mix}),
-  \qquad
-  h_{\rm cond} := \sum_r w_r H(\nu_r)
-  \label{eq:coinentropies}
-\end{equation}
-%
-are the entropy of one answer before anything is known and the
-entropy per question once the component is known.
+with single-bit coefficients $a_S \in \{0,1\}$: monomial $S$ is
+present or absent. The second formula is M\"obius inversion: each
+coefficient is the XOR of the truth table over the subcube below
+$S$. The \emph{degree} $\deg\phi$ is the largest $|S|$ with
+$a_S = 1$; it is the complexity notion of this section.
 
-Because the construction treats all questions alike, $H(\psi(\mathcal S))$ takes the same value $G_k$ for every $\mathcal S$ of size $k$.
-Applying the chain rule to the joint distribution of $Z$ and
-$\psi(\mathcal S)$ in both orders,
-%
-\begin{equation}
-  H\big(Z,\psi(\mathcal S)\big)
-  = H(Z) + H\big(\psi(\mathcal S)\mid Z\big)
-  = H\big(\psi(\mathcal S)\big) + H\big(Z\mid\psi(\mathcal S)\big),
-  \label{eq:coinchain}
-\end{equation}
-%
-and using conditional independence,
-$H(\psi(\mathcal S)\mid Z) = k\,h_{\rm cond}$, the two expansions
-rearrange into the exact decomposition
-%
-\begin{equation}
-  G_k = k\,h_{\rm cond} + I_k,
-  \qquad
-  I_k := I\big(Z;\psi(\mathcal S)\big),
-  \qquad
-  \gamma_k = h_{\rm cond} + (I_{k+1}-I_k),
-  \label{eq:coindecomp}
-\end{equation}
-%
-in which $I_k$ is the mutual information between the selected
-component and the first $k$ answers. The correction has the
-conditional-information form
-$I_{k+1}-I_k = I(Z;\psi(q)\mid\psi(\mathcal S)) \ge 0$, exactly the
-additional information that the next answer reveals about which
-component was selected. Substituting into \eqref{eq:finitelev} gives
-the exact finite-$n$ leverage
-%
-\begin{equation}
-  \langle L_{n,\ell}\rangle
-  = \frac{Q\,H(\nu_{\rm mix})
-    - (Q-\ell)\big[h_{\rm cond} + I_{\ell+1}-I_\ell\big]}
-    {\ell\,h_{\rm cond} + I_\ell},
-  \label{eq:coinfinitelev}
-\end{equation}
-%
-and, provided $h_{\rm cond} > 0$, the inequalities $I_\ell \ge 0$ and
-$I_{\ell+1}-I_\ell \ge 0$ show that the finite curve lies below its
-limiting hyperbola at the same $t = \ell/Q$.
+\begin{example}
+OR answers $1$ everywhere except at $q = 00$. Its four coefficients,
+by \eqref{eq:anf}:
+$a_\emptyset = \phi(00) = 0$;
+$a_{\{b_0\}} = \phi(00) \oplus \phi(01) = 1$;
+$a_{\{b_1\}} = \phi(00) \oplus \phi(10) = 1$;
+$a_{\{b_1 b_0\}} = \phi(00) \oplus \phi(01) \oplus \phi(10) \oplus
+\phi(11) = 1$. Hence
+$\mathrm{OR} = b_1 b_0 \oplus b_1 \oplus b_0$, of degree $2$: OR is
+not affine, and its truth table knows it.
+\end{example}
 
-For finitely many components $0 \le I_k \le H(Z) < \infty$: the
-information required to identify the component is subextensive.
-Discard any zero-weight components; if the remaining distinct
-components are identifiable and mutually absolutely continuous, then
-for data generated from a positive-weight component $r$ and any
-positive-weight competitor $s$, almost surely under
-$\nu_r^{\otimes\infty}$,
+Mechanically the inversion is a butterfly of XORs. Per bit it is an
+upper-triangular kernel, and on $n$ bits its tensor power is the
+subset indicator; in the numeral convention of
+Table~\ref{tab:sixteen}, questions descending $11, 10, 01, 00$ (per
+bit: $1, 0$),
 %
 \begin{equation}
-  \frac1k\log_2
-  \frac{\Pr(Z = s\mid\psi(\mathcal S_k))}
-       {\Pr(Z = r\mid\psi(\mathcal S_k))}
+  Z = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix},
   \qquad
-  (\mathcal S_1 \subset \mathcal S_2 \subset \cdots,
-   \;|\mathcal S_k| = k)
+  \big(Z^{\otimes n}\big)_{S,y} = \mathbf 1[\, y \subseteq S \,],
+  \qquad
+  Z^{\otimes 2} =
+  \begin{pmatrix}
+    1 & 1 & 1 & 1 \\
+    0 & 1 & 0 & 1 \\
+    0 & 0 & 1 & 1 \\
+    0 & 0 & 0 & 1
+  \end{pmatrix},
+  \label{eq:zkernel}
+\end{equation}
+%
+where $\mathbf 1[\cdot]$ evaluates a statement to a bit. Over
+$\mathbb F_2$ the kernel is its own inverse, $Z^2 = I$. In place: for
+each bit $i$, for every $x$ with $x_i = 1$, do
+$T[x] \mathrel{\oplus=} T[x \text{ with bit } i \text{ cleared}]$;
+$n\,2^{n-1}$ XORs convert a truth table to its coefficients. For
+readers of Section~\ref{sec:correlators}: $Z$ is the triangular half
+of the Walsh--Hadamard kernel \eqref{eq:hadamard}, since in the same
+$1,0$ ordering
+%
+\begin{equation}
+  W = \begin{pmatrix} -1 & 1 \\ 1 & 1 \end{pmatrix}
+  = Z \begin{pmatrix} -2 & 0 \\ 0 & 1 \end{pmatrix} Z^{\mathsf T},
+  \label{eq:wfactor}
+\end{equation}
+%
+the matrix form of $\prod_q (1 - 2y_q) = \sum_T (-2)^{|T|}
+\prod_{q\in T} y_q$: the ledger transform is two M\"obius passes with
+a $(-2)^{|S|}$ rescaling between them, and reducing mod $2$ leaves
+exactly the XOR butterfly.
+
+\begin{example}
+The butterfly on six maps of Table~\ref{tab:sixteen}, truth tables
+$T = (\phi(11), \phi(10), \phi(01), \phi(00))$ -- so that $T$ read as
+a binary numeral \emph{is} the index $j$ -- and coefficients ordered
+$(a_{b_1 b_0}, a_{b_1}, a_{b_0}, a_\emptyset)$:
+
+\begin{center}
+\begin{tabular}{l c c l c}
+\toprule
+map ($j$) & $T$ & $a$ & polynomial & $\deg$ \\
+\midrule
+TRUE (15) & $(1,1,1,1)$ & $(0,0,0,1)$ & $1$ & $0$ \\
+$\lnot b_1$ (3) & $(0,0,1,1)$ & $(0,1,0,1)$ & $b_1 \oplus 1$ & $1$ \\
+XOR (6) & $(0,1,1,0)$ & $(0,1,1,0)$ & $b_1 \oplus b_0$ & $1$ \\
+AND (8) & $(1,0,0,0)$ & $(1,0,0,0)$ & $b_1 b_0$ & $2$ \\
+NAND (7) & $(0,1,1,1)$ & $(1,0,0,1)$ & $b_1 b_0 \oplus 1$ & $2$ \\
+$b_1 \to b_0$ (11) & $(1,0,1,1)$ & $(1,1,0,1)$ &
+  $b_1 b_0 \oplus b_1 \oplus 1$ & $2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+AND's table equals its own coefficient vector (a single top
+monomial); NAND flips only $a_\emptyset$, the algebraic face of
+negation; XOR and $\lnot b_1$ are affine; TRUE is constant.
+\end{example}
+
+\subsubsection{Complexity classes and the sampling rule}
+
+Grade the hypothesis space by degree. The class of all maps of degree
+at most $d$ is a linear space of dimension
+$K_d = \sum_{i \le d} \binom ni$ -- one coefficient bit per allowed
+monomial -- and the classes are nested, from the two constants
+($d = 0$) to the full map space ($d = n$). In coding theory this
+class is the Reed--Muller code $\mathrm{RM}(d,n)$. Its \emph{rate} is
+the dimension per question,
+%
+\begin{equation}
+  R_{n,d} \;=\; \frac{K_d}{Q} \;\in\; (0,1],
+  \label{eq:rmrate}
+\end{equation}
+%
+and it will turn out to be the fraction of a full run at which the
+class is learned out. Consecutive rates slice $(0,1]$ into
+\emph{rate gaps} $(R_{n,d-1}, R_{n,d}]$ of lengths
+$\binom nd / 2^n \le \sqrt{2/\pi n}$: one cell per class, a partition
+that refines as $n$ grows.
+
+Why sample a level rather than weight the maps? The natural Occam
+move, $p_j \propto e^{-\beta \deg\phi_j}$, fails by a scaling
+argument. There are $2^{K_k}$ maps of degree at most $k$, so raising
+the cutoff by one buys $\binom n{k+1} \ln 2$ nats of entropy against
+a linear price $\beta$; no single temperature balances jumps of that
+size at more than one $k$. The ensemble concentrates on the shell
+$\binom n{d^*} \approx \beta / \ln 2$ -- at most two adjacent degrees
+-- and every map outside it retains only vanishing relative weight. A
+single temperature hears a thin shell of the hypothesis space and
+nothing else. The repair prices the \emph{level}, not the map:
+%
+\begin{enumerate}
+  \item draw a single random number $R \in [0,1]$ (the
+    \emph{statistic}) from a fixed law $\mu$ with CDF
+    $F(x) = \Pr(R \le x)$ and, when it exists, density $f = F'$;
+  \item let $D$ be the class whose rate gap contains $R$;
+  \item draw the truth uniformly from class $D$: each allowed
+    coefficient by a fair coin.
+\end{enumerate}
+%
+In every expectation below the random object is this one draw $R$;
+the $R_{n,d}$ are the deterministic grid it lands among. The class
+label $D$ is latent -- Werner never observes it -- and is one value
+among $n+1$, worth at most $\log_2(n+1)$ bits. Integrating the
+lottery, and using nestedness (a map of degree $e$ belongs to every
+class $d \ge e$),
+%
+\begin{equation}
+  w_d \;=\; F(R_{n,d}) - F(R_{n,d-1}),
+  \qquad
+  p_j \;=\; \sum_{d \ge \deg\phi_j} w_d\, 2^{-K_d},
+  \label{eq:shapepj}
+\end{equation}
+%
+with $\sum_d w_d = 1$ telescoping. If $F$ increases across every gap
+(any positive density), then every $w_d > 0$, and two properties
+follow at once: $p_j$ is \emph{strictly decreasing in the degree},
+each step down costing a factor of order $2^{-\binom nd}$ -- a
+genuine Occam -- and $p_j \ge w_n 2^{-Q} > 0$ for every single map:
+full support, with no noise channel, at every $n$ and in the limit.
+Every level, and every map, gets a chance. Semantically, $F$ budgets
+the \emph{shells} while nestedness orders the \emph{maps}: $w_d$ is,
+up to a $2^{-\binom nd}$ sliver leaking in from higher classes, the
+total weight of the degree-$d$ shell, split evenly within it. The
+per-map Occam ordering therefore holds for every $F$, and $F$ decides
+only how much aggregate weight each complexity level carries -- a
+populous shell can outweigh a simpler one even though each of its
+members is individually lighter.
+
+\subsubsection{Three terms for the leverage average}
+
+The exact finite law \eqref{eq:Lk-G}, in the chapter's notation
+\eqref{eq:finitelev}, needs three ingredients: the prior table
+entropy $Q\,G_{n,1}$, the received entropy $G_{n,\ell}$, and the
+increment $\gamma_{n,\ell}$. Each reduces to a statement about $F$.
+
+\emph{The table entropy.} A class is a linear code; make the
+structure explicit once. The \emph{generator matrix} $\mathsf G$ of
+class $d$ (sans serif, distinct from the block entropies $G_{n,\ell}$)
+is the $K_d \times Q$ matrix over $\mathbb F_2$ whose rows are the
+allowed monomials evaluated at every question,
+$\mathsf G_{S,q} = \prod_{i\in S} b_i(q)$, so that a uniform class
+member is $\psi = u^{\mathsf T} \mathsf G$ with $u$ uniform on
+$\{0,1\}^{K_d}$. Every column of $\mathsf G$ is nonzero (its
+constant-monomial entry is $1$), so each single answer is the image
+of a uniform $u$ under a surjective linear map onto $\mathbb F_2$: a
+fair bit, in every class, and a mixture of fair bits is a fair bit.
+At every finite $n$, with no limit taken and no reference to $\mu$,
+%
+\begin{equation}
+  G_{n,1} = 1,
+  \qquad
+  H\big(M^{(0)}\big) = Q .
+  \label{eq:shapeT1}
+\end{equation}
+%
+The prior predicts nothing about any single answer; its entire
+content is correlational.
+
+\emph{The received entropy.} Computing $H(\psi(\mathcal S), D)$ by
+the chain rule in both orders,
+%
+\begin{equation}
+  H\big(\psi(\mathcal S)\big)
+  = \sum_d w_d\, H_d\big(\psi(\mathcal S)\big)
+  + I\big(D; \psi(\mathcal S)\big),
+  \qquad
+  0 \le I \le \log_2(n+1):
+  \label{eq:ungroup}
+\end{equation}
+%
+mixture entropy is mean class entropy plus what the answers reveal
+about the label, and the label is cheap -- $o(1)$ bits per question.
+Within class $d$ the answers on $\mathcal S$ are
+$u^{\mathsf T}\mathsf G_{\cdot,\mathcal S}$, uniform on the image of
+the column submatrix, so
+$H_d(\psi(\mathcal S)) = \operatorname{rank}(\mathsf
+G_{\cdot,\mathcal S})$ exactly: the number of $\mathbb F_2$-linearly
+independent columns, the number of bits needed to describe those
+answers. Three facts pin the limit of the class average
+$G^{(d)}_{n,\ell} = \mathbb E\,\mathrm{rank}$. The mean increment
+$\gamma^{(d)}_{n,\ell} = \Pr[\text{a fresh column is independent of }
+\ell \text{ random ones}]$ is nonincreasing in $\ell$, by rank
+submodularity (what is dependent on few columns is dependent on
+more). The increments telescope to the dimension,
+$\sum_{\ell < Q} \gamma^{(d)}_{n,\ell} = K_d$: the finite-$n$ area
+theorem, received equals learnable. And the one imported result --
+Reed--Muller codes achieve capacity on the binary erasure channel
+(Kudekar, Kumar, Mondelli, Pfister, \c Sa\c so\u glu and Urbanke,
+2017) -- says that revealing any fraction beyond the rate determines
+a fresh answer with probability tending to one:
+%
+\begin{equation}
+  R_{n,d_n} \to R \in (0,1)
+  \quad\Longrightarrow\quad
+  \lim_{n\to\infty} \gamma^{(d_n)}_{n,\lfloor tQ\rfloor} = 0
+  \quad\text{for every fixed } t > R .
+  \label{eq:kkmpsu}
+\end{equation}
+%
+A bounded nonincreasing sequence with area $R_d$ and no mass above
+$R_d$ has nowhere to sit but at height $1$ below, so the class
+increments converge to a pure step, written with the Heaviside
+function $\theta(x) = \mathbf 1[x > 0]$:
+%
+\begin{equation}
+  \lim_{n\to\infty} \gamma^{(d)}_{n,\lfloor tQ\rfloor}
+  \;=\; \theta(R_d - t),
+  \qquad
+  \frac{G^{(d)}_{n,\lfloor tQ\rfloor}}{Q}
   \;\longrightarrow\;
-  -D_{\rm KL}(\nu_r\Vert\nu_s) \;<\; 0,
-  \label{eq:coinodds}
+  \int_0^t \theta(R_d - x)\, dx = \min(t, R_d):
+  \label{eq:heavistep}
 \end{equation}
 %
-with $D_{\rm KL}$ in base-two logarithms. With a support mismatch the
-divergence may be $+\infty$, and one revealing symbol can instead set
-the wrong component's posterior probability to zero. Either way the
-posterior predictive converges to the true $\nu_r$, and bounded
-convergence gives $\gamma(t) = h_{\rm cond}$ for every fixed
-$0 < t < 1$. Then $g(t) = t\,h_{\rm cond}$ and \eqref{eq:master}
-collapses to
+each class pays one full bit per question until its clock stops at
+its own rate, and nothing after. Finally, round the draw $R$ up to
+the top of its rate gap: since $\min(t,\cdot)$ is $1$-Lipschitz and
+the rounding moves $R$ by at most $\sqrt{2/\pi n}$, the class
+average converges to an average over the statistic,
 %
 \begin{equation}
-  L(t) = 1 + \frac ct,
-  \qquad
-  c = \frac{H(\nu_{\rm mix}) - h_{\rm cond}}{h_{\rm cond}} \;\ge\; 0,
-  \label{eq:coinhyperbola}
-\end{equation}
-%
-the inequality being the concavity of entropy,
-$H(\sum_r w_r\nu_r) \ge \sum_r w_r H(\nu_r)$. Equality holds exactly
-when all positive-weight components share the same categorical
-distribution once duplicates are merged, the effective one-coin model
-with $L \equiv 1$. If instead $h_{\rm cond} = 0$, as for a nontrivial
-mixture of deterministic coins, the map entropy is $O(1)$ and bounded
-by $H(Z)$ rather than extensive in $Q$; the normalization of
-Section~\ref{sec:tdlcalc} degenerates and
-\eqref{eq:coinhyperbola} is not a finite thermodynamic curve.
-
-The similarity to the fixed-$p$ spike is now explicit. In both cases
-a global latent variable is inferred within $o(Q)$ questions, leaving
-a constant positive entropy density afterwards. The macroscopic
-profile sees only the jump from $h_0$ down to $h_{\rm cond}$, and
-equation~\eqref{eq:boundarylayer} of
-Appendix~\ref{app:endpoints} turns that jump into $1/t$.
-
-\subsubsection{The binary coin and exact finite formulas}
-
-For $m = 1$ write $\nu_r = \operatorname{Bernoulli}(\theta_r)$ and
-denote the truth-table Hamming weight by
-$|\phi_j| := \sum_i\phi_j(q_i)$, so that
-$p_j = \sum_r w_r\theta_r^{|\phi_j|}(1-\theta_r)^{Q-|\phi_j|}$. After
-$\ell$ observations containing $k$ ones, let
-%
-\begin{equation}
-  P_{\ell,k} := \sum_r w_r\,\theta_r^k(1-\theta_r)^{\ell-k}.
-  \label{eq:coinPlk}
-\end{equation}
-%
-Every particular binary string of length $\ell$ and weight $k$ has
-this probability, so
-%
-\begin{equation}
-  G_\ell = -\sum_{k=0}^{\ell}\binom{\ell}{k}
-  P_{\ell,k}\log_2 P_{\ell,k},
-  \qquad
-  w_r(\ell,k)
-  = \frac{w_r\theta_r^k(1-\theta_r)^{\ell-k}}{P_{\ell,k}},
-  \label{eq:coinGl}
-\end{equation}
-%
-the posterior component weights being defined for count classes with
-$P_{\ell,k} > 0$. Consequently the next-answer probability is
-$\Pr(\psi(q) = 1\mid\psi(\mathcal S) = y)
-= \sum_r w_r(\ell,k)\theta_r$ for $|\mathcal S| = \ell$,
-$i \notin \mathcal S$ and $y$ of weight $k$, and averaging its binary
-entropy over all count classes gives
-%
-\begin{equation}
-  \gamma_\ell
-  = \sum_{\substack{0\le k\le\ell\\ P_{\ell,k}>0}}
-  \binom{\ell}{k}P_{\ell,k}\,
-  h_2\!\left(\sum_r w_r(\ell,k)\theta_r\right)
-  = G_{\ell+1}-G_\ell .
-  \label{eq:coingamma}
-\end{equation}
-%
-Zero-probability terms in \eqref{eq:coinGl} use $0\log 0 = 0$, while
-\eqref{eq:coingamma} simply omits those classes, whose posterior
-weights are undefined and whose contribution vanishes.
-Equation~\eqref{eq:coinGl} is valid through $\ell = Q$ and
-\eqref{eq:coingamma} through $\ell = Q-1$; apart from that
-truncation, neither depends on $n$.
-
-\begin{example}
-Take $(\theta_1,\theta_2) = (0.1, 0.9)$ with equal weights, so
-$Q = 4$ at $(n,m) = (2,1)$. For a length-$\ell$ string of weight $k$,
-equation~\eqref{eq:coinPlk} becomes
-$P_{\ell,k} = (9^k + 9^{\ell-k})/(2\cdot 10^\ell)$, so a map's
-probability depends only on its Hamming weight, with clearly
-separated masses:
-
-\begin{center}
-\begin{tabular}{crrr}
-\toprule
-weight $|\phi_j|$ & 0 & 1 & 2 \\
-\midrule
-mass of each map & $0.3281$ & $0.0369$ & $0.0081$ \\
-multiplicity & 1 & 4 & 6 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-with weights $3$ and $4$ mirroring weights $1$ and $0$. A weight-one
-map is thus more than four times as probable as a weight-two map, and
-the normalization $2(0.3281) + 8(0.0369) + 6(0.0081) = 1$ is visible
-directly. In the truth-table ordering of the earlier examples:
-
-\begin{center}
-\begin{tabular}{llllllll}
-\toprule
-$j$ & $p_j$ & $j$ & $p_j$ & $j$ & $p_j$ & $j$ & $p_j$ \\
-\midrule
-0000 & $0.3281$ & 0001 & $0.0369$ & 0010 & $0.0369$ & 0011 & $0.0081$ \\
-0100 & $0.0369$ & 0101 & $0.0081$ & 0110 & $0.0081$ & 0111 & $0.0369$ \\
-1000 & $0.0369$ & 1001 & $0.0081$ & 1010 & $0.0081$ & 1011 & $0.0369$ \\
-1100 & $0.0081$ & 1101 & $0.0369$ & 1110 & $0.0369$ & 1111 & $0.3281$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The mixture mean is $\tfrac12(0.1)+\tfrac12(0.9) = \tfrac12$, so
-$G_1 = h_2(1/2) = 1$. If the first answer is $1$, Bayes' rule moves
-the component weights from $(\tfrac12,\tfrac12)$ to $(0.1, 0.9)$ and
-the next-one probability becomes $0.1(0.1)+0.9(0.9) = 0.82$; if it is
-$0$ the weights reverse and that probability is $0.18$. Both branches
-therefore have predictive entropy $h_2(0.18) = h_2(0.82)$, so
-$G_2 - G_1 = h_2(0.18) = 0.680077$. The remaining block entropies
-follow from the same count-by-weight formula: for two answers the
-strings $00, 11$ each have probability $0.41$ and $01, 10$ each
-$0.09$; for three answers the two constant strings each have
-$0.365$ and the other six each $0.045$. Hence
-%
-\begin{equation}
-  (G_0,\ldots,G_4) = (0,\ 1,\ 1.680077,\ 2.269405,\ 2.797921),
-  \label{eq:coinworkedG}
-\end{equation}
-%
-with increments $(1,\ 0.680077,\ 0.589327,\ 0.528517)$ and, by the
-leverage law \eqref{eq:finitelev}, exact cumulative leverages
-$1.95977,\ 1.67930,\ 1.52969,\ 1.42963$. The conditional entropy
-density and hyperbola coefficient are
-$h_{\rm cond} = h_2(0.1) = 0.468996$ and
-$c = (1 - h_2(0.1))/h_2(0.1) = 1.132216$, so the limiting curve is
-$L(t) = 1 + 1.132216/t$. The small-$n$ curve lies well below it
-because four observations cannot identify the latent coin sharply:
-its endpoint is $1.42963$ against the limiting $1 + c = 2.13222$.
-\end{example}
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={2 components: $\theta = (0.1, 0.9)$},
-  title style={font=\small},
-  xlabel={$t = \ell/Q$},
-  ylabel={$\langle L\rangle$},
-  xmin=0.15, xmax=1, ymin=0.95, ymax=9,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
-  legend cell align=left]
-\dataplot{cn1}{x}{lev}{figures/data/cointwo_n4.dat}
-\dataplot{cn2}{x}{lev}{figures/data/cointwo_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/cointwo_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/cointwo_n10.dat}
-\addplot[clim, dashed, thick, domain=0.15:1, samples=80]
-  {1+1.132216/x};
-\datalegend{{$n=4$}, {$n=6$}, {$n=8$}, {$n=10$}, {$1+c_1/t$}}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={10 components, matched $F_1$ and $h_{\rm cond,1}$},
-  title style={font=\small},
-  xlabel={$t = \ell/Q$},
-  xmin=0.15, xmax=1, ymin=0.95, ymax=9,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}]
-\dataplot{cn1}{x}{lev}{figures/data/cointen_n4.dat}
-\dataplot{cn2}{x}{lev}{figures/data/cointen_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/cointen_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/cointen_n10.dat}
-\addplot[clim, dashed, thick, domain=0.15:1, samples=80]
-  {1+1.132216/x};
-\end{axis}
-\end{tikzpicture}
-\caption{Two binary mixtures with the \emph{same} thermodynamic curve
-and visibly different finite-size corrections. The right panel uses
-ten equally weighted biases $0.005$, $0.04$, $0.1$, $0.2$,
-$0.288171$ and their complements, the fifth fitted so that
-$\sum h_2 \simeq 5h_2(0.1)$; complement symmetry fixes the mean bias
-at $\tfrac12$. Both therefore share $h_0 = 1$ and
-$h_{\rm cond} = h_2(0.1)$, hence the same dashed hyperbola, while
-their finite curves differ because $I_k$ in \eqref{eq:coindecomp}
-depends on the whole collection of weights and separations. Panels
-begin at $t = 0.15$ so the common $1/t$ singularity does not dominate
-the scale.}
-\label{fig:cointdl}
-\end{figure}
-
-That sameness is de Finetti's theorem at work: a projectively
-consistent exchangeable binary prior keeps only $h_0$ and
-$h_{\rm cond}$ in the limit, and two Bernoulli components already
-realize every finite $c$ -- two coins are all the richness
-exchangeability has.
-
-\subsubsection{What changes when \texorpdfstring{$m>1$}{m>1}}
-
-For $m > 1$ the categorical construction \eqref{eq:coinprior} is the
-general model, and the shared-scalar coin prior is a structured
-subfamily of it rather than a separate alternative. Use the same
-Hamming-weight notation at both scales,
-$|a| := \sum_{b=1}^m a_b$ for one $m$-bit answer and
-$|\phi_j| := \sum_i |\phi_j(q_i)|$ for the complete table; the signed
-bias of Section~\ref{sec:gibbs} is not an independent statistic, being
-$B_j = 2|\phi_j| - mQ$. Setting
-$\nu_r(a) = \theta_r^{|a|}(1-\theta_r)^{m-|a|}$ draws one component
-once for the whole map and makes all $mQ$ table bits independent
-Bernoulli variables with bias $\theta_r$ given $Z = r$, so
-%
-\begin{equation}
-  p_j = \sum_r w_r\,\theta_r^{|\phi_j|}(1-\theta_r)^{mQ-|\phi_j|}.
-  \label{eq:coinpriorm}
-\end{equation}
-%
-After the shared $Z$ is averaged out, distinct bits are generally
-correlated both within one answer and across questions, which is why
-the entropy of one $m$-bit answer is not $m\,h_2(\sum_r w_r\theta_r)$.
-Writing
-%
-\begin{equation}
-  F_s := -\sum_{k=0}^s\binom sk P_{s,k}\log_2 P_{s,k}
-  \label{eq:Fs}
-\end{equation}
-%
-for the entropy of the complete $s$-bit string, and using
-$H(\nu_r) = m\,h_2(\theta_r)$, the categorical formulas specialize
-exactly to $G_\ell = F_{m\ell}$, $h_0 = F_m$ and
-$h_{{\rm cond},m} = m\sum_r w_r h_2(\theta_r)$. The exact finite
-leverage plotted below is therefore
-%
-\begin{equation}
-  \langle L_{n,\ell}\rangle
-  = \frac{Q F_m - (Q-\ell)\big(F_{m(\ell+1)}-F_{m\ell}\big)}{F_{m\ell}},
-  \qquad
-  \langle L_{n,Q}\rangle = \frac{Q F_m}{F_{mQ}},
-  \label{eq:coinlevm}
-\end{equation}
-%
-and since the latent contributes only subextensive information,
-$F_s/s \to \sum_r w_r h_2(\theta_r)$, giving
-%
-\begin{equation}
-  L_m(t) = 1 + \frac{c_m}{t},
-  \qquad
-  c_m = \frac{F_m - h_{{\rm cond},m}}{h_{{\rm cond},m}} 
-  \label{eq:coinhyperbolam}
-\end{equation}
-%
-provided $h_{{\rm cond},m} > 0$. For the mixture above,
-$F_1 = 1$, $F_2 = 1.680077$, $h_{{\rm cond},1} = 0.468996$ and
-$h_{{\rm cond},2} = 0.937991$, so $c_1 = 1.132216$ and
-$c_2 = 0.791144$. The $m = 2$ panel must therefore use $F_2$ for the
-initial answer entropy, not $2h_2(1/2) = 2$.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={$m=1$: one bit per answer}, title style={font=\small},
-  xlabel={$t = \ell/Q$}, ylabel={$\langle L\rangle$},
-  xmin=0.15, xmax=1, ymin=0.95, ymax=9,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
-  legend cell align=left]
-\dataplot{cn1}{x}{lev}{figures/data/coinm1_n4.dat}
-\dataplot{cn2}{x}{lev}{figures/data/coinm1_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/coinm1_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/coinm1_n10.dat}
-\addplot[clim, dashed, thick, domain=0.15:1, samples=80] {1+1.132216/x};
-\datalegend{{$n=4$}, {$n=6$}, {$n=8$}, {$n=10$}, {$1+c_m/t$}}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={$m=2$: two bits share one bias},
-  title style={font=\small},
-  xlabel={$t = \ell/Q$},
-  xmin=0.15, xmax=1, ymin=0.95, ymax=9,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}]
-\dataplot{cn1}{x}{lev}{figures/data/coinm2_n4.dat}
-\dataplot{cn2}{x}{lev}{figures/data/coinm2_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/coinm2_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/coinm2_n10.dat}
-\addplot[clim, dashed, thick, domain=0.15:1, samples=80] {1+0.791144/x};
-\end{axis}
-\end{tikzpicture}
-\caption{The same shared-scalar latent at two answer widths. Exact
-blocks use $G_\ell = F_{m\ell}$ and the dashes use
-\eqref{eq:coinhyperbolam}. The curves approach their hyperbolas at
-every fixed $t > 0$; no uniform convergence at the singular origin is
-claimed.}
-\label{fig:coinm}
-\end{figure}
-
-Three superficially similar models are worth separating. With
-\emph{one global $Z$ shared by every bit}, the construction used
-here, $G_\ell = F_{m\ell}$ and $h_0 = F_m$. With \emph{one
-independent global component per output coordinate},
-$G_\ell = mF_\ell$, so both initial and residual entropies scale by
-$m$ and the coefficient stays $c_1$. With \emph{a fresh component
-redrawn at every question}, the answers are i.i.d.\ with distribution
-$\nu_{\rm mix}$, so $G_\ell = \ell H(\nu_{\rm mix})$ and $L \equiv 1$:
-there is no persistent latent variable to learn.
-
-\subsection{Non-hyperbolic solvable priors}\label{sec:nonhyp}
-
-A stable, projectively consistent exchangeable prior cannot produce a
-smooth non-hyperbolic macroscopic curve: de Finetti reduces it to an
-i.i.d.\ mixture and the preceding section applies. To obtain a profile
-that changes throughout $0 < t < 1$, the prior must retain structure
-tied to particular groups or addresses of questions, and a fixed
-partition into local blocks is the simplest solvable construction.
-The statement needs its consistency qualification: a separate finite
-exchangeable law can be chosen at every $n$ without forming one
-infinite exchangeable family, and such a sequence need be neither an
-i.i.d.\ mixture nor possessed of any thermodynamic limit.
-
-\subsubsection{Independent blocks of questions}
-
-Partition $\mathcal Q$ into independent blocks drawn from a fixed
-finite set of types, writing $\mathcal P_n$ for the partition and
-indexing types by $\kappa$. At finite $n$ let $K_{\kappa,n}$ count
-the type-$\kappa$ blocks and set
-$w_{\kappa,n} := r_\kappa K_{\kappa,n}/Q$, the fraction of all
-questions belonging to them, assuming $w_{\kappa,n}\to w_\kappa$ with
-$\sum_\kappa w_\kappa = 1$. A type $\kappa$ carries a size
-$r_\kappa$, a fixed joint distribution on its $r_\kappa$ answers
-shared by every block of that type up to relabelling, and a mean
-subset-entropy profile defined as follows. Let
-$\mathcal V \subseteq \mathcal Q$ be one particular block of type
-$\kappa$, fix an ordering of it once and for all, and give every
-subset $\mathcal J \subseteq \mathcal V$ the inherited order, so that
-$\psi(\mathcal J) \in \mathcal A^{|\mathcal J|}$ is its random answer
-vector. For $j \in \{0,\ldots,r_\kappa\}$ define
-%
-\begin{equation}
-  H_\kappa(j)
-  := \binom{r_\kappa}{j}^{-1}
-  \sum_{\substack{\mathcal J\subseteq\mathcal V\\ |\mathcal J| = j}}
-  H\big(\psi(\mathcal J)\big).
-  \label{eq:blockprofile}
-\end{equation}
-%
-Here $j$ is the \emph{number of questions selected from the block},
-not a question label, and $H(\psi(\mathcal J))$ measures the
-learner's uncertainty in their \emph{joint answers}, not uncertainty
-about which questions were selected: the set $\mathcal J$ is known.
-No symmetry is required for this averaged definition, although every
-zoo member below has the stronger property of \textbf{entropy
-homogeneity}, meaning that $H(\psi(\mathcal J))$ itself depends only
-on $|\mathcal J|$. Full permutation invariance is sufficient for that
-but not necessary: MDS code blocks are entropy homogeneous even
-though their coordinate distribution is not invariant under every
-permutation.
-
-The profile records how much answer uncertainty remains visible after
-looking at $j$ locations inside a block, and its purpose is that
-successive differences have an operational meaning. Averaging the
-chain rule over a uniform $i$-subset $\mathcal J$ and then a fresh
-question drawn uniformly from $\mathcal V\setminus\mathcal J$ gives
-the within-block increments
-%
-\begin{equation}
-  \eta_\kappa(i) := H_\kappa(i+1)-H_\kappa(i)
-  = \mathbb E_{\mathcal J, q}
-  \big[H\big(\psi(q)\mid\psi(\mathcal J)\big)\big],
-  \qquad 0 \le i \le r_\kappa - 1,
-  \label{eq:eta}
-\end{equation}
-%
-the mean uncertainty in one fresh answer after $i$ of its block
-partners have been answered. This is why the block-entropy profile is
-useful: it converts a joint law on an entire block into exactly the
-conditional entropies the learning curve needs. The endpoints make
-the meaning concrete, $H_\kappa(0) = 0$ while
-$H_\kappa(r_\kappa) = H(\psi(\mathcal V))$ is the entropy of the
-whole block taken jointly. Two independent fair binary answers have
-profile $(0,1,2)$ and increments $(1,1)$; the same fair bit copied
-into both questions has profile $(0,1,1)$ and increments $(1,0)$,
-since after either answer is known the other carries no remaining
-uncertainty.
-
-For a fresh question in a block of size $r_\kappa$, the number of its
-$r_\kappa - 1$ partners already present in a uniformly random
-$\ell$-set is hypergeometric, so exactly at finite $Q$, for
-$0 \le \ell < Q$,
-%
-\begin{equation}
-  \gamma_{n,\ell}
-  = \sum_\kappa w_{\kappa,n}\sum_{i=0}^{r_\kappa-1}
-  \frac{\binom{r_\kappa-1}{i}\binom{Q-r_\kappa}{\ell-i}}
-       {\binom{Q-1}{\ell}}\,\eta_\kappa(i).
-  \label{eq:blockfinitegamma}
-\end{equation}
-%
-Holding every $r_\kappa$ fixed, taking $\ell = \lfloor tQ\rfloor$ and
-assuming $w_{\kappa,n}\to w_\kappa$, sampling without replacement
-approaches independent sampling,
-%
-\begin{equation}
-  \frac{\binom{r-1}{i}\binom{Q-r}{\ell-i}}{\binom{Q-1}{\ell}}
+  \frac{G_{n,\lfloor tQ\rfloor}}{Q}
   \;\longrightarrow\;
-  \underbrace{\binom{r-1}{i}t^i(1-t)^{r-1-i}}_{\textstyle
-    \beta_{r-1,i}(t)},
-  \label{eq:hyptobin}
+  \mathbb E_\mu\big[\min(t, R)\big]
+  \;=\; \int_0^t \big(1 - F(x)\big)\, dx \;=:\; g(t),
+  \label{eq:gF}
 \end{equation}
 %
-which simultaneously defines the Bernstein basis polynomial
-$\beta_{r-1,i}$ and, probabilistically, is the limiting probability
-that exactly $i$ of the fresh question's $r-1$ partners have been
-asked by macroscopic time $t$. The limiting profile is therefore
+the last step by layer cake: pointwise
+$\min(t,R) = \int_0^t \mathbf 1[x < R]\,dx$, and
+$\mathbb E\,\mathbf 1[x < R] = 1 - F(x)$. Received information per
+question is an average of clipped clocks, the area under the survival
+function.
+
+\emph{The increment.} The sequence $\ell \mapsto G_{n,\ell}$ is
+concave (increments nonincreasing), and slopes of concave functions
+converge wherever the limit is differentiable, so at every continuity
+point of $F$
 %
 \begin{equation}
-  \gamma(t)
-  = \sum_\kappa w_\kappa\sum_{i=0}^{r_\kappa-1}
-  \beta_{r_\kappa-1,i}(t)\,\eta_\kappa(i). 
-  \label{eq:bernsteinprofile}
+  \gamma_{n,\lfloor tQ\rfloor}
+  \;\longrightarrow\;
+  g'(t) = 1 - F(t) = \Pr(R > t).
+  \label{eq:gammaF}
 \end{equation}
 %
-At the start of the run no partner has been asked, so only the
-$i = 0$ term survives and
-$h_0 = \gamma(0) = \sum_\kappa w_\kappa\eta_\kappa(0)
-= \sum_\kappa w_\kappa H_\kappa(1)$: the same block-entropy profile
-supplies both the initial marginal entropy and the entire macroscopic
-conditional-entropy curve.
+This is the heart of the construction: the mean conditional entropy
+of a fresh answer is the probability that the true class is not yet
+exhausted. The survival function of the statistic is not a postulate;
+it is the increment term of the finite law.
 
-To construct a sequence with prescribed fractions, choose integer
-block counts with $r_\kappa K_{\kappa,n}/Q \to w_\kappa$ and
-$\sum_\kappa r_\kappa K_{\kappa,n}\le Q$, assigning only $o(Q)$
-leftover sites, whose treatment does not affect the limit; at finite
-$n$ any leftovers can be recorded as an additional block type, so
-\eqref{eq:blockfinitegamma} still includes every question and remains
-exact. If block sizes grow with $n$ the proof changes, a useful
-sufficient condition for the hypergeometric-to-binomial approximation
-being
-$\big(\max_{\mathcal V\in\mathcal P_n}|\mathcal V|\big)^2/Q \to 0$.
-For countably many types, pointwise frequency convergence must be
-replaced by an $\ell^1$ or tightness condition.
+\subsubsection{The macroscopic curve}
 
-\begin{example}
-Two types tile the growing table: pairs ($r_1 = 2$, blue) and quads
-($r_2 = 4$, orange), aiming at $w_1 = 3/8$ and $w_2 = 5/8$. Integer
-counts force detours. At $n = 1$ only a pair fits and at $n = 2$
-only a quad, while at $Q = 8$ and $Q = 16$ the best leftover-free
-tilings still miss the target shares by $1/8$.
-
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1cm,
-  pairblk/.style={fill=blue!45, draw=blue!60!black!60,
-    line width=0.4pt, rounded corners=1pt},
-  quadblk/.style={fill=orange!70, draw=orange!80!black!60,
-    line width=0.4pt, rounded corners=1pt},
-  cellsep/.style={white, line width=0.5pt},
-  wl/.style={font=\small, blue!60!black, anchor=east},
-  wr/.style={font=\small, orange!80!black, anchor=west}]
-
-  % headers
-  \node[wl] at (-0.35, 0.79) {$w_{1,n}$};
-  \node[wr] at (12.15, 0.79) {$w_{2,n}$};
-
-  % n = 1: (K_1, K_2) = (1, 0)
-  \draw[pairblk] (0,0) rectangle (0.68,0.34);
-  \draw[cellsep] (0.34,0.03) -- (0.34,0.31);
-  \node[wl] at (-0.35,0.17) {$1$};
-  \node[wr] at (12.15,0.17) {$0$};
-
-  % n = 2: (0, 1)
-  \draw[quadblk] (0,-0.75) rectangle (1.36,-0.41);
-  \foreach \d in {0.34,0.68,1.02}
-    \draw[cellsep] (\d,-0.72) -- (\d,-0.44);
-  \node[wl] at (-0.35,-0.58) {$0$};
-  \node[wr] at (12.15,-0.58) {$1$};
-
-  % n = 3: (2, 1)
-  \foreach \i in {0,1}{
-    \draw[pairblk] ({\i*0.76},-1.5) rectangle ({\i*0.76+0.68},-1.16);
-    \draw[cellsep] ({\i*0.76+0.34},-1.47) -- ({\i*0.76+0.34},-1.19);}
-  \draw[quadblk] (1.72,-1.5) rectangle (3.08,-1.16);
-  \foreach \d in {0.34,0.68,1.02}
-    \draw[cellsep] ({1.72+\d},-1.47) -- ({1.72+\d},-1.19);
-  \node[wl] at (-0.35,-1.33) {$\tfrac12$};
-  \node[wr] at (12.15,-1.33) {$\tfrac12$};
-
-  % n = 4: (2, 3)
-  \foreach \i in {0,1}{
-    \draw[pairblk] ({\i*0.76},-2.25) rectangle ({\i*0.76+0.68},-1.91);
-    \draw[cellsep] ({\i*0.76+0.34},-2.22) -- ({\i*0.76+0.34},-1.94);}
-  \foreach \i in {0,1,2}{
-    \draw[quadblk] ({1.72+\i*1.44},-2.25)
-      rectangle ({1.72+\i*1.44+1.36},-1.91);
-    \foreach \d in {0.34,0.68,1.02}
-      \draw[cellsep] ({1.72+\i*1.44+\d},-2.22)
-        -- ({1.72+\i*1.44+\d},-1.94);}
-  \node[wl] at (-0.35,-2.08) {$\tfrac14$};
-  \node[wr] at (12.15,-2.08) {$\tfrac34$};
-
-  % n = 5: (6, 5), exact
-  \foreach \i in {0,...,5}{
-    \draw[pairblk] ({\i*0.76},-3.0) rectangle ({\i*0.76+0.68},-2.66);
-    \draw[cellsep] ({\i*0.76+0.34},-2.97) -- ({\i*0.76+0.34},-2.69);}
-  \foreach \i in {0,...,4}{
-    \draw[quadblk] ({4.76+\i*1.44},-3.0)
-      rectangle ({4.76+\i*1.44+1.36},-2.66);
-    \foreach \d in {0.34,0.68,1.02}
-      \draw[cellsep] ({4.76+\i*1.44+\d},-2.97)
-        -- ({4.76+\i*1.44+\d},-2.69);}
-  \node[wl] at (-0.35,-2.83) {$\tfrac38$};
-  \node[wr] at (12.15,-2.83) {$\tfrac58$};
-\end{tikzpicture}
-\end{center}
-
-Each cell is one question and each rounded group is one block, so
-the counts $K_{\kappa,n}$ can be read off:
-$(K_1, K_2) = (1,0),\ (0,1),\ (2,1),\ (2,3),\ (6,5)$. The pair share
-$w_{1,n} = 1,\ 0,\ \tfrac12,\ \tfrac14,\ \tfrac38$ closes in on its
-target by halving steps, and at $n = 5$ the tiling is exact:
-$6 \times 2 + 5 \times 4 = 32 = Q$.
-\end{example}
-
-\subsubsection{Bernstein polynomials as a profile language}
-
-For a single block type, suppressing the type label,
-equation~\eqref{eq:bernsteinprofile} reads
+Substitute \eqref{eq:shapeT1}, \eqref{eq:gF} and \eqref{eq:gammaF}
+into \eqref{eq:Lk-G} and cancel the common factor $Q$; the numerator
+tidies to $1 - (1-t)(1-F(t)) = t + (1-t)F(t)$, and
 %
 \begin{equation}
-  \gamma(t) = \eta(0)(1-t)^2 + 2\eta(1)t(1-t) + \eta(2)t^2
-  \label{eq:bernstein3}
+  L_F(t)
+  \;=\; \frac{t + (1-t)\,F(t)}
+  {\displaystyle\int_0^t \big(1 - F(x)\big)\, dx} .
+  \label{eq:LF}
 \end{equation}
 %
-at $r = 3$, and
-$\eta(0)(1-t)^3 + 3\eta(1)t(1-t)^2 + 3\eta(2)t^2(1-t) + \eta(3)t^3$
-at $r = 4$. Some useful coefficient vectors, with $h_{\rm fresh}$ the
-entropy of one independent fresh answer and $h_{\rm clique}$ the
-entropy of the value copied through a clique:
+This is the master law \eqref{eq:master} realized with $h_0 = 1$,
+$\gamma(t) = 1 - F(t)$ and $g(t) = \int_0^t(1-F)$; the hypotheses
+hold for free, $\gamma$ being bounded and nonincreasing by
+construction. The numerator has its own reading: destroyed density is
+the asked fraction $t$ plus $F(t)$ per unasked column, since an
+unasked answer is deducible exactly when the class died before $t$.
+Asked plus deduced, over received. Expanding at the ends,
+$L_F(0^+) = 1 + f(0^+)$ and $L_F(1) = 1/\mathbb E_\mu[R]$: the curve
+starts at baseline plus the density of the statistic at zero, and
+completes at the reciprocal mean rate. Conversely, any nonincreasing
+profile with values in $[0,1]$ is the survival function of exactly
+one law $\mu$ (read the layer cake backwards), so \eqref{eq:LF} is
+not one family among many: the sampling rule realizes every
+admissible curve of \eqref{eq:master} at $m = 1$, and the statistic
+is the profile. A parallel construction from blocks of questions,
+mathematically complete in the same sense but less aligned with
+modeling a learner, is collected in Appendix~\ref{app:blockpriors}.
 
-\begin{center}
-\begin{tabular}{lll}
-\toprule
-block & $(\eta(0),\ldots,\eta(r-1))$ & profile \\
-\midrule
-independent fresh answers
-  & $(h_{\rm fresh},\ldots,h_{\rm fresh})$ & $h_{\rm fresh}$ \\
-clique & $(h_{\rm clique},0,\ldots,0)$
-  & $h_{\rm clique}(1-t)^{r-1}$ \\
-parity & $(m,\ldots,m,0)$ & $m(1-t^{r-1})$ \\
-$(r,k)$ MDS & $k$ entries $m$, then zeros
-  & $m\Pr[\operatorname{Bin}(r-1,t)\le k-1]$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-Entropy submodularity gives
-$m \ge \eta_\kappa(0) \ge \cdots \ge \eta_\kappa(r_\kappa-1)\ge0$,
-and the derivative identity for Bernstein polynomials makes the
-macroscopic monotonicity explicit,
-%
-\begin{equation}
-  \gamma'(t)
-  = \sum_\kappa w_\kappa(r_\kappa-1)\sum_{i=0}^{r_\kappa-2}
-  \big(\eta_\kappa(i+1)-\eta_\kappa(i)\big)\beta_{r_\kappa-2,i}(t)
-  \;\le\; 0 ,
-  \label{eq:bernsteinderiv}
-\end{equation}
-%
-so $\gamma$ is nonincreasing as the general entropy calculus requires.
-Leverage itself need not be monotone.
+\subsubsection{Two statistics:
+\texorpdfstring{$F(x) = x$ and $F(x) = x^2$}{F(x)=x and F(x)=x2}}
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=9.4cm, height=5.2cm,
-  xlabel={$t$}, ylabel={$\beta_{3,i}(t)$},
-  xmin=0, xmax=1, ymin=0, ymax=1.02,
+\begin{axis}[width=7.4cm, height=5.4cm,
+  title={profile}, title style={font=\small},
+  xlabel={$t$}, ylabel={$\gamma(t) = 1 - F(t)$},
+  xmin=0, xmax=1, ymin=0, ymax=1.02, domain=0:1, samples=120,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12},
-  legend style={font=\scriptsize, at={(0.5,0.97)}, anchor=north,
-    legend columns=4},
+  legend style={font=\tiny, at={(0.03,0.03)}, anchor=south west},
   legend cell align=left]
-\dataplot{cn1, thick}{x}{b0}{figures/data/bernstein3.dat}
-\dataplot{cn2, thick}{x}{b1}{figures/data/bernstein3.dat}
-\dataplot{cn3, thick}{x}{b2}{figures/data/bernstein3.dat}
-\dataplot{cn4, thick}{x}{b3}{figures/data/bernstein3.dat}
-\datalegend{$\beta_{3,0}$, $\beta_{3,1}$, $\beta_{3,2}$, $\beta_{3,3}$}
+\addplot[cf2, thick] {1-x};
+\addplot[cf3, thick] {1-x^2};
+\legend{{$F(x)=x$}, {$F(x)=x^2$}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.4cm,
+  title={leverage}, title style={font=\small},
+  xlabel={$t$}, ylabel={$L_F(t)$},
+  xmin=0, xmax=1, ymin=0.9, ymax=2.15, domain=0.001:1, samples=120,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}]
+\addplot[cf2, thick] {2};
+\addplot[cf3, thick] {3*(1+x-x^2)/(3-x^2)};
+\addplot[black, dotted, forget plot] {1};
 \end{axis}
 \end{tikzpicture}
-\caption{The degree-three Bernstein basis: bump functions scanning
-left to right, the $i$-th peaked at $i/3$. A block profile is a
-positive combination of such bumps weighted by the microscopic
-conditional entropies $\eta(i)$, so the shape of $L$ becomes a
-question about \emph{where the coefficients drop}.}
-\label{fig:bernstein}
+\caption{The two worked statistics in \eqref{eq:LF}. A uniform draw
+($F(x) = x$, blue) gives constant leverage $L \equiv 2$; the larger
+of two uniform draws ($F(x) = x^2$, orange) delays the deductions and
+the curve rises from the baseline to $L(1) = \tfrac32$.}
+\label{fig:Fexamples}
 \end{figure}
 
-Equation~\eqref{eq:bernsteinprofile} describes every prior in the
-stated class of independent blocks drawn from a fixed finite list of
-bounded types, and mixing types mixes their profiles linearly. There
-is also a useful approximation result when the answer alphabet is
-allowed to grow: mixtures of common-length MDS blocks realize any
-nonincreasing Bernstein coefficient sequence, and Bernstein
-polynomials approximate every continuous nonincreasing profile. A
-Reed--Solomon block of length $r$ needs $A \ge r$, however, so
-sending $r\to\infty$ in that approximation also requires
-$m\to\infty$, or a different family of realizable entropy vectors.
-It is not a completeness theorem at fixed answer width.
+\emph{A single uniform draw, $F(x) = x$.} The numerator of
+\eqref{eq:LF} is $t + (1-t)t = t(2-t)$ and the denominator is
+$t - t^2/2 = t(2-t)/2$; the factor $t(2-t)$ cancels and
+$L \equiv 2$, exactly, at every macroscopic time. Both endpoint
+identities agree: $1 + f(0^+) = 2$ and $1/\mathbb E[R] = 2$. The
+interpretation is the flattest possible Occam: uniform $F$ spreads
+its budget evenly over the \emph{rate axis}, so each shell receives
+exactly the share of coefficient space its degree opens,
+$w_d = \binom nd/2^n$ -- not an equal share per level -- and every
+received bit drags along exactly one deduced bit, uniformly over the
+whole run. The same constant
+curve is produced by pairing questions into equality cliques
+(Appendix~\ref{app:blockpriors}), a completely different microscopic
+story: the flattest curve does not identify its microscopics.
 
-\subsubsection{Why leverage can have an interior maximum}
-
-The destroyed-entropy density is $h_0 - (1-t)\gamma(t)$, so after
-subtracting the received density the cumulative deduced density is
-$h_0 - (1-t)\gamma(t) - g(t)$, whose derivative, for differentiable
-$\gamma$, is
+\emph{The larger of two draws, $F(x) = x^2$.} Both draws land below
+$x$ with probability $x^2$, so the weights \eqref{eq:shapepj} become
+gaps of squared rates, and the curve is
 %
 \begin{equation}
-  \frac{d}{dt}\Big[h_0-(1-t)\gamma(t)-g(t)\Big]
-  = -(1-t)\gamma'(t) \;\ge\; 0 .
-  \label{eq:deduceddensity}
+  L(t) = \frac{t + (1-t)t^2}{t - t^3/3}
+  = \frac{3\,(1 + t - t^2)}{3 - t^2},
+  \label{eq:Lmax}
 \end{equation}
 %
-Hence $-\gamma'(t)$, weighted by the unasked fraction, specifies when
-stored information is released. Since
-$L(t) = 1 + \big[h_0-(1-t)\gamma(t)-g(t)\big]/g(t)$,
-%
-\begin{equation}
-  L'(t)
-  = \frac{-(1-t)\gamma'(t)g(t)
-    - \big[h_0-(1-t)\gamma(t)-g(t)\big]\gamma(t)}{g(t)^2},
-  \label{eq:Lprime}
-\end{equation}
-%
-so leverage rises when the current deduction-to-reception rate
-exceeds its accumulated average and falls when it drops below it. For
-an explicit example mix a fraction $w$ of $(r,k) = (4,2)$ MDS
-questions with a fraction $1-w$ of fresh questions, giving
-%
-\begin{equation}
-  \frac{\gamma(t)}m = 1 - 3wt^2 + 2wt^3,
-  \qquad
-  \frac{g(t)}m = t - wt^3 + \frac w2 t^4,
-  \label{eq:peakexample}
-\end{equation}
-%
-and cumulative deduced density
-$3wt^2 - 4wt^3 + \tfrac{3w}2 t^4$ per bit. Consequently
-$L(t) = 1 + 3wt + O(t^2)$ as $t\downarrow0$, whereas direct
-differentiation at the other endpoint gives
-%
-\begin{equation}
-  L'(1) = -\frac w2\,\frac{1-w}{(1-w/2)^2} \;<\; 0
-  \qquad (0 < w < 1).
-  \label{eq:Lprimeone}
-\end{equation}
-%
-Thus $L'(0^+) = 3w > 0$ while $L'(1) < 0$, and continuity forces an
-interior maximum. The peak is produced by a threshold release
-followed by continued ordinary reception.
-
-\subsection{An exotic zoo of solvable thermodynamic
-priors}\label{sec:zoo}
-
-The following priors are designed to release stored information at
-different stages of the run. Their profiles are explicit, so their
-leverage follows from \eqref{eq:master}. Full derivations appear in
-Appendices~\ref{app:block}--\ref{app:mixtures}.
-
-\subsubsection{Cliques: constant leverage}
-
-For a clique block $\mathcal V \in \mathcal P_n$ of size $r$, draw one
-shared value $a_{\mathcal V}\sim\nu_{\mathcal V}$ and copy it to all
-questions in $\mathcal V$: the random map answers every question of
-the block with that one drawn symbol, $\psi(q) = a_{\mathcal V}$ for
-all $q \in \mathcal V$, and the draws are independent across blocks.
-Like every zoo member, this is a constructive prior on the $N$ maps.
-A map $\phi_j$ restricts to an answer tuple $\phi_j(\mathcal V)$ on
-each block, each block law prices that tuple, and independence
-multiplies the prices:
-%
-\begin{equation}
-  p_j \;=\; \prod_{\mathcal V\in\mathcal P_n}
-  \Pr\big(\psi(\mathcal V) = \phi_j(\mathcal V)\big).
-  \label{eq:blockproduct}
-\end{equation}
-%
-For cliques the factor is $\nu_{\mathcal V}(a)$ when $\phi_j$ is
-constant on $\mathcal V$ with value $a$, and zero otherwise, so the
-support is the $A^{Q/r}$ maps that are constant on every block.
+rising from $L(0^+) = 1 + f(0^+) = 1$ (the density vanishes at zero,
+so the curve leaves the baseline flat) through
+$L' \propto (1-t)(3-t) > 0$ to $L(1) = 1/\mathbb E[R] = \tfrac32$.
+Keeping the larger draw tilts belief toward richer worlds: deductions
+are late-loaded, so early answers pay full price and the reward
+arrives toward the end of the run, a rising curve throughout.
 
 \begin{example}
-At $(n,m) = (2,1)$, partition the four questions by their high bit,
-$\mathcal V_1 = \{00, 01\}$ and $\mathcal V_2 = \{10, 11\}$, with
-$\nu_1 = (0.8, 0.2)$ and $\nu_2 = (0.55, 0.45)$ on the answers
-$(0,1)$. A supported map must be constant on both blocks, so it can
-depend only on $b_1$: of the sixteen maps of
-Table~\ref{tab:sixteen}, only FALSE ($j=0$), $\lnot b_1$ ($j=3$),
-$b_1$ ($j=12$) and TRUE ($j=15$) survive, with product weights
-\begin{equation}
-  p_0 = 0.8\times0.55 = 0.44,\quad
-  p_3 = 0.2\times0.55 = 0.11,\quad
-  p_{12} = 0.8\times0.45 = 0.36,\quad
-  p_{15} = 0.09,
-\end{equation}
-and $p_j = 0$ for the other twelve. One answer from either block
-settles that block's remaining question for free: $L \equiv 2$.
+The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with $F(x) = x^2$.
+The classes have $(K_0, K_1, K_2) = (1, 3, 4)$ and rates
+$(\tfrac14, \tfrac34, 1)$, so
+$w = (\tfrac1{16}, \tfrac12, \tfrac7{16})$, and the sixteen maps of
+Table~\ref{tab:sixteen} are priced in three tiers by their degree:
+the two constants at
+$\tfrac1{16}\cdot\tfrac12 + \tfrac12\cdot\tfrac18 +
+\tfrac7{16}\cdot\tfrac1{16} = \tfrac{31}{256}$, the six affine maps
+at $\tfrac{23}{256}$, and the eight curved maps at $\tfrac{7}{256}$;
+the check $2\cdot31 + 6\cdot23 + 8\cdot7 = 256$ closes the
+distribution.
 \end{example}
 
-With $h_{\mathcal V} := H(\nu_{\mathcal V})$ we have
-$H_{\mathcal V}(0) = 0$ and $H_{\mathcal V}(j) = h_{\mathcal V}$ for
-$j \ge 1$, so the increments are
-$(h_{\mathcal V}, 0, \ldots, 0)$. For a common block size, letting
-$h_{\rm clique}$ denote the question-weighted mean of the
-$h_{\mathcal V}$,
-%
-\begin{equation}
-  \gamma(t) = h_{\rm clique}(1-t)^{r-1},
-  \qquad
-  g(t) = \frac{h_{\rm clique}}{r}\big[1-(1-t)^r\big],
-  \qquad
-  L(t)\equiv r.
-  \label{eq:clique}
-\end{equation}
-%
-The result is exact at finite $n$ for an exact clique partition, or
-with only deterministic zero-entropy leftovers. Mixing clique sizes
-at a common entropy scale does not interpolate between constants: the
-initial leverage is the arithmetic mean of the sizes while the final
-leverage is their harmonic mean.
-
-\subsubsection{Parity: deductions near the end}
-
-For a binary block $\mathcal V$ of size $r$, fix a coset label
-$\sigma_{\mathcal V}\in\{0,1\}$ and choose its answer tuple uniformly
-from that parity coset,
-%
-\begin{equation}
-  \Pr\big(\psi(\mathcal V) = y_{\mathcal V}\big)
-  = 2^{-(r-1)}\,\mathbf 1\Big[\textstyle
-  \bigoplus_{q\in\mathcal V}y_q = \sigma_{\mathcal V}\Big].
-  \label{eq:parityprior}
-\end{equation}
-%
-The same product rule \eqref{eq:blockproduct} makes this
-constructive: a map $\phi_j$ is supported precisely when its
-restriction to every block lands in that block's coset, and every
-supported map carries the same weight
-$p_j = \prod_{\mathcal V} 2^{-(r_{\mathcal V}-1)}$.
-
-\begin{example}
-At $(n,m) = (2,1)$, let a single parity block cover the whole table,
-$\mathcal V = \mathcal Q$ with $r = 4$ and the odd coset
-$\sigma_{\mathcal V} = 1$. The support is the eight maps of
-Table~\ref{tab:sixteen} whose truth tables have odd weight,
-$j \in \{1, 2, 4, 7, 8, 11, 13, 14\}$ -- among them NOR, NAND, AND
-and OR -- each with $p_j = 2^{-3} = \tfrac18$. Any three answers admit two
-completions of the truth table, of which only one has odd weight,
-so the fourth answer is deduced free of charge: the block pays out
-exactly at the end.
-\end{example}
-
-Every proper subset is uniform, so $\eta(i) = 1$ for
-$0\le i\le r-2$ and $\eta(r-1) = 0$, giving
-$\gamma(t) = 1-t^{r-1}$, $g(t) = t - t^r/r$ and
-%
-\begin{equation}
-  L(t) = \frac{t + (1-t)t^{r-1}}{t - t^r/r}. 
-  \label{eq:parity}
-\end{equation}
-%
-For $r \ge 3$ this rises from $1$ to $r/(r-1)$. The case $r = 2$ is
-exceptional: it is an equality or inequality clique, with
-$L \equiv 2$. The derivative of the cumulative deduced density,
-$-(1-t)\gamma'(t) = (r-1)t^{r-2}(1-t)$, concentrates late in the run.
-
-\subsubsection{Tilted parity}
-
-Uniform parity is not the only solvable law on a parity coset. For
-$0 < \theta < 1$ draw i.i.d.\ $\operatorname{Bernoulli}(\theta)$ bits
-and condition their parity to be $\sigma$. With
-$\varepsilon := 1-2\theta$ and
-$\zeta_{r,\sigma} = \tfrac12\big(1+(-1)^\sigma\varepsilon^r\big)$ the
-block law is
-%
-\begin{equation}
-  \Pr\nolimits_\sigma\big(\psi(\mathcal V) = y_{\mathcal V}\big)
-  = \frac{\theta^{|y_{\mathcal V}|}(1-\theta)^{r-|y_{\mathcal V}|}
-    \mathbf 1[\oplus_q y_q = \sigma]}{\zeta_{r,\sigma}},
-  \label{eq:tiltedprior}
-\end{equation}
-%
-and if $v$ bits remain unseen with required parity
-$\sigma_{\rm rem}$, the next bit is $1$ with probability
-%
-\begin{equation}
-  P_{\rm next}(v,\sigma_{\rm rem})
-  = \frac{\theta\big[1-(-1)^{\sigma_{\rm rem}}
-    \varepsilon^{\,v-1}\big]}
-  {1+(-1)^{\sigma_{\rm rem}}\varepsilon^{\,v}} .
-  \label{eq:tiltednext}
-\end{equation}
-%
-A finite average of $h_2(P_{\rm next})$ gives each $\eta(i)$, the
-exact weights being derived in Appendix~\ref{app:parity}. The final
-member remains determined, so $\eta(r-1) = 0$, while earlier
-coefficients now decrease gradually rather than staying exactly flat.
-At $r = 4$, $\theta = 0.3$, $\sigma = 1$,
-%
-\begin{equation}
-  \eta = (0.912441,\ 0.898876,\ 0.811317,\ 0),
-  \label{eq:tiltedeta}
-\end{equation}
-%
-which gives $L(0^+)\simeq1.0446$ and $L(1)\simeq1.3915$. The
-parameter $\varepsilon$ controls how far the profile bends away from
-uniform parity.
-
-\subsubsection{MDS blocks: a movable threshold}
-
-Let answers be symbols of $\mathbb F_{A}$ and let a block
-$\mathcal V$ of size $r$ be uniform on an $[r,k]_{A}$ MDS code, a
-Reed--Solomon realization using $r$ distinct field points and
-therefore requiring $A \ge r$. Any $k$ answers determine the whole
-block while any $j \le k$ answers are uniform, so
-$H_{\rm MDS}(j) = m\min(j,k)$ and $\eta(i) = m$ for $i < k$, zero
-afterwards. Writing
-$\tau_{r,k}(t) := \Pr[\operatorname{Bin}(r-1,t)\le k-1]$ we obtain
-$\gamma(t) = m\,\tau_{r,k}(t)$, and the beta integral gives
-%
-\begin{equation}
-  \rho := \frac kr,
-  \qquad
-  \int_0^1\tau_{r,k}(x)\,dx = \rho,
-  \qquad\text{hence}\qquad
-  L(1) = \frac1\rho .
-  \label{eq:mdsrate}
-\end{equation}
-%
-If $n\to\infty$ is taken first and then $r\to\infty$ with
-$k/r\to\rho$, the profile approaches a step at $t = \rho$, the answer
-width having to grow for such blocks to exist. To produce a peak, mix
-a code fraction $w$ with a fresh fraction $1-w$:
-%
-\begin{equation}
-  \frac{\gamma(t)}m = w\,\tau_{r,k}(t) + (1-w),
-  \qquad
-  L(t) = \frac{w\big[1-(1-t)\tau_{r,k}(t)\big] + (1-w)t}
-    {w\int_0^t\tau_{r,k}(x)\,dx + (1-w)t} . 
-  \label{eq:mdsfresh}
-\end{equation}
-%
-The code releases deductions around its threshold while fresh
-questions continue to add received information afterwards, making the
-cumulative curve decline past its maximum.
-
-\subsubsection{Local noise and full support}
-
-The hard clique, parity and code priors assign probability zero to
-many maps. For $0\le\delta\le1$ a general local lapse replaces the
-hard law $P_{\mathcal V}$ on a block by
-$P_{\mathcal V,\delta} = (1-\delta)P_{\mathcal V}
-+ \delta A^{-|\mathcal V|}$, so that term by term the map prior
-becomes
-%
-\begin{equation}
-  p_{\delta,j}
-  = \prod_{\mathcal V\in\mathcal P_n}
-  \Big[(1-\delta_{\mathcal V,n})
-    P_{\mathcal V}\big(\phi_j(\mathcal V)\big)
-    + \delta_{\mathcal V,n}A^{-|\mathcal V|}\Big] . 
-  \label{eq:lapse}
-\end{equation}
-%
-The map prior has full support whenever every
-$\delta_{\mathcal V,n} > 0$, and the lapse is local: blocks remain
-independent, so only their entropy coefficients change. For fixed
-block sizes entropy is continuous on the finite probability simplex,
-so $\eta_{\mathcal V,\delta}(i)\to\eta_{\mathcal V,0}(i)$ as
-$\delta\to0$, and if
-$\max_{\mathcal V}\delta_{\mathcal V,n}\to0$ the hard and noisy
-priors share a thermodynamic profile. More generally it is enough
-that the question-weighted coefficient perturbation vanish,
-%
-\begin{equation}
-  \sum_{\mathcal V\in\mathcal P_n}
-  \frac{|\mathcal V|}{Q}
-  \max_i\big|\eta_{\mathcal V,\delta_{\mathcal V,n}}(i)
-  - \eta_{\mathcal V,0}(i)\big| \;\longrightarrow\; 0 .
-  \label{eq:noisecondition}
-\end{equation}
-%
-At fixed $\delta > 0$ the noise does \emph{not} vanish merely because
-$n\to\infty$; it produces a solvable but displaced profile. If block
-sizes also grow, $\delta_n\to0$ alone may be insufficient: for noisy
-parity blocks of size $r(n)$ one needs roughly
-$r(n)\delta_n\to0$. Two coefficient changes are especially simple.
-Uniform parity followed by independent bit flips at rate $\delta$
-keeps $\eta(i) = 1$ for $i\le r-2$ and lifts only the cliff,
-%
-\begin{equation}
-  \eta(r-1)
-  = h_2\!\left(\frac{1-(1-2\delta)^r}{2}\right),
-  \label{eq:noisyparityeta}
-\end{equation}
-%
-while an MDS block lapsed to the uniform block distribution keeps
-$H_\delta(j) = jm$ below threshold and turns the zero coefficients
-above it into a positive tail, with the exact entropy given in
-Appendix~\ref{app:mds}. Merely giving the shared clique value full
-alphabet support is not enough, since the block would still contain
-only constant strings: independent output noise or a lapse is
-required for full map support.
-
-\subsubsection{Arbitrary mixtures and the cocktail}
-
-Suppose component type $\kappa$ occupies a fraction $w_\kappa$ of
-questions and has initial marginal entropy $h_{0,\kappa}$, profile
-$\gamma_\kappa$, integral $g_\kappa$ and leverage $L_\kappa$.
-Independence across disjoint question sets gives
-$h_0 = \sum_\kappa w_\kappa h_{0,\kappa}$,
-$\gamma = \sum_\kappa w_\kappa\gamma_\kappa$ and
-$g = \sum_\kappa w_\kappa g_\kappa$, and therefore
-%
-\begin{equation}
-  L(t)
-  = \frac{\sum_\kappa w_\kappa g_\kappa(t)L_\kappa(t)}
-         {\sum_\kappa w_\kappa g_\kappa(t)} . 
-  \label{eq:mixture}
-\end{equation}
-%
-Leverage is a received-entropy-weighted average of component
-leverages, not a simple question-fraction average, and
-\eqref{eq:mixture} is a symbolic solution for any mixture whose
-component profiles are known.
-
-As a worked cocktail take $m = 4$, with one quarter of the questions
-following the two-coin mixture $\theta\in\{0.2,0.7\}$ with weights
-$(\tfrac14,\tfrac34)$ and one scalar latent bias shared by all its
-bits; one half belonging to lapsed $(r,k) = (16,4)$ Reed--Solomon
-blocks with lapse $\delta = 0.1$; and one quarter fresh with
-independent bit bias $0.3$. Normalizing entropy per output bit and
-writing $h_{\rm cocktail} := h_0/m$,
-$\gamma_{\rm cocktail} := \gamma/m$ and
-$g_{\rm cocktail} := g/m$, the coin component contributes
-$F_4/4 = 0.94828746$ initially and
-$h_{\rm cond,coin} = 0.84145020$ afterwards, so
-%
-\begin{equation}
-  h_{\rm cocktail}
-  = \tfrac14(0.94828746) + \tfrac12 + \tfrac14 h_2(0.3)
-  = 0.95739459,
-  \label{eq:cocktailh0}
-\end{equation}
-%
-while for $t > 0$, with $\gamma_{\rm lapse}$ the lapsed-code profile
-per bit,
-%
-\begin{equation}
-  \gamma_{\rm cocktail}(t)
-  = \tfrac14 h_{\rm cond,coin} + \tfrac12\gamma_{\rm lapse}(t)
-  + \tfrac14 h_2(0.3),
-  \qquad
-  \int_0^1\gamma_{\rm lapse} = 0.33232806 .
-  \label{eq:cocktailgamma}
-\end{equation}
-%
-Substituting into \eqref{eq:master} gives
-$L = \big[h_{\rm cocktail}-(1-t)\gamma_{\rm cocktail}\big]
-/g_{\rm cocktail}$, whose initial divergence has coefficient
-$\lim_{t\downarrow0}tL(t)
-= \big[h_{\rm cocktail}-\gamma_{\rm cocktail}(0^+)\big]
-/\gamma_{\rm cocktail}(0^+)\simeq0.02870$, a dip of approximately
-$1.499$ at $t\simeq0.0836$, a peak of approximately $2.114$ at
-$t\simeq0.350$, and $L(1)\simeq1.60408$. The initial hyperbolic
-decline comes from the global coin latent, the middle peak from the
-code threshold, and the final decline from fresh and lapsed entropy
-received after the code deductions have mostly been released.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=4.05cm, height=4.6cm,
-  title={cliques}, title style={font=\scriptsize},
-  xlabel={$t$}, ylabel={$\langle L\rangle$},
-  xmin=0, xmax=1, ymin=0.9, ymax=4.6,
-  tick label style={font=\tiny}, label style={font=\scriptsize},
-  grid=major, grid style={black!12}]
-\dataplot{cn3}{x}{lev}{figures/data/zoo_clique_r2.dat}
-\dataplot{cn3}{x}{lev}{figures/data/zoo_clique_r4.dat}
-\addplot[clim, dashed, domain=0:1] {2};
-\addplot[clim, dashed, domain=0:1] {4};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=4.05cm, height=4.6cm,
-  title={parity, $r=4$}, title style={font=\scriptsize},
-  xlabel={$t$}, xmin=0, xmax=1, ymin=0.97, ymax=1.4,
-  tick label style={font=\tiny}, label style={font=\scriptsize},
-  grid=major, grid style={black!12}]
-\dataplot{cn1}{x}{lev}{figures/data/zoo_parity_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/zoo_parity_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/zoo_parity_n10.dat}
-\addplot[clim, dashed, domain=0.02:1, samples=80]
-  {(x+(1-x)*x^3)/(x-x^4/4)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=4.05cm, height=4.6cm,
-  title={MDS $+$ fresh}, title style={font=\scriptsize},
-  xlabel={$t$}, xmin=0, xmax=1, ymin=0.9, ymax=3.2,
-  tick label style={font=\tiny}, label style={font=\scriptsize},
-  grid=major, grid style={black!12}]
-\dataplot{cn1}{x}{lev}{figures/data/zoo_mds_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/zoo_mds_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/zoo_mds_n10.dat}
-\dataplot{clim, dashed}{x}{lev}{figures/data/zoo_mds_limit.dat}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=4.05cm, height=4.6cm,
-  title={cocktail}, title style={font=\scriptsize},
-  xlabel={$t$}, xmin=0, xmax=1, ymin=0.9, ymax=4,
-  tick label style={font=\tiny}, label style={font=\scriptsize},
-  grid=major, grid style={black!12}]
-\dataplot{cn1}{x}{lev}{figures/data/zoo_cocktail_n6.dat}
-\dataplot{cn3}{x}{lev}{figures/data/zoo_cocktail_n8.dat}
-\dataplot{cn4}{x}{lev}{figures/data/zoo_cocktail_n10.dat}
-\dataplot{clim, dashed}{x}{lev}{figures/data/zoo_cocktail_limit.dat}
-\end{axis}
-\end{tikzpicture}
-\caption{Finite learning curves at $n = 6, 8, 10$ (light to dark)
-against their dashed thermodynamic limits. Cliques of size $2$ and
-$4$ are exactly flat at every finite size; parity rises to
-$r/(r-1)$; the diluted code peaks near its threshold; and the
-cocktail declines, dips, peaks and declines again. In the cocktail
-panel the dashed curve uses the shared-latent initial entropy $F_4/4$
-and equations \eqref{eq:cocktailh0}--\eqref{eq:cocktailgamma}.}
-\label{fig:zoo}
-\end{figure}
-
-\subsubsection{The zoo side by side}
-
-\begin{center}
-\begin{tabular}{@{}llll@{}}
-\toprule
-member & microscopic rule & limiting profile & leverage shape \\
-\midrule
-coin mixture & a global latent selects an i.i.d.\ component
-  & constant on $t>0$, jump at $0$ & $1 + c/t$ \\
-clique & one value copied through each block
-  & $h_{\rm clique}(1-t)^{r-1}$ & exactly $r$ \\
-parity & one final parity constraint
-  & $m(1-t^{r-1})$ & rising for $r\ge3$ \\
-tilted parity & biased product law conditioned on parity
-  & \eqref{eq:bernsteinprofile} with \eqref{eq:tiltedeta}
-  & tilt-dependent \\
-MDS & any $k$ answers determine an $r$-block
-  & $m\,\tau_{r,k}(t)$ & threshold rise \\
-MDS $+$ fresh & threshold block plus ordinary sites
-  & $m[w\tau_{r,k}+(1-w)]$ & interior peak \\
-cocktail & coin, lapsed code and fresh
-  & weighted sum & decline, dip, peak \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The shape of a well-measured learning curve can therefore provide
-evidence about the \textbf{timing} of usable correlations: global and
-front-loaded, first-touch, last-touch, or threshold-like. It does not
-identify a unique microscopic prior. Different priors can share the
-same entropy profile, and an actual trained model may be
-misspecified, non-Bayesian, or imperfectly calibrated. The central
-scale distinction is now explicit: the $n\to\infty$ curve sees only
-extensive-time learning, and any structure learned in $O(1)$ or
-$o(Q)$ questions collapses into a singularity or jump at $t = 0$. For
-Bayesian priors this means that a finite-dimensional global latent may
-profoundly affect early learning yet disappear from the interior
-profile. To obtain nontrivial behaviour throughout $0 < t < 1$, the
-prior must distribute uncertainty and correlations across $\Theta(Q)$
-local degrees of freedom. Macroscopic leverage classifies when stored
-information becomes available, not every detail of how the prior
-represents it.
 
 \appendix
 
 Appendix~\ref{app:spike} continues the spike-prior example of
-Section~\ref{sec:spike}.
-Appendices~\ref{app:block}--\ref{app:mixtures} derive the block
-formulas of Chapter~\ref{sec:tdl} in a common order: specify the
-probability law inside one block; compute its subset entropies
-$H_\kappa(j)$; take differences
-$\eta_\kappa(i) = H_\kappa(i+1)-H_\kappa(i)$; insert those
-differences into the Bernstein profile; integrate the profile and
-substitute it into the leverage law.
-Appendix~\ref{app:inverse} discusses the inverse problem and
-Appendix~\ref{app:endpoints} collects endpoint and boundary-layer
-consequences of the general limit.
+Section~\ref{sec:spike}. Appendix~\ref{app:blockpriors} collects the
+block-prior construction and its Bernstein profile language, a
+block-based route to the same family of macroscopic curves.
 
 \section{More characteristics of the spike prior}\label{app:spike}
 
@@ -5342,750 +4557,461 @@ At $t = 1$ the increment $G_{k+1}-G_k$ is undefined and the same value
 follows instead from the completion formula. The two familiar orders
 are thus endpoints of a larger family.
 
-\section{The general block calculation}\label{app:block}
 
-\subsection{Exact mean block entropy at finite \texorpdfstring{$n$}{n}}
+\section{Block priors and the Bernstein profile language}\label{app:blockpriors}
 
-Let $\mathcal V \in \mathcal P_n$ be a block and define the entropy
-averaged over all $j$-subsets of it,
+A stable, projectively consistent exchangeable prior cannot produce a
+smooth non-hyperbolic macroscopic curve: de Finetti reduces it to an
+i.i.d.\ mixture, whose interior profile is constant and whose
+macroscopic curve is a hyperbola. To obtain a profile
+that changes throughout $0 < t < 1$, the prior must retain structure
+tied to particular groups or addresses of questions, and a fixed
+partition into local blocks is the simplest solvable construction.
+The statement needs its consistency qualification: a separate finite
+exchangeable law can be chosen at every $n$ without forming one
+infinite exchangeable family, and such a sequence need be neither an
+i.i.d.\ mixture nor possessed of any thermodynamic limit.
+
+\subsection{Independent blocks of questions}
+
+Partition $\mathcal Q$ into independent blocks drawn from a fixed
+finite set of types, writing $\mathcal P_n$ for the partition and
+indexing types by $\kappa$. At finite $n$ let $K_{\kappa,n}$ count
+the type-$\kappa$ blocks and set
+$w_{\kappa,n} := r_\kappa K_{\kappa,n}/Q$, the fraction of all
+questions belonging to them, assuming $w_{\kappa,n}\to w_\kappa$ with
+$\sum_\kappa w_\kappa = 1$. A type $\kappa$ carries a size
+$r_\kappa$, a fixed joint distribution on its $r_\kappa$ answers
+shared by every block of that type up to relabelling, and a mean
+subset-entropy profile defined as follows. Let
+$\mathcal V \subseteq \mathcal Q$ be one particular block of type
+$\kappa$, fix an ordering of it once and for all, and give every
+subset $\mathcal J \subseteq \mathcal V$ the inherited order, so that
+$\psi(\mathcal J) \in \mathcal A^{|\mathcal J|}$ is its random answer
+vector. For $j \in \{0,\ldots,r_\kappa\}$ define
 %
 \begin{equation}
-  H_{\mathcal V}(j)
-  := \binom{|\mathcal V|}{j}^{-1}
+  H_\kappa(j)
+  := \binom{r_\kappa}{j}^{-1}
   \sum_{\substack{\mathcal J\subseteq\mathcal V\\ |\mathcal J| = j}}
-  H\big(\psi(\mathcal J)\big),
-  \label{eq:appblockH}
+  H\big(\psi(\mathcal J)\big).
+  \label{eq:blockprofile}
 \end{equation}
 %
-every term of which is equal when the block is entropy homogeneous.
-If $\mathcal S$ is a uniformly random $\ell$-subset of $\mathcal Q$
-then its intersection count with $\mathcal V$ is hypergeometric,
+Here $j$ is the \emph{number of questions selected from the block},
+not a question label, and $H(\psi(\mathcal J))$ measures the
+learner's uncertainty in their \emph{joint answers}, not uncertainty
+about which questions were selected: the set $\mathcal J$ is known.
+No symmetry is required for this averaged definition, although every
+zoo member below has the stronger property of \textbf{entropy
+homogeneity}, meaning that $H(\psi(\mathcal J))$ itself depends only
+on $|\mathcal J|$. Full permutation invariance is sufficient for that
+but not necessary: MDS code blocks are entropy homogeneous even
+though their coordinate distribution is not invariant under every
+permutation.
+
+The profile records how much answer uncertainty remains visible after
+looking at $j$ locations inside a block, and its purpose is that
+successive differences have an operational meaning. Averaging the
+chain rule over a uniform $i$-subset $\mathcal J$ and then a fresh
+question drawn uniformly from $\mathcal V\setminus\mathcal J$ gives
+the within-block increments
 %
 \begin{equation}
-  \Pr(|\mathcal S\cap\mathcal V| = j)
-  = \frac{\binom{|\mathcal V|}{j}\binom{Q-|\mathcal V|}{\ell-j}}
-         {\binom{Q}{\ell}} .
-  \label{eq:apphyper}
+  \eta_\kappa(i) := H_\kappa(i+1)-H_\kappa(i)
+  = \mathbb E_{\mathcal J, q}
+  \big[H\big(\psi(q)\mid\psi(\mathcal J)\big)\big],
+  \qquad 0 \le i \le r_\kappa - 1,
+  \label{eq:eta}
 \end{equation}
 %
-Different blocks have dependent intersection counts, since those
-counts sum to $\ell$, but entropy adds across independent blocks and
-expectation is linear, so
-%
-\begin{equation}
-  G_{n,\ell}
-  = \sum_{\mathcal V\in\mathcal P_n}\sum_{j=0}^{|\mathcal V|}
-  \frac{\binom{|\mathcal V|}{j}\binom{Q-|\mathcal V|}{\ell-j}}
-       {\binom{Q}{\ell}}\,H_{\mathcal V}(j) 
-  \label{eq:appGnl}
-\end{equation}
-%
-exactly, with no large-$n$ approximation anywhere.
+the mean uncertainty in one fresh answer after $i$ of its block
+partners have been answered. This is why the block-entropy profile is
+useful: it converts a joint law on an entire block into exactly the
+conditional entropies the learning curve needs. The endpoints make
+the meaning concrete, $H_\kappa(0) = 0$ while
+$H_\kappa(r_\kappa) = H(\psi(\mathcal V))$ is the entropy of the
+whole block taken jointly. Two independent fair binary answers have
+profile $(0,1,2)$ and increments $(1,1)$; the same fair bit copied
+into both questions has profile $(0,1,1)$ and increments $(1,0)$,
+since after either answer is known the other carries no remaining
+uncertainty.
 
-\subsection{Exact conditional-entropy increments}
-
-Choose a fresh question $q$ uniformly and then $\ell$ of the
-remaining $Q-1$ questions. Conditional on $q$ belonging to a
-type-$\kappa$ block of size $r_\kappa$, the probability of seeing
-exactly $i$ already-asked partners is
-$\binom{r_\kappa-1}{i}\binom{Q-r_\kappa}{\ell-i}\big/
-\binom{Q-1}{\ell}$, and only those partners affect the fresh answer
-because blocks are independent. Choosing an $i$-subset and then a
-fresh coordinate uniformly shows that
-$\eta_\kappa(i) = H_\kappa(i+1)-H_\kappa(i)$ is the corresponding
-mean conditional entropy even without entropy homogeneity, so for
-$0\le\ell<Q$,
+For a fresh question in a block of size $r_\kappa$, the number of its
+$r_\kappa - 1$ partners already present in a uniformly random
+$\ell$-set is hypergeometric, so exactly at finite $Q$, for
+$0 \le \ell < Q$,
 %
 \begin{equation}
   \gamma_{n,\ell}
-  = G_{n,\ell+1}-G_{n,\ell}
   = \sum_\kappa w_{\kappa,n}\sum_{i=0}^{r_\kappa-1}
   \frac{\binom{r_\kappa-1}{i}\binom{Q-r_\kappa}{\ell-i}}
-       {\binom{Q-1}{\ell}}\,\eta_\kappa(i) . 
-  \label{eq:appgamma}
+       {\binom{Q-1}{\ell}}\,\eta_\kappa(i).
+  \label{eq:blockfinitegamma}
 \end{equation}
-
-\subsection{Hypergeometric to binomial}
-
-Fix $r$ and $i$, set $\ell = \lfloor tQ\rfloor$, and expose a
-particular set of $i$ partners that are selected and $r-1-i$ that are
-not. Its probability is a product of $r-1$ factors of the form
-$(\ell+O(r))/(Q+O(r))$ or $(Q-\ell+O(r))/(Q+O(r))$; each selected
-factor tends to $t$ and each unselected factor to $1-t$. There are
-$\binom{r-1}{i}$ such choices, so
-$\Pr(\text{exactly } i \text{ partners})\to
-\binom{r-1}{i}t^i(1-t)^{r-1-i}$, with total-variation error
-$O(r^2/Q)$ at fixed $r$. Thus \eqref{eq:appgamma} tends to
-\eqref{eq:bernsteinprofile}.
-
-\subsection{Integrating a Bernstein profile}
-
-Direct integration of one basis function gives
+%
+Holding every $r_\kappa$ fixed, taking $\ell = \lfloor tQ\rfloor$ and
+assuming $w_{\kappa,n}\to w_\kappa$, sampling without replacement
+approaches independent sampling,
 %
 \begin{equation}
-  \int_0^t\beta_{r-1,i}(x)\,dx
-  = \binom{r-1}{i}\int_0^t x^i(1-x)^{r-1-i}\,dx,
-  \qquad
-  \int_0^1\beta_{r-1,i}(x)\,dx = \frac1r,
-  \label{eq:appbetaint}
+  \frac{\binom{r-1}{i}\binom{Q-r}{\ell-i}}{\binom{Q-1}{\ell}}
+  \;\longrightarrow\;
+  \underbrace{\binom{r-1}{i}t^i(1-t)^{r-1-i}}_{\textstyle
+    \beta_{r-1,i}(t)},
+  \label{eq:hyptobin}
 \end{equation}
 %
-so that
-$g(t) = \sum_\kappa w_\kappa\sum_i\eta_\kappa(i)\binom{r_\kappa-1}{i}
-\int_0^t x^i(1-x)^{r_\kappa-1-i}dx$ and, at the end of the run,
+which simultaneously defines the Bernstein basis polynomial
+$\beta_{r-1,i}$ and, probabilistically, is the limiting probability
+that exactly $i$ of the fresh question's $r-1$ partners have been
+asked by macroscopic time $t$. The limiting profile is therefore
 %
 \begin{equation}
-  g(1)
-  = \sum_\kappa\frac{w_\kappa}{r_\kappa}\sum_i\eta_\kappa(i)
-  = \sum_\kappa\frac{w_\kappa}{r_\kappa}H_\kappa(r_\kappa),
-  \label{eq:appgone}
+  \gamma(t)
+  = \sum_\kappa w_\kappa\sum_{i=0}^{r_\kappa-1}
+  \beta_{r_\kappa-1,i}(t)\,\eta_\kappa(i). 
+  \label{eq:bernsteinprofile}
 \end{equation}
 %
-exactly the prior entropy per question: there are
-$w_\kappa Q/r_\kappa$ independent type-$\kappa$ blocks, each carrying
-$H_\kappa(r_\kappa)$ bits.
+At the start of the run no partner has been asked, so only the
+$i = 0$ term survives and
+$h_0 = \gamma(0) = \sum_\kappa w_\kappa\eta_\kappa(0)
+= \sum_\kappa w_\kappa H_\kappa(1)$: the same block-entropy profile
+supplies both the initial marginal entropy and the entire macroscopic
+conditional-entropy curve.
 
-\subsection{MDS mixtures as Bernstein coefficient synthesizers}
+To construct a sequence with prescribed fractions, choose integer
+block counts with $r_\kappa K_{\kappa,n}/Q \to w_\kappa$ and
+$\sum_\kappa r_\kappa K_{\kappa,n}\le Q$, assigning only $o(Q)$
+leftover sites, whose treatment does not affect the limit; at finite
+$n$ any leftovers can be recorded as an additional block type, so
+\eqref{eq:blockfinitegamma} still includes every question and remains
+exact. If block sizes grow with $n$ the proof changes, a useful
+sufficient condition for the hypergeometric-to-binomial approximation
+being
+$\big(\max_{\mathcal V\in\mathcal P_n}|\mathcal V|\big)^2/Q \to 0$.
+For countably many types, pointwise frequency convergence must be
+replaced by an $\ell^1$ or tightness condition.
 
-Fix a common block length $r$ over $\mathbb F_{A}$ with $A \ge r$, so
-that $[r,k]_{A}$ Reed--Solomon codes exist for $k = 1,\ldots,r$, and
-normalize entropies by $m$. A dimension-$k$ block contributes
-coefficient $1$ at indices $i < k$ and $0$ afterwards, so if
-dimension $k$ is used with question fraction $w_k$ the mixed
-normalized coefficients are
-$\eta_{\rm target}(i) = \sum_{k=i+1}^{r}w_k$. Conversely, take any
-nonincreasing sequence
-$1\ge\eta_{\rm target}(0)\ge\cdots\ge\eta_{\rm target}(r-1)\ge0$, set
-$\eta_{\rm target}(r) = 0$, and choose
+\begin{example}
+Two types tile the growing table: pairs ($r_1 = 2$, blue) and quads
+($r_2 = 4$, orange), aiming at $w_1 = 3/8$ and $w_2 = 5/8$. Integer
+counts force detours. At $n = 1$ only a pair fits and at $n = 2$
+only a quad, while at $Q = 8$ and $Q = 16$ the best leftover-free
+tilings still miss the target shares by $1/8$.
+
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm,
+  pairblk/.style={fill=blue!45, draw=blue!60!black!60,
+    line width=0.4pt, rounded corners=1pt},
+  quadblk/.style={fill=orange!70, draw=orange!80!black!60,
+    line width=0.4pt, rounded corners=1pt},
+  cellsep/.style={white, line width=0.5pt},
+  wl/.style={font=\small, blue!60!black, anchor=east},
+  wr/.style={font=\small, orange!80!black, anchor=west}]
+
+  % headers
+  \node[wl] at (-0.35, 0.79) {$w_{1,n}$};
+  \node[wr] at (12.15, 0.79) {$w_{2,n}$};
+
+  % n = 1: (K_1, K_2) = (1, 0)
+  \draw[pairblk] (0,0) rectangle (0.68,0.34);
+  \draw[cellsep] (0.34,0.03) -- (0.34,0.31);
+  \node[wl] at (-0.35,0.17) {$1$};
+  \node[wr] at (12.15,0.17) {$0$};
+
+  % n = 2: (0, 1)
+  \draw[quadblk] (0,-0.75) rectangle (1.36,-0.41);
+  \foreach \d in {0.34,0.68,1.02}
+    \draw[cellsep] (\d,-0.72) -- (\d,-0.44);
+  \node[wl] at (-0.35,-0.58) {$0$};
+  \node[wr] at (12.15,-0.58) {$1$};
+
+  % n = 3: (2, 1)
+  \foreach \i in {0,1}{
+    \draw[pairblk] ({\i*0.76},-1.5) rectangle ({\i*0.76+0.68},-1.16);
+    \draw[cellsep] ({\i*0.76+0.34},-1.47) -- ({\i*0.76+0.34},-1.19);}
+  \draw[quadblk] (1.72,-1.5) rectangle (3.08,-1.16);
+  \foreach \d in {0.34,0.68,1.02}
+    \draw[cellsep] ({1.72+\d},-1.47) -- ({1.72+\d},-1.19);
+  \node[wl] at (-0.35,-1.33) {$\tfrac12$};
+  \node[wr] at (12.15,-1.33) {$\tfrac12$};
+
+  % n = 4: (2, 3)
+  \foreach \i in {0,1}{
+    \draw[pairblk] ({\i*0.76},-2.25) rectangle ({\i*0.76+0.68},-1.91);
+    \draw[cellsep] ({\i*0.76+0.34},-2.22) -- ({\i*0.76+0.34},-1.94);}
+  \foreach \i in {0,1,2}{
+    \draw[quadblk] ({1.72+\i*1.44},-2.25)
+      rectangle ({1.72+\i*1.44+1.36},-1.91);
+    \foreach \d in {0.34,0.68,1.02}
+      \draw[cellsep] ({1.72+\i*1.44+\d},-2.22)
+        -- ({1.72+\i*1.44+\d},-1.94);}
+  \node[wl] at (-0.35,-2.08) {$\tfrac14$};
+  \node[wr] at (12.15,-2.08) {$\tfrac34$};
+
+  % n = 5: (6, 5), exact
+  \foreach \i in {0,...,5}{
+    \draw[pairblk] ({\i*0.76},-3.0) rectangle ({\i*0.76+0.68},-2.66);
+    \draw[cellsep] ({\i*0.76+0.34},-2.97) -- ({\i*0.76+0.34},-2.69);}
+  \foreach \i in {0,...,4}{
+    \draw[quadblk] ({4.76+\i*1.44},-3.0)
+      rectangle ({4.76+\i*1.44+1.36},-2.66);
+    \foreach \d in {0.34,0.68,1.02}
+      \draw[cellsep] ({4.76+\i*1.44+\d},-2.97)
+        -- ({4.76+\i*1.44+\d},-2.69);}
+  \node[wl] at (-0.35,-2.83) {$\tfrac38$};
+  \node[wr] at (12.15,-2.83) {$\tfrac58$};
+\end{tikzpicture}
+\end{center}
+
+Each cell is one question and each rounded group is one block, so
+the counts $K_{\kappa,n}$ can be read off:
+$(K_1, K_2) = (1,0),\ (0,1),\ (2,1),\ (2,3),\ (6,5)$. The pair share
+$w_{1,n} = 1,\ 0,\ \tfrac12,\ \tfrac14,\ \tfrac38$ closes in on its
+target by halving steps, and at $n = 5$ the tiling is exact:
+$6 \times 2 + 5 \times 4 = 32 = Q$.
+\end{example}
+
+\subsection{Block laws and their map priors}
+
+The profile machinery never displayed the prior itself. It is
+constructive: each block law prices the restriction of a map to its
+block, and independence across blocks multiplies the prices. A map
+$\phi_j$ restricts to the answer tuple $\phi_j(\mathcal V)$ on block
+$\mathcal V$, and
 %
 \begin{equation}
-  w_k = \eta_{\rm target}(k-1)-\eta_{\rm target}(k)
-  \qquad (1\le k\le r),
-  \label{eq:appsynth}
+  p_j \;=\; \prod_{\mathcal V\in\mathcal P_n}
+  \Pr\big(\psi(\mathcal V) = \phi_j(\mathcal V)\big).
+  \label{eq:blockproduct}
 \end{equation}
 %
-which is nonnegative and reproduces the sequence, any slack
-$1-\eta_{\rm target}(0)$ being assigned to frozen zero-entropy
-blocks. Bernstein's approximation theorem then approximates a
-continuous nonincreasing normalized target profile by taking
-$\eta_{\rm target}(i) = \gamma_{\rm target}(i/(r-1))$. This
-establishes a profile-synthesis result only under the accompanying
-realization conditions, $r^2/Q\to0$ along a diagonal limit, $A\ge r$,
-and leftovers of vanishing density; it is not a completeness theorem
-at fixed $m$.
+The classical block laws, with the factor each contributes to
+\eqref{eq:blockproduct} and the curve it produces:
 
-\section{Cliques}\label{app:cliques}
+\begin{center}
+\begin{tabular}{l p{3.6cm} p{4.0cm} p{3.1cm}}
+\toprule
+block law & a size-$r$ block is sampled by &
+  factor $\Pr(\psi(\mathcal V) = y)$ & leverage \\
+\midrule
+clique & one value $a_{\mathcal V}\sim\nu_{\mathcal V}$ copied to
+  every question &
+  $\nu_{\mathcal V}(a)$ if $y = (a,\ldots,a)$, else $0$ &
+  $L \equiv r$, exact at every $n$ \\
+parity ($\sigma$) & uniform on the coset
+  $\bigoplus_q y_q = \sigma$ &
+  $2^{-(r-1)}$ on the coset, else $0$ &
+  rises $1 \to r/(r-1)$, late \\
+tilted parity & i.i.d.\ Bernoulli($\theta$) bits conditioned on the
+  coset &
+  $\theta^{|y|}(1-\theta)^{r-|y|}/\zeta_{r,\sigma}$ on the coset,
+  else $0$ &
+  same shape, bent by $\varepsilon = 1-2\theta$ \\
+$[r,k]_A$ MDS & uniform on an MDS code ($A \ge r$) &
+  $A^{-k}$ on codewords, else $0$ &
+  $L(1) = r/k$; interior peak when mixed with fresh sites \\
+lapse ($\delta$) & any law above, replaced by the uniform block with
+  probability $\delta$ &
+  $(1-\delta)P_{\mathcal V}(y) + \delta A^{-r}$ &
+  full support; $\gamma(1) > 0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\subsection{Block law and entropy vector}
+The supports multiply as well: cliques carry the $A^{Q/r}$ maps
+constant on every block, parity carries the $2^{(r-1)Q/r}$ maps
+landing in every coset, a code carries $A^{kQ/r}$ maps, and the
+lapse restores $p_j > 0$ everywhere, playing the role the top class
+played in Section~\ref{sec:shapeprior}.
 
-Let $\mathcal V\in\mathcal P_n$ have size $r$. Draw an $m$-bit shared
-value $a_{\mathcal V}\sim\nu_{\mathcal V}$ and set $\psi(q) =
-a_{\mathcal V}$ for every $q\in\mathcal V$, so that
-$\Pr(\psi(\mathcal V) = y_{\mathcal V})
-= \nu_{\mathcal V}(y_{q_1})\mathbf 1[y_{q_1} = \cdots = y_{q_r}]$.
-Observing no coordinate has zero entropy; observing at least one
-reveals $a_{\mathcal V}$, after which further coordinates add
-nothing:
+\begin{example}
+Cliques at $(n,m) = (2,1)$: partition the four questions by their
+high bit, $\mathcal V_1 = \{00, 01\}$ and
+$\mathcal V_2 = \{10, 11\}$, with $\nu_1 = (0.8, 0.2)$ and
+$\nu_2 = (0.55, 0.45)$ on the answers $(0,1)$. A supported map must
+be constant on both blocks, so it can depend only on $b_1$: of the
+sixteen maps of Table~\ref{tab:sixteen}, only FALSE ($j = 0$),
+$\lnot b_1$ ($j = 3$), $b_1$ ($j = 12$) and TRUE ($j = 15$) survive,
+with product weights
+$p_0 = 0.8 \times 0.55 = 0.44$,
+$p_3 = 0.11$, $p_{12} = 0.36$, $p_{15} = 0.09$, and $p_j = 0$ for
+the other twelve. One answer from either block settles that block's
+remaining question for free: $L \equiv 2$.
+\end{example}
+
+From any row of the table the route to leverage is the one already
+walked in Section~\ref{sec:shapeprior}. The block law fixes the
+subset entropies \eqref{eq:blockprofile}, their differences give the
+increments $\eta$ \eqref{eq:eta}, and the hypergeometric average
+\eqref{eq:blockfinitegamma} is exact at every finite $n$; its
+binomial limit is the Bernstein profile \eqref{eq:bernsteinprofile}.
+No capacity theorem is needed: blocks are bounded, so elementary
+hypergeometric-to-binomial convergence replaces it. The finite law
+\eqref{eq:finitelev} then gives $\langle L_\ell\rangle$ exactly at
+every $n$, and the master law \eqref{eq:master} gives the curve, with
+$h_0 = \sum_\kappa w_\kappa \eta_\kappa(0)$.
+
+\subsection{Bernstein polynomials as a profile language}
+
+For a single block type, suppressing the type label,
+equation~\eqref{eq:bernsteinprofile} reads
 %
 \begin{equation}
-  H_{\mathcal V}(0) = 0,
-  \qquad
-  H_{\mathcal V}(j) = h_{\mathcal V}\ (1\le j\le r),
-  \qquad
-  \eta_{\mathcal V} = (h_{\mathcal V}, 0, \ldots, 0).
-  \label{eq:appcliqueeta}
+  \gamma(t) = \eta(0)(1-t)^2 + 2\eta(1)t(1-t) + \eta(2)t^2
+  \label{eq:bernstein3}
 \end{equation}
+%
+at $r = 3$, and
+$\eta(0)(1-t)^3 + 3\eta(1)t(1-t)^2 + 3\eta(2)t^2(1-t) + \eta(3)t^3$
+at $r = 4$. Some useful coefficient vectors, with $h_{\rm fresh}$ the
+entropy of one independent fresh answer and $h_{\rm clique}$ the
+entropy of the value copied through a clique:
 
-\subsection{Profile, integral, and leverage}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+block & $(\eta(0),\ldots,\eta(r-1))$ & profile \\
+\midrule
+independent fresh answers
+  & $(h_{\rm fresh},\ldots,h_{\rm fresh})$ & $h_{\rm fresh}$ \\
+clique & $(h_{\rm clique},0,\ldots,0)$
+  & $h_{\rm clique}(1-t)^{r-1}$ \\
+parity & $(m,\ldots,m,0)$ & $m(1-t^{r-1})$ \\
+$(r,k)$ MDS & $k$ entries $m$, then zeros
+  & $m\Pr[\operatorname{Bin}(r-1,t)\le k-1]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-Only the $i = 0$ Bernstein term survives, so
-$\gamma(t) = h_{\rm clique}(1-t)^{r-1}$ and, substituting
-$u = 1-x$, $g(t) = \tfrac{h_{\rm clique}}{r}[1-(1-t)^r]$. The
-initial marginal entropy is $h_0 = h_{\rm clique}$ and the destroyed
-density is
+Entropy submodularity gives
+$m \ge \eta_\kappa(0) \ge \cdots \ge \eta_\kappa(r_\kappa-1)\ge0$,
+and the derivative identity for Bernstein polynomials makes the
+macroscopic monotonicity explicit,
 %
 \begin{equation}
-  h_0-(1-t)\gamma(t)
-  = h_{\rm clique}\big[1-(1-t)^r\big]
-  = r\,g(t),
-  \qquad\text{hence}\qquad
-  L(t) = r .
-  \label{eq:appcliqueL}
+  \gamma'(t)
+  = \sum_\kappa w_\kappa(r_\kappa-1)\sum_{i=0}^{r_\kappa-2}
+  \big(\eta_\kappa(i+1)-\eta_\kappa(i)\big)\beta_{r_\kappa-2,i}(t)
+  \;\le\; 0 ,
+  \label{eq:bernsteinderiv}
 \end{equation}
 %
-For example, one four-question clique with a fair binary value has
-prior mass $\tfrac12$ on $0000$ and $\tfrac12$ on $1111$; its profile
-is $(1-t)^3$, its received density $[1-(1-t)^4]/4$, and its leverage
-$4$ at every stage.
+so $\gamma$ is nonincreasing as the general entropy calculus requires.
+Leverage itself need not be monotone.
 
-\subsection{Why the result is exact at finite size}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=9.4cm, height=5.2cm,
+  xlabel={$t$}, ylabel={$\beta_{3,i}(t)$},
+  xmin=0, xmax=1, ymin=0, ymax=1.02,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\scriptsize, at={(0.5,0.97)}, anchor=north,
+    legend columns=4},
+  legend cell align=left]
+\dataplot{cn1, thick}{x}{b0}{figures/data/bernstein3.dat}
+\dataplot{cn2, thick}{x}{b1}{figures/data/bernstein3.dat}
+\dataplot{cn3, thick}{x}{b2}{figures/data/bernstein3.dat}
+\dataplot{cn4, thick}{x}{b3}{figures/data/bernstein3.dat}
+\datalegend{$\beta_{3,0}$, $\beta_{3,1}$, $\beta_{3,2}$, $\beta_{3,3}$}
+\end{axis}
+\end{tikzpicture}
+\caption{The degree-three Bernstein basis: bump functions scanning
+left to right, the $i$-th peaked at $i/3$. A block profile is a
+positive combination of such bumps weighted by the microscopic
+conditional entropies $\eta(i)$, so the shape of $L$ becomes a
+question about \emph{where the coefficients drop}.}
+\label{fig:bernstein}
+\end{figure}
 
-A block is learned if and only if it has been touched at least once,
-and its probability of remaining untouched after a random
-$\ell$-subset is $\binom{Q-r}{\ell}\big/\binom{Q}{\ell}$. For $Q/r$
-equal-entropy blocks the expected received information is
-$\tfrac{Q}{r}h_{\rm clique}\big[1-\binom{Q-r}{\ell}/\binom{Q}{\ell}\big]$
-while the expected destroyed table entropy is
-$Q\,h_{\rm clique}\big[1-\binom{Q-r}{\ell}/\binom{Q}{\ell}\big]$.
-Their ratio is exactly $r$ at every non-null stage.
+Equation~\eqref{eq:bernsteinprofile} describes every prior in the
+stated class of independent blocks drawn from a fixed finite list of
+bounded types, and mixing types mixes their profiles linearly. There
+is also a useful approximation result when the answer alphabet is
+allowed to grow: mixtures of common-length MDS blocks realize any
+nonincreasing Bernstein coefficient sequence, and Bernstein
+polynomials approximate every continuous nonincreasing profile. A
+Reed--Solomon block of length $r$ needs $A \ge r$, however, so
+sending $r\to\infty$ in that approximation also requires
+$m\to\infty$, or a different family of realizable entropy vectors.
+It is not a completeness theorem at fixed answer width.
 
-\subsection{Mixing clique sizes}
+\subsection{Leverage curves at finite \texorpdfstring{$n$}{n}}
 
-Suppose a question fraction $w_\kappa$ lies in size-$r_\kappa$
-cliques with a common entropy scale. Substituting each type's
-destroyed factor $1-(1-t)^{r_\kappa}$ and received factor
-$r_\kappa^{-1}[1-(1-t)^{r_\kappa}]$ gives
-%
-\begin{equation}
-  L(t)
-  = \frac{\sum_\kappa w_\kappa\big[1-(1-t)^{r_\kappa}\big]}
-         {\sum_\kappa (w_\kappa/r_\kappa)
-           \big[1-(1-t)^{r_\kappa}\big]},
-  \qquad
-  L(0^+) = \sum_\kappa w_\kappa r_\kappa,
-  \qquad
-  L(1) = \Big(\sum_\kappa\frac{w_\kappa}{r_\kappa}\Big)^{-1},
-  \label{eq:appcliquemix}
-\end{equation}
-%
-the arithmetic and harmonic means of the sizes. A mixture of flat
-clique curves is therefore generally a decreasing curve, not another
-constant. If type-$\kappa$ cliques instead have mean entropy
-$h_\kappa$, the entropy-weighted endpoints are
-$L(0^+) = \sum w_\kappa h_\kappa r_\kappa/\sum w_\kappa h_\kappa$ and
-$L(1) = \sum w_\kappa h_\kappa/\sum w_\kappa h_\kappa/r_\kappa$.
+Because \eqref{eq:blockfinitegamma} is exact, the finite-$n$ curves
+need no simulation: the hypergeometric increments feed the finite law
+\eqref{eq:finitelev} directly, and the limits below are the master
+law \eqref{eq:master} applied to the Bernstein profiles of the table
+above. Three representative members, at $Q = 16$ and $Q = 64$
+against their limits:
 
-\subsection{Noisy cliques}
-
-For binary answers draw the shared bit $Z\sim\nu$ and let
-$\psi(q_j) = Z\oplus E_j$ with
-$E_j$ i.i.d.\ $\operatorname{Bernoulli}(\delta)$. Writing
-$\mathcal J_i := \{q_1,\ldots,q_i\}$, the posterior on the shared
-value after observing $y_{\mathcal J_i}$ is
-%
-\begin{equation}
-  P_i(z\mid y_{\mathcal J_i})
-  \;\propto\;
-  \nu(z)\prod_{j=1}^{i}
-  \big[(1-\delta)\mathbf 1(y_{q_j} = z)
-   + \delta\mathbf 1(y_{q_j}\ne z)\big],
-  \label{eq:appnoisyclique}
-\end{equation}
-%
-so the next-one probability is
-$\delta + (1-2\delta)P_i(1\mid y_{\mathcal J_i})$ and
-%
-\begin{equation}
-  \eta_\delta(i)
-  = \sum_{y_{\mathcal J_i}\in\{0,1\}^i}
-  \Pr\big(\psi(\mathcal J_i) = y_{\mathcal J_i}\big)\,
-  h_2\!\big(\delta + (1-2\delta)P_i(1\mid y_{\mathcal J_i})\big).
-  \label{eq:appnoisycliqueeta}
-\end{equation}
-%
-For every $0<\delta<1$ all binary strings have positive probability,
-and as $\delta\to0$ this tends to \eqref{eq:appcliqueeta} term by
-term. At fixed nontrivial noise the exact $L\equiv r>1$ law is lost,
-and at $\delta = \tfrac12$ the output is i.i.d.\ fair and the
-different flat law $L\equiv1$ results.
-
-\section{Uniform, tilted, and noisy parity}\label{app:parity}
-
-\subsection{Uniform parity}
-
-Fix $\sigma\in\{0,1\}$ and choose the binary answers in
-$\mathcal V$ uniformly subject to
-$\bigoplus_{q\in\mathcal V}\psi(q) = \sigma$. There are $2^{r-1}$
-admissible strings; fixing any $j\le r-1$ coordinates at any values
-leaves the remaining $r-j$ obeying one parity equation and therefore
-$2^{r-j-1}$ completions, independent of the fixed values. Every
-proper subset is consequently uniform,
-%
-\begin{equation}
-  H_{\mathcal V}(j) = j\ \ (0\le j\le r-1),
-  \qquad
-  H_{\mathcal V}(r) = r-1,
-  \qquad
-  \eta(i) =
-  \begin{cases}
-    1, & 0\le i\le r-2,\\
-    0, & i = r-1 .
-  \end{cases}
-  \label{eq:apparityeta}
-\end{equation}
-%
-For $m$-bit answers the same formulas acquire a factor $m$ if parity
-is imposed independently on each bit, or as one additive equation
-over $\mathbb F_{A}$.
-
-\subsection{Profile and leverage}
-
-The Bernstein basis sums to one, so removing only the final term
-gives $\gamma(t) = \sum_{i=0}^{r-2}\beta_{r-1,i}(t) = 1-t^{r-1}$ and
-$g(t) = t-t^r/r$. The destroyed density is
-$1-(1-t)(1-t^{r-1}) = t+(1-t)t^{r-1}$, so $L$ is
-\eqref{eq:parity}, and for $r\ge3$ direct differentiation yields
-%
-\begin{equation}
-  L'(t)
-  = \frac{t^{r-1}(1-t)
-    \big[r(r-2)-\sum_{j=1}^{r-2}t^j\big]}
-    {r\big(t-t^r/r\big)^2} \;\ge\; 0,
-  \qquad
-  L(0^+) = 1,
-  \qquad
-  L(1) = \frac r{r-1},
-  \label{eq:apparityLprime}
-\end{equation}
-%
-with $L\equiv2$ at $r = 2$. For the smallest genuinely different
-example take one odd-parity block with $r = 4$, uniform on the eight
-odd-weight strings, so that $\gamma(t) = 1-t^3$, $g(t) = t-t^4/4$.
-The derivative of the cumulative deduced density,
-$-(1-t)\gamma'(t) = (r-1)t^{r-2}(1-t)$, is proportional to a
-$\operatorname{Beta}(r-1,2)$ density; it is also the density of the
-stage at which a block's penultimate queried member determines its
-final member, divided by $r$ questions per block.
-
-\subsection{Tilted parity: exact subset probabilities}
-
-For $0<\theta<1$ start with i.i.d.\
-$\operatorname{Bernoulli}(\theta)$ bits and condition on the parity.
-With $\varepsilon = 1-2\theta$, the probability that $v$ i.i.d.\ bits
-have parity $\sigma_{\rm rem}$ is
-$\zeta_{v,\sigma_{\rm rem}}
-= \tfrac12\big(1+(-1)^{\sigma_{\rm rem}}\varepsilon^v\big)$, and the
-normalized tilted-coset law is \eqref{eq:tiltedprior}. Take a
-particular realized tuple $y_{\mathcal J}$ on
-$\mathcal J\subset\mathcal V$ with $|\mathcal J| = j$ and Hamming
-weight $z$; its unobserved coordinates must have parity
-$\sigma\oplus(z\bmod2)$, and summing them out gives
-%
-\begin{equation}
-  \Pr\nolimits_\sigma\big(\psi(\mathcal J) = y_{\mathcal J}\big)
-  = \theta^z(1-\theta)^{j-z}\,
-  \frac{1+(-1)^{\sigma\oplus(z\bmod2)}\varepsilon^{\,r-j}}
-       {1+(-1)^\sigma\varepsilon^{\,r}}
-  \;=:\; \chi_\sigma(j,z).
-  \label{eq:apptiltedsubset}
-\end{equation}
-%
-The subset entropy is then the finite sum
-$H_\sigma(j) = -\sum_{z=0}^j\binom jz\chi_\sigma(j,z)
-\log_2\chi_\sigma(j,z)$, and the coefficients are exactly
-$\eta(i) = H_\sigma(i+1)-H_\sigma(i)$.
-
-\subsection{Tilted parity: predictive form}
-
-The same result can be organized as a conditional prediction. Suppose
-$|\mathcal J| = i$ questions have been seen, so $v := r-i$ bits
-remain; if their required parity is $\sigma_{\rm rem}$ then
-$P_{\rm next}(v,\sigma_{\rm rem})$ is \eqref{eq:tiltednext}. Letting
-$\sigma_{\rm seen}$ be the parity of the $i$ seen bits, conditional
-on total parity $\sigma$,
-%
-\begin{equation}
-  \Pr(\sigma_{\rm seen} = z\mid\sigma)
-  = \frac{\big[1+(-1)^z\varepsilon^{\,i}\big]
-    \big[1+(-1)^{\sigma\oplus z}\varepsilon^{\,v}\big]}
-    {2\big[1+(-1)^\sigma\varepsilon^{\,r}\big]},
-  \qquad
-  \eta(i) = \sum_{z=0}^1\Pr(\sigma_{\rm seen} = z\mid\sigma)\,
-  h_2\big(P_{\rm next}(v,\sigma\oplus z)\big). 
-  \label{eq:apptiltedeta}
-\end{equation}
-%
-When $\theta = \tfrac12$ we have $\varepsilon = 0$ and this reduces
-to \eqref{eq:apparityeta}; when $v = 1$ the remaining bit is fixed and
-$\eta(r-1) = 0$. At $r = 4$, $\theta = 0.3$, $\sigma = 1$, evaluation
-gives \eqref{eq:tiltedeta}.
-
-\subsection{Uniform parity followed by bit-flip noise}
-
-Return to the uniform coset and flip every bit independently with
-probability $\delta$. The parity changes precisely when an odd number
-of flips occurs, with
-$P_{\rm odd}(r,\delta) = \tfrac12\big[1-(1-2\delta)^r\big]$, so
-convolution with the flip channel produces a mixture of the two
-uniform parity cosets with weights $1-P_{\rm odd}$ and
-$P_{\rm odd}$. Any $r-1$ coordinates remain uniform, so
-$\eta_\delta(i) = 1$ for $i\le r-2$, while given $r-1$ coordinates
-the uncertainty in the final bit is exactly the uncertainty in the
-resulting parity label:
-%
-\begin{equation}
-  \gamma_\delta(t)
-  = 1-\big[1-h_2(P_{\rm odd}(r,\delta))\big]t^{r-1}. 
-  \label{eq:appnoisyparity}
-\end{equation}
-%
-For fixed $r$ any $\delta_n\to0$ recovers the hard profile; if the
-block size grows one instead needs
-$P_{\rm odd}(r(n),\delta_n)\to0$, which for small noise requires
-roughly $r(n)\delta_n\to0$. These formulas rely on a uniform starting
-coset: tilted parity followed by noise remains solvable by finite
-sums but is not uniform within each resulting coset.
-
-\section{MDS and Reed--Solomon blocks}\label{app:mds}
-
-\subsection{Block construction}
-
-Work over $\mathbb F_{A}$ and choose $r$ distinct evaluation points
-$\alpha_1,\ldots,\alpha_r$, which requires $r \le A$. Draw a
-polynomial $f(z) = d_0 + d_1z + \cdots + d_{k-1}z^{k-1}$ uniformly
-from the $A^k$ polynomials of degree below $k$ and set
-$\psi(q_j) = f(\alpha_j)$, a uniform Reed--Solomon codeword. Two
-elementary interpolation facts determine all entropies: values at any
-$k$ distinct points determine $f$ and hence all $r$ answers; and
-values at any $j\le k$ points are uniform on $\mathbb F_{A}^j$, since
-prescribing those $j$ values, choosing values at another $k-j$ points
-freely and interpolating shows that exactly $A^{k-j}$ polynomials
-realize every prescription. Therefore
-%
-\begin{equation}
-  H_{\rm MDS}(j) = m\min(j,k),
-  \qquad
-  \eta(i) =
-  \begin{cases}
-    m, & 0\le i\le k-1,\\
-    0, & k\le i\le r-1 .
-  \end{cases}
-  \label{eq:appmdseta}
-\end{equation}
-%
-The same entropy law holds for any uniform coset of an $[r,k]_{A}$
-MDS code. Repetition ($k = 1$) and single-parity-check ($k = r-1$)
-codes give the clique and parity entropy laws over any alphabet,
-although for small fields and large $r$ they are not obtained from
-$r$ distinct Reed--Solomon evaluation points.
-
-\subsection{Profile and code rate}
-
-Define the binomial lower-tail polynomial
-$\tau_{r,k}(t) := \sum_{i=0}^{k-1}\binom{r-1}{i}t^i(1-t)^{r-1-i}$.
-Inserting \eqref{eq:appmdseta} into the Bernstein law gives
-$\gamma(t) = m\,\tau_{r,k}(t)$, whose integral is
-%
-\begin{equation}
-  \int_0^1\tau_{r,k}(x)\,dx
-  = \sum_{i=0}^{k-1}\binom{r-1}{i}\frac{i!\,(r-1-i)!}{r!}
-  = \sum_{i=0}^{k-1}\frac1r
-  = \rho,
-  \qquad \rho := \frac kr,
-  \label{eq:appmdsrate}
-\end{equation}
-%
-the same result following from dividing the $km$ bits per block by
-$r$ questions. For a pure code prior
-$g(t) = m\int_0^t\tau_{r,k}$ and
-%
-\begin{equation}
-  L_{\rm code}(t)
-  = \frac{1-(1-t)\tau_{r,k}(t)}{\int_0^t\tau_{r,k}(x)\,dx},
-  \qquad
-  L_{\rm code}(1) = \frac1\rho = \frac rk . 
-  \label{eq:appmdsL}
-\end{equation}
-%
-For $A = 4$, $r = 4$ and $k = 2$, a random affine polynomial over
-$\mathbb F_4$ gives $16$ codewords, any two answers determining the
-other two, and
-$\tau_{4,2}(t) = (1-t)^3+3t(1-t)^2 = 1-3t^2+2t^3$, the threshold
-component of the explicit non-monotonic example
-\eqref{eq:peakexample}.
-
-\subsection{The secondary large-block limit}
-
-Now take $r\to\infty$ with $k/r\to\rho$, \emph{after} taking
-$n\to\infty$ at fixed $r$. By the law of large numbers a
-$\operatorname{Bin}(r-1,t)$ count divided by $r-1$ converges in
-probability to $t$, so away from $t = \rho$,
-$\tau_{r,k}(t)\to\mathbf 1[t<\rho]$ and hence
-%
-\begin{equation}
-  L_{\rm code}(t)\longrightarrow
-  \begin{cases}
-    1, & t<\rho,\\
-    1/\rho, & t>\rho .
-  \end{cases}
-  \label{eq:appmdsstep}
-\end{equation}
-%
-At finite $r$ the transition is smooth and $\gamma(t)>0$ for every
-$t<1$; the jump appears only in the secondary limit, and a
-Reed--Solomon realization of it requires $m\ge\log_2 r$ to grow.
-
-\subsection{Dilution with fresh questions}
-
-Let a fraction $w$ of questions lie in code blocks and $1-w$ be
-independent uniform answers, so that
-$\gamma(t)/m = w\tau_{r,k}(t)+(1-w)$ and
-$g(t)/m = w\int_0^t\tau_{r,k}+(1-w)t$; since the initial marginal
-entropy is $m$, the leverage is \eqref{eq:mdsfresh}. For
-$1\le k<r$ differentiating the binomial tail gives
-$\tau_{r,k}'(t) = -(r-1)\binom{r-2}{k-1}t^{k-1}(1-t)^{r-1-k}$, so
-%
-\begin{equation}
-  -(1-t)\gamma'(t)
-  = w\,m\,(r-1)\binom{r-2}{k-1}t^{k-1}(1-t)^{r-k} 
-  \label{eq:appmdsrelease}
-\end{equation}
-%
-is proportional to a $\operatorname{Beta}(k,r-k+1)$ density, with
-mode $(k-1)/(r-1)$ when $k>1$ and total mass $wm(1-k/r)$. The
-release occurs near the code threshold, and fresh questions continue
-to add entropy at marginal leverage one afterwards, which creates the
-declining side of the peak. At $k = r$ the code is the full product
-space, $\tau_{r,r}\equiv1$, and the deduction density vanishes
-identically.
-
-\subsection{A lapsed MDS block}
-
-Let $\mathcal K + y\subset\mathbb F_{A}^r$ be an MDS coset with fixed
-offset $y$. For $0\le\delta\le1$ draw uniformly from the coset with
-probability $1-\delta$ and uniformly from all $A^r$ answer strings
-with probability $\delta$, which has full support for every
-$0<\delta\le1$. For $j\le k$ both mixture components project to the
-uniform distribution on $\mathbb F_{A}^j$, so $H_\delta(j) = jm$. For
-$j\ge k$ the projection of the code has $A^k$ consistent patterns,
-each of probability
-$(1-\delta)A^{-k}+\delta A^{-j} = A^{-k}\big[(1-\delta)+\delta
-A^{k-j}\big]$, while the other $A^j-A^k$ patterns each have
-probability $\delta A^{-j}$. Summing the two entropy contributions,
-%
-\begin{equation}
-  H_\delta(j)
-  = \Lambda\big[km-\log_2\Lambda\big]
-  + \delta\big(1-A^{\,k-j}\big)\big[jm-\log_2\delta\big],
-  \qquad
-  \Lambda := (1-\delta)+\delta A^{\,k-j},
-  \label{eq:applapsed}
-\end{equation}
-%
-for $j\ge k$, with $\eta_\delta(i) = H_\delta(i+1)-H_\delta(i)$. It
-equals $m$ below threshold; above threshold it declines toward a
-positive lapse tail, and the exact finite differences should be used
-rather than replacing the whole tail immediately by $\delta m$.
-
-\section{Local noise as a term-by-term
-perturbation}\label{app:noise}
-
-\subsection{A general channel construction}
-
-Let $P_{\mathcal V}$ be any law on
-$\mathcal A^{|\mathcal V|}$ and, for $0\le\delta\le1$, let
-$\Pr_\delta(y\mid a)$ be a full-support channel on the answer
-alphabet tending to the identity as $\delta\to0$. Applying it
-independently to each coordinate,
-%
-\begin{equation}
-  P_{\mathcal V,\delta}(y_{\mathcal V})
-  = \sum_{a_{\mathcal V}\in\mathcal A^{|\mathcal V|}}
-  P_{\mathcal V}(a_{\mathcal V})
-  \prod_{q\in\mathcal V}\Pr\nolimits_\delta(y_q\mid a_q),
-  \label{eq:appchannel}
-\end{equation}
-%
-or alternatively using the lapse \eqref{eq:lapse}, the full map law
-remains a product over blocks and has full support if each noisy
-block law does.
-
-\subsection{Why vanishing local noise preserves the limit}
-
-For fixed $|\mathcal V|$ the block probability simplex is
-finite-dimensional, so
-$\|P_{\mathcal V,\delta}-P_{\mathcal V}\|_{\rm TV}\to0$ as
-$\delta\to0$. Entropy is continuous on a finite alphabet, so every
-subset entropy and increment converges,
-$H_{\mathcal V,\delta}(j)\to H_{\mathcal V}(j)$ and
-$\eta_{\mathcal V,\delta}(i)\to\eta_{\mathcal V}(i)$. The finite
-hypergeometric weights, and their limiting Bernstein weights, are
-nonnegative and sum to one, so writing $\gamma_{{\rm noisy},n}$ and
-$\gamma_{{\rm hard},n}$ for the profiles computed from the noisy and
-hard coefficients at size $n$,
-%
-\begin{equation}
-  \sup_{t\in[0,1]}
-  \big|\gamma_{{\rm noisy},n}(t)-\gamma_{{\rm hard},n}(t)\big|
-  \;\le\;
-  \sum_{\mathcal V\in\mathcal P_n}\frac{|\mathcal V|}{Q}
-  \max_i\big|\eta_{\mathcal V,\delta_{\mathcal V,n}}(i)
-  -\eta_{\mathcal V,0}(i)\big|
-  \;\longrightarrow\;0 .
-  \label{eq:appnoisebound}
-\end{equation}
-%
-The integrals converge uniformly as well, and wherever the limiting
-received density is bounded away from zero, leverage converges. For
-fixed block sizes continuity makes the last limit automatic if
-$\max_{\mathcal V}\delta_{\mathcal V,n}\to0$; the aggregate condition
-is the more general statement, and for varying block sizes a uniform
-condition is needed, model-specific ones such as $r(n)\delta_n\to0$
-for parity blocks being sharper. At fixed $\delta>0$ none of these
-perturbations disappears with $n$: the exact noisy profile remains the
-thermodynamic limit.
-
-\section{Arbitrary mixtures and the cocktail}\label{app:mixtures}
-
-\subsection{Symbolic mixture law}
-
-Partition the questions into independent component families, type
-$\kappa$ occupying fraction $w_\kappa$ with initial one-question
-entropy $h_{0,\kappa}$, macroscopic profile $\gamma_\kappa$ and
-accumulated received density $g_\kappa = \int_0^t\gamma_\kappa$.
-Entropy adds across independent components, so $h_0$, $\gamma$ and
-$g$ are the corresponding $w_\kappa$-weighted sums. Since
-$h_{0,\kappa}-(1-t)\gamma_\kappa(t) = L_\kappa(t)g_\kappa(t)$ for
-each component, summing gives \eqref{eq:mixture}: the mixture weights
-in leverage are dynamic received-entropy shares
-$w_\kappa g_\kappa(t)$, not the fixed question shares $w_\kappa$.
-
-\subsection{Coin component of the cocktail}
-
-For the two-coin component take $(\theta_1,\theta_2) = (0.2,0.7)$
-with weights $(\tfrac14,\tfrac34)$ and let the same scalar latent
-bias govern all bits. With $P_{s,z}$ and $F_s$ as in
-\eqref{eq:coinPlk} and \eqref{eq:Fs}, the initial entropy per bit for
-an $m = 4$-bit answer is
-%
-\begin{equation}
-  \frac{F_4}{4} = \frac{3.793149840}{4} = 0.948287460,
-  \label{eq:appcoinF4}
-\end{equation}
-%
-which is \emph{not} $h_2(0.575) = 0.983708263$, because marginalizing
-the shared latent makes the four bits dependent. After a
-vanishing-fraction identification layer the entropy per bit is
-%
-\begin{equation}
-  h_{\rm cond,coin}
-  = \tfrac14 h_2(0.2) + \tfrac34 h_2(0.7) = 0.841450198 .
-  \label{eq:appcoincond}
-\end{equation}
-
-\subsection{Lapsed-code and fresh components}
-
-For $A = 16$, $r = 16$, $k = 4$ and $\delta = 0.1$, compute
-$H_\delta(j)$ from \eqref{eq:applapsed}, set
-$\eta_\delta(i) = H_\delta(i+1)-H_\delta(i)$, and normalize the code
-profile per bit,
-%
-\begin{equation}
-  \gamma_{\rm lapse}(t)
-  = \frac14\sum_{i=0}^{15}\beta_{15,i}(t)\,\eta_\delta(i),
-  \qquad
-  \int_0^1\gamma_{\rm lapse}
-  = \frac{H_\delta(16)}{16\cdot4} = 0.332328056 .
-  \label{eq:applapseprofile}
-\end{equation}
-%
-The fresh component consists of independent bits with bias $0.3$, so
-its per-bit profile and initial entropy are both $h_2(0.3)$.
-
-\subsection{Assembling the cocktail}
-
-With question fractions $\tfrac14,\tfrac12,\tfrac14$ the initial
-per-bit entropy is \eqref{eq:cocktailh0}, the profile for $t>0$ is
-\eqref{eq:cocktailgamma}, and
-%
-\begin{equation}
-  g_{\rm cocktail}(t)
-  = \tfrac14 h_{\rm cond,coin}t
-  + \tfrac12\int_0^t\gamma_{\rm lapse}
-  + \tfrac14 h_2(0.3)\,t,
-  \label{eq:appcocktailg}
-\end{equation}
-%
-the scale factor $m$ cancelling from
-$L = [h_{\rm cocktail}-(1-t)\gamma_{\rm cocktail}]/g_{\rm cocktail}$.
-At the origin the profile's right limit is
-$\gamma_{\rm cocktail}(0^+) = \tfrac14(0.841450198)+\tfrac12
-+\tfrac14h_2(0.3) = 0.930685274$, so \eqref{eq:boundarylayer} gives
-the exact singular coefficient
-%
-\begin{equation}
-  \lim_{t\downarrow0}tL(t)
-  = \frac{h_{\rm cocktail}-\gamma_{\rm cocktail}(0^+)}
-         {\gamma_{\rm cocktail}(0^+)}
-  \simeq 0.02870 ,
-  \label{eq:appcocktailsing}
-\end{equation}
-%
-while at the endpoint
-$g_{\rm cocktail}(1) = \tfrac14(0.841450198)
-+\tfrac12(0.332328056)+\tfrac14h_2(0.3) = 0.596849302$ and
-$L(1) = 0.957394590/0.596849302 \simeq 1.60408$. Numerical
-evaluation of the same closed form gives the dip and peak quoted in
-Section~\ref{sec:zoo}.
-
-\section{What can be inferred from an observed
-curve?}\label{app:inverse}
-
-If $h_0$ and an ideal macroscopic leverage curve $L(t)$ are known,
-then $g'(t) = \gamma(t)$ and \eqref{eq:master} imply the linear
-differential equation
-%
-\begin{equation}
-  (1-t)g'(t) + L(t)g(t) = h_0,
-  \qquad g(0) = 0,
-  \label{eq:appinverse}
-\end{equation}
-%
-and for an admissible $L$, solving it for the regular, finite,
-nonnegative solution recovers the entropy profile $\gamma = g'$. The
-qualification matters when $L$ has a $1/t$ singularity, since
-$g(0) = 0$ is then a singular initial condition rather than a
-standard nonsingular initial-value problem.
-
-The inverse map does not recover a unique prior. Many microscopic
-distributions share a subset-entropy profile, and finite data
-introduce further ambiguity; for a trained model, question selection,
-optimization dynamics, misspecification and calibration also affect
-the measured curve. The defensible inference is therefore about broad
-timing classes: a $1/t$ term indicates information learned on a
-subextensive clock; a flat curve with $L>1$ is consistent with
-first-touch duplication, while $L\equiv1$ is also the independent
-baseline; a rising curve is consistent with late constraints; and an
-interior peak is consistent with threshold release followed by
-continued reception. This is useful structural evidence, not an
-identification theorem for the real-world prior.
-
-\section{Endpoints, jumps, and boundary
-layers}\label{app:endpoints}
-
-At the end of the run,
-$L(1) = h_0/g(1) = \lim_{n\to\infty} Q G_{n,1}/G_{n,Q}$. At the
-origin there are two different cases. If $h_0 = \gamma(0^+)>0$ and
-$\gamma$ is right-differentiable, first-order expansion gives
-%
-\begin{equation}
-  L(0^+) = 1-\frac{\gamma'(0^+)}{\gamma(0^+)} .
-  \label{eq:appLzero}
-\end{equation}
-%
-If instead $h_0>\gamma(0^+)>0$, an initial boundary layer has
-disappeared into $t = 0$ and
-%
-\begin{equation}
-  L(t)\;\sim\;\frac{h_0-\gamma(0^+)}{\gamma(0^+)}\,\frac1t
-  \qquad (t\downarrow0), 
-  \label{eq:boundarylayer}
-\end{equation}
-%
-which is the source of the spike and coin-mixture hyperbolas.
-
-A separate caveat concerns interior thresholds. If $\gamma$ merely
-reaches zero continuously, no instantaneous avalanche follows; a
-macroscopic jump occurs when $\gamma(t_*^-)>\gamma(t_*^+)$, and
-especially when the profile jumps to zero. The remaining-entropy
-density then drops by
-$(1-t_*)\big[\gamma(t_*^-)-\gamma(t_*^+)\big]$ and cumulative
-leverage can jump as well; the local per-step leverage inside the
-shrinking transition layer may diverge while the cumulative $L(t)$
-need not. Finally, if $G_{n,Q} = o(Q)$ the normalization of
-Section~\ref{sec:tdlcalc} erases the entire received channel, and one
-should then introduce a microscopic or mesoscopic time scale rather
-than conclude automatically that leverage has a meaningful infinite
-value.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.1cm, height=5.2cm,
+  title={clique, $r=4$}, title style={font=\small},
+  xlabel={$t = \ell/Q$}, ylabel={$\langle L_\ell\rangle$},
+  xmin=0, xmax=1, ymin=0.9, ymax=4.6,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.97,0.03)}, anchor=south east},
+  legend cell align=left]
+\addplot[black, dashed, domain=0:1] {4};
+\dataplot{cf1, only marks, mark=*, mark size=1.3}{t}{lev}
+  {figures/data/blockfinite_clique4_q16.dat}
+\dataplot{cf3, only marks, mark=o, mark size=1.5}{t}{lev}
+  {figures/data/blockfinite_clique4_q64.dat}
+\datalegend{{limit $L\equiv4$}, {$Q=16$}, {$Q=64$}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.1cm, height=5.2cm,
+  title={parity, $r=4$}, title style={font=\small},
+  xlabel={$t = \ell/Q$},
+  xmin=0, xmax=1, ymin=0.95, ymax=1.45,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}]
+\addplot[black, dashed, domain=0.02:1, samples=120]
+  {(x+(1-x)*x^3)/(x-x^4/4)};
+\dataplot{cf1, only marks, mark=*, mark size=1.3}{t}{lev}
+  {figures/data/blockfinite_parity4_q16.dat}
+\dataplot{cf3, only marks, mark=o, mark size=1.5}{t}{lev}
+  {figures/data/blockfinite_parity4_q64.dat}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.1cm, height=5.2cm,
+  title={MDS $(4,2)$ + fresh}, title style={font=\small},
+  xlabel={$t = \ell/Q$},
+  xmin=0, xmax=1, ymin=0.95, ymax=1.75,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}]
+\addplot[black, dashed, domain=0.02:1, samples=120]
+  {(0.75*(1-(1-x)*(1-3*x^2+2*x^3))+0.25*x)
+   /(0.75*(x-x^3+x^4/2)+0.25*x)};
+\dataplot{cf1, only marks, mark=*, mark size=1.3}{t}{lev}
+  {figures/data/blockfinite_mdsfresh_q16.dat}
+\dataplot{cf3, only marks, mark=o, mark size=1.5}{t}{lev}
+  {figures/data/blockfinite_mdsfresh_q64.dat}
+\end{axis}
+\end{tikzpicture}
+\caption{Exact finite-$n$ leverage (dots, $Q = 16$ and $64$) against
+the macroscopic limits (dashed), from
+\eqref{eq:blockfinitegamma} and \eqref{eq:finitelev} with no
+simulation. Left: cliques of four with a fair shared bit; the dots
+sit exactly on the constant $L \equiv 4$ at every finite $n$.
+Middle: parity blocks of four; deductions concentrate late and the
+finite curves approach the rise to $r/(r-1) = \tfrac43$ from below.
+Right: a $3{:}1$ mixture of $[4,2]$ MDS code blocks ($m = 2$) with
+fresh questions; the code releases its deductions around the
+threshold and the fresh sites keep receiving afterwards, an interior
+maximum of $1.645$ at $t \simeq 0.72$ against the completion value
+$1.6$.}
+\label{fig:blockfinite}
+\end{figure}
 
 \end{document}

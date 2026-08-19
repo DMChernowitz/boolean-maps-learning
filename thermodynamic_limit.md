@@ -2362,6 +2362,43 @@ functionals of that distribution alone, the leverage curve follows for
 the whole family at once, and only at the very end is the distribution
 chosen, to recover one concrete curve.
 
+First, the constituents of these entropies. Fix a set of questions
+$\mathcal S=\{q_1,\dots,q_\ell\}$ and write
+$\psi(\mathcal S)=(\psi(q_1),\dots,\psi(q_\ell))$ for the answer
+vector, a random element of $\{0,1\}^\ell$ (any fixed ordering of
+$\mathcal S$ will do; entropy is blind to relabelings). Its
+distribution is induced by the prior: the probability of the answer
+pattern $y$ is the total prior weight of the maps that answer $y$ on
+$\mathcal S$, and $H(\psi(\mathcal S))$ is the Shannon entropy of
+that $2^\ell$-outcome distribution,
+
+$$
+\Pr\big(\psi(\mathcal S)=y\big)
+=\sum_{j\,:\,\phi_j(\mathcal S)=y}p_j,
+\qquad
+H\big(\psi(\mathcal S)\big)
+=-\sum_{y\in\{0,1\}^\ell}
+\Pr\big(\psi(\mathcal S)=y\big)\,
+\log_2\Pr\big(\psi(\mathcal S)=y\big):
+\tag{7.2}
+$$
+
+Werner's uncertainty, in bits, about the joint answers on
+$\mathcal S$ before any are asked. The quantities in (7.1) are the
+uniform averages of these entropies over question sets and their
+increments,
+
+$$
+G_{n,\ell}
+=\binom Q\ell^{-1}\sum_{\mathcal S\,:\,|\mathcal S|=\ell}
+H\big(\psi(\mathcal S)\big),
+\qquad
+\gamma_{n,\ell}=G_{n,\ell+1}-G_{n,\ell},
+\tag{7.3}
+$$
+
+with $G_{n,1}$ the $\ell=1$ case: the mean entropy of a single answer.
+
 ### 7.1 The hypothesis classes
 
 The truth is a Boolean map $\phi:\{0,1\}^n\to\{0,1\}$, a table of
@@ -2481,7 +2518,7 @@ $$
 w_d=F(R_{n,d})-F(R_{n,d-1}),
 \qquad
 p_j=\sum_{d\ge\deg\phi_j}w_d\,2^{-K_d},
-\tag{7.2}
+\tag{7.4}
 $$
 
 with $\sum_dw_d=F(1)-F(0)=1$ telescoping. Two structural properties,
@@ -2516,7 +2553,7 @@ $$
 G_{n,1}=1,
 \qquad
 H\big(M^{(0)}\big)=Q .
-\tag{7.3}
+\tag{7.5}
 $$
 
 The entropy reading: this prior predicts nothing about any single
@@ -2541,7 +2578,7 @@ H\big(\psi(\mathcal S)\big)
 +I\big(D;\psi(\mathcal S)\big),
 \qquad
 0\le I\le H(w)\le\log_2(n+1):
-\tag{7.4}
+\tag{7.6}
 $$
 
 mixture entropy is mean class entropy plus the information the answers
@@ -2576,24 +2613,41 @@ dependent on more. *The finite-$n$ area theorem*: increments telescope
 to the dimension, $\sum_{\ell<Q}\gamma^{(d)}_{n,\ell}=K_d$ -- received
 information over a complete run equals the size of what there was to
 learn (in coding theory, the area under the EXIT curve equals the
-rate). *The capacity theorem*, the one imported result
-(Kudekar--Kumar--Mondelli--Pfister--\c Sa\c so\u glu--Urbanke, 2017:
-Reed--Muller codes achieve capacity on the binary erasure channel): if
-a fraction $t>R_{n,d}$ of the questions is revealed, a fresh answer is
-determined with probability tending to one, i.e.\
-$\gamma^{(d)}_{n,\lfloor tQ\rfloor}\to0$ for $t>R_d$. A bounded
-nonincreasing sequence with area $R_d$ and no mass above $R_d$ has
-nowhere to sit but at height $1$ below, so every subsequential limit is
-the step $\mathbf 1[t<R_d]$ -- read as a function of $t$ with $R_d$
-fixed, the map $[0,1]\to\{0,1\}$ that is $1$ before $R_d$ and $0$
-after -- and therefore
+rate). *The capacity theorem*, the one imported result: Reed--Muller codes
+achieve capacity on the binary erasure channel
+(Kudekar--Kumar--Mondelli--Pfister--\c Sa\c so\u glu--Urbanke, 2017).
+In the vocabulary here: reveal any fraction of the questions beyond
+the class rate, and a fresh answer is determined with probability
+tending to one,
+
+$$
+R_{n,d_n}\to R\in(0,1)
+\quad\Longrightarrow\quad
+\lim_{n\to\infty}\gamma^{(d_n)}_{n,\lfloor tQ\rfloor}=0
+\quad\text{for every fixed }t>R.
+\tag{KKMPSU}
+$$
+
+A bounded nonincreasing sequence with area $R_d$ and no mass above
+$R_d$ has nowhere to sit but at height $1$ below, so the increments
+converge to a pure step, written with the Heaviside function
+$\theta(x)=\mathbf 1[x>0]$:
+
+$$
+\lim_{n\to\infty}\gamma^{(d)}_{n,\lfloor tQ\rfloor}
+=\mathbf 1[t<R_d]
+=\theta(R_d-t).
+\tag{7.7}
+$$
+
+Integrating the step,
 
 $$
 \frac{G^{(d)}_{n,\lfloor tQ\rfloor}}Q
 =\frac1Q\sum_{\ell'<tQ}\gamma^{(d)}_{n,\ell'}
 \;\longrightarrow\;
-\int_0^t\mathbf 1[x<R_d]\,dx=\min(t,R_d):
-\tag{7.5}
+\int_0^t\theta(R_d-x)\,dx=\min(t,R_d):
+\tag{7.8}
 $$
 
 each class pays one full bit per question until its clock stops at its
@@ -2611,7 +2665,7 @@ $$
 \;\longrightarrow\;
 \mathbb E_\mu\big[\min(t,R)\big]
 \;=\;\int_0^t\big(1-F(x)\big)\,dx\;=:\;g(t).
-\tag{7.6}
+\tag{7.9}
 $$
 
 The last equality is the *layer-cake* identity, and it deserves one
@@ -2628,14 +2682,14 @@ The sequence $\ell\mapsto G_{n,\ell}$ is concave: its increments
 $\gamma_{n,\ell}$ are nonincreasing, by the same conditioning argument
 as in the general theory. Slopes of concave functions converge wherever
 the limit is differentiable -- the elementary convexity lemma of
-calculus -- and by (7.6) the normalized values converge to $g$, which
+calculus -- and by (7.9) the normalized values converge to $g$, which
 is differentiable at every continuity point of $F$. Therefore
 
 $$
 \gamma_{n,\lfloor tQ\rfloor}
 \;\longrightarrow\;
 g'(t)=1-F(t)=\Pr(R>t),
-\tag{7.7}
+\tag{7.10}
 $$
 
 at every such point. This is the heart of the construction, and it is
@@ -2649,19 +2703,19 @@ $$
 \frac{(Q-\ell)\,\gamma_{n,\ell}}Q
 \;\longrightarrow\;
 (1-t)\,\big(1-F(t)\big).
-\tag{7.8}
+\tag{7.11}
 $$
 
 ### 7.6 The generic curve
 
-Substitute (7.3), (7.6), (7.8) into (7.1) and cancel the common factor
+Substitute (7.5), (7.9), (7.11) into (7.1) and cancel the common factor
 $Q$. The numerator tidies up: $1-(1-t)(1-F(t))=t+(1-t)F(t)$. So, for
 any sampling law with CDF $F$,
 
 $$
 L_F(t)
 =\frac{t+(1-t)\,F(t)}{\displaystyle\int_0^t\big(1-F(x)\big)\,dx}.
-\tag{7.9}
+\tag{7.12}
 $$
 
 The numerator has its own entropy reading: destroyed table density
@@ -2680,7 +2734,7 @@ $$
 the curve starts at the baseline plus the density of the statistic at
 zero, and completes at the reciprocal mean rate. Since any nonincreasing
 profile is the survival function of exactly one law (the layer-cake
-read backwards, as in 6.6), equation (7.9) is not one family among
+read backwards, as in 6.6), equation (7.12) is not one family among
 many: it is the general admissible curve written in microscopic form,
 with the statistic as its parameter.
 
@@ -2695,13 +2749,13 @@ F(x)=x^2,
 f(x)=2x,
 \qquad
 \mathbb E[R]=\int_0^1(1-x^2)\,dx=\tfrac23 .
-\tag{7.10}
+\tag{7.13}
 $$
 
-The weights (7.2) become gaps of squared rates,
+The weights (7.4) become gaps of squared rates,
 $w_d=R_{n,d}^2-R_{n,d-1}^2$. Worked at $n=2$: the classes have
 $(K_0,K_1,K_2)=(1,3,4)$ and rates $(\tfrac14,\tfrac34,1)$, so
-$w=(\tfrac1{16},\tfrac12,\tfrac7{16})$, and (7.2) prices the sixteen
+$w=(\tfrac1{16},\tfrac12,\tfrac7{16})$, and (7.4) prices the sixteen
 maps of the butterfly table in three tiers: the two constants at
 $\tfrac1{16}\cdot\tfrac12+\tfrac12\cdot\tfrac18+\tfrac7{16}\cdot
 \tfrac1{16}=\tfrac{31}{256}$, the six affine maps at $\tfrac{23}{256}$,
@@ -2718,12 +2772,12 @@ g(t)=\int_0^t(1-x^2)\,dx=t-\frac{t^3}3,
 t+(1-t)t^2=t\,(1+t-t^2),
 $$
 
-and (7.9) becomes
+and (7.12) becomes
 
 $$
 L(t)=\frac{t\,(1+t-t^2)}{t\,\dfrac{3-t^2}3}
 =\frac{3\,(1+t-t^2)}{3-t^2}.
-\tag{7.11}
+\tag{7.14}
 $$
 
 The generic endpoint identities check out: $L(0^+)=1+f(0^+)=1$ (the
@@ -2735,15 +2789,15 @@ smooth strictly rising curve.
 
 *One uniform draw ($F=t$) gives $L\equiv2$; the smaller of two draws
 ($1-F=(1-t)^2$) gives the clique-triple profile with $L\equiv3$; the
-larger of two draws gives (7.11), rising from $1$ to $\tfrac32$.*
+larger of two draws gives (7.14), rising from $1$ to $\tfrac32$.*
 
-Other choices of the statistic, all through the same (7.9):
+Other choices of the statistic, all through the same (7.12):
 
 | statistic | $F(t)$ | $\gamma(t)=1-F$ | $L_F(t)$ |
 |---|---|---|---|
 | one draw $U$ | $t$ | $1-t$ | $\equiv2$ |
 | $\min(U_1,U_2)$ | $2t-t^2$ | $(1-t)^2$ | $\equiv3$ (clique triple) |
-| $\max(U_1,U_2)$ | $t^2$ | $1-t^2$ | rising $1\to\tfrac32$, eq.\ (7.11) |
+| $\max(U_1,U_2)$ | $t^2$ | $1-t^2$ | rising $1\to\tfrac32$, eq.\ (7.14) |
 | $k$-th of $m$ draws | $I_t(k,m{+}1{-}k)$ | $\tau_{m+1,k}(t)$ | the MDS family of 5.4 |
 | $k/m\to\rho$, $m\to\infty$ | $\to\mathbf 1[t\ge\rho]$ | $\to\mathbf 1[t<\rho]$ | the capacity step of 6.5 |
 | any of the above $+\,(1-w)\delta_1$ | $wF$ | $1-wF$ | tail tilts down; interior peak as in 6.7 |
