@@ -38,7 +38,7 @@
 % butterfly prior bars for the Gibbs tables: Occam mass grows leftward
 % in blue, Pragmatist mass rightward in orange, about a shared axis
 % drawn as a column rule; \pbarB is the rightward blue variant for the
-% aggregate tier tables. Full bar width 1.3cm = probability 1, with the
+% aggregate shell tables. Full bar width 1.3cm = probability 1, with the
 % same optional magnification as \pbar.
 \newcommand{\pbarO}[2][1]{%
   \begin{tikzpicture}[baseline=-0.55ex]
@@ -2563,7 +2563,7 @@ zero.
 
 At the larger sizes the tuple breakdown runs to hundreds of rows
 ($102$ distinct tuples at $(4,1)$, $196$ at $(3,2)$), so we tabulate
-the complexity tiers alone, with each tier's \emph{aggregate} prior
+the complexity shells alone, with each shell's \emph{aggregate} prior
 mass under the Occam setting alongside its head count:
 
 \begin{example}
@@ -2618,7 +2618,7 @@ $X = 10$. The aggregate mass shows the thermodynamic compromise this
 forces on Occam: the count grows faster than $e^{-X}$ decays until
 $X = 3$ at $(4,1)$ ($X = 2$ at $(3,2)$), so even under a pure
 simplicity prior the \emph{typical} map has middling complexity ---
-tier degeneracy beats tier energy until well past the simplest maps.
+shell degeneracy beats shell energy until well past the simplest maps.
 
 \subsubsection{The ensemble}\label{sec:gibbsensemble}
 
@@ -3681,8 +3681,8 @@ polynomial structure of the question cube supplies the asymmetry
 without any partition of the questions into blocks. Second, weighting
 complexity by a single temperature fails for a counting reason made
 precise below: only a thin shell of maps would contribute. The repair
-is to \emph{sample} the complexity level rather than price it, which
-keeps every level -- and every single map -- at positive weight all
+is to \emph{sample} the complexity shell rather than price it, which
+keeps every shell -- and every single map -- at positive weight all
 the way into the thermodynamic limit. Throughout this section the
 answer width is $m = 1$, so $u = \tfrac12$ and a fresh fair answer
 carries one bit.
@@ -3701,25 +3701,25 @@ hence $2^Q = N$ coefficient vectors, exactly as many as maps. This is
 the \emph{algebraic normal form},
 %
 \begin{equation}
-  \phi(q) \;=\; \bigoplus_{S} a_S \prod_{i \in S} b_i,
+  \phi(q) \;=\; \bigoplus_{S} \rho_S \prod_{i \in S} b_i,
   \qquad
-  a_S \;=\; \bigoplus_{y\,:\,\mathrm{supp}(y) \subseteq S} \phi(y),
+  \rho_S \;=\; \bigoplus_{y\,:\,\mathrm{supp}(y) \subseteq S} \phi(y),
   \label{eq:anf}
 \end{equation}
 %
-with single-bit coefficients $a_S \in \{0,1\}$: monomial $S$ is
+with single-bit coefficients $\rho_S \in \{0,1\}$: monomial $S$ is
 present or absent. The second formula is M\"obius inversion: each
 coefficient is the XOR of the truth table over the subcube below
 $S$. The \emph{degree} $\deg\phi$ is the largest $|S|$ with
-$a_S = 1$; it is the complexity notion of this section.
+$\rho_S = 1$; it is the complexity notion of this section.
 
 \begin{example}
 OR answers $1$ everywhere except at $q = 00$. Its four coefficients,
 by \eqref{eq:anf}:
-$a_\emptyset = \phi(00) = 0$;
-$a_{\{b_0\}} = \phi(00) \oplus \phi(01) = 1$;
-$a_{\{b_1\}} = \phi(00) \oplus \phi(10) = 1$;
-$a_{\{b_1 b_0\}} = \phi(00) \oplus \phi(01) \oplus \phi(10) \oplus
+$\rho_\emptyset = \phi(00) = 0$;
+$\rho_{\{b_0\}} = \phi(00) \oplus \phi(01) = 1$;
+$\rho_{\{b_1\}} = \phi(00) \oplus \phi(10) = 1$;
+$\rho_{\{b_1 b_0\}} = \phi(00) \oplus \phi(01) \oplus \phi(10) \oplus
 \phi(11) = 1$. Hence
 $\mathrm{OR} = b_1 b_0 \oplus b_1 \oplus b_0$, of degree $2$: OR is
 not affine, and its truth table knows it.
@@ -3770,12 +3770,12 @@ exactly the XOR butterfly.
 The butterfly on six maps of Table~\ref{tab:sixteen}, truth tables
 $T = (\phi(11), \phi(10), \phi(01), \phi(00))$ -- so that $T$ read as
 a binary numeral \emph{is} the index $j$ -- and coefficients ordered
-$(a_{b_1 b_0}, a_{b_1}, a_{b_0}, a_\emptyset)$:
+$(\rho_{b_1 b_0}, \rho_{b_1}, \rho_{b_0}, \rho_\emptyset)$:
 
 \begin{center}
 \begin{tabular}{l c c l c}
 \toprule
-map ($j$) & $T$ & $a$ & polynomial & $\deg$ \\
+map ($j$) & $T$ & $\rho$ & polynomial & $\deg$ \\
 \midrule
 TRUE (15) & $(1,1,1,1)$ & $(0,0,0,1)$ & $1$ & $0$ \\
 $\lnot b_1$ (3) & $(0,0,1,1)$ & $(0,1,0,1)$ & $b_1 \oplus 1$ & $1$ \\
@@ -3789,7 +3789,7 @@ $b_1 \to b_0$ (11) & $(1,0,1,1)$ & $(1,1,0,1)$ &
 \end{center}
 
 AND's table equals its own coefficient vector (a single top
-monomial); NAND flips only $a_\emptyset$, the algebraic face of
+monomial); NAND flips only $\rho_\emptyset$, the algebraic face of
 negation; XOR and $\lnot b_1$ are affine; TRUE is constant.
 \end{example}
 
@@ -3800,8 +3800,11 @@ at most $d$ is a linear space of dimension
 $K_d = \sum_{i \le d} \binom ni$ -- one coefficient bit per allowed
 monomial -- and the classes are nested, from the two constants
 ($d = 0$) to the full map space ($d = n$). In coding theory this
-class is the Reed--Muller code $\mathrm{RM}(d,n)$. Its \emph{rate} is
-the dimension per question,
+class is the Reed--Muller code $\mathrm{RM}(d,n)$. Two words are used
+precisely below: the \emph{class} $d$ collects all maps of degree at
+most $d$ (nested), while its outermost layer, the maps of degree
+exactly $d$, is the \emph{shell} $d$ (disjoint). The class's \emph{rate}
+is its dimension per question,
 %
 \begin{equation}
   R_{n,d} \;=\; \frac{K_d}{Q} \;\in\; (0,1],
@@ -3814,7 +3817,91 @@ class is learned out. Consecutive rates slice $(0,1]$ into
 $\binom nd / 2^n \le \sqrt{2/\pi n}$: one cell per class, a partition
 that refines as $n$ grows.
 
-Why sample a level rather than weight the maps? The natural Occam
+\begin{example}
+The monomial shelf at $n = 4$: one box per monomial, grouped by
+degree into shells. Each box is one coefficient bit, a fair coin
+when drawing within a class, so the shelf prefix of length $K_d$
+\emph{is} the class $\mathrm{RM}(d,4)$ measured in bits, holding
+$2^{K_d}$ maps, and shell $d$ is the $\binom 4d$ boxes the class
+adds. The geometry is fixed once and for all -- dividing the edge by
+$Q = 16$ puts the class boundaries at the rates $R_{4,d} = K_d/16$,
+with the shells as the rate gaps -- and none of it depends on $F$.
+The statistic enters only through the dart: draw $U$ uniformly on
+the vertical axis, bounce off the graph of $F$, and land at
+$R = F^{-1}(U)$, drawn here for $F(x) = 1-(1-x)^3$, the smallest
+of three uniform draws -- the $r = 3$ member of the
+constant-leverage family \eqref{eq:Lmin} -- which tilts the
+landing law toward the simple end. For $F(x) = x$ the bounce is
+trivial, and each shell is hit with probability exactly its
+width.
+
+\begin{center}
+\begin{tikzpicture}[x=0.85cm, y=1cm]
+  % ---------------- CDF panel: sample by inverse bounce ----------
+  \draw[black!30] (0,2.7) -- (16,2.7);
+  \draw[->] (0,2.7) -- (0,5.05);
+  \draw (-0.1,4.8) -- (0.1,4.8);
+  \node[font=\scriptsize, left] at (-0.12,4.8) {$1$};
+  \draw[cf1!60!black, thick]
+    plot[domain=0:16, samples=60]
+    (\x, {2.7 + 2.1*(1-(1-\x/16)^3)});
+  \node[font=\scriptsize, cf1!60!black, anchor=south]
+    at (6,4.34) {$F$};
+  \draw (-0.1,3.725) -- (0.1,3.725);
+  \node[font=\scriptsize, left] at (-0.12,3.725) {$U$};
+  \draw[cf1!60!black, dashed, line width=0.7pt]
+    (0,3.725) -- (3.2,3.725);
+  \draw[cf1!60!black, dashed, line width=0.7pt,
+    -{Stealth[length=4pt]}] (3.2,3.725) -- (3.2,1.7);
+  \node[font=\scriptsize, cf1!60!black, anchor=west]
+    at (3.45,2.4) {$R = F^{-1}(U)$};
+  % ---------------- class bracket ----------------
+  \draw[decorate, decoration={brace, amplitude=3pt}, black!70]
+    (0,1.75) -- (11,1.75) node[pos=0.78, above=3pt, font=\scriptsize]
+    {$\mathrm{RM}(2,4)$: the first $K_2 = 11$ coins};
+  % ---------------- shell fills ----------------
+  \fill[black!12]  (0,0)  rectangle (1,1.6);
+  \fill[cf2!22]    (1,0)  rectangle (5,1.6);
+  \fill[cf3!25]    (5,0)  rectangle (11,1.6);
+  \fill[cf4!30]    (11,0) rectangle (15,1.6);
+  \fill[cf5!25]    (15,0) rectangle (16,1.6);
+  % boxes with alternating label heights
+  \foreach \i/\y/\lab in {0/1.07/{1}, 1/0.53/{b_0}, 2/1.07/{b_1},
+    3/0.53/{b_2}, 4/1.07/{b_3}, 5/0.53/{b_1b_0}, 6/1.07/{b_2b_0},
+    7/0.53/{b_2b_1}, 8/1.07/{b_3b_0}, 9/0.53/{b_3b_1},
+    10/1.07/{b_3b_2}, 11/0.53/{b_2b_1b_0}, 12/1.07/{b_3b_1b_0},
+    13/0.53/{b_3b_2b_0}, 14/1.07/{b_3b_2b_1},
+    15/0.53/{b_3b_2b_1b_0}}{
+    \draw[black!35, line width=0.3pt] (\i,0) rectangle ({\i+1},1.6);
+    \node[font=\tiny] at ({\i+0.5},\y) {$\lab$};}
+  % ---------------- shell braces with counts ----------------
+  \foreach \l/\r/\lab in {0/1/{$1$}, 1/5/{$4$}, 5/11/{$6$},
+    11/15/{$4$}, 15/16/{$1$}}{
+    \draw[decorate, decoration={brace, mirror, amplitude=2.5pt},
+      black!70] (\l,-0.1) -- (\r,-0.1);
+    \node[font=\scriptsize, below] at ({(\l+\r)/2},-0.22) {\lab};}
+  \node[font=\scriptsize, anchor=east] at (-0.15,-0.35)
+    {$\binom4d$:};
+  % ---------------- rate axis ----------------
+  \draw[->] (0,-1.25) -- (16.4,-1.25);
+  \foreach \x/\lab in {0/{$0$}, 1/{$\tfrac1{16}$}, 5/{$\tfrac5{16}$},
+    11/{$\tfrac{11}{16}$}, 15/{$\tfrac{15}{16}$}, 16/{$1$}}{
+    \draw (\x,-1.31) -- (\x,-1.19);
+    \node[font=\scriptsize, below] at (\x,-1.33) {\lab};}
+  \node[font=\scriptsize, anchor=east] at (-0.15,-1.25)
+    {$R_{4,d}$:};
+  \foreach \x in {1,5,11,15,16}
+    \draw[black!40, line width=0.3pt, dashed] (\x,-0.55) -- (\x,-1.19);
+\end{tikzpicture}
+\end{center}
+
+Reading the shelf against the table below it: the shell widths
+$1, 4, 6, 4, 1$ are the populations' logarithmic footprints, while
+the map \emph{counts} $2^{K_d}$ explode left to right -- the bulge
+in boxes is mild, the bulge in maps is the cliff.
+\end{example}
+
+Why sample a shell rather than weight the maps? The natural Occam
 move, $p_j \propto e^{-\beta \deg\phi_j}$, fails by a scaling
 argument. There are $2^{K_k}$ maps of degree at most $k$, so raising
 the cutoff by one buys $\binom n{k+1} \ln 2$ nats of entropy against
@@ -3823,7 +3910,32 @@ size at more than one $k$. The ensemble concentrates on the shell
 $\binom n{d^*} \approx \beta / \ln 2$ -- at most two adjacent degrees
 -- and every map outside it retains only vanishing relative weight. A
 single temperature hears a thin shell of the hypothesis space and
-nothing else. The repair prices the \emph{level}, not the map:
+nothing else. The cliff in numbers: the share of maps of degree
+exactly $d$ is $2^{K_d - Q} - 2^{K_{d-1} - Q}$, and
+
+\begin{center}
+\begin{tabular}{l l cccc}
+\toprule
+degree & share & $n=2$ & $n=4$ & $n=6$ & $n=8$ \\
+\midrule
+$n$ & $\tfrac12$
+  & $50\%$ & $50\%$ & $50\%$ & $50\%$ \\
+$n-1$ & $\tfrac12 - 2^{-(n+1)}$
+  & $37.5\%$ & $46.9\%$ & $49.2\%$ & $49.8\%$ \\
+$n-2$ & $\approx 2^{-(n+1)}$
+  & $12.5\%$ & $3.1\%$ & $0.78\%$ & $0.20\%$ \\
+$n-3$ & $\approx 2^{-(n+1+\binom n2)}$
+  & --- & $4.6\cdot10^{-4}$ & $2.4\cdot10^{-7}$ & $7.3\cdot10^{-12}$ \\
+$\le n-4$ & rest
+  & --- & $3.1\cdot10^{-5}$ & $2.3\cdot10^{-13}$ & $1.0\cdot10^{-28}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Half of all maps sit at full degree, all but a $2^{-(n+1)}$ sliver in
+the top two shells, and everything below is doubly exponentially rare:
+this is the population any per-map weight has to fight. The repair
+prices the \emph{shell}, not the map:
 %
 \begin{enumerate}
   \item draw a single random number $R \in [0,1]$ (the
@@ -3854,12 +3966,12 @@ follow at once: $p_j$ is \emph{strictly decreasing in the degree},
 each step down costing a factor of order $2^{-\binom nd}$ -- a
 genuine Occam -- and $p_j \ge w_n 2^{-Q} > 0$ for every single map:
 full support, with no noise channel, at every $n$ and in the limit.
-Every level, and every map, gets a chance. Semantically, $F$ budgets
+Every shell, and every map, gets a chance. Semantically, $F$ budgets
 the \emph{shells} while nestedness orders the \emph{maps}: $w_d$ is,
 up to a $2^{-\binom nd}$ sliver leaking in from higher classes, the
 total weight of the degree-$d$ shell, split evenly within it. The
 per-map Occam ordering therefore holds for every $F$, and $F$ decides
-only how much aggregate weight each complexity level carries -- a
+only how much aggregate weight each shell carries -- a
 populous shell can outweigh a simpler one even though each of its
 members is individually lighter.
 
@@ -3964,8 +4076,8 @@ average converges to an average over the statistic,
 \end{equation}
 %
 the last step by layer cake: pointwise
-$\min(t,R) = \int_0^t \mathbf 1[x < R]\,dx$, and
-$\mathbb E\,\mathbf 1[x < R] = 1 - F(x)$. Received information per
+$\min(t,R) = \int_0^t \theta(R - x)\,dx$, and
+$\mathbb E\,\theta(R - x) = 1 - F(x)$. Received information per
 question is an average of clipped clocks, the area under the survival
 function.
 
@@ -4042,16 +4154,66 @@ modeling a learner, is collected in Appendix~\ref{app:blockpriors}.
   xlabel={$t$}, ylabel={$L_F(t)$},
   xmin=0, xmax=1, ymin=0.9, ymax=2.15, domain=0.001:1, samples=120,
   tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}]
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.03,0.9)}, anchor=north west,
+    row sep=-2pt},
+  legend cell align=left]
+\addlegendimage{legend image code/.code={
+  \draw[cf2, thick] (0cm,0.05cm) -- (0.5cm,0.05cm);
+  \draw[cf3, thick] (0cm,-0.05cm) -- (0.5cm,-0.05cm);}}
+\addlegendentry{$n=\infty$}
+\addlegendimage{legend image code/.code={
+  \draw[cf2] plot[only marks, mark=*, mark size=1.0]
+    coordinates {(0.15cm,0cm)};
+  \draw[cf3] plot[only marks, mark=*, mark size=1.0]
+    coordinates {(0.35cm,0cm)};}}
+\addlegendentry{$n=4$}
+\addlegendimage{legend image code/.code={
+  \draw[cf2] plot[only marks, mark=o, mark size=1.1]
+    coordinates {(0.15cm,0cm)};
+  \draw[cf3] plot[only marks, mark=o, mark size=1.1]
+    coordinates {(0.35cm,0cm)};}}
+\addlegendentry{$n=6$}
+\addlegendimage{legend image code/.code={
+  \draw[cf2] plot[only marks, mark=triangle, mark size=1.2]
+    coordinates {(0.15cm,0cm)};
+  \draw[cf3] plot[only marks, mark=triangle, mark size=1.2]
+    coordinates {(0.35cm,0cm)};}}
+\addlegendentry{$n=8$}
 \addplot[cf2, thick] {2};
 \addplot[cf3, thick] {3*(1+x-x^2)/(3-x^2)};
 \addplot[black, dotted, forget plot] {1};
+\addplot[cf2, only marks, mark=*, mark size=0.7] table[x=t, y=lev]
+  {figures/data/rmfinite_unif_n4.dat};
+\addplot[cf2, only marks, mark=o, mark size=0.8] table[x=t, y=lev]
+  {figures/data/rmfinite_unif_n6.dat};
+\addplot[cf2, only marks, mark=triangle, mark size=0.9] table[x=t, y=lev]
+  {figures/data/rmfinite_unif_n8.dat};
+\addplot[cf3, only marks, mark=*, mark size=0.7] table[x=t, y=lev]
+  {figures/data/rmfinite_max_n4.dat};
+\addplot[cf3, only marks, mark=o, mark size=0.8] table[x=t, y=lev]
+  {figures/data/rmfinite_max_n6.dat};
+\addplot[cf3, only marks, mark=triangle, mark size=0.9] table[x=t, y=lev]
+  {figures/data/rmfinite_max_n8.dat};
 \end{axis}
 \end{tikzpicture}
 \caption{The two worked statistics in \eqref{eq:LF}. A uniform draw
 ($F(x) = x$, blue) gives constant leverage $L \equiv 2$; the larger
 of two uniform draws ($F(x) = x^2$, orange) delays the deductions and
-the curve rises from the baseline to $L(1) = \tfrac32$.}
+the curve rises from the baseline to $L(1) = \tfrac32$. Dots are
+finite-$n$ leverage: filled $n = 4$ (all $2^{16}$ question sets
+enumerated, exact), circles $n = 6$ and triangles $n = 8$ (Monte
+Carlo over question orders, subset entropies exact via the nested
+rank profile, latent-label information included). Convergence is slow from below: the label costs
+$O(\log n)$ of the $Q$ available bits, and the mean rate approaches
+its limit only as $1/\sqrt n$. The left edge is a boundary layer:
+$L_F(0^+) = 1 + f(0^+)$ presumes $1 \ll \ell \ll Q$, while at
+$\ell = 1$ the only exhaustible class is the constants and
+$\langle L_1\rangle = 1 + (Q-1)\,w_0^2/(2\ln 2) + O(w_0^3)$, the
+early deductions being spent on identifying the latent label. The
+finite curves also scallop, most visibly at $n = 8$: each surge is
+one class being learned out near its rate $K_d/Q$, a discreteness the
+limit smooths away as the rate grid refines.}
 \label{fig:Fexamples}
 \end{figure}
 
@@ -4063,7 +4225,7 @@ identities agree: $1 + f(0^+) = 2$ and $1/\mathbb E[R] = 2$. The
 interpretation is the flattest possible Occam: uniform $F$ spreads
 its budget evenly over the \emph{rate axis}, so each shell receives
 exactly the share of coefficient space its degree opens,
-$w_d = \binom nd/2^n$ -- not an equal share per level -- and every
+$w_d = \binom nd/2^n$ -- not an equal share per shell -- and every
 received bit drags along exactly one deduced bit, uniformly over the
 whole run. The same constant
 curve is produced by pairing questions into equality cliques
@@ -4092,7 +4254,7 @@ The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with $F(x) = x^2$.
 The classes have $(K_0, K_1, K_2) = (1, 3, 4)$ and rates
 $(\tfrac14, \tfrac34, 1)$, so
 $w = (\tfrac1{16}, \tfrac12, \tfrac7{16})$, and the sixteen maps of
-Table~\ref{tab:sixteen} are priced in three tiers by their degree:
+Table~\ref{tab:sixteen} are priced in three shells by their degree:
 the two constants at
 $\tfrac1{16}\cdot\tfrac12 + \tfrac12\cdot\tfrac18 +
 \tfrac7{16}\cdot\tfrac1{16} = \tfrac{31}{256}$, the six affine maps
@@ -4100,6 +4262,30 @@ at $\tfrac{23}{256}$, and the eight curved maps at $\tfrac{7}{256}$;
 the check $2\cdot31 + 6\cdot23 + 8\cdot7 = 256$ closes the
 distribution.
 \end{example}
+
+\emph{The concave direction.} A concave $F$, a decreasing density,
+is the simplicity-optimist: it moves budget toward the low shells,
+the opposite tilt to $F(x) = x^2$, whose weights shortchange every
+shell below the half-rate point by the exact factor
+$w_d^{x^2}/w_d^{x} = R_{n,d} + R_{n,d-1}$. The calculations reward
+it. For $F(x) = 1-(1-x)^r$, the \emph{smallest} of $r$ uniform
+draws, the numerator of \eqref{eq:LF} telescopes against the
+denominator,
+%
+\begin{equation}
+  t + (1-t)F(t) = 1-(1-t)^{r+1}
+  = (r+1)\int_0^t\big(1-F(x)\big)\,dx,
+  \qquad
+  L \equiv r+1,
+  \label{eq:Lmin}
+\end{equation}
+%
+the whole ladder of constant curves from one concave family ($r=1$
+recovers $L\equiv2$). One caution: concavity with an infinite
+density at zero, such as $F=\sqrt x$, piles budget onto the very
+earliest shells and the curve inherits a $t^{-1/2}$ spike at the
+origin: front-loaded deduction, the shape of a boundary layer, no
+longer a constant.
 
 
 \appendix
