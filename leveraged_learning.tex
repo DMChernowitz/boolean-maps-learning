@@ -60,6 +60,7 @@
 \usetikzlibrary{svg.path}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{tikzmark}
+\usetikzlibrary{matrix, fit}
 \usetikzlibrary{decorations.pathreplacing}
 
 % forecast bar chart under the a\q matrices: one slot per question
@@ -4019,34 +4020,48 @@ a $(-2)^{|T|}$ rescaling between them, and reducing mod $2$ leaves
 exactly the XOR butterfly.
 
 \begin{example}
-The butterfly on six maps of Table~\ref{tab:sixteen}, truth tables
+The butterfly on every map of the guiding example, truth tables
 $T = (\phi(11), \phi(10), \phi(01), \phi(00))$ -- so that $T$ read as
 a binary numeral \emph{is} the index $j$ -- and coefficients ordered
-$(\rho_{b_1 b_0}, \rho_{b_1}, \rho_{b_0}, \rho_\emptyset)$:
+$(\rho_{b_1 b_0}, \rho_{b_1}, \rho_{b_0}, \rho_\emptyset)$.
 
 \begin{center}
-\begin{tabular}{l c c l c}
+\begin{tabular}{r l c c l c}
 \toprule
-map ($j$) & $T$ & $\rho$ & polynomial & $\deg$ \\
+$j$ & map & $T$ & $\rho$ & polynomial & $\deg$ \\
 \midrule
-TRUE (15) & $(1,1,1,1)$ & $(0,0,0,1)$ & $1$ & $0$ \\
-$\lnot b_1$ (3) & $(0,0,1,1)$ & $(0,1,0,1)$ & $b_1 \oplus 1$ & $1$ \\
-XOR (6) & $(0,1,1,0)$ & $(0,1,1,0)$ & $b_1 \oplus b_0$ & $1$ \\
-AND (8) & $(1,0,0,0)$ & $(1,0,0,0)$ & $b_1 b_0$ & $2$ \\
-NOR (1) & $(0,0,0,1)$ & $(1,1,1,1)$ &
-  $b_1 b_0 \oplus b_1 \oplus b_0 \oplus 1$ & $2$ \\
-$b_1 \to b_0$ (11) & $(1,0,1,1)$ & $(1,1,0,1)$ &
-  $b_1 b_0 \oplus b_1 \oplus 1$ & $2$ \\
+0 & FALSE & $(0,0,0,0)$ & $(0,0,0,0)$ & $0$ & $0$ \\
+1 & NOR & $(0,0,0,1)$ & $(1,1,1,1)$ &
+  $b_1b_0 \oplus b_1 \oplus b_0 \oplus 1$ & $2$ \\
+2 & $\lnot b_1 \wedge b_0$ & $(0,0,1,0)$ & $(1,0,1,0)$ & $b_1b_0 \oplus b_0$ & $2$ \\
+3 & $\lnot b_1$ & $(0,0,1,1)$ & $(0,1,0,1)$ & $b_1 \oplus 1$ & $1$ \\
+4 & $b_1 \wedge \lnot b_0$ & $(0,1,0,0)$ & $(1,1,0,0)$ & $b_1b_0 \oplus b_1$ & $2$ \\
+5 & $\lnot b_0$ & $(0,1,0,1)$ & $(0,0,1,1)$ & $b_0 \oplus 1$ & $1$ \\
+6 & XOR & $(0,1,1,0)$ & $(0,1,1,0)$ & $b_1 \oplus b_0$ & $1$ \\
+7 & NAND & $(0,1,1,1)$ & $(1,0,0,1)$ & $b_1b_0 \oplus 1$ & $2$ \\
+8 & AND & $(1,0,0,0)$ & $(1,0,0,0)$ & $b_1b_0$ & $2$ \\
+9 & XNOR & $(1,0,0,1)$ & $(0,1,1,1)$ & $b_1 \oplus b_0 \oplus 1$ & $1$ \\
+10 & $b_0$ & $(1,0,1,0)$ & $(0,0,1,0)$ & $b_0$ & $1$ \\
+11 & $b_1 \to b_0$ & $(1,0,1,1)$ & $(1,1,0,1)$ & $b_1b_0 \oplus b_1 \oplus 1$ & $2$ \\
+12 & $b_1$ & $(1,1,0,0)$ & $(0,1,0,0)$ & $b_1$ & $1$ \\
+13 & $b_0 \to b_1$ & $(1,1,0,1)$ & $(1,0,1,1)$ & $b_1b_0 \oplus b_0 \oplus 1$ & $2$ \\
+14 & OR & $(1,1,1,0)$ & $(1,1,1,0)$ & $b_1b_0 \oplus b_1 \oplus b_0$ & $2$ \\
+15 & TRUE & $(1,1,1,1)$ & $(0,0,0,1)$ & $1$ & $0$ \\
 \bottomrule
 \end{tabular}
+\captionof{table}{The guiding example in both bases: every map of
+Table~\ref{tab:sixteen} as a truth table $T$ and as a coefficient
+vector $\rho$, with its polynomial and its degree.}
+\label{tab:anf16}
 \end{center}
 
-AND's table equals its own coefficient vector, a single top monomial,
-and the NAND above differs from it in $\rho_\emptyset$ alone: negation
-flips the constant and nothing else. XOR is a fixed point of the
-transform as well, while NOR sits at the other extreme, turning the
-one $1$ in its table into all four coefficients. XOR and $\lnot b_1$
-are affine; TRUE is constant.
+Read the table from both ends at once: $j$ and $15 - j$ are negations
+of each other, and their coefficient vectors differ in $\rho_\emptyset$
+alone, negation flipping the constant and nothing else. Four maps are
+fixed points of the butterfly, $\rho = T$: FALSE, XOR, AND and OR.
+The eight with $\rho_{b_1b_0} = 0$ are the affine ones, class
+$\mathrm{RM}(1,2)$, and the other eight are the curved ones that the
+top monomial buys.
 \end{example}
 
 \subsubsection{Complexity classes and the sampling rule}
@@ -4363,15 +4378,23 @@ entropy $Q\,G_{n,1}$, the received entropy $G_{n,\ell}$, and the
 increment $\gamma_{n,\ell}$. Each reduces to a statement about $F$.
 
 \emph{The table entropy.} A class is a linear code; make the
-structure explicit once. The \emph{generator matrix} $\mathsf G$ of
-class $d$ (sans serif, distinct from the block entropies $G_{n,\ell}$)
-is the $K_d \times Q$ matrix over $\mathbb F_2$ whose rows are the
-allowed monomials evaluated at every question,
-$\mathsf G_{\mathcal B,q} = \prod_{i\in\mathcal B} b_i(q)$, so that a
-uniform class member is $\psi = u^{\mathsf T} \mathsf G$ with $u$ uniform on
-$\{0,1\}^{K_d}$. Every column of $\mathsf G$ is nonzero (its
-constant-monomial entry is $1$), so each single answer is the image
-of a uniform $u$ under a surjective linear map onto $\mathbb F_2$: a
+structure explicit once. The \emph{generator matrix} $\Omega$ of class
+$d$ is the $K_d \times Q$ matrix over $\mathbb F_2$ whose rows are the
+monomials the class allows, evaluated at every question,
+%
+\begin{equation}
+  \Omega_{\mathcal B,q}
+    \;=\; \prod_{i \in \mathcal B} b_i(q)
+    \;=\; \mathbf 1[\, \mathcal B \subseteq \operatorname{supp}(q) \,],
+  \qquad |\mathcal B| \le d ,
+  \label{eq:genmat}
+\end{equation}
+%
+so that a uniform class member is $\psi = \xi^{\mathsf T} \Omega$
+with $\xi$ uniform on $\{0,1\}^{K_d}$. Every column of $\Omega$ is
+nonzero (its constant-monomial entry is $1$), so each single answer is
+the image of a uniform $\xi$ under a surjective linear map onto
+$\mathbb F_2$: a
 fair bit, in every class, and a mixture of fair bits is a fair bit.
 At every finite $n$, with no limit taken and no reference to $\mu$,
 %
@@ -4384,6 +4407,75 @@ At every finite $n$, with no limit taken and no reference to $\mu$,
 %
 The prior predicts nothing about any single answer; its entire
 content is correlational.
+
+\begin{example}
+The generator matrix at $n = 2$: the questions across the top in
+descending order, the monomials down the side in degree order, and the
+entry where they meet the value \eqref{eq:genmat} gives. The three boxes are the three classes, each
+keeping the first $K_d$ rows, which is what makes them nest:
+%
+\begin{center}
+\begin{tikzpicture}
+  \matrix (m) [matrix of math nodes, nodes={inner xsep=4pt,
+    inner ysep=3pt}, row sep=1pt, column sep=16pt] {
+    \mathcal B\backslash\mathbf q
+      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    |[minimum height=5pt]| {} & {} & {} & {} & {} \\
+    1      & 1 & 1 & 1 & 1 \\
+    b_0    & 1 & 0 & 1 & 0 \\
+    b_1    & 1 & 1 & 0 & 0 \\
+    b_1b_0 & 1 & 0 & 0 & 0 \\
+  };
+  \coordinate (vx) at ([xshift=5pt]m-1-1.east);
+  \coordinate (hy) at ([yshift=-2pt]m-1-1.south);
+  \draw[black!55, line width=0.4pt]
+    (vx |- m-1-1.north) -- (vx |- m-6-1.south);
+  \draw[black!55, line width=0.4pt]
+    (m-1-1.west |- hy) -- (m-1-5.east |- hy);
+  % one box per class, all hanging from the header rule
+  \foreach \rw/\pad/\top/\col in {6/4.5pt/5.5pt/{cf4!65!black},
+      5/3pt/4.5pt/{cf3!80!black}, 3/1.5pt/3.5pt/{cf2!80!black}}
+    \draw[\col, line width=0.5pt, rounded corners=1.2pt]
+      ([shift={(-\pad,-\top)}]m-1-2.west |- m-1-1.south)
+      rectangle ([shift={(\pad,-\pad)}]m-1-5.east |- m-\rw-5.south);
+  \node[anchor=east] at ([xshift=-6pt]m.west) {$\Omega \;=$};
+  \node[font=\scriptsize, cf2!80!black, anchor=west]
+    at ([xshift=12pt]m-1-5.east |- m-3-5) {$d = 0$};
+  \node[font=\scriptsize, cf3!80!black, anchor=west]
+    at ([xshift=12pt]m-1-5.east |- m-5-5) {$d = 1$};
+  \node[font=\scriptsize, cf4!65!black, anchor=west]
+    at ([xshift=12pt]m-1-5.east |- m-6-5) {$d = 2$};
+\end{tikzpicture}
+\end{center}
+%
+A class member is $\psi = \xi^{\mathsf T}\Omega^{(d)}$, the XOR of the
+rows that the coin string $\xi$ switches on. The $K_d$ rows are
+independent, so $\xi \mapsto \psi$ is a bijection onto the class:
+flipping $K_d$ fair coins, one per allowed monomial, lands on each of
+the $2^{K_d}$ maps exactly once, which is step 3 of the sampling rule
+and why no map inside a class is favoured over another. Three draws,
+each extending the last:
+%
+\begin{align*}
+  \xi &= (1)
+    &&\Rightarrow\quad \psi = (1,1,1,1)
+    &&= \mathrm{TRUE}, \\
+  \xi &= (1,0,1)
+    &&\Rightarrow\quad \psi = (1,1,1,1) \oplus (1,1,0,0) = (0,0,1,1)
+    &&= \lnot b_1, \\
+  \xi &= (1,0,1,1)
+    &&\Rightarrow\quad \psi = (0,0,1,1) \oplus (1,0,0,0) = (1,0,1,1)
+    &&= b_1 \to b_0 .
+\end{align*}
+%
+Every column carries the constant row's $1$, so flipping
+$\xi_\emptyset$ flips the answer to every question at once: the
+$2^{K_d}$ maps pair off into complementary halves and
+$M_{a,q} = \tfrac12$ at every question, in every class, for every $F$.
+The table starts knowing nothing, $H(M^{(0)}) = Q$. Read against
+\eqref{eq:zkernel}, $\Omega$ is $Z^{\otimes n}$ transposed, its rows
+sorted by degree so that every class is a prefix.
+\end{example}
 
 \emph{The received entropy.} Computing $H(\psi(\mathcal S), D)$ by
 the chain rule in both orders,
@@ -4400,12 +4492,55 @@ the chain rule in both orders,
 mixture entropy is mean class entropy plus what the answers reveal
 about the label, and the label is cheap -- $o(1)$ bits per question.
 Within class $d$ the answers on $\mathcal S$ are
-$u^{\mathsf T}\mathsf G_{\cdot,\mathcal S}$, uniform on the image of
+$\xi^{\mathsf T}\Omega_{\cdot,\mathcal S}$, uniform on the image of
 the column submatrix, so
-$H_d(\psi(\mathcal S)) = \operatorname{rank}(\mathsf
-G_{\cdot,\mathcal S})$ exactly: the number of $\mathbb F_2$-linearly
+$H_d(\psi(\mathcal S)) = \operatorname{rank}(\Omega_{\cdot,\mathcal S})$
+exactly: the number of $\mathbb F_2$-linearly
 independent columns, the number of bits needed to describe those
-answers. Three facts pin the limit of the class average
+answers.
+
+\begin{example}
+Where the classes part is what a set of columns spans. Ask $11$, then
+$10$, then $01$ of class $1$: the boxed submatrix
+$\Omega^{(1)}_{\cdot,\mathcal S}$ is square and of full rank $3$, so
+each of the three answers is a fresh bit.
+%
+\begin{center}
+\begin{tikzpicture}
+  \matrix (r) [matrix of math nodes, nodes={inner xsep=4pt,
+    inner ysep=3pt}, row sep=1pt, column sep=16pt] {
+    \mathcal B\backslash\mathbf q
+      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    |[minimum height=5pt]| {} & {} & {} & {} & {} \\
+    1   & 1 & 1 & 1 & 1 \\
+    b_0 & 1 & 0 & 1 & 0 \\
+    b_1 & 1 & 1 & 0 & 0 \\
+  };
+  \coordinate (rvx) at ([xshift=5pt]r-1-1.east);
+  \coordinate (rhy) at ([yshift=-2pt]r-1-1.south);
+  \draw[black!55, line width=0.4pt]
+    (rvx |- r-1-1.north) -- (rvx |- r-5-1.south);
+  \draw[black!55, line width=0.4pt]
+    (r-1-1.west |- rhy) -- (r-1-5.east |- rhy);
+  \node[anchor=east] at ([xshift=-6pt]r.west) {$\Omega^{(1)} \;=$};
+  \draw[cf3!75!black, line width=0.6pt, rounded corners=1.2pt]
+    ([shift={(-3pt,-3.5pt)}]r-1-2.west |- r-1-1.south)
+    rectangle ([shift={(3pt,-3pt)}]r-1-4.east |- r-5-4.south);
+\end{tikzpicture}
+\end{center}
+%
+But $\operatorname{rank}\Omega^{(1)} = K_1 = 3$ across all four
+columns, and the box has already used the rank up. The fourth column
+is the XOR of the boxed three, so the answer to $00$ is spoken for
+before it is asked: the rows span the even-weight code, whose parity
+check reads
+$\psi(11) \oplus \psi(10) \oplus \psi(01) \oplus \psi(00) = 0$. An
+affine truth pays one bit a question and runs out at its own rate
+$R_{2,1} = \tfrac34$. Class $2$ has full rank $4$ and never runs out;
+class $0$ is spent after a single answer, at $R_{2,0} = \tfrac14$.
+\end{example}
+
+Three facts pin the limit of the class average
 $G^{(d)}_{n,\ell} = \mathbb E\,\mathrm{rank}$. The mean increment
 $\gamma^{(d)}_{n,\ell} = \Pr[\text{a fresh column is independent of }
 \ell \text{ random ones}]$ is nonincreasing in $\ell$, by rank
