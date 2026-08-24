@@ -4234,70 +4234,125 @@ A judicious choice of $F$ is what puts the correct portion of
 aggregate belief on the complexity that Werner expects from nature.
 
 \begin{example}
-The whole construction, priced out at $n = 4$, $m = 1$, with the
-statistic of the shelf above: $F(x) = 1 - (1-x)^2$, the smaller of
-two uniform draws. The five classes have dimensions
-$K_d = 1, 5, 11, 15, 16$ and rates $R_{4,d} = K_d/16$, so
-\eqref{eq:shapepj} hands out shell budgets
-$w_d = \tfrac{31}{256},\, \tfrac{104}{256},\, \tfrac{96}{256},\,
-\tfrac{24}{256},\, \tfrac1{256}$ and, to a map of degree $d$, the
-weight $p_j = 7.34\cdot 10^{-2},\, 1.29\cdot 10^{-2},\,
-1.86\cdot 10^{-4},\, 2.92\cdot 10^{-6},\, 2^{-24}$.
+The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
+statistic $F(x) = 1-(1-x)^2$, the $r = 2$ member of \eqref{eq:Lmin}.
+The three classes have
+%
+\begin{align*}
+  (K_0, K_1, K_2) &= (1, 3, 4), \\
+  (w_0, w_1, w_2) &= (\tfrac7{16}, \tfrac12, \tfrac1{16}),
+\end{align*}
+%
+so the rates $K_d/Q$ are $\tfrac14$, $\tfrac34$ and $1$. Class $d$
+offers a map it contains a rectangle: width $w_d$, the chance the lottery calls that
+class, by height $2^{-K_d}$, the chance the class then calls that map.
+A map of degree $e$ lies in every class $d \ge e$, so it collects
+every block from $e$ rightward -- all the blocks a harder map
+collects, and one more besides.
 
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[width=5.9cm, height=5.0cm,
-  ybar, bar width=10pt, ymode=log, log origin=infty,
-  title={weight of one map}, title style={font=\footnotesize},
-  xlabel={$\deg \phi_j$}, ylabel={$p_j$},
-  xtick={0,1,2,3,4}, ymin=1e-9, ymax=1,
-  ytick={1e-8,1e-6,1e-4,1e-2,1},
-  grid=major, grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[fill=cf2!45, draw=cf2!70!black]
-  coordinates {(0,7.3428e-2) (1,1.2881e-2) (2,1.8603e-4)
-               (3,2.9206e-6) (4,5.9605e-8)};
-\end{axis}
-\end{tikzpicture}\hspace{3mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.9cm, height=5.0cm,
-  ybar, bar width=7pt,
-  title={weight of one shell}, title style={font=\footnotesize},
-  xlabel={$d$}, ylabel={probability},
-  xtick={0,1,2,3,4}, ymin=0, ymax=0.46, area legend,
-  grid=major, grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  legend style={font=\scriptsize, draw=none, fill=none,
-    at={(0.99,0.99)}, anchor=north east, cells={anchor=west}}]
-\addplot[fill=cf2!45, draw=cf2!70!black]
-  coordinates {(0,0.14686) (1,0.38644) (2,0.37503)
-               (3,0.08972) (4,0.00195)};
-\addplot[fill=none, draw=black!50]
-  coordinates {(0,0.12109) (1,0.40625) (2,0.37500)
-               (3,0.09375) (4,0.00391)};
-\legend{shell, $w_d$}
-\end{axis}
+\begin{tikzpicture}[x=7.6cm, y=7.6cm]
+  % the three blocks, drawn to scale, each carrying its own area
+  \fill[cf2!30, draw=cf2!70!black, line width=0.3pt]
+    (0,0) rectangle (0.4375,0.5);
+  \fill[cf3!30, draw=cf3!70!black, line width=0.3pt]
+    (0.5375,0) rectangle (1.0375,0.125);
+  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
+    (1.1375,0) rectangle (1.2,0.0625);
+  \node[font=\scriptsize] at (0.21875,0.25) {$\tfrac{56}{256}$};
+  \node[font=\scriptsize] at (0.7875,0.0625) {$\tfrac{16}{256}$};
+  \node[font=\tiny, inner sep=0pt] at (1.16875,0.03125)
+    {$\tfrac{1}{256}$};
+  \node[font=\scriptsize, black!70, anchor=west] at (0.5375,0.36)
+    {area $= w_d \times 2^{-K_d}$};
+  \draw[black!55, line width=0.4pt] (-0.05,0) -- (1.21,0);
+  % height 2^{-K_d}, measured at the left edge of each block
+  \foreach \xa/\h/\lab in {0/0.5/{\tfrac12}, 0.5375/0.125/{\tfrac18},
+      1.1375/0.0625/{\tfrac1{16}}}{
+    \draw[{Stealth[length=3pt]}-{Stealth[length=3pt]}, black!65,
+      line width=0.35pt] ({\xa-0.0125},0) -- ({\xa-0.0125},\h);
+    \node[font=\scriptsize, left, inner sep=1.5pt]
+      at ({\xa-0.0125},{\h/2}) {$\lab$};}
+  % width w_d, measured above each block
+  \foreach \xa/\xb/\h/\lab in {0/0.4375/0.5/{\tfrac7{16}},
+      0.5375/1.0375/0.125/{\tfrac12}, 1.1375/1.2/0.0625/{\tfrac1{16}}}{
+    \draw[{Stealth[length=3pt]}-{Stealth[length=3pt]}, black!65,
+      line width=0.35pt] (\xa,{\h+0.022}) -- (\xb,{\h+0.022});
+    \node[font=\scriptsize, above, inner sep=1pt]
+      at ({(\xa+\xb)/2},{\h+0.024}) {$\lab$};}
+  % ---- the curtailed rows: a map of degree e keeps the blocks d >= e
+  \node[font=\scriptsize, black!70] at (-0.42,-0.06) {degree};
+  \node[font=\scriptsize, black!70] at (-0.21,-0.06) {\# maps};
+  \node[font=\scriptsize, black!70] at (1.30,-0.06) {$p_j$};
+  % degree 0: all three blocks
+  \fill[cf2!30, draw=cf2!70!black, line width=0.3pt]
+    (0,-0.140) rectangle (0.4375,-0.110);
+  \fill[cf3!30, draw=cf3!70!black, line width=0.3pt]
+    (0.5375,-0.140) rectangle (1.0375,-0.110);
+  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
+    (1.1375,-0.140) rectangle (1.2,-0.110);
+  \node[font=\scriptsize] at (0.4875,-0.125) {$+$};
+  \node[font=\scriptsize] at (1.0875,-0.125) {$+$};
+  \node[font=\scriptsize] at (-0.42,-0.125) {$0$};
+  \node[font=\scriptsize] at (-0.21,-0.125) {$2$};
+  \node[font=\scriptsize] at (1.30,-0.125) {$\tfrac{73}{256}$};
+  % degree 1: blocks 1 and 2, block 0 curtailed
+  \draw[black!35, line width=0.3pt, densely dotted]
+    (0,-0.215) rectangle (0.4375,-0.185);
+  \fill[cf3!30, draw=cf3!70!black, line width=0.3pt]
+    (0.5375,-0.215) rectangle (1.0375,-0.185);
+  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
+    (1.1375,-0.215) rectangle (1.2,-0.185);
+  \node[font=\scriptsize] at (1.0875,-0.200) {$+$};
+  \node[font=\scriptsize] at (-0.42,-0.200) {$1$};
+  \node[font=\scriptsize] at (-0.21,-0.200) {$6$};
+  \node[font=\scriptsize] at (1.30,-0.200) {$\tfrac{17}{256}$};
+  % degree 2: block 2 only
+  \draw[black!35, line width=0.3pt, densely dotted]
+    (0,-0.290) rectangle (0.4375,-0.260);
+  \draw[black!35, line width=0.3pt, densely dotted]
+    (0.5375,-0.290) rectangle (1.0375,-0.260);
+  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
+    (1.1375,-0.290) rectangle (1.2,-0.260);
+  \node[font=\scriptsize] at (-0.42,-0.275) {$2$};
+  \node[font=\scriptsize] at (-0.21,-0.275) {$8$};
+  \node[font=\scriptsize] at (1.30,-0.275) {$\tfrac{1}{256}$};
 \end{tikzpicture}
 \end{center}
 
-The two panels answer different questions and their axes say so. On
-the left, one map: the weight drops by $5.7$, then $69$, $64$, $49$
--- the factor $2^{\binom 4d}$ that the next class costs in dimension,
-tilted by the budget ratio $w_{d-1}/w_d$ -- six decades across five
-degrees, which is why the axis is logarithmic. Occam is priced per
-map, and it is brutal. On the right, one shell: the
-$2, 30, 2016, 30720, 32768$ maps of each degree carry
-$14.7\%, 38.6\%, 37.5\%, 9.0\%, 0.2\%$ of the belief, on a linear
-axis, the peak one step away from the simplest shell and the next
-shell all but level with it. Degree $1$ outweighs the constants
-better than five to two although each of its thirty members is nearly
-six times lighter: population beats simplicity in the aggregate,
-while the per-map ordering never wavers. The open bars are the
-budgets $w_d$, and the daylight between the two is the
-$2^{-\binom 4d}$ shrinkage: half of $w_4$ at full degree, invisible at
-$d = 2$ where it is repaid almost exactly by what leaks down from
-above, and the surplus piling onto the two constants, $0.147$ against
-a budget of $0.121$.
+Each step up in degree curtails the sum from the left, so $p_j$ falls
+with the degree by construction rather than by fiat: the two constants
+of Table~\ref{tab:sixteen} take all three blocks, $\tfrac{73}{256}$,
+the six affine maps lose the first, $\tfrac{17}{256}$, and the eight
+curved maps keep only the last, $\tfrac1{256}$. The blocks are drawn
+to scale, and that is the whole Occam story in one picture. A concave
+$F$ makes the constants' block the widest draw but for the middle one,
+and having only two members to split between makes it much the
+tallest, so it carries $56$ of the $73$ parts; the full class is a
+chip at both ends and contributes $1$. The check
+$2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
+
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=3.6cm]
+  % aggregate weight per degree: N_d slices, one per map, each p_j tall
+  \foreach \dg/\nm/\hh/\cc in {0/2/0.28515625/cf2,
+      1/6/0.06640625/cf3, 2/8/0.00390625/cf4}{
+    \foreach \k in {1,...,\nm}{
+      \fill[\cc!35, draw=\cc!70!black, line width=0.25pt]
+        ({\dg*1.4},{(\k-1)*\hh}) rectangle ({\dg*1.4+0.85},{\k*\hh});}
+    \node[font=\scriptsize, below, inner sep=2pt]
+      at ({\dg*1.4+0.425},0) {$\dg$};}
+  \draw[black!55, line width=0.4pt] (-0.15,0) -- (3.35,0);
+  \node[font=\scriptsize, black!70, align=right, anchor=east]
+    at (-0.25,0.285) {aggregate\\shell\\weight};
+  \node[font=\small, above, inner sep=2pt]
+    at (0.425,0.5703125) {$\tfrac{146}{256}$};
+  \node[font=\small, above, inner sep=2pt]
+    at (1.825,0.3984375) {$\tfrac{102}{256}$};
+  \node[font=\small, above, inner sep=2pt]
+    at (3.225,0.03125) {$\tfrac{8}{256}$};
+\end{tikzpicture}
+\end{center}
 \end{example}
 
 \subsubsection{Three terms for the leverage average}
@@ -4623,100 +4678,70 @@ received one -- twice what the uniform draw manages, and four times
 what $F(x) = x^2$ reaches even at the end of its run.
 
 \begin{example}
-The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
-statistic $F(x) = 1-(1-x)^2$, the $r = 2$ member of \eqref{eq:Lmin}.
-The classes have $(K_0, K_1, K_2) = (1, 3, 4)$ and rates
-$(\tfrac14, \tfrac34, 1)$, so
-$w = (\tfrac7{16}, \tfrac12, \tfrac1{16})$. Class $d$ offers a map it
-contains a rectangle: width $w_d$, the chance the lottery calls that
-class, by height $2^{-K_d}$, the chance the class then calls that map.
-A map of degree $e$ lies in every class $d \ge e$, so it collects
-every block from $e$ rightward -- all the blocks a harder map
-collects, and one more besides.
+The whole construction, priced out at $n = 4$, $m = 1$, with the
+statistic of the shelf above: $F(x) = 1 - (1-x)^2$, the smaller of
+two uniform draws. The five classes have dimensions
+$K_d = 1, 5, 11, 15, 16$ and rates $R_{4,d} = K_d/16$, so
+\eqref{eq:shapepj} hands out shell budgets
+$w_d = \tfrac{31}{256},\, \tfrac{104}{256},\, \tfrac{96}{256},\,
+\tfrac{24}{256},\, \tfrac1{256}$ and, to a map of degree $d$, the
+weight $p_j = 7.34\cdot 10^{-2},\, 1.29\cdot 10^{-2},\,
+1.86\cdot 10^{-4},\, 2.92\cdot 10^{-6},\, 2^{-24}$.
 
 \begin{center}
-\begin{tikzpicture}[x=8.6cm, y=3.8cm]
-  % the three blocks, drawn to scale: area = w_d * 2^{-K_d}
-  \fill[cf2!30, draw=cf2!70!black, line width=0.3pt]
-    (0,0) rectangle (0.4375,0.5);
-  \fill[cf3!30, draw=cf3!70!black, line width=0.3pt]
-    (0.5125,0) rectangle (1.0125,0.125);
-  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
-    (1.0875,0) rectangle (1.15,0.0625);
-  \draw[black!55, line width=0.4pt] (-0.05,0) -- (1.185,0);
-  % height 2^{-K_d}, measured at the left edge of each block
-  \foreach \xa/\h/\lab in {0/0.5/{\tfrac12}, 0.5125/0.125/{\tfrac18},
-      1.0875/0.0625/{\tfrac1{16}}}{
-    \draw[{Stealth[length=3pt]}-{Stealth[length=3pt]}, black!65,
-      line width=0.35pt] ({\xa-0.019},0) -- ({\xa-0.019},\h);
-    \node[font=\scriptsize, left, inner sep=1.5pt]
-      at ({\xa-0.019},{\h/2}) {$\lab$};}
-  % width w_d, measured under each block
-  \foreach \xa/\xb/\lab in {0/0.4375/{\tfrac7{16}},
-      0.5125/1.0125/{\tfrac12}, 1.0875/1.15/{\tfrac1{16}}}{
-    \draw[black!55, line width=0.35pt] (\xa,0) -- (\xa,-0.03);
-    \draw[black!55, line width=0.35pt] (\xb,0) -- (\xb,-0.03);
-    \node[font=\scriptsize, below, inner sep=2pt]
-      at ({(\xa+\xb)/2},-0.032) {$\lab$};}
-  % area of each block
-  \node[font=\scriptsize, above, inner sep=2pt]
-    at (0.219,0.5) {$\tfrac{56}{256}$};
-  \node[font=\scriptsize, above, inner sep=2pt]
-    at (0.7625,0.125) {$\tfrac{16}{256}$};
-  \node[font=\scriptsize, above, inner sep=2pt]
-    at (1.119,0.0625) {$\tfrac1{256}$};
-  \node[font=\scriptsize, black!70, anchor=east] at (1.185,0.60)
-    {area $= w_d \times 2^{-K_d}$};
-  % ---- the curtailed rows: a map of degree e keeps the blocks d >= e
-  \node[font=\scriptsize, black!70, anchor=west] at (1.185,-0.175)
-    {$p_j$};
-  % degree 0: all three blocks
-  \fill[cf2!30, draw=cf2!70!black, line width=0.3pt]
-    (0,-0.282) rectangle (0.4375,-0.238);
-  \fill[cf3!30, draw=cf3!70!black, line width=0.3pt]
-    (0.5125,-0.282) rectangle (1.0125,-0.238);
-  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
-    (1.0875,-0.282) rectangle (1.15,-0.238);
-  \node[font=\scriptsize, left, inner sep=5pt] at (-0.05,-0.26)
-    {degree $0$};
-  \node[font=\scriptsize, right, inner sep=5pt] at (1.185,-0.26)
-    {$\tfrac{73}{256}$};
-  % degree 1: blocks 1 and 2, block 0 curtailed
-  \draw[black!35, line width=0.3pt, densely dotted]
-    (0,-0.422) rectangle (0.4375,-0.378);
-  \fill[cf3!30, draw=cf3!70!black, line width=0.3pt]
-    (0.5125,-0.422) rectangle (1.0125,-0.378);
-  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
-    (1.0875,-0.422) rectangle (1.15,-0.378);
-  \node[font=\scriptsize, left, inner sep=5pt] at (-0.05,-0.4)
-    {degree $1$};
-  \node[font=\scriptsize, right, inner sep=5pt] at (1.185,-0.4)
-    {$\tfrac{17}{256}$};
-  % degree 2: block 2 only
-  \draw[black!35, line width=0.3pt, densely dotted]
-    (0,-0.562) rectangle (0.4375,-0.518);
-  \draw[black!35, line width=0.3pt, densely dotted]
-    (0.5125,-0.562) rectangle (1.0125,-0.518);
-  \fill[cf4!45, draw=cf4!70!black, line width=0.3pt]
-    (1.0875,-0.562) rectangle (1.15,-0.518);
-  \node[font=\scriptsize, left, inner sep=5pt] at (-0.05,-0.54)
-    {degree $2$};
-  \node[font=\scriptsize, right, inner sep=5pt] at (1.185,-0.54)
-    {$\tfrac{1}{256}$};
+\begin{tikzpicture}
+\begin{axis}[width=5.9cm, height=5.0cm,
+  ybar, bar width=10pt, ymode=log, log origin=infty,
+  title={weight of one map}, title style={font=\footnotesize},
+  xlabel={$\deg \phi_j$}, ylabel={$p_j$},
+  xtick={0,1,2,3,4}, ymin=1e-9, ymax=1,
+  ytick={1e-8,1e-6,1e-4,1e-2,1},
+  grid=major, grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[fill=cf2!45, draw=cf2!70!black]
+  coordinates {(0,7.3428e-2) (1,1.2881e-2) (2,1.8603e-4)
+               (3,2.9206e-6) (4,5.9605e-8)};
+\end{axis}
+\end{tikzpicture}\hspace{3mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.9cm, height=5.0cm,
+  ybar, bar width=7pt,
+  title={weight of one shell}, title style={font=\footnotesize},
+  xlabel={$d$}, ylabel={probability},
+  xtick={0,1,2,3,4}, ymin=0, ymax=0.46, area legend,
+  grid=major, grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={font=\scriptsize, draw=none, fill=none,
+    at={(0.99,0.99)}, anchor=north east, cells={anchor=west}}]
+\addplot[fill=cf2!45, draw=cf2!70!black]
+  coordinates {(0,0.14686) (1,0.38644) (2,0.37503)
+               (3,0.08972) (4,0.00195)};
+\addplot[fill=none, draw=black!50]
+  coordinates {(0,0.12109) (1,0.40625) (2,0.37500)
+               (3,0.09375) (4,0.00391)};
+\legend{shell, $w_d$}
+\end{axis}
 \end{tikzpicture}
 \end{center}
 
-Each step up in degree curtails the sum from the left, so $p_j$ falls
-with the degree by construction rather than by fiat: the two constants
-of Table~\ref{tab:sixteen} take all three blocks, $\tfrac{73}{256}$,
-the six affine maps lose the first, $\tfrac{17}{256}$, and the eight
-curved maps keep only the last, $\tfrac1{256}$. The blocks are drawn
-to scale, and that is the whole Occam story in one picture. A concave
-$F$ makes the constants' block the widest draw but for the middle one,
-and having only two members to split between makes it much the
-tallest, so it carries $56$ of the $73$ parts; the full class is a
-chip at both ends and contributes $1$. The check
-$2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
+The two panels answer different questions and their axes say so. On
+the left, one map: the weight drops by $5.7$, then $69$, $64$, $49$
+-- the factor $2^{\binom 4d}$ that the next class costs in dimension,
+tilted by the budget ratio $w_{d-1}/w_d$ -- six decades across five
+degrees, which is why the axis is logarithmic. Occam is priced per
+map, and it is brutal. On the right, one shell: the
+$2, 30, 2016, 30720, 32768$ maps of each degree carry
+$14.7\%, 38.6\%, 37.5\%, 9.0\%, 0.2\%$ of the belief, on a linear
+axis, the peak one step away from the simplest shell and the next
+shell all but level with it. Degree $1$ outweighs the constants
+better than five to two although each of its thirty members is nearly
+six times lighter: population beats simplicity in the aggregate,
+while the per-map ordering never wavers. The open bars are the
+budgets $w_d$, and the daylight between the two is the
+$2^{-\binom 4d}$ shrinkage: half of $w_4$ at full degree, invisible at
+$d = 2$ where it is repaid almost exactly by what leaks down from
+above, and the surplus piling onto the two constants, $0.147$ against
+a budget of $0.121$.
 \end{example}
 
 
