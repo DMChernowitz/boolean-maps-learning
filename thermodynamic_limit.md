@@ -2210,7 +2210,7 @@ The information is held until a tunable macroscopic time $t=R=\Phi(c)$, the curv
 
 ![Reed--Muller profiles and leverage](figures/rm_step.png)
 
-*Median-degree Reed--Muller priors at $R=\tfrac12$ exactly ($n$ odd). Left: the exact $n=3$ profile (full subset enumeration) and Monte Carlo rank profiles at $n=5,7$ (6000 and 2500 random question orders), sharpening onto the step $\mathbf 1[t<\tfrac12]$. Right: the finite-$n$ leverage from the exact law (51), converging to the step $1\to1/R=2$ at half time.*
+*Median-degree Reed--Muller priors at $R=\tfrac12$ exactly ($n$ odd). Left: the exact $n=3$ profile (full subset enumeration) and Monte Carlo rank profiles at $n=5,7$ (6000 and 2500 random question orders), sharpening onto the step $\mathbf 1[t<\tfrac12]$. Right: the finite-$n$ leverage from the exact finite law, converging to the step $1\to1/R=2$ at half time.*
 
 ### 6.6 Extensions
 
@@ -2809,6 +2809,273 @@ ones ($\max$, higher order statistics) delay them and make the curve
 rise, concentration sharpens toward the step, and an atom at $R=1$ -- a
 share of "anything goes" -- keeps paying fresh bits forever and bends
 the tail down into an interior maximum.
+
+## 8. The weight prior: sparsity as complexity
+
+Chapter 7 graded maps by the *degree* of their polynomial, the width of the widest monomial. This chapter asks about the other natural size of a coefficient vector: its Hamming weight $\mathrm{wt}(\rho)$, the *number* of monomials present. Two questions drive it. Is weight a better proxy for circuit complexity than degree? And does the leverage TDL survive the change of measure?
+
+### 8.1 What circuits actually charge for
+
+The Gibbs chapter tabulated the AIG complexity $X$ of all $65{,}536$ maps at $(4,1)$; the butterfly gives each map's degree and weight; correlate. Spearman rank correlations with $X$:
+
+| statistic | tractable classes? | $\rho_{\rm Spearman}$ with $X$ |
+|---|---|---|
+| ANF degree | yes (RM chain) | $+0.017$ |
+| max-index in *any* monomial order | yes (any chain) | $-0.003$ |
+| ANF weight | no (Hamming balls) | $+0.286$ |
+| support (junta size) | components only | $+0.027$ |
+| $|$weight bias$|$ | no | $-0.137$ |
+| footprint $nI+S$ | no | $+0.027$ |
+
+Degree is nearly uncorrelated with $X$ in the bulk -- $96\%$ of maps sit at degree $3$--$4$, where the mean $X$ is flat at $7.0$. What degree does control is the *floor*: the cheapest map in each degree shell costs exactly $d-1$ gates (the bare product; the classical multiplicative-complexity bound $X \ge \deg - 1$, tight at every $d$). The named examples say it plainly:
+
+| map | deg | wt | AIG $X$ |
+|---|---|---|---|
+| $b_3b_2b_1b_0$ | $4$ | $1$ | $3$ |
+| $b_2b_1b_0$ | $3$ | $1$ | $2$ |
+| $b_3\oplus b_2\oplus b_1\oplus b_0$ | $1$ | $4$ | $9$ |
+| all six pair monomials XORed | $2$ | $6$ | $9$ |
+
+Needing a term that multiplies many bits is *complex as a floor, not as a price*: it forces $d-1$ unavoidable nonlinear gates, but the floor is cheap, and almost all AIG cost lives in how many terms are XORed together ($3$ gates per XOR), which is the weight. So weight is the more faithful Occam -- and the table's second row is a no-free-lunch in advance: the *entire* class of statistics whose level sets are nested linear spaces (pick any order on the monomials; complexity $=$ position of the last monomial present) is max-type, and max-type statistics saturate on the populous shells exactly as degree does. Any statistic that sees accumulation cost is not of that class. Tractability and fidelity to $X$ pull in opposite directions.
+
+### 8.2 The prior: one temperature suffices
+
+Where the degree's density of states is doubly exponential and forces the sampling rule, the weight's is binomial, $\binom Qw$ coefficient vectors of weight $w$, and a plain Gibbs weight works:
+
+$$
+p_j \;\propto\; e^{-\lambda\,\mathrm{wt}(\rho_j)}
+\qquad\Longleftrightarrow\qquad
+\rho_S \;\overset{\text{iid}}{\sim}\;\mathrm{Bernoulli}(\theta),
+\quad \theta=\frac1{1+e^\lambda},
+\tag{8.1}
+$$
+
+every coefficient an independent biased coin. The energy-entropy balance $e^{-\lambda} \cdot \frac{Q-w}{w+1} = 1$ has an interior solution $w^* = \theta Q$ with $O(\sqrt Q)$ fluctuations: no shell cliff, no multicanonical rescue. The prior is constructive (butterfly, then a popcount), has full support, and is strictly Occam in weight, $p_j \propto \theta^{\mathrm{wt}}(1-\theta)^{Q-\mathrm{wt}}$ decreasing in $\mathrm{wt}$ for $\theta < \tfrac12$.
+
+### 8.3 What survives exactly
+
+The map table is an invertible linear scramble of iid bits: $\psi = \rho^{\mathsf T} Z^{\otimes n}$, with the butterfly kernel itself as the generator. Exact consequences, no limits taken:
+
+- **Total entropy.** The scramble is a bijection, so $H(\psi) = Q\,h_2(\theta)$: the correlation store is extensive, $C/Q \to 1-h_2(\theta)$.
+- **Area theorem.** Telescoping never needed linearity of the classes: $\sum_{\ell<Q}\gamma_{n,\ell} = Q\,h_2(\theta)$ exactly, so $\int_0^1\gamma = h_2(\theta)$ in any limit.
+- **Monotonicity.** Entropy submodularity makes $\gamma_{n,\ell}$ nonincreasing, as always.
+- **Single-answer bias.** $\psi(q)$ XORs the $2^{|q|}$ coefficients below $q$ ($|q|$ the question's Hamming weight), so with $\varepsilon := 1-2\theta$,
+$$
+\mathbb E\,(-1)^{\psi(q)} = \varepsilon^{\,2^{|q|}},
+\qquad
+h_0^{(n)} = 2^{-n}\sum_k \binom nk\, h_2\!\Big(\tfrac{1+\varepsilon^{2^k}}2\Big)
+\;\longrightarrow\; 1 .
+\tag{8.2}
+$$
+A typical question has weight $\approx n/2$ and XORs $\sqrt Q$ coins: its answer is a fair bit to doubly-exponential accuracy. Only the $o(Q)$ low-weight questions carry visible bias -- the prior is automatically non-exchangeable, graded by the *questions'* weights where chapter 7 graded the *monomials'*.
+- **The block law.** For a question set $\mathcal S$, Fourier inversion gives the exact distribution
+$$
+\Pr\big(\psi(\mathcal S)=y\big)
+=2^{-\ell}\sum_{c\in\{0,1\}^\ell}(-1)^{c\cdot y}\,
+\varepsilon^{\,\mathrm{wt}(\mathsf G_{\cdot,\mathcal S}\,c)} .
+\tag{8.3}
+$$
+
+### 8.4 What breaks
+
+Everything above is exact; what is lost is the *one-line evaluation*. The level sets $\{\mathrm{wt}\le w\}$ are Hamming balls, not subspaces, so $\psi(\mathcal S)$ is not uniform on an image and entropy is no longer a rank. By (8.3) the block entropy is a functional of the **weight enumerator** of the span of the observed columns -- how many of the $2^\ell$ combinations $\mathsf G_{\cdot,\mathcal S}c$ have low weight -- and no clipped-clock argument, no rank submodularity shortcut, and no KKMPSU import apply. Computing $\gamma(t)$ is now a genuine statistical-mechanics problem: infer an iid biased vector from $tQ$ noiseless linear observations with the deterministic subset-indicator matrix.
+
+### 8.5 The conjectured TDL of leverage
+
+The scaffolding that pinned the degree prior's step is still standing: $\gamma_n$ nonincreasing, bounded by $h_0 \to 1$, with exact area $h_2(\theta)$. So by the same no-room argument, the *entire* limit hinges on one missing theorem, the source-coding analogue of KKMPSU:
+
+> revealing any fraction $t > h_2(\theta)$ of the table determines a fresh answer with probability tending to one.
+
+That is the counting bound (you cannot pin $Q\,h_2(\theta)$ bits with fewer than $Q\,h_2(\theta)$ nearly-fair answers; the missing part is that the deterministic matrix achieves it). Three supports: dense random linear observations of a Bernoulli-$\theta$ source do reconstruct at any rate above $h_2(\theta)$, and typical columns here are $\sqrt Q$-dense; the same matrix $Z^{\otimes n}$ is Ar{\i}kan's polar kernel, and polarization theory proves the *sequential-order* version of the statement; and the finite-$n$ curves drift the right way. If the theorem holds,
+
+$$
+\gamma(t) \;=\; \theta_{\rm H}\big(h_2(\theta)-t\big),
+\qquad
+L(t)=
+\begin{cases}
+1, & t < h_2(\theta),\\[2pt]
+1/h_2(\theta), & t > h_2(\theta):
+\end{cases}
+\tag{8.4}
+$$
+
+the capacity step again, with the rate dialed continuously by the temperature -- what took the degree prior a multicanonical mixture, the weight prior would do with a single scalar $\theta$. One more identifiability entry: two entirely different Occams, degree with sampled levels and weight with one temperature, conjecturally share the same macroscopic curve family.
+
+![Weight-prior finite-n curves](figures/weight_step.png)
+
+*Exact-entropy Monte Carlo at $n=4$ ($300$ question sets per size, block entropies exact via (8.3) and a fast WHT). Landmarks confirmed to machine precision: $G_{n,1}$ equals the bias formula (8.2), and $G_{n,Q} = Q h_2(\theta)$ exactly. The $\theta=0.11$ profile crosses half-height almost exactly at its conjectured step $t = h_2(0.11) = 0.500$; the leverage hovers near $1/h_2(\theta)$ over the whole run rather than stepping, because at $n=4$ the low-weight questions leak biased answers from the first draw -- a fat boundary layer, opposite in character to the degree prior's label-blocked start.*
+
+### 8.6 Verdict
+
+Would it work? As a prior: yes, and arguably better than degree -- constructive, full-support, single-temperature, and the more faithful proxy of gate cost. As a solvable thermodynamic limit: not with this document's tools. The rank identity was load-bearing, and it is exactly the price paid for fidelity to $X$: statistics with linear level sets are max-type and blind to accumulation, statistics that see accumulation have Hamming-ball level sets and turn block entropies into weight-enumerator problems. The weight prior sits at the best available compromise: every exact ingredient of the finite law survives (area, monotonicity, bias structure, an explicit block law), the limiting curve is pinned to a single conjectured threshold at $h_2(\theta)$, and the finite-$n$ evidence points at it -- but the step itself awaits a theorem that this document can only name.
+
+### 8.7 The tractability ladder
+
+How far can the complexity statistic be varied before the TDL is
+lost? Level sets $\{\kappa\le c\}$ nest for free; what the rank
+identity needs is each level set closed under XOR. If every level set
+is a subspace, they form a flag $V_0\subset V_1\subset\cdots$ and
+$\kappa(\rho)=\min\{c:\rho\in V_c\}$ -- after a change of basis,
+the position of the last monomial present in some fixed order. The
+fully tractable statistics are therefore *exactly* the max-index
+family: not an accident, a characterization. This sorts every
+candidate onto one of three rungs.
+
+1. **Flag statistics** (degree, or any monomial order): classes are
+   codes, entropy is rank, the finite law evaluates in one line, and
+   with the capacity input the step is a theorem. Max-type, hence
+   blind to accumulation and nearly uncorrelated with $X$.
+2. **Additive statistics** ($\mathrm{wt}=\sum_S\rho_S$; sum of
+   degrees $\sum_S|S|\rho_S$; any energy $\sum_S w(S)\rho_S$): the
+   Gibbs prior factorizes into independent Bernoulli coefficients
+   $\theta_S=1/(1+e^{\lambda w(S)})$, and the whole chapter survives:
+   exact total entropy $\sum_S h_2(\theta_S)$, exact area, exact
+   Fourier block law with $\prod_S\varepsilon_S$ per span vector,
+   monotone increments. For *nondegenerate* biases the no-room argument pins the limit
+   to one conjectured step at
+   $R=\lim\,2^{-n}\sum_S h_2(\theta_S)$; degenerate patterns
+   are richer (8.8). For
+   the sum of degrees the temperature must scale, $\lambda_n=2c/n$
+   (at fixed $\lambda$ the typical coins freeze and $R\to0$), giving
+   $R\to h_2(1/(1+e^c))$: one more single-dial step. Hybrids -- a
+   flag class sampled first, an additive tilt within it -- stay on
+   this rung, Fourier inside the class plus the $O(\log n)$ label.
+3. **Everything else** (ratios such as the average degree of the
+   present monomials, maxima of sums, weight-and-degree combinations
+   that respect neither structure): even the product form is gone.
+   Only the generic theorems remain -- submodularity, boundedness,
+   the exact area, Helly subsequences -- which guarantee that a
+   limiting profile exists along subsequences and identify nothing
+   about it.
+
+Descending the ladder trades provability for fidelity to circuit
+cost, and apparently nothing else: every rung's conjectured curves
+lie in the same step-and-mixture family, so the phenomenology of
+macroscopic leverage looks universal across complexity measures even
+where the proofs give out.
+
+### 8.8 Rung two examined: the missing theorem, and the shapes
+
+What exactly is missing, and surprisingly little else. Exact at every
+$n$: monotone increments, $\gamma\le h_0^{(n)}\to1$, and the area
+$\int\gamma=R$. Helly gives subsequential limits for free. The one
+open ingredient is achievability,
+
+> for every fixed $t$ above the pattern's reconstruction threshold,
+> $\lfloor tQ\rfloor$ random answers determine a fresh answer with
+> probability tending to one, and the threshold equals the counting
+> bound $R$;
+
+granted that, the no-room argument forces $\gamma=1$ below $R$, the
+limit is unique, and full-sequence convergence follows -- converse,
+uniqueness and convergence all come free. There is also a sharp
+reason achievability is harder than on rung one: rank arguments
+provably give nothing. Any $\ell<Q$ columns of the invertible
+$Z^{\otimes n}$ are linearly independent, so no answer is ever
+exactly determined at finite $n$: $\gamma_{n,\ell}>0$ strictly, all
+deduction is soft Bayesian decoding of the bias, and the step's flat
+tail is an asymptotic collapse of soft uncertainty rather than a
+literal determination -- which is also why the finite-$n$ leverage in
+the figure hovers smoothly instead of stepping.
+
+As for the shapes: the universal constraints are only that $\gamma$
+be nonincreasing with $\gamma(0^+)\le1$ and $\int_0^1\gamma=R$,
+and the step conjecture is *not* general. Freeze every monomial
+containing $b_0$ ($\theta_S=0$) and leave the rest fair
+($\theta_S=\tfrac12$): a legitimate product prior, but $\psi(q)$
+then ignores the last bit of $q$, questions pair into equality
+cliques, and the TDL is $\gamma(t)=1-t$ with $L\equiv2$ -- smooth,
+no step. The conjectured dictionary:
+
+- **homogeneous nondegenerate biases** (all $\theta_S$ in a band
+  away from $0$): the pure step at $R$ -- the missing theorem's home;
+- **frozen patterns** ($\theta_S\in\{0,\tfrac12\}$): the EXIT
+  profile of the unfrozen monomial code -- rung two contains rung one
+  as its extreme-bias boundary, cliques and parities included;
+- **graded biases** (sum of degrees at $\lambda_n\sim1/n$):
+  interpolations between the two.
+
+Rung two therefore adds no shapes beyond the universal monotone
+family -- nothing can, that being the layer-cake closure -- but it
+realizes them by bias patterns instead of class mixtures, at the
+price of one missing achievability theorem per pattern.
+
+### 8.9 Punishing degree hard: a provable corner of rung two
+
+The freedom in $w$ rescues provability for a large subfamily, with
+no new coding theorem. Take
+$$
+w(S)=0\ \text{ for } |S|\le d^*,
+\qquad
+w(S)\ge n\ \text{ for } |S|>d^*,
+\qquad d^*=\tfrac n2+\tfrac c2\sqrt n:
+\tag{8.5}
+$$
+coins below the threshold are exactly fair, coins above are nearly
+frozen ($\theta_S\le e^{-n}$), the prior has full support at every
+$n$ with strict degree-Occam, and the table splits into independent
+parts, $\psi=\psi_{\mathrm{RM}}\oplus\psi_{\rm junk}$ with
+$H(\rho_{\rm junk})\le Q\,h_2(e^{-n})=o(Q)$. Two elementary
+sandwiches then finish it. Subextensive additive junk is invisible:
+for independent $A,B$,
+$$
+H(A)\;\le\;H(A\oplus B)\;\le\;H(A)+H(B),
+\qquad\text{so}\qquad
+\big|G_{n,\ell}-G^{\mathrm{RM}}_{n,\ell}\big|\le o(Q)
+\ \text{ uniformly.}
+\tag{8.6}
+$$
+And near-fair coins are as good as fair: the deficit is the KL
+divergence $D(P\Vert U)=\sum_S(1-h_2(\theta_S))$, data processing
+pushes it through any projection, and
+$H_U(\psi(\mathcal S))-H_P(\psi(\mathcal S))
+=D(P_{\mathcal S}\Vert U_{\mathcal S})\le D(P\Vert U)$ exactly.
+Both sandwiches give $g(t)$ equal to the Reed--Muller prior's, the
+concavity lemma upgrades that to $\gamma(t)$, and the capacity
+theorem -- already imported -- gives the step:
+$$
+\gamma(t)=\theta_{\rm H}\big(\Phi(c)-t\big),
+\qquad
+L(t)=\begin{cases}1,&t<\Phi(c),\\ 1/\Phi(c),&t>\Phi(c),
+\end{cases}
+\tag{8.7}
+$$
+now for a full-support, single-formula additive prior: the one thing
+rung one could not offer without a lapse channel.
+
+The boundary of this provable corner is sharp, and it is the
+hardness of the punishment. Pure linear punishment $w(S)=\beta|S|$
+provably cannot satisfy both sides: fairness of the typical low coins
+needs $\beta\,n/2\to0$, freezing of the high coins needs
+$\beta\,n\gtrsim n\ln2$ -- a contradiction -- so linear $w$
+produces graded biases across the CLT window, which is exactly the
+open case of 8.8. Provability requires the fair-to-frozen transition
+to cross within $o(\sqrt n)$ degrees, so that the transition coins
+number $o(Q)$: punishing high degrees \emph{hard}, harder than
+linearly, is precisely what buys the limit. Within the corner, the
+fair set need not be a degree prefix: any monomial class whose code
+has a known EXIT limit works the same way, and mixtures over $w$
+recover the layer-cake family as before.
+
+**Does $w(S)=|S|^2$ qualify?** No, on either reading, and checking it
+turns the criterion into a formula. Unscaled, quadratic punishment is
+too harsh everywhere: only the $O(n^2)$ coins of degree $\le2$ stay
+alive, the total entropy is subextensive, the rate vanishes, and the
+TDL degenerates into a pure boundary layer -- the junta failure in
+Gibbs clothing. Scaled so the crossover sits in the CLT window
+($\lambda_n\approx4/n^2$), the problem inverts to flatness: the
+climb from $w\approx1$ to the freezing scale $w\approx n$ spans
+$k^*\,(n^{1/p}-1)\gtrsim k^*(\ln n)/p$ degrees, which at $p=2$ is
+$\sim n^{3/2}$, wider than the whole degree range -- the high coins
+never freeze and one lands in the graded-bias open case of 8.8. No
+fixed power works: the width condition demands
+$p\gg\sqrt n\,\log n$, at which point the power law is a
+threshold in disguise. The provable corner is genuinely
+threshold-shaped: $w$ must climb by $\Omega(n)$ within $o(\sqrt n)$
+degrees of the crossover.
+
+
+
 
 # Appendices
 
