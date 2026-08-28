@@ -6235,9 +6235,7 @@ is the profile. A parallel construction from blocks of questions,
 mathematically complete in the same sense but less aligned with
 modeling a learner, is collected in Appendix~\ref{app:blockpriors}.
 
-\subsubsection{Three statistics:
-\texorpdfstring{$F(x) = x$, $x^2$ and $1-(1-x)^2$}%
-{F(x)=x, x2 and 1-(1-x)2}}
+\subsubsection{Toy statistics: min and max draws}
 
 \begin{figure}[H]
 \centering
@@ -6255,11 +6253,11 @@ modeling a learner, is collected in Appendix~\ref{app:blockpriors}.
 % ---- colour = statistic, marker = n; both halves of the key here,
 % the profile panel having moved to its own figure
 \addlegendimage{cf2, thick}
-\addlegendentry{$F(x)=x$}
+\addlegendentry{$F_1(x)=x$}
 \addlegendimage{cf3, thick}
-\addlegendentry{$F(x)=x^2$}
+\addlegendentry{$F^+_2(x)=x^2$}
 \addlegendimage{cf1, thick}
-\addlegendentry{$F(x)=1-(1-x)^2$}
+\addlegendentry{$F^-_2(x)=1-(1-x)^2$}
 \addlegendimage{black!70, only marks, mark=*, mark size=1.0}
 \addlegendentry{$n=4$}
 \addlegendimage{black!70, only marks, mark=o, mark size=1.1}
@@ -6290,18 +6288,20 @@ modeling a learner, is collected in Appendix~\ref{app:blockpriors}.
   {figures/data/rmfinite_min2_n8.dat};
 \end{axis}
 \end{tikzpicture}
-\caption{The three worked statistics in \eqref{eq:LF}, their profiles
-in Figure~\ref{fig:Fprofiles}. A uniform draw ($F(x) = x$, blue)
-gives constant leverage $L \equiv 2$; the larger of two uniform draws
-($F(x) = x^2$, orange) delays the deductions and the curve rises from
-the baseline to $L(1) = \tfrac32$; the \emph{smaller} of two draws
-($F(x) = 1-(1-x)^2$, green) is the $r = 2$ member of
-\eqref{eq:Lmin} and holds the higher constant $L \equiv 3$. Dots are
+\caption{The two families of \eqref{eq:Lmin} and \eqref{eq:Lmax} at
+$r = 2$, meeting at $r = 1$; their profiles are in
+Figure~\ref{fig:Fprofiles}. The larger of two draws
+($F^+_2(x) = x^2$, orange) delays its deductions and climbs from the
+baseline to $L^+_2(1) = \tfrac32$; the smaller of two draws
+($F^-_2(x) = 1-(1-x)^2$, green) holds the constant $L^-_2 \equiv 3$;
+between them lies the single uniform draw ($F_1(x) = x$, blue), the
+one statistic the families share, at $L \equiv 2$. Dots are
 finite-$n$ leverage: filled $n = 4$ (all $2^{16}$ question sets
 enumerated, exact), circles $n = 6$ and triangles $n = 8$ (Monte
 Carlo over question orders, subset entropies exact via the nested
-rank profile, latent-label information included). Convergence is slow from below: the label costs
-$O(\log n)$ of the $Q$ available bits, and the mean rate approaches
+rank profile, latent-label information included). Convergence is slow
+from below: the label costs $O(\log n)$ of the $Q$ available bits, and
+the mean rate approaches
 its limit only as $1/\sqrt n$. The left edge is a boundary layer:
 $L_F(0^+) = 1 + f(0^+)$ presumes $1 \ll \ell \ll Q$, while at
 $\ell = 1$ the only exhaustible class is the constants and
@@ -6327,7 +6327,7 @@ limit smooths away as the rate grid refines.}
 \addplot[cf2, thick] {1-x};
 \addplot[cf3, thick] {1-x^2};
 \addplot[cf1, thick] {(1-x)^2};
-\legend{{$F(x)=x$}, {$F(x)=x^2$}, {$F(x)=1-(1-x)^2$}}
+\legend{{$F_1(x)=x$}, {$F^+_2(x)=x^2$}, {$F^-_2(x)=1-(1-x)^2$}}
 \end{axis}
 \end{tikzpicture}
 \caption{The profiles behind Figure~\ref{fig:Fexamples}: the survival
@@ -6335,73 +6335,93 @@ function $\gamma(t) = 1 - F(t)$ of each statistic, which by
 \eqref{eq:gammaF} is the mean entropy of a fresh answer at
 macroscopic time $t$. Convex, straight and concave $F$ give concave,
 straight and convex profiles; the smaller of two draws spends its
-predictive power earliest.}
+predictive power earliest, the larger of two hoards it.}
 \label{fig:Fprofiles}
 \end{figure}
 
-\emph{A single uniform draw, $F(x) = x$.} The numerator of
-\eqref{eq:LF} is $t + (1-t)t = t(2-t)$ and the denominator is
-$t - t^2/2 = t(2-t)/2$; the factor $t(2-t)$ cancels and
-$L \equiv 2$, exactly, at every macroscopic time. Both endpoint
-identities agree: $1 + f(0^+) = 2$ and $1/\mathbb E[R] = 2$. The
-interpretation is the flattest possible Occam: uniform $F$ spreads
-its budget evenly over the \emph{rate axis}, so each shell receives
-exactly the share of coefficient space its degree opens,
-$w_d = \binom nd/2^n$ -- not an equal share per shell -- and every
-received bit drags along exactly one deduced bit, uniformly over the
-whole run. The same constant
-curve is produced by pairing questions into equality cliques
-(Appendix~\ref{app:blockpriors}), a completely different microscopic
-story: the flattest curve does not identify its microscopics.
+Two one-parameter families are enough to see the law work. Draw $r$
+independent uniforms on $[0,1]$ and keep one of them: keeping the
+smaller drags the rate toward zero, keeping the larger pushes it
+toward one, and $r$ sets how hard. Every curve in
+Figure~\ref{fig:Fexamples} comes from one of the two.
 
-\emph{The larger of two draws, $F(x) = x^2$.} Both draws land below
-$x$ with probability $x^2$, so the weights \eqref{eq:shapepj} become
-gaps of squared rates, and the curve is
+\emph{The smaller of $r$ draws.} All $r$ land above $x$ with
+probability $(1-x)^r$, so the statistic is $F^-_r(x) = 1 - (1-x)^r$,
+its profile is $\gamma^-_r(t) = (1-t)^r$, and its mean rate is
+$\mathbb E[R] = 1/(r+1)$. The density $r(1-x)^{r-1}$ decreases, so
+budget is pushed onto the low shells. The numerator of \eqref{eq:LF}
+then folds up, $t + (1-t)F^-_r(t) = 1 - (1-t)^{r+1}$, and that is
+$r+1$ times the denominator, $\int_0^t\gamma^-_r
+= \big(1-(1-t)^{r+1}\big)/(r+1)$, so
 %
 \begin{equation}
-  L(t) = \frac{t + (1-t)t^2}{t - t^3/3}
-  = \frac{3\,(1 + t - t^2)}{3 - t^2},
-  \label{eq:Lmax}
-\end{equation}
-%
-rising from $L(0^+) = 1 + f(0^+) = 1$ (the density vanishes at zero,
-so the curve leaves the baseline flat) through
-$L' \propto (1-t)(3-t) > 0$ to $L(1) = 1/\mathbb E[R] = \tfrac32$.
-Keeping the larger draw tilts belief toward richer worlds: deductions
-are late-loaded, so early answers pay full price and the reward
-arrives toward the end of the run, a rising curve throughout.
-
-\emph{The concave direction.} A concave $F$, a decreasing density,
-is the simplicity-optimist: it moves budget toward the low shells,
-the opposite tilt to $F(x) = x^2$, whose weights shortchange every
-shell below the half-rate point by the exact factor
-$w_d^{x^2}/w_d^{x} = R_{n,d} + R_{n,d-1}$. The calculations reward
-it. For $F(x) = 1-(1-x)^r$, the \emph{smallest} of $r$ uniform
-draws, the numerator of \eqref{eq:LF} telescopes against the
-denominator,
-%
-\begin{equation}
-  t + (1-t)F(t) = 1-(1-t)^{r+1}
-  = (r+1)\int_0^t\big(1-F(x)\big)\,dx,
-  \qquad
-  L \equiv r+1,
+  L^-_r(t) \;=\; r+1
   \label{eq:Lmin}
 \end{equation}
 %
-the whole ladder of constant curves from one concave family ($r=1$
-recovers $L\equiv2$). One caution: concavity with an infinite
-density at zero, such as $F=\sqrt x$, piles budget onto the very
-earliest shells and the curve inherits a $t^{-1/2}$ spike at the
-origin: front-loaded deduction, the shape of a boundary layer, no
-longer a constant.
+at every macroscopic time: a whole ladder of constant curves, one rung
+per $r$, $r$ deduced bits riding on each received one. Both endpoint
+identities below \eqref{eq:LF} return that same number, $1 + f(0^+) =
+1 + r$ at the start and $1/\mathbb E[R] = r+1$ at the finish, and with
+a constant curve they have no choice but to agree.
 
-\emph{The smaller of two draws, $F(x) = 1-(1-x)^2$.} The $r = 2$
-member is the third statistic of Figure~\ref{fig:Fexamples}, and the
-one the worked examples of this section use: profile
-$\gamma(t) = (1-t)^2$, budget pushed onto the low shells, and
-$L \equiv 3$ at every macroscopic time. Two deduced bits for every
-received one -- twice what the uniform draw manages, and four times
-what $F(x) = x^2$ reaches even at the end of its run.
+\emph{The larger of $r$ draws.} All $r$ land below $x$ with
+probability $x^r$, so
+%
+\begin{equation}
+  F^+_r(x) = x^r,
+  \qquad
+  \gamma^+_r(t) = 1 - t^r,
+  \qquad
+  \mathbb E[R] = \frac r{r+1} ,
+  \label{eq:Fmax}
+\end{equation}
+%
+an increasing density, budget on the high shells. Nothing telescopes
+now and the leverage moves,
+%
+\begin{equation}
+  L^+_r(t)
+  \;=\; \frac{t + (1-t)\,t^r}{t - t^{r+1}/(r+1)}
+  \;=\; \frac{(r+1)\big(t + t^r(1-t)\big)}{(r+1)\,t - t^{r+1}},
+  \label{eq:Lmax}
+\end{equation}
+%
+rising monotonically across the run. At the start the density vanishes
+and $L^+_r(0^+) = 1 + f(0^+) = 1$ for every $r > 1$: no leverage at
+all, each early answer paid in full. At the finish
+$L^+_r(1) = 1/\mathbb E[R] = (r+1)/r$, so the deductions are
+late-loaded and even the last of them buys only $1/r$ extra. The two
+finishes are complements, $1/L^-_r(1) + 1/L^+_r(1) = 1$, because the
+mean of the smaller and the mean of the larger of the same $r$ draws
+sum to one. Pushing $r$ below $1$ gives up the min-max reading and
+flips the tilt of $F^+_r$ back to concave, but with an infinite
+density at the origin ($F = \sqrt x$ at $r = \tfrac12$), and
+$L^+_r(0^+)$ diverges: front-loaded deduction, the shape of a boundary
+layer, no longer a constant.
+
+\emph{Where they meet.} At $r = 1$ there is nothing to choose between
+and both families collapse onto the single uniform draw $F(x) = x$,
+whose numerator $t(2-t)$ cancels its denominator $t(2-t)/2$ to leave
+$L \equiv 2$ exactly. That is the hinge of
+Figure~\ref{fig:Fexamples}: the blue line is the shared $r = 1$ point,
+and the curves either side of it are the $r = 2$ members of the two
+families, $L^+_2$ climbing from $1$ to $\tfrac32$ and $L^-_2 \equiv 3$.
+The uniform draw is also the flattest Occam on offer, each shell
+receiving exactly the share of coefficient space its degree opens,
+$w_d = \binom nd/2^n$. It does not identify its microscopics: pairing
+questions into equality cliques (Appendix~\ref{app:blockpriors})
+produces the same constant $2$ by a completely different mechanism.
+
+\emph{A tilt, not a switch.} The concave direction may look like the
+natural one, a simplicity prior ought to favour simple worlds, but
+$F$ never decides \emph{whether} Werner is an Occamist. The classes
+are nested, so the weight $p_j$ of a single map falls with its degree
+for every $F$ whatsoever, and even the convex $F^+_r$, which loads the
+high shells, still ranks each complicated map below each simple one.
+What $F$ moves is the aggregate: which shell carries the belief, and
+with it the leverage, from $r$ deduced bits per received one under
+$F^-_r$ down to at most $1/r$ under $F^+_r$.
 
 \begin{example}
 The whole construction, priced out at $n = 4$, $m = 1$, with the
