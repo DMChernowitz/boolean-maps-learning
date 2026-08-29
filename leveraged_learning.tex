@@ -953,7 +953,7 @@ maximal ignorance prices every answer at full cost.
 The belief itself carries an entropy as well, and we give its gap to
 the table a name:
 \begin{equation}
-  H(p) \;=\; -\sum_{j=0}^{N-1} p_j \log_2 p_j \geq mQ,
+  H(p) \;=\; -\sum_{j=0}^{N-1} p_j \log_2 p_j \leq mQ,
 \end{equation}
 \begin{equation}\label{eq:C}
   C \;:=\; H(M) - H(p) \;\geq\; 0.
@@ -1205,7 +1205,7 @@ average away.
   \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
 \end{tikzpicture}
 \end{center}
-Greedy picks $q = 01$; nature answers $a = 0$ (probability $0.817$,
+Greedy Werner picks $q = 01$; nature answers $a = 0$ (probability $0.817$,
 surprisal $s_3 = 0.292$). Two die:
 
 \begin{center}
@@ -1367,7 +1367,7 @@ per bit of surprisal received:
 \begin{equation}\label{eq:leverage}
   L_\ell \;:=\;
   \frac{H\big(M^{(0)}\big) - H\big(M^{(\ell)}\big)}
-       {\sum_{i=k}^{\ell} s_k}\;.
+       {\sum_{k=1}^{\ell} s_k}\;.
 \end{equation}
 A leverage of $1$ is the uniform-prior baseline: every bit of table
 entropy destroyed was paid for at face value, one bit of surprisal
