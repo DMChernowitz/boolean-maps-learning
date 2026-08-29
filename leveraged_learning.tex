@@ -183,19 +183,27 @@
 
 \maketitle
 
-This work rests on three insights. 
+In 1948 Claude Shannon introduced the world to information entropy.
+He quantified the amount of information in a signal. What if we wanted to quantify learning in the same spirit, as the increased understanding of a problem?
+This work is an attempt to follow that thread. It models the problem as a boolean map, and the understanding as the aggregate ability to predict that map.
+And learning, as the speed at which that understanding increases, specifically as information is supplied to the learner. Some interesting relationships can be formed between the two.
+
+Allow us to enumerate the seminal tenets of this treatise.
 \begin{enumerate}
   \item Learning is the incremental ability to answer questions correctly that follow a pattern.
   \item The number of questions
-reviewed is not the right measure of a learner's progress. What
+reviewed is not the right measure of a learner's investment. What
 counts is the information received from asking them. Not all
 questions are created equal: about some, the learner already knows
-a great deal a priori, and their answers count for less.
-\item One can infer \emph{more} than a single bit from a yes--no
-question, by exploiting the correlations of an intelligent prior:
-an answer over here settles expectations over there. This ability
-to extrapolate is codified here as \emph{leverage}.
+something priori, and their answers count for \emph{less}.
+\item Conversely, with instincts about the world, one can infer \emph{more} than a single bit from a yes--no
+question. One answer settles expectations on any number of yet unseen questions. 
+\item This ability to extrapolate from prior information is codified here as \emph{leverage}
 \end{enumerate}
+
+\begin{equation}
+  \text{Leverage of Yes/No} = \frac{\text{Learned} > 1 \text{ bit}}{\text{Received} < 1 \text{ bit}} > 1.
+\end{equation}
 
 \tableofcontents
 \newpage
@@ -271,12 +279,12 @@ It is Werner's job to learn a pattern. The most basic shape of a
 pattern is a \emph{binary map}, and the most basic binary map is a map
 from one bit to one bit.
 
-The cast of the experiment:
+The setup of the experiment:
 \begin{itemize}
   \item a \textbf{question} $q \in \mathcal Q = \{0,1\}$;
   \item an \textbf{answer} $a \in \mathcal A = \{0,1\}$;
   \item the \textbf{truth} $\psi: \mathcal Q \to \mathcal A$, the one fixed map nature
-    uses to answer questions. $\psi$ is unknown to Werner. By definition then, $\psi(q) = a$.
+    uses to answer questions. $\psi$ is unknown to Werner. By definition $\psi(q) = a$.
 \end{itemize}
 There are exactly four candidate maps $\phi_j$ that $\psi$ could be
 (Table~\ref{tab:fourmaps}): each of the two inputs can be sent to
@@ -321,15 +329,16 @@ For the four maps at hand:
 
 What does this belief predict? For each question $q$ separately, we
 can tabulate the probability of each possible answer $a$: it is the
-total belief in the maps that would answer $a$ to $q$,
+total belief sum of the maps that would answer $a$ to $q$,
 \begin{equation}
   M_{a,q} \;=\; \sum_{j\,:\,\phi_j(q) = a} p_j .
 \end{equation}
 Arranged with one row per answer ($a = 0, 1$ from the top) and one
 column per question ($q = 1, 0$ from the left, descending like the
 digits of the numeral convention), these numbers form the matrix
-$M$ - each column a probability distribution over answers, so $M$
-is column-stochastic.
+$M$. Each column is a probability distribution over answers, so $M$
+is column-stochastic. Werner reads it as follows: find the column of the
+question at hand. It's the marginal distribution over answers, according to his belief.
 
 \begin{example}
 Under the uniform prior, two of the four maps
@@ -345,7 +354,7 @@ answer $0$ and two answer $1$, at either question:
 Every column is a fair coin: the unintelligent Werner predicts
 nothing about any answer before it is revealed.
 
-Next, Werner gets to predict the answer to the question $q = 0$. By
+Werner gets to predict the answer to the question $q = 0$. By
 his own belief it is a coin toss: $M_{0,0} = M_{1,0} = \tfrac12$.
 Let us say the answer comes back $a = 1$. The \textbf{surprisal} of
 this answer, to Werner, is $1$ bit, because the probability he
@@ -360,16 +369,16 @@ with probability $P$ actually occurs, its surprisal is
 here $s = -\log_2 M_{a,q}$ for answer $a$ arriving at question $q$.
 Surprisal measures how much the received information deviates from
 what was already expected: an answer held certain ($P = 1$) carries
-$0$ bits --- nothing new; a coin toss carries exactly $1$ bit; and
+$0$ bits: nothing new. A coin toss carries exactly $1$ bit; and
 the surprisal grows without bound as the answer gets more unexpected,
 $P \to 0$. It is additive: the surprisal of two independent events
 occurring is the sum of their surprisals, just as their probabilities
 multiply.
 
-Moreover, Werner can use a process of elimination --- an extreme form
-of Bayes' rule --- to update his prior into a posterior. Semantically:
+Moreover, Werner can use a process of elimination (an extreme form
+of Bayes' rule) to update his prior into a posterior. Semantically:
 every candidate map that would have answered the question wrongly is
-now \emph{ruled out}, not merely disfavored.
+now \emph{ruled out}, not merely disfavored. They are inconsistent with what's been learned.
 
 \begin{example}
 The truth $\psi$ answered $1$ at $q = 0$, and a map with
@@ -399,8 +408,7 @@ $j$ & $\phi_j(1)$ & $\phi_j(0)$ & name \\
     ([shift={(-2pt,0.55ex)}]pic cs:strikeB) --
     ([shift={(2pt,0.55ex)}]pic cs:strikeBend);
 \end{tikzpicture}
-\captionof{table}{The candidate maps after the answer $\psi(0) = 1$:
-the two maps with $\phi_j(0) = 0$ are ruled out.}
+\captionof{table}{The surviving candidate maps after the answer $\psi(0) = 1$.}
 \label{tab:elimination}
 \end{center}
 \end{example}
@@ -425,14 +433,14 @@ before:
   \;=\;
   \Mtab{\tfrac12}{0}{\tfrac12}{1}\;.
 \end{equation}
-So indeed, Werner knows the answer to $q = 0$ --- that column has
-collapsed onto $a = 1$ --- and he is still as agnostic as possible
+Indeed, Werner knows the answer to $q = 0$: that column has
+collapsed onto $a = 1$. He is still as agnostic as possible
 about the other answer: the $q = 1$ column remains a fair coin. He
 gained $1$ bit of surprisal information, and cleaned up his table to
 the tune of $1$ bit: the $q = 0$ column went from a full bit of
 answer-uncertainty to none, while the $q = 1$ column is unchanged.
 
-After the next question, $q = 1$, he learns $a = 1$ --- again a coin
+After the next question, $q = 1$, he learns $a = 1$, again a coin
 toss beforehand ($M'_{1,1} = \tfrac12$), so again worth $1$ bit of
 surprisal. Elimination now rules out NOT ($\phi_1(1) = 0$), leaving a
 single survivor:
@@ -452,7 +460,7 @@ Now, let us assume that Werner knows \emph{something} about the world
 before he starts.
 
 \begin{example}
-Let us say Werner knows the map is not constant. His belief then
+Let's restart, with a different $\psi$. Moreover, let Werner know the map is not constant. His belief then
 spreads evenly over the two remaining candidates, NOT ($j = 1$) and
 the identity ($j = 2$):
 \begin{equation}
@@ -473,8 +481,8 @@ So what has all this veteran wisdom about the nature of patterns in
 the world bought him? His increased ability for \emph{inference}.
 
 \begin{example}
-Ask $q = 0$ again, and let the answer again come back $a = 1$ ---
-again a coin toss beforehand, so again worth exactly $1$ bit of
+Ask $q = 0$ as the first question, and let the answer again come back $a = 1$.
+Again a coin toss beforehand, so again worth exactly $1$ bit of
 surprisal. Elimination rules out the identity ($\phi_2(0) = 0$), and
 the lone survivor is NOT:
 \begin{equation}
@@ -485,7 +493,7 @@ the lone survivor is NOT:
 This time \emph{both} columns collapse at once. Werner received the
 same single bit of surprisal as before, but cleaned up $2$ bits of
 table: the answer at $q = 0$ he observed, and the answer at $q = 1$
-he \emph{deduced}, without ever asking --- ruling out the constants
+he \emph{deduced}, without ever asking. Pre-emting the constants
 means $\phi(1) \neq \phi(0)$, so his prior held the two answers
 perfectly anticorrelated, and settling one settles the other. He is
 done after one question instead of two.
@@ -529,7 +537,7 @@ recipe:
 fair coins in every column, for every value of $p$.
 
 How much is there to learn, in total? We account for the table as a
-whole by declaring entropy \emph{extensive} over the columns --- the
+whole by declaring entropy \emph{extensive} over the columns. That is, the
 answer-uncertainties of the columns simply add:
 \begin{equation}\label{eq:HM}
   H(M) \;:=\; \sum_{q} H\big(M_{\cdot,q}\big),
@@ -543,9 +551,11 @@ Now let us ask a question. Again we could use $q = 0$; by the
 symmetry of the prior it actually does not matter for this argument.
 And we are now going to talk about \emph{expected} values, instead
 of realized ones: averages over the possible maps, denoted
-$\langle\,\cdot\,\rangle$. Since we assume our prior is \emph{a
-priori} correct --- nature draws the truth from the very distribution
-Werner believes --- the average over $\psi$ simply zips with the
+$\langle\,\cdot\,\rangle$. We must assume our prior is \emph{a
+priori} correct, if we had better assumptions, those would be
+reflected in the prior. In other words, we model nature to draw 
+the truth from the very distribution
+Werner believes. Therefore, the average over $\psi$ simply zips with the
 weights: $\langle X \rangle = \sum_j p_j\, X(\psi{=}\phi_j)$.
 
 How much surprisal should Werner expect from asking a question $q$?
@@ -560,18 +570,19 @@ gives:
   \;=\; \sum_{j} p_j \,\big({-}\log_2 M_{\phi_j(q),\,q}\big)
   \;=\; \sum_{a} \underbrace{\sum_{j\,:\,\phi_j(q)=a} p_j}_{M_{a,q}}
         \big({-}\log_2 M_{a,q}\big)
-  \;=\; \sum_{a} M_{a,q}\,\big({-}\log_2 M_{a,q}\big).
+  \;=\; {-}\sum_{a} M_{a,q}\,\big(\log_2 M_{a,q}\big).
 \end{equation}
 The right-hand side is exactly the column entropy
-$H(M_{\cdot,q})$ of equation~\eqref{eq:HM}: \textbf{the expected
-surprisal of a question is the entropy of its column}. Each answer occurs with
+$H(M_{\cdot,q})$ of equation~\eqref{eq:HM}: the expected
+surprisal of a question is the entropy of its column. 
+
+Each answer occurs with
 exactly the probability Werner assigned to it, so his average
-surprisal is his own uncertainty about that answer --- an identity
-that will do a great deal of work in what follows.
+surprisal is his own uncertainty about that answer. This identity will do a great deal of work in what follows.
 
 For a two-answer column, this entropy is a function of a single
 number, the probability $x$ of one of the two answers: the
-\textbf{binary entropy function}
+binary entropy function:
 \begin{equation}\label{eq:binary-entropy}
   h_2(x) \;:=\; -x\log_2 x \;-\; (1-x)\log_2(1-x),
 \end{equation}
@@ -596,13 +607,13 @@ the possible maps: with probability $\tfrac12$ the answer is $1$
 \end{equation}
 Either way, the asked column is one-hot and the unasked column is a
 coin of bias $p$: what survives on $q = 1$ is precisely the
-class uncertainty --- constant or not --- and nothing else. The total
+class uncertainty "constant or not". The total
 entropy of the table is now
 \begin{equation}
   H(M') \;=\; 0 + h_2(p) \;=\; h_2(p),
 \end{equation}
 a reduction of $2 - h_2(p)$ bits, purchased with a single bit of
-surprisal. Define the \textbf{leverage after one question} as the
+surprisal. Define the \textbf{leverage} after one question as the
 ratio of table entropy destroyed to surprisal received:
 \begin{equation}
   L_1 \;:=\; \frac{2 - h_2(p)}{1} \;=\; 2 - h_2(p) \;\in\; [1, 2].
@@ -619,11 +630,11 @@ after two questions is
 \begin{equation}
   L_2 \;:=\; \frac{2}{1 + h_2(p)} \;\in\; [1, 2].
 \end{equation}
-So our knowledge about the world has allowed us to be more certain
+Our knowledge about the world has allowed us to be more certain
 after our inference. Set
 $p = \tfrac12$, and the prior is the uniform one of
 Section~\ref{sec:unintelligent}: $h = 1$, $L_1 = L_2 = 1$, and nothing is
-leveraged at all. As $p$ skews further from $\tfrac12$, the
+leveraged at all. As $p$ skews further from $\tfrac12$, the first question unlocks more. The
 second question carries less and less expected information, and Werner's
 potential for learning from it goes down with it. The column it could clean up is nearly settled already. In the limit $p = 0$, we recover the non-constant
 world from the start of Section~\ref{sec:intelligent}. There is no
@@ -646,7 +657,7 @@ between these extremes.
   legend cell align=left]
   \addplot[blue, thick, smooth, domain=0.001:0.999, samples=201]
     { hh(x) };
-  \addlegendentry{$h_2(p)$: entropy after one question}
+  \addlegendentry{$h_2(p)$}
 \end{axis}
 \begin{axis}[
   xshift=0.52\textwidth,
@@ -671,7 +682,7 @@ probability $p$. Left: the table entropy $h_2(p)$ remaining after one
 question, in bits. Right: the one-question leverage $L_1$ and the
 cumulative leverage $L_2$ after both questions. At $p = \tfrac12$
 (the uniform prior) nothing is leveraged; toward the
-deterministic-class extremes every answer doubles its value.}
+deterministic-class extremes the first answer doubles its value.}
 \label{fig:oneparam}
 \end{figure}
 
@@ -679,14 +690,14 @@ In general, in a larger world, if there are $d$ questions to disagree on between
 
 \section{The general case}\label{sec:general}
 
-Now let us give the definitions in full generality. Questions are bit
+Now let us give the definitions in full generality. Let questions be bit
 strings of length $n$, and answers are bit strings of length $m$:
 \begin{equation}
-  q \in \mathcal Q = \{0,1\}^n,
+  q \in \mathcal Q = \{0,1\}^n \equiv \mathbb{F}_2^{\otimes n},
   \qquad
-  a \in \mathcal A = \{0,1\}^m,
+  a \in \mathcal A = \{0,1\}^m \equiv \mathbb{F}_2^{\otimes m},
 \end{equation}
-and we write the sizes of those two sets without bars,
+reminding the binary field $\mathbb{F}$. We write the sizes of those two sets without bars,
 \begin{equation}
   Q \;:=\; |\mathcal Q| \;=\; 2^n,
   \qquad
@@ -712,14 +723,14 @@ belief is a distribution over all of them, $\sum_{j=0}^{N-1} p_j = 1$.
 \begin{example}
 The example we will use to guide the general case is $n = 2$,
 $m = 1$, which has $N = 2^{1 \cdot 4} = 16$ maps: every Boolean
-function of the two input bits $b_1, b_0$, with $q = b_1 b_0$ read as
+function of the two input bits $b_1, b_0$, with $q$ represented as $b_1 b_0$, or read as
 an ordinary binary number, $q = 2 b_1 + b_0$. Each $\phi_j$ in
 Table~\ref{tab:sixteen} is shown as its truth table, printed in
 descending question order $(11, 10, 01, 00)$ so that the answer to
 question $q$ occupies the digit of weight $2^q$. The printed
 string is exactly $j$ in binary (e.g.\ AND, which answers $1$ only to
-$q = 11$, reads $1000$, so it is $j = 8$). The prior $p_j$ alongside
-is conjured for illustration.
+$q = 11$, reads $1000$, so it is $j = 8$). An arbitrary prior $p_j$ alongside
+is conjured up for illustration.
 
 \begin{center}
 \begin{tabular}{c |cccc| l c c}
@@ -754,12 +765,12 @@ $m = 1$ hypothesis space, with a contrived prior
 
 \subsection{The answer matrix and the update rule}
 
-The answer matrix is defined by the same rule as before --- the total
+The answer matrix is defined by the same rule as before: the total
 belief in the maps that would answer $a$ to $q$:
 \begin{equation}\label{eq:M-general}
   M_{a,q} \;=\; \sum_{j\,:\,\phi_j(q) = a} p_j,
 \end{equation}
-now a $A \times Q$ matrix, still with each column a probability
+now an $A \times Q$ matrix, still with each column a probability
 distribution over the possible answers: column-stochastic.
 
 It is worth taking a moment to describe the constitution of this
@@ -776,9 +787,10 @@ summed along the map index,
 \end{equation}
 The second form is pure arithmetic on the index: by the
 numeral convention, $\phi_j(q)$ is nothing but the $q$-th digit of
-$j$ in base $A$, so $E$ never needs to be stored. Membership of
+$j$ in base $A$. For $m = 1$ this reduces to: bit $q$ of $j$ equals $a$. 
+This means $E$ never needs to be stored, membership of
 $j$ in the entry $M_{a,q}$ is read directly off the digits of $j$. This is a good thing, $E$ is astronomically large for even moderate $m$ and $n$.
-For $m = 1$ this reduces to: bit $q$ of $j$ equals $a$. The tensor
+ The tensor
 $E$ is moreover sparse and perfectly regular: each question-slice ($q$ fixed)
 holds exactly $N$ nonzero entries: every map answers exactly one
 $a$ divided evenly over the $A$ answer rows, $N/A$ apiece.
@@ -791,12 +803,10 @@ closed form: for $m = 1$, bit $q$ of $j$ equals $0$ exactly when
 $j \bmod 2^{q+1} < 2^q$, and equals $1$ otherwise.
 
 \begin{example}
-Each entry of $M$ collects the eight maps of Table~\ref{tab:sixteen}
-whose truth table carries the right digit. Filling the entries in
---- note the period halving column by column, with the outer columns
-written in their simplified forms, $j \bmod 16 < 8$ being simply
-$j < 8$ and $j \bmod 2 < 1$ simply ``$j$ even'' --- and then
-substituting the values of $p_j$:
+Each entry of $M$ collects the eight maps from two to one bit of Table~\ref{tab:sixteen}
+whose truth tables carry the right digit. Filling in the entries - note the period halves column by column. The outer columns
+are written in their simplified forms, $j \bmod 16 < 8$ being simply
+$j < 8$ and $j \bmod 2 < 1$ simply "$j$ even".
 \begin{equation}\label{eq:M16}
 \begin{aligned}
   M \;&=\;
@@ -823,18 +833,18 @@ elimination reads, in one formula,
   p'_j \;=\; \frac{\delta\big(\phi_j(q),\, a\big)\; p_j}{M_{a,q}}
   \;=\; \frac{E_{a,q,j}\; p_j}{M_{a,q}}.
 \end{equation}
-The Kronecker delta performs the elimination. Only maps that agree with a survive and the division renormalizes the survivors,
+The Kronecker delta performs the elimination. Only maps that agree with $\psi(q)=a$ survive and the division renormalizes the survivors,
 whose total prior mass is exactly $M_{a,q}$ by
 equation~\eqref{eq:M-general}. Note that one and the same number
 prices the answer and funds the update: the event arrives with the
 probability $M_{a,q}$, costs Werner $-\log_2 M_{a,q}$ bits of
-surprisal, and its belief mass becomes the new unit of normalization. Every update shrinks the support by $A^{-1}$, radically thinning, especially for large $m$. The survivors live on a block-wave in $j$-space. The map determines the offset and frequency.
-The total set of survivors depends on the set of asked questions, not the order: updating commutes. This is illustrated in the example below.
+surprisal, and its belief mass becomes the normalization. Every update shrinks the support by $A^{-1}$, radically thinning, especially for large $m$. The survivors live on a block-wave in $j$-space. The map determines the offset and frequency.
+The total set of survivors depends on the set of asked questions, those that fell through the slits, not the order: updating commutes. This is illustrated in the example below.
 
 \begin{example}
 Figure~\ref{fig:cull} makes the process visual for $n = m = 2$: a
-schematic prior over $N = 4^4 = 256$ maps, drawn as vertical
-lines with thickness representing weight. Each answer stops $3$ out of every $4$ surviving lines:
+schematic prior $\{p_j\}$ over $N = 4^4 = 256$ maps, drawn as vertical
+lines with thickness representing weight. Each answer stops $3$ out of every $A=4$ surviving lines:
 maps whose truth table carry a wrong digit at the asked question. Renormalization inflates the weight of the rest, so the total probability is always unit. Four questions cut
 $256 \to 64 \to 16 \to 4 \to 1$, and the last line standing is the
 truth. Note the regularity of the cull: each answer keeps a single
@@ -916,12 +926,12 @@ residue class of $j$, so the cadence of the survivors is regular.
 \captionsetup{skip=8pt}
 \captionof{figure}{The update rule as a cull, for $n = m = 2$. All $256$
 candidate maps start as vertical lines under a schematic prior. The truth is
-the bitwise negation $\psi(q) = \lnot q$ ($j = 27$), and the four
-questions are asked in the order $00, 10, 01, 11$. Each answer terminates the
+the bitwise negation $\psi(q) = \lnot q$ ($j = 27$, '0123' base 4.), and the four
+questions are asked in the order $00, 10, 01, 11$ ('0, 2, 1, 3' base 4). Each answer terminates the
 $3/4$ of surviving maps whose truth-table digit at the asked question
 disagrees. Every survivor's thickness, proportional to its
-weight, is rescaled by the same renormalization factor, preserving
-their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the smallest question. After the three lowest $q$, even spacing returns.}
+weight, is rescaled by the renormalization factor of that update, preserving
+their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the 'smallest' question. After the three smallest $q$, even spacing returns.}
 \label{fig:cull}
 \end{center}
 \end{example}
@@ -937,14 +947,15 @@ as in equation~\eqref{eq:HM}:
 \end{equation}
 each column carrying at most $m$ bits (a uniform spread over its
 $A$ answers). The ceiling $mQ$ is the size of the entire truth
-table in bits, and it is attained precisely by the uniform prior:
+table in bits, and it is attained precisely (but not exclusively) by the uniform prior:
 maximal ignorance prices every answer at full cost.
 
 The belief itself carries an entropy as well, and we give its gap to
 the table a name:
+\begin{equation}
+  H(p) \;=\; -\sum_{j=0}^{N-1} p_j \log_2 p_j \geq mQ,
+\end{equation}
 \begin{equation}\label{eq:C}
-  H(p) \;=\; -\sum_{j=0}^{N-1} p_j \log_2 p_j,
-  \qquad
   C \;:=\; H(M) - H(p) \;\geq\; 0.
 \end{equation}
 $H(p)$, Werner's uncertainty about the \emph{identity} of the truth,
@@ -960,12 +971,12 @@ sum of its marginals. Hence $H(p) \leq H(M)$, and the gap $C$, the
 stored in correlations \emph{between} answers, invisible to every
 single column of $M$.
 
-We choose this convention for $H(M)$ because in the ignorant case
+We choose this convention for $H(M)$ because \emph{in the ignorant case}
 \begin{enumerate}
   \item $H(M)$ is the total amount of information we must collect from questions to settle the map
   \item $H(M) = H(p)$, so the ignorance agrees in both bases, without correlations.
 \end{enumerate}
-Therefore, the scaling is sensible. How these quantities respond to an intelligent prior, is the main question of this work.
+Therefore, the scaling is sensible. How these quantities respond to an \emph{intelligent} prior, is the main question of this work.
 
 \subsection{Playing the guiding example}
 
@@ -979,22 +990,22 @@ $\langle \Delta H(M) \rangle$ of the \emph{whole} table if that
 question is asked next. This is the average over possible $a$, weighted by their probability (according to $M$):
 \begin{equation}
   \langle s \rangle(q)
-  \;=\; \sum_{a} M_{a,q}\,\big({-}\log_2 M_{a,q}\big),
+  \;=\; \sum_{a} M_{a,q}\,\big({-}\log_2 M_{a,q}\big) = H(M_{\cdot,q}),
 \end{equation}
 \begin{equation}
   \langle \Delta H(M) \rangle(q)
   \;=\; \sum_{a} M_{a,q}\,\Big[H(M) - H\big(M^{(q,a)}\big)\Big],
 \end{equation}
 where $M^{(q,a)}$ is the table after the update
-rule~\eqref{eq:update} processes answer $a$ to question $q$. We know the column of $q$ will drop $\langle s \rangle(q)$ in entropy. But other columns will also respond.
+rule~\eqref{eq:update} processes answer $a$ to question $q$. We know the entropy of column $q$ will drop to zero, ditching $\langle s \rangle(q)$ entropy from $M$. But other columns will also respond.
 The excess of the second over the first is
 the expected transfer to unasked columns, and it can only be paid out
 of correlations. We append both forecasts as extra rows under $M$.
 
 \begin{example}
 
-Werner plays greedily: always asking the question with the largest
-forecast. The truth is AND ($\psi = \phi_8$).
+Werner's belief is the prior of table~\ref{tab:sixteen} as before. He plays greedily: always asking the question with the largest
+forecast reduction in matrix entropy. The truth is AND ($\psi = \phi_8$).
 
 
 \textbf{Question 1.} The starting state:
@@ -1033,8 +1044,8 @@ probability $0.415$ and drops it only to $2.178$, so
 
 \begin{example}
 Both forecast rows point to $q = 11$: it is the closest thing to a
-coin on offer ($\langle s\rangle = 0.979$) and also moves the whole
-table most, by a wide margin.
+coin on offer ($\langle s\rangle = 0.979$) and moves the whole
+table most, by a wide margin. Part of the $\Delta H(M)$ is the $\langle s \rangle$.
 Werner asks it, and nature answers $a = 1$ (probability $0.415$,
 surprisal $s_1 = 1.269$). Eight maps die:
 
@@ -1111,8 +1122,8 @@ forecasts:
   \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
 \end{tikzpicture}
 \end{center}
-Greedy picks $q = 00$. Nature answers
-$a = 0$ --- the answer Werner favored (probability $0.658$), so the
+Greedy Werner picks $q = 00$. Nature answers
+$a = 0$, which is the answer Werner favored (probability $0.658$), so the
 surprisal is only $s_2 = 0.604$ bits. Four of the eight die:
 
 \begin{center}
@@ -1146,7 +1157,7 @@ The ledger:
 \]
 This time $1.113$ bits are destroyed for $0.604$ received. Where did
 the extra $0.509$ come from? Partly from the favored answer arriving
---- the belief dropped $1.058$ against only $0.604$ paid --- and
+- the belief dropped $1.058$ against only $0.604$ paid - and
 partly from the store: $C$ fell by $0.055$.
 Step ratio $1.842$. Cumulatively, however, $1.860$ destroyed per $1.873$
 received gives a leverage of $0.993$ after 2 steps: still a hair
@@ -1167,7 +1178,7 @@ separates them. Writing $\Delta$ for the realized drops in one step,
 \end{equation}
 an identity, since $H(M) = H(p) + C$ at every stage. The windfall is
 luck: the realized surprisal undershooting (or overshooting) the
-realized drop in belief entropy: zero in expectation. The tower
+realized drop in belief entropy. Windfall is zero in expectation. The tower
 term is structure: a genuine withdrawal from the correlation store,
 and the channel with a global guarantee. Over a complete run its
 withdrawals sum to exactly the initial $C$, while the windfalls
@@ -1227,7 +1238,8 @@ cumulative ratio finally clears unity, at $1.229$. And note that $C$
 has dropped to zero.
 \end{example}
 
-$C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$.
+$C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. 
+Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$ Expressing $M$ as a linear combination of maps drops knowledge.
 That's not the case when the number of free parameters has been reduced by learning to 1 each.
 
 \begin{example}
@@ -1290,8 +1302,8 @@ Cumulatively: $2.925$ bits of table
 destroyed, all of it, for $2.231$ bits of
 surprisal received: a run ratio of $1.311$. Most of the
 realized $1.311$ was luck, not intelligence. Figure~\ref{fig:run21}
-stacks the books after each question: what remains, plus what was
-received. Once it dips below the starting entropy, our prior has done some work. 
+stacks the bits after each question: what uncertainty remains, plus what was
+received. Once it dips below the starting entropy, our prior has done net work. 
 
 \begin{center}
 \begin{tikzpicture}[x=1.35cm, y=1.05cm]
@@ -1340,26 +1352,26 @@ deduction overtakes the early loss.}
 
 \subsection{Leverage}
 
-If the prior is good, meaning it actual models reality (the prevalence of maps),
-we expect graphs such as the one above to drop as questions come in.
+If the prior is good, meaning it actually models reality (the prevalence of maps),
+we expect graphs such as figure~\ref{fig:run21} to drop as questions come in.
 The ratio of table entropy destroyed per bit of
 surprisal received deserves a name.
 
-The \textbf{leverage}. Run the protocol for $k$ rounds:
-questions $q_1, \ldots, q_k$ are asked, the answers
-$a_i = \psi(q_i)$ are each processed by the update
-rule~\eqref{eq:update}, producing the tables $M^{(i)}$, and round $i$
-costs the surprisal $s_i = -\log_2 M^{(i-1)}_{a_i,\,q_i}$. The
-cumulative leverage after $k$ rounds is the table entropy destroyed
+The \textbf{leverage}. Run the protocol for $\ell$ rounds:
+questions $q_1, \ldots, q_\ell$ are asked, the answers
+$a_k = \psi(q_k)$ are each processed by the update
+rule~\eqref{eq:update}, producing the tables $M^{(k)}$, and round $k$
+costs the surprisal $s_k = -\log_2 M^{(k-1)}_{a_k,\,q_k}$. The
+cumulative leverage after $\ell$ rounds is the table entropy destroyed
 per bit of surprisal received:
 \begin{equation}\label{eq:leverage}
-  L_k \;:=\;
-  \frac{H\big(M^{(0)}\big) - H\big(M^{(k)}\big)}
-       {\sum_{i=1}^{k} s_i}\;.
+  L_\ell \;:=\;
+  \frac{H\big(M^{(0)}\big) - H\big(M^{(\ell)}\big)}
+       {\sum_{i=k}^{\ell} s_k}\;.
 \end{equation}
 A leverage of $1$ is the uniform-prior baseline: every bit of table
 entropy destroyed was paid for at face value, one bit of surprisal
-each. Anything above $1$ is deduction --- table entropy removed
+each. Anything above $1$ is deduction: table entropy removed
 without ever being observed.
 
 \subsection{Correlators}\label{sec:correlators}
@@ -1435,14 +1447,14 @@ The Kronecker product multiplies signs, so for any number $l$ of
 tensor factors the entry at row $c$, column $j$ is
 \begin{equation}\label{eq:kron}
   \big(W^{\otimes l}\big)_{c,j}
-  \;=\; \prod_{b=0}^{l-1} (-1)^{c_b\, j_b}
-  \;=\; (-1)^{\sum_b c_b\, j_b},
+  \;=\; \prod_{i=0}^{l-1} (-1)^{c_i\, j_i}
+  \;=\; (-1)^{\sum_i c_i\, j_i},
 \end{equation}
-with $c_b$, $j_b$ the $b$-th bits of the row and column indices;
+with $c_i$, $j_i$ the $i$-th bits of the row and column indices;
 every further tensor factor appends one more bit.
 
-For $m = 1$ a map \emph{is} its truth table of $Q$ bits --- the
-numeral $j$ --- so Werner's belief is a vector of length
+For $m = 1$ a map \emph{is} its truth table of $Q$ bits (the
+numeral $j$) so Werner's belief is a vector of length
 $N = 2^{Q}$, and one transform computes every correlator at once:
 \begin{equation}\label{eq:wht}
   \chi \;=\; W^{\otimes Q} p,
@@ -1490,10 +1502,10 @@ as a correlator. Shell $1$ is $M$ in different clothes:
 the bias of column $q$. For $m=1$, we elegantly see the first shell correlators are the distance from fair coins. 
 
 Shell $2$ holds the agreement biases of
-pairs of questions --- knowledge $M$ cannot see: two priors can
+pairs of questions, knowledge $M$ cannot see: two priors can
 share every column of $M$ and differ here. Higher shells store
 subtler and subtler parity knowledge. Nothing is lost in the
-sorting: $W^2 = 2I$, so $(W^{\otimes Q})^2 = N I$ --- the
+sorting: $W^2 = 2I$, so $(W^{\otimes Q})^2 = N I$. The
 transform is its own inverse up to a factor $N$, and knowing every
 correlator is knowing the belief. The ledger also gives $C$ a
 signature: a product prior ($C = 0$) factorizes every correlator,
@@ -1543,11 +1555,11 @@ $j$. They are \textbf{block waves}. The observation mask is built of the same ma
   \delta\big(\phi_j(q), a\big)
   \;=\; \frac12\left(1 + (-1)^{a+\phi_j(q)}\right),
 \end{equation}
-a $0/1$ block wave --- one constant plus one Hadamard row. And
+a $0/1$ block wave: one constant plus one Hadamard row. And
 multiplication and convolution swap under this transform exactly as
 under Fourier: multiplying two functions of $j$ pointwise convolves
 their ledgers. And the observation mask's ledger has only two
-nonzero entries --- at $\emptyset$ and at $\{q\}$ --- so this
+nonzero entries - at $\emptyset$ and at $\{q\}$ - so this
 convolution is no great sum: it combines each correlator with
 exactly one other.
 
@@ -1853,7 +1865,7 @@ questions of the run ($00$, $01$, $10$, all answered $0$, so with
 sign $+1$) each saturate their own bit the same way, and since
 XOR toggles commute, the order does not matter --- the
 commutativity of updating, seen again. After all four, the ledger
-is pure signs, $\chi_{\mathcal S} = (-1)^{|\mathcal S \cap \{11\}|}$ --- $-1$ on every
+is pure signs, $\chi_{\mathcal S} = (-1)^{|\mathcal S \cap \{11\}|}$, which is $-1$ on every
 set containing $11$, $+1$ on the rest: the transform
 of the point mass on $\psi = \phi_8$:
 \begin{center}
@@ -1903,7 +1915,7 @@ $mQ$ bits: one \emph{site} $(q, i)$ per bit $i$ of each
 answer, each carrying a spin
 $\sigma_{q,i}(\phi_j) := (-1)^{\phi_j(q)_i}$, where $\phi_j(q)_i$
 is the $i$-th bit of the answer. Correlators are indexed by sets
-$\mathcal S$ of sites --- masks of $mQ$ bits under the same numeral
+$\mathcal S$ of sites: masks of $mQ$ bits under the same numeral
 convention, $m$ of them per question:
 \begin{equation}\label{eq:wht-m}
   \chi_{\mathcal S} \;=\; \Big\langle \prod_{(q,i) \in \mathcal S} \sigma_{q,i}
@@ -1971,7 +1983,7 @@ $\mathcal S$ is the grid read as a $16$-bit numeral.
 Write $\mathcal B_q$ for the block of $q$'s $m$ sites, and
 $a \cdot \mathcal T := \sum_{i \in \mathcal T} a_i$ for the parity of the answer $a$
 on a subset $\mathcal T \subseteq \mathcal B_q$. The answer matrix is read off the
-correlators supported on one block --- $A$ of them per column:
+correlators supported on one block. There are $A$ of them per column:
 \begin{equation}\label{eq:M-m}
   M_{a,q} \;=\; \frac{1}{A} \sum_{\mathcal T \subseteq \mathcal B_q}
   (-1)^{a \cdot \mathcal T}\, \chi_{\mathcal T}.
@@ -2124,15 +2136,25 @@ $110_1$, both (light to dark orange). The ray from the origin
 rescales the endpoint from $x = A M_{a,q} = 0.8$ to $x = 1$.
 The asked site saturates to $-1$; the foreign site $011_0$ flips
 sign, $-0.060 \to +0.200$; and $\{011_0, 110_1\}$ lands on
-$-0.200$, the slaved value $-\chi'_{\{011_0\}}$.}
+$-0.200$, the renormalized value $-\chi'_{\{011_0\}}$.}
 \label{fig:update-rays-m2}
 \end{center}
 \end{example}
 
 \section{Expectations}\label{sec:expectations}
 
-In expectation over the truth $\psi \sim p$, as well as over the question order, we take the ratio of
-the expected totals,
+While the games of the previous sections may be entertaining, they don't readily divulge any universal laws. When we average (integrate) out the question order, and the specific map drawn,
+many more robust quantities appear. This is a stepping stone to our terminus: the thermodynamic limit, where we expect questions to flow in and learning to happen on a continuum. Where such ensemble average statements are
+physically instructive and often quite descriptive of nature.
+
+Let $\langle \ldots\rangle$ denote expectation over both
+
+\begin{itemize}
+  \item the truth $\psi \sim \{p_j\}$,
+  \item uniformly over the question order $\{q_k\}$.
+\end{itemize}
+We take the ratio of
+the expected entropy cleared from the table $M$ to the surprisal received:
 \begin{equation}\label{eq:Lk-avg}
   \langle L_\ell \rangle \;:=\;
   \frac{H\big(M^{(0)}\big) - \big\langle  H\big(M^{(\ell)}\big) \big\rangle}
@@ -2142,19 +2164,18 @@ the expected totals,
 We did this implicitly in
 Section~\ref{sec:oneparam}. There, the problem was actually symmetric in $q_0 \leftrightarrow q_1$. That is not the case in general.
 
-In order to progress, we will be interested in such averages. Both
+As stated above, in order to progress, we will be interested in such averages. Both
 are natural. The question order is uniform, without replacement:
 Without control of the questions, Werner has no reason to expect one to arrive before another. And the truth is drawn from the prior
-itself: Werner scores his future against his own beliefs, and he
-has faith in them.
+itself: Werner scores his future against his own beliefs, which is the best he can do.
 
-The bookkeeping simplifies at once. Updating commutes, so after
+The bookkeeping, especially for questions asked, simplifies at once. Updating commutes, so after
 $\ell$ rounds the state depends only on the asked \emph{set} $\mathcal S$,
 a uniform random subset of size $\ell$. Let us say the answers
-received form a vector $y = \{y_i\}$, remembering the pairing
-$\mathcal{S} \ni q_i \mapsto y_i$ implicitly. Each surprisal is
+received form a vector $y = \{y_i = \psi(q_i)\}$, for $q_i \in \mathcal S$. 
+Each surprisal is
 paid at the posterior odds of its own round,
-$s_i = -\log_2 M^{(i-1)}_{y_i, q_i}$, and the posterior column is,
+$s_k = -\log_2 M^{(k-1)}_{y_k, q_k}$, and the posterior column is,
 by construction of the update rule, exactly the conditional
 probability of the next answer given everything seen so far:
 $M^{(i-1)}_{y_i, q_i} = \Pr(\psi(q_i) = y_i \mid \psi(q_1) = y_1,
@@ -2174,8 +2195,8 @@ round-by-round probabilities close into the block probability. The
 maps that answer the pattern $y$ on $\mathcal S$ form a residue
 class, and $P_{\mathcal S,y}$ is its mass. Averaging
 \eqref{eq:telescope} over $\psi$ gives the entropy of the block
-distribution $P_{\mathcal S,\cdot}$, so everything is generated by
-one sequence, the mean block entropy at size $k$:
+distribution $P_{\mathcal S,\cdot}$: the distibution over such sets. Everything is generated by
+one sequence, the \textbf{mean block entropy} at size $k$:
 \begin{equation}\label{eq:Gk}
   G_k \;:=\; \binom{Q}{k}^{-1} \sum_{|\mathcal S| = k}
   H(\psi(\mathcal S))
@@ -2189,7 +2210,7 @@ nothing here is specific to $m = 1$. The endpoints are
   \qquad
   G_{Q} \;=\; H(p).
 \end{equation}
-$G_1$ is the mean column entropy, so the prior table entropy is
+$G_1$ is by definition the mean column entropy of the first question, so the prior table entropy is
 \begin{equation}\label{eq:HM0}
   H\big(M^{(0)}\big) \;=\; Q\, G_1 .
 \end{equation}
@@ -2230,12 +2251,18 @@ equation~\eqref{eq:telescope} averaged:
 \begin{equation}\label{eq:law-received}
   \Big\langle \sum_{i=1}^{\ell} s_i \Big\rangle \;=\; G_\ell.
 \end{equation}
-For the second, fix $\mathcal S$ and average the posterior table over the
+The second law describes the total column entropy of $M^{(\ell)}$, which is the answer matrix after $\ell = |\mathcal S|$ questions have been settled. 
+Fix $\mathcal S$ and average the posterior table over the
 answers. Each unasked $q'$ column's entropy becomes a conditional
-entropy, $H(\psi(q') \mid \psi(\mathcal S)) = H(\psi(\mathcal S \cup \{q'\})) - H(\psi(\mathcal S))$,
-and the asked columns contribute zero. Now average over $\mathcal S$:
+entropy, 
+
+\begin{equation}
+H(\psi(q') \mid \psi(\mathcal S)) = H(\psi(\mathcal S \cup \{q'\})) - H(\psi(\mathcal S)),
+\end{equation}
+
+and the already answered columns contribute zero. Now average over $\mathcal S$:
 every set of size $\ell + 1$ arises as $\mathcal S \cup \{q'\}$ once per
-element, and counting with
+element, and substituting
 $(\ell{+}1)\binom{Q}{\ell+1} = (Q{-}\ell)\binom{Q}{\ell}$,
 \begin{equation}\label{eq:law-remaining}
   \big\langle H\big(M^{(\ell)}\big) \big\rangle
@@ -4250,7 +4277,7 @@ aggregate belief on the complexity that Werner expects from nature.
 
 \begin{example}
 The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
-statistic $F(x) = 1-(1-x)^2$, the $r = 2$ member of \eqref{eq:Lmin}.
+statistic $F(x) = 1-(1-x)^2$, the $r = 2$ member of \eqref{eq:Fmin}.
 The three classes have
 %
 \begin{align*}
@@ -6346,16 +6373,27 @@ toward one, and $r$ sets how hard. Every curve in
 Figure~\ref{fig:Fexamples} comes from one of the two.
 
 \emph{The smaller of $r$ draws.} All $r$ land above $x$ with
-probability $(1-x)^r$, so the statistic is $F^-_r(x) = 1 - (1-x)^r$,
-its profile is $\gamma^-_r(t) = (1-t)^r$, and its mean rate is
-$\mathbb E[R] = 1/(r+1)$. The density $r(1-x)^{r-1}$ decreases, so
-budget is pushed onto the low shells. The numerator of \eqref{eq:LF}
-then folds up, $t + (1-t)F^-_r(t) = 1 - (1-t)^{r+1}$, and that is
-$r+1$ times the denominator, $\int_0^t\gamma^-_r
-= \big(1-(1-t)^{r+1}\big)/(r+1)$, so
+probability $(1-x)^r$, so
 %
 \begin{equation}
-  L^-_r(t) \;=\; r+1
+  F^-_r(x) = 1 - (1-x)^r,
+  \qquad
+  \gamma^-_r(t) = (1-t)^r,
+  \qquad
+  \mathbb E[R] = \frac1{r+1} .
+  \label{eq:Fmin}
+\end{equation}
+%
+The density $r(1-x)^{r-1}$ decreases, so budget is pushed onto the low
+shells. Substituting into \eqref{eq:LF}, the numerator folds up and
+the denominator comes back carrying the same bracket,
+%
+\begin{equation}
+  L^-_r(t)
+  \;=\; \frac{t + (1-t)\big(1-(1-t)^r\big)}
+             {\displaystyle\int_0^t (1-x)^r\, dx}
+  \;=\; \frac{1-(1-t)^{r+1}}{\big(1-(1-t)^{r+1}\big)\big/(r+1)}
+  \;=\; r+1
   \label{eq:Lmin}
 \end{equation}
 %
