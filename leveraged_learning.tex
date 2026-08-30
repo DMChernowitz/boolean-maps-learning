@@ -2509,7 +2509,7 @@ answer and ask the current argmax. Question order is a branching tree, each bran
 contingent on last answer. \\
 \hline
 \rotatebox{90}{~\textbf{$\ell$-optimal}~} &
-Updating commutes, so a fixed plan is just a set $|\mathcal{S}|=\ell-1$: search the
+Updating commutes, so a fixed plan is just a set $|\mathcal{S}|=\ell$: search the
 $\binom{Q}{\ell}$ subsets for the smallest expected remainder
 $\sum_{q' \notin \mathcal S} H(\psi(q') \mid \psi(\mathcal S))$. The best non-adaptive
 knowledge; sees correlations that the one-step view misses. &
@@ -2534,7 +2534,7 @@ stores its knowledge in deep shells can defeat Greedy in either
 column: a question worth little now may unlock a cascade
 later.
 
-It turns out that both $\ell$-optimal produce the same trajectory on every set we've tested. 
+It turns out that both $\ell$-optimal protocols produce the same trajectory on every set we've tested. 
 This agreement makes it unappealing to perform the full expensive calculation of the right column.
 Whether this is a law, or coincidence, needs further research.
 
@@ -2593,7 +2593,7 @@ two descriptors are visible in one pass over the truth table:
  counts the input bits the map actually depends on and the
   image size counts the distinct answers it attains (from $1$
   for constants up to $A$). The combination is bijective to the pair, as Support $\le n$.
-  Compare to base-$n$ digits, quotient Image, remainder Support. The footpring can be viewed as the
+  Compare to base-$n$ digits, quotient Image, remainder Support. The footprint can be viewed as the
   map's \emph{interface}: does it react to all its inputs, does it
   use all its values?
 \item the \textbf{bias} $B_j$: the number of $1$s minus the number of
@@ -2722,7 +2722,7 @@ The head counts are thin at both ends: ten gate-free maps at $(4,1)$
 $X = 10$. The aggregate mass shows the thermodynamic compromise this
 forces on Occam: the count grows faster than $e^{-X}$ decays until
 $X = 3$ at $(4,1)$ ($X = 2$ at $(3,2)$), so even under a pure
-simplicity prior Werner has most faith thst the map has $X_j \in \{2,3\}$.
+simplicity prior Werner has most faith that the map has $X_j \in \{2,3\}$.
 Shell degeneracy beats shell energy for the simplest maps.
 
 \subsubsection{The ensemble}\label{sec:gibbsensemble}
@@ -2765,30 +2765,30 @@ instead: a footprint reads the visible interface rather
 than the interior circuit, a moderate complexity field seconds it,
 and the tilt $\mu = -0.1$ leans toward $1$-heavy tables, breaking
 the output-negation symmetry that the other two settings keep. This last choice is to illustrate
-that Werner isn'tb bound to start with a uniform distribution $M$ before the first question.
+that Werner isn't bound to start with a uniform distribution $M$ before the first question.
 
 \subsubsection{Trajectories}\label{sec:gibbstraj}
 
 Figures~\ref{fig:gibbs21}--\ref{fig:gibbs41} show the expected
 cumulative leverage $\langle L_\ell \rangle$ under the three
-settings, for the uniform-order average and the strategy grid of
+prior hypotheses, for the uniform question-order average and the strategy grid of
 Section~\ref{sec:strategies}. The $\ell$-optimal schedule targets
 the halfway horizon $\ell^* = Q/2$ and is plotted only up to it:
-past its own horizon the optimizer's continuation is not defined,
-and inside the optimal \emph{set} the questions are asked in random
-order. Its contingent twin is omitted everywhere: wherever we can
+past its own horizon the optimizer's continuation is not defined.
+Inside the optimal set the questions are asked in random
+order (the graph averages that order). 
+Its contingent twin is omitted everywhere: wherever we can
 afford to compute it, it reproduces the fixed optimum's curve to
-machine precision in all three settings -- a coincidence of these
-fields rather than a law (a stronger tilt, $\mu = -0.3$, separates
-the two), and one for which we have no symmetry argument yet (at
-$(4,1)$ its $3^{16}$-state program is in any case out of reach). Two
-anchors
-hold in every panel: all schedules agree at $\ell = 1$, because
+machine precision, and one for which no symmetry argument yet is known. 
+Two consistency checks hold in every panel: all schedules agree at $\ell = 1$, because
 input relabeling acts transitively on the questions and the Gibbs
 energies are relabeling-invariant, so single questions are
 exchangeable; and every full-length curve ends at the same
 $L_{Q} = H(M^{(0)})/H(p)$, since any policy that asks everything
-receives exactly $H(p)$.
+receives exactly $H(p)$ on average, and clears the table $M$. The
+same invariance acts on whole sets, so the $\ell$-optimal objective
+is a function of a set's relabeling orbit and not of the set:
+minimizers arrive in orbits.
 
 \begin{center}
 \begin{tikzpicture}[font=\footnotesize]
@@ -2920,9 +2920,10 @@ coincides exactly; the Pragmatist's fields finally separate them.}
 \end{axis}
 \end{tikzpicture}
 \caption{Expected leverage under the Gibbs priors at $(3,2)$,
-$\ell^* = 4$. Greedy's fixed set is the optimal set under Occam and,
-up to an input negation, under Occamer; under the Pragmatist it
-misses -- knowing less at the horizon yet out-levering the optimum.}
+$\ell^* = 4$. Greedy Werner's fixed set is the optimal set under Occam and,
+up to an input negation, under Occamer. For the Pragmatist, the $\ell^*-optimal$ has the 
+worst leverage at the horizon, reminding that we're optimizing for information received, while
+accepting that may cost even more surprisal.}
 \label{fig:gibbs32}
 \end{figure}
 
@@ -2991,65 +2992,64 @@ misses -- knowing less at the horizon yet out-levering the optimum.}
 \end{axis}
 \end{tikzpicture}
 \caption{Expected leverage under the Gibbs priors at $(4,1)$,
-$\ell^* = 8$. Occamer's deep store bends even the strategyless
-average curve into an interior hump; the Pragmatist is a two-sided
-spike on the constants, all leverage and little game.}
+$\ell^* = 8$. Occamer's deep correlations $C$ bend even the uniform
+average curve into an interior hump; the Pragmatist releases all its instinct at the start: whether it's constant.}
 \label{fig:gibbs41}
 \end{figure}
 
-Three observations, one per system size.
+Three discussions, one per system size.
 
-At $(2,1)$, under \emph{both} complexity-only settings, the strategy
-grid collapses exactly: all question subsets of equal size share a
-single joint entropy, so every schedule is the uniform order.
-Occamer shows what doubling the field buys within that straitjacket
--- the whole curve lifts (endpoint $1.2224$ against Occam's
+At $(2,1)$, Occam and Occamer don't have enough structure to tell
+subsets apart, and all subsets of equal size share a single joint
+entropy.
+Occamer shows what doubling the field buys within those constraints.
+The whole curve lifts (endpoint $1.2224$ against Occam's
 $1.0829$, store $C_0 = 0.728$ against $0.306$ bits) without creating
 a single strategic choice to make. The Pragmatist's fields split the
-pair orbits at last, and the very first thing strategy does is post
-a \emph{lower} number: greedy's pair $\{00, 11\}$ knows more at
-$\ell = 2$ than the random order and shows less leverage for it
+pair orbits at last, and the strategy yields
+a \emph{lower} leverage: greedy's pair $\{00, 11\}$ knows more at
+$\ell = 2$ than the random order but pays so much more surprisal that it is less leveraged
 ($2.538$ against $2.582$).
 
-At $(3,2)$, the optimal four questions are the even-weight inputs
-$\{000, 011, 101, 110\}$ -- the maximally spread design, pairwise at
-Hamming distance two -- under \emph{all three} settings. Under Occam
-greedy builds exactly that set; under Occamer it lands on the
-odd-weight twin, the same design up to an input negation, and its
-curve coincides with the optimum's. Under the Pragmatist greedy
-finally misses: its set $\{000, 011, 101, 111\}$ leaves twice the
+At $(3,2)$ there are exactly two optimal quadruples under \emph{all
+three} settings: the even-weight inputs $\{000, 011, 101, 110\}$, the
+maximally spread design, pairwise at Hamming distance two, and its
+odd-weight image under negating one input bit. Relabeling makes them
+exactly degenerate. Under the Pragmatist greedy
+finally falls short: its set $\{000, 011, 101, 111\}$ leaves twice the
 ignorance of the optimal four ($0.405$ against $0.198$ bits
-remaining) while receiving $0.099$ bits less -- and it posts the
+remaining) while receiving $0.099$ bits less and it posts the
 \emph{higher} leverage, $4.445$ against $4.355$, with the
 strategyless average higher still at $4.476$. The $\ell$-optimal
-schedule maximizes knowledge, not leverage, and a ratio is perfectly
-happy with cheaper ignorance.
+schedule maximizes knowledge, not leverage, and a ratio is buoyed by 
+cheaper ignorance.
 
-At $(4,1)$ the settings differ far more than the schedules within
-any one of them, and Occamer is the showpiece: doubling $\beta$
+$(4,1)$ is the richest, with the most questions, the choice becomes
+impactful. Doubling $\beta$
 triples the store ($C_0 = 8.10$ bits against Occam's $2.48$) and
 bends even the average curve into an interior hump, rising to
-$2.20$ at $\ell = 6$ before decaying -- the deep-shell signature
+$2.20$ at $\ell = 6$ before decaying. This is the deep-shell signature
 promised in Section~\ref{sec:gibbsensemble}, knowledge that only
-becomes spendable once enough answers are in hand to cash the
+becomes spendable once enough answers are in hand to cash out the
 higher correlations. The optimal eight questions are a parity class
-of the input hypercube in every setting (even-weight under Occam and
-the Pragmatist, the odd twin under Occamer); greedy misses the class
-under both complexity-only settings ($1.249$ against the optimum's
-$1.262$ at the Occam horizon) but finds it exactly under the
-Pragmatist -- whose prior, $0.90$ of its mass on the two constants,
+of the input hypercube in every setting, and as at $(3,2)$ both
+classes minimize exactly; greedy misses the class
+under both complexity-only settings ($\langle L \rangle = 1.249$ against the optimum's
+$1.262$ at the Occam $\ell^*$ horizon) but finds it exactly under the
+Pragmatist whose prior, $0.90$ of its mass on the two constants,
 is a two-sided spike in disguise: $H(p) = 0.53$ bits, leverage
 running from $12.29$ down to $8.28$, a great deal of inference
-about a game that is mostly over before it starts.
+about a game that is mostly over after 2 questions.
 
 \section{The thermodynamic limit}\label{sec:tdl}
 
 The earlier chapters describe learning on a finite question set. This
-chapter asks what remains when the number of input bits tends to
-infinity. The hope is to find traces of universality: that character of learning where the microscopic details average out. 
+chapter is arguably the real-world payoff. Here we can draw conclusions about 
+general learning, not just boolean maps. This chapter asks what remains when the number of input bits tends to
+infinity. The hope is to find traces of universality: that character of learning where the microscopic details are coarse-grained out. 
 
-Since $Q = |\mathcal Q| = 2^n$, the limit $n \to \infty$ is
-one of an exponentially growing table, and we measure time by the
+Recall definition~\ref{eq:sizes} where $Q = |\mathcal Q| = 2^n$, the limit $n \to \infty$ is
+one of an exponentially growing table of possible questions. Let the measure of time be the
 fraction of that table already queried,
 %
 \begin{equation}
@@ -3060,8 +3060,8 @@ fraction of that table already queried,
 The limit at fixed $t > 0$ is \emph{macroscopic}: it records learning
 that occupies a nonzero fraction of the run. Learning completed in
 $O(1)$, in $O(\log Q)$, or more generally in $o(Q)$ questions is
-compressed into a boundary layer at $t = 0$. That distinction will
-will determine the class of solutions we find.
+compressed into a boundary layer at $t = 0$. That distinction
+will determine the class of solutions that emerges in the TDL.
 
 Throughout, $u := A^{-1} = 2^{-m}$ abbreviates the reciprocal answer
 alphabet, and $N = A^{Q}$ counts the maps
@@ -3069,7 +3069,7 @@ $\mathcal Q \to \mathcal A$, enumerated $\phi_0, \ldots, \phi_{N-1}$
 with prior weights $p_j = \Pr(\psi = \phi_j)$. One value of the truth
 $\psi$ is drawn at the start of a run and supplies every answer in
 it; posteriors are conditional distributions of that same random map,
-and expected trajectories average over its prior law.
+and expected trajectories average over its prior law and the uniformly random $q$ order.
 
 \subsection{A toy example: the spike prior and its renormalization
 flow}\label{sec:spike}
