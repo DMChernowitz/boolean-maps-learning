@@ -3071,15 +3071,18 @@ $\psi$ is drawn at the start of a run and supplies every answer in
 it; posteriors are conditional distributions of that same random map,
 and expected trajectories average over its prior law and the uniformly random $q$ order.
 
-\subsection{A toy example: the spike prior and its renormalization
-flow}\label{sec:spike}
+\subsection{A toy example: the spike prior}\label{sec:spike}
 
-The spike prior places a distinguished weight on one map and spreads
-the remaining mass uniformly over every other map. Take the special
+The most accessible example from micro- to macroscopics, as one calculus exercise,
+is arguably the spike prior. It places a distinguished weight on one map and spreads
+the remaining mass uniformly over every other map. The setup is also desirable due to the full
+support: at every system size, Werner feels the effect of the dimensionality he inhabits.
+
+Take the earmarked boolean
 map to be the all-zero map, $\phi_0(q) = 0^m$ for every
 $q \in \mathcal Q$, so that its answer to any $k$ questions is the
 all-zero block $0^{mk}$. This is fully general by symmetry: the answer
-alphabet may be relabelled separately at each question. Then
+alphabet may be relabelled separately at each question. Then take convention
 %
 \begin{equation}
   p_0 = p,
@@ -3089,40 +3092,42 @@ alphabet may be relabelled separately at each question. Then
   \label{eq:spikeprior}
 \end{equation}
 %
-The plain $p = p_0$ is the mass of the all-zero map alone. We will be interested in the behavior at large (but not necessarily unit) $p$.
+The plain $p = p_0$ is the mass of the all-zero map alone at start time. We will be interested in the behavior at large (but not necessarily unit) $p$.
 The interpretation is that Werner is quite sure of his hypothesis, without ruling anything out.
 
-The example is useful because it is closed under Bayesian
+The example is tractable because it is closed under Bayesian
 conditioning. A confirming answer produces a sharper spike on a
-smaller map space; a refuting answer removes the special map and
+smaller map space; a refuting answer culls (among others) the special map and
 leaves equal weights on all survivors. The posterior therefore has a
 two-state flow, in which the uniform family is the stable, absorbing
 class: once a trajectory enters it, later conditioning keeps it
 there. An interior spike is a source of one-way probability current
-into that class, while conditional on avoiding refutation the
-surviving spike sharpens.
+into that class, while conditional on avoiding refutation the spike sharpens.
 
-\subsubsection{The two-state flow and exact leverage}
+\subsubsection{The two-state renormalization flow}
 
 What happens when Werner handles the first question? He either gets a zero, or not.
 
 The maps that produce $0^m$ are a proportion $u=A^{-1}$. One has probability $p$, and $Nu-1$ have probability $\omega$.
-If we started with probability $P_0=1$ in this prior, Werner avoids refuting $\phi_0$ with probability
+If we started in this prior with probability $P_0=1$ (full faith), Werner avoids refuting $\phi_0$ with probability
 
 \begin{equation}
   P_1 = p + \left(Nu-1\right)\omega
 \end{equation}
 
-In this case, what exactly is the shape of the posterior? The Bayesian consistency condition tells us that 
-unconditional probability cannot be created without measurement. At this point in our ansatz, we must have the same credence in $\phi_0$. Let $r_1$ be the height of the peak $p_0$, after one question. Then we must have $r_1\cdot P_1 = p$.
+We say we have $P_1$ probability to still believe $\psi$ could be $\phi_0$.
+In this case, what exactly is the shape of the posterior? The Bayesian consistency condition holds that 
+unconditional probability cannot be created without measurement. At this point in the ansatz, we must have the same credence in $\phi_0$. 
+
+At every step, there is a $p_0$, but as a member of an ever shrinking cohort.
+Let $r_1$ be the height of the peak $p_0$, after one question. Then we must have $r_1\cdot P_1 = p$.
 The rest of the probability is spread again over the $Nu-1$ other surviving maps. Conversely, with probability $1-P_1$, we've refuted the zero map, and are in a uniform posterior corresponding to a nonzero answer to the question.
 
 After repeating this process $k$ times, asking the set of questions $\mathcal{S}$, we can infer the probability that $\phi_0$ is still in the race. 
-Let $P_k$ be the probability that we remain in the confirming scenario: Werner has only seen zeros.
+Let $P_k$ be the probability that Werner remains in the confirming scenario: he has only seen zeros.
 A history remains on the spike branch exactly
 when $\psi(\mathcal S) = 0^{mk}$, and exactly $N u^k$ maps
-produce that confirming history, one of which is $\phi_0$. Its prior
-probability is therefore
+produce that confirming history, one of which is $\phi_0$. The probability of confirmation is then
 %
 \begin{equation}
   P_k \;:=\; \Pr\big(\psi(\mathcal S) = 0^{mk}\big)
@@ -3141,7 +3146,7 @@ On that event the posterior is another spike on those $N u^k$ maps,
 \end{equation}
 %
 so $r_k$ is the time-indexed posterior height of the spike evaluated
-on the realized confirming branch, with $r_0 = p$ the original
+on the confirming branch, with $r_0 = p$ the original
 weight. It's pegged inversely to $P_k$ for all time, by the same Bayesian consistency:
 %
 \begin{equation}
@@ -3152,16 +3157,16 @@ weight. It's pegged inversely to $P_k$ for all time, by the same Bayesian consis
 
 If any answer is nonzero then $\phi_0$ is eliminated, every
 compatible survivor had the same mass $\omega_k$, and the posterior is
-uniform; subsequent conditioning preserves uniformity. With an equivalence across system sizes, this induces a two state flow. Renormalization sharpens the spike. The two
+uniform; subsequent conditioning on answers preserves uniformity. With an equivalence across system sizes, this induces a two state flow. Renormalization sharpens the spike. The two
 macrostates and their directions are
 %
 \begin{equation}
-  \text{spike}\longrightarrow
+  \left. \text{spike}\longrightarrow
   \begin{cases}
     \text{sharper spike}, & \text{with probability } P_{k+1}/P_k,\\
     \text{uniform}, & \text{with probability } 1 - P_{k+1}/P_k,
   \end{cases}
-  \qquad
+  \qquad \right|
   \text{uniform}\longrightarrow\text{uniform}.
   \label{eq:spikeflow}
 \end{equation}
@@ -3200,7 +3205,7 @@ ever leaves.
   \fill[blue!45] (1.8,0.35) rectangle (2.08,0.385);
   \node at (2.42,0.42) {$\cdots$};
   \fill[blue!45] (2.75,0.35) rectangle (3.03,0.385);
-  \node[font=\scriptsize] at (1.49,0.17) {$\omega$};
+  \node[font=\scriptsize] at (1.49,0.17) {$\omega_0$};
   \node[font=\scriptsize, align=center] at (2.55,1.5) {$1-r_0$\\[3pt]$0.7$};
 
   \draw[state] (7,0) rectangle (10.5,1.9);
@@ -3306,7 +3311,8 @@ The two columns of boxes are the macrostates of \eqref{eq:spikeflow},
 each arrow is labelled by the answer that drives its transition, and
 each row's map space is one quarter of the row above. The outer columns track the branch
 probabilities $P_k$ and $1 - P_k$, and the invariant $P_k r_k = p$ is
-visible between the $P_k$ bars and the $r_k=p_0$ bars: the spike climbs
+visible between the $P_k$ bars and the $r_k=p_0$ bars. The bars inside the boxes 
+measure the $\{p_j\}$, on the left for the spike $\phi_0$ vs others. The spike climbs
 exactly as fast as its branch loses probability,
 $0.3 = 1 \times 0.3 = 0.475 \times 0.632 = 0.344 \times 0.873$.
 \end{example}
@@ -3321,16 +3327,21 @@ For $p \in (0,1)$, we can combine equations \eqref{eq:spikeprior} and \eqref{eq:
   \label{eq:spikelargeN}
 \end{equation}
 %
-Each confirmation supplies approximately $-\log_2 u = m$ bits of evidence
-for the spike. After $Q$ (all) questions, the only way the spike can survive is by eliminating all alternative maps. This happens with 
+Each confirmation supplies approximately $m$ bits of evidence
+for the spike, in the sense of log odds:
+
+\begin{equation}
+  \log_2\left(\frac{r_k}{1-r_k}\right) = \log_2\left(\frac{p}{(1-p)\cdot u^k}\right) = \log_2\frac{p}{1-p} + mk.
+\end{equation}
+
+After all $Q$ questions, the only way the spike can survive is by eliminating all alternative maps. This happens with 
 $P_Q = p$ and hence $r_Q = 1$; the histories that confirm through the
 complete table are precisely those with $\psi = \phi_0$. At the
 uniform point $p = 1/N$ both posterior branches are uniform on their
 surviving map spaces.
 
-The same $P_k$ has a second reading: it is the probability of the
-single $k$-answer block $0^{mk}$, so there is no new distribution to
-compute. For $1 \le k \le Q$ every other answer block is realized by
+In anticipation of the TDL, we observe that the same $P_k$ has a second reading: it is the probability of the
+single $k$-answer block $0^{mk}$. For $1 \le k \le Q$ every other answer block is realized by
 $N u^k$ background maps and therefore carries the common probability
 %
 \begin{equation}
@@ -3344,31 +3355,31 @@ $N u^k$ background maps and therefore carries the common probability
   \label{eq:spikeUk}
 \end{equation}
 %
-for any question set $\mathcal S$ of size $k$. Note that $A = u^{-1}$. The entropy of the above block
-distribution is
+for any question set $\mathcal S$ of size $k$. The entropy of the above
+distribution, coarse grained to blocks of questions, is
 %
 \begin{equation}
-  G_k \;=\; -P_k\log_2 P_k - (A^k-1)\,U_k\log_2 U_k .
+  G_k \;=\; -P_k\log_2 P_k - (A^k-1)\,U_k\log_2 U_k,
   \label{eq:spikeGk}
 \end{equation}
 %
+As there are $A^k-1$ terms where $y \neq 0^{mk}$.
 Every choice of $k$ questions obeys the same law, so
 \eqref{eq:spikeGk} is also the mean $k$-question block entropy of
-Chapter~\ref{sec:expectations}. In particular $G_0 = 0$,
-$G_Q = H(\psi)$ and $H(M^{(0)}) = Q\,G_1$, with the exact prior entropy
+Chapter~\ref{sec:expectations}. In particular $G_0 = 0$ and $H(M^{(0)}) = Q\,G_1$, with the exact prior entropy
 %
 \begin{equation}
   G_Q \;=\; h_2(p) + (1-p)\log_2(N-1),
   \label{eq:spikeHp}
 \end{equation}
 %
-extensive in $Q$ at fixed $0 < p < 1$ and vanishing at $p = 1$.
+extensive in $Q$ as $N=A^Q$ and $P_Q=p$, at fixed $0 < p < 1$. Prior entropy vanishes at $p = 1$.
 
-\subsubsection{The fixed-\texorpdfstring{$p$}{p} thermodynamic limit}
+\subsubsection{The fixed-\texorpdfstring{$p$}{p} thermodynamic limit leverage}
 
-The thermodynamic limit keeps the prior mass $0 < p < 1$ fixed and
-sends $n \to \infty$ at a fixed asked fraction $t > 0$. The guiding
-principle is the exact finite law \eqref{eq:Lk-G}: the expected
+The thermodynamic limit keeps the prior mass $0 < p < 1$ and asked fraction $t > 0$ fixed,
+while sending $n \to \infty$. The guiding
+principle is the exact finite law \eqref{eq:Lk-G} for $\langle L \rangle$: the expected
 leverage is built from three ingredients, 
 
 \begin{enumerate}
@@ -3379,8 +3390,8 @@ leverage is built from three ingredients,
 
 If we can derive each for the example, we are done. The block entropy \eqref{eq:spikeGk}
 supplies every $G_k$ through the single counting formula
-\eqref{eq:spikePk}, while $H(M^{(0)}) = Q\,G_1$ holds for any prior:
-$G_1$ is by definition the mean entropy of one column. Set
+\eqref{eq:spikePk}. $H(M^{(0)}) = Q\,G_1$ holds for any prior:
+$G_1$ is by definition the mean entropy of one column of $M$. Set
 $\ell = \lfloor tQ\rfloor$ and take the terms of \eqref{eq:Lk-G} in
 turn.
 
@@ -3397,8 +3408,7 @@ blocks:
   \label{eq:spikeGsplit}
 \end{equation}
 %
-The prior table entropy: $G_1$ is the one-column
-entropy, \eqref{eq:spikeGsplit} at $k = 1$. By \eqref{eq:spikePk}
+At $k = 1$, by \eqref{eq:spikePk}
 the spike answer $0^m$ carries
 $P_1 = p + (Nu - 1)\,\omega \to p + (1-p)u$: the special map's whole
 mass, plus the fraction $u$ of the background maps that happen to
