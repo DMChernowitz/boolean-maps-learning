@@ -2342,17 +2342,17 @@ $\ell$:
 \end{tikzpicture}
 \end{center}
 
-Every edge is the addition of one question, and it weighs the
+Every edge up is the addition of one question, and it weighs the
 conditional entropy of the answer it adds: the edge from
-$\mathcal S$ up to $\mathcal S \cup \{q'\}$ carries
-$H(\psi(q') \mid \psi(\mathcal S))$. Both laws are now readable off
-the picture. Fix a single node. Its upward edges run to the
+$\mathcal S$ up to $\mathcal S \cup \{q'\}$ represents
+$H(\psi(q') \mid \psi(\mathcal S))$. Fix a single node. Its upward edges run to the
 questions still unasked, and their weights are exactly the column
-entropies of the posterior table, averaged over the answers: \emph{the
-remaining table entropy of an asked set is the total weight of the
-up-edges leaving its node}. There are $Q - \ell$ of them, drawn in
+entropies of the posterior table. The
+remaining table entropy of an asked set is the total marginal weight of the
+up-edges leaving its node. There are $Q - \ell$ of them, drawn in
 blue above for $\mathcal S = \{11\}$; summed and averaged over the
-rank, they are exactly \eqref{eq:law-remaining}.
+rank, they are exactly equation~\eqref{eq:law-remaining}'s $H^{(\ell)}$, a component of
+the leverage.
 \end{example}
 
 Putting together \eqref{eq:law-received} and \eqref{eq:law-remaining}, 
@@ -2390,27 +2390,30 @@ Some observations.
     vanishing denominators.
 \end{itemize}
 
-There is also a monotonicity theorem hiding in $G$. Entropy is
+There is also a monotonicity property hiding in $G$. Entropy is
 \emph{submodular}: a fresh answer is worth at most in a larger
-context what it was worth in a smaller one,
-$H(\psi(q) \mid \psi(\mathcal B)) \le
-H(\psi(q) \mid \psi(\mathcal A))$ for
-$\mathcal A \subseteq \mathcal B$, because conditioning on more
+context $\mathcal{S}$ what it was worth in a smaller one $\mathcal{V}$,
+
+\begin{equation}
+H(\psi(q) \mid \psi(\mathcal S)) \le H(\psi(q) \mid \psi(\mathcal V));\quad \forall \mathcal V \subseteq \mathcal S,
+\end{equation}
+
+because conditioning on more
 answers can only explain away part of its novelty, never add to it.
 Coupling a random $\ell$-set to a random $(\ell{+}1)$-set and
 averaging, the increments $G_\ell - G_{\ell-1}$, which are the
 expected surprisals of the $\ell$-th answer, decrease with $\ell$:
-answers get cheaper as evidence accumulates. This of course only holds on uniformly random question order.
+answers get cheaper as evidence accumulates. This only holds on uniformly random question order.
 
 \begin{example}
-For the guiding prior the block-entropy sequence is
-$G_k = (0,\ 0.731,\ 1.436,\ 2.100,\ 2.707)$, and the laws unfold
+For the guiding prior of Table~\ref{tab:sixteen}, recall the block-entropy sequence is
+$G_k = \big\langle \sum_i^k s_i \big\rangle$, and the laws unfold
 it into the expected run:
 \begin{center}
 \begin{tabular}{c c c c c}
 \toprule
  & received & remaining & store & leverage \\
-$\ell$ & $\big\langle \sum_i s_i \big\rangle$
+$\ell$ & $G_\ell$
   & $\big\langle H\big(M^{(\ell)}\big) \big\rangle$
   & $\langle C_\ell \rangle$
   & $\langle L_\ell \rangle$ \\
@@ -2427,7 +2430,7 @@ $2.925/2.707 = 1.081$. The realized run of
 Section~\ref{sec:general} scattered around this gentle
 expectation: greedy questioning and a lucky truth delivered
 $1.311$. Figure~\ref{fig:expected-stack} stacks the expected
-books.
+bits.
 
 \begin{center}
 \begin{tikzpicture}[x=1.35cm, y=1.05cm]
@@ -2483,15 +2486,14 @@ already at $\ell = 3$.}
 
 \subsection{Choosing the questions}\label{sec:strategies}
 
-The uniform order was a symmetry choice, not a strategy. Werner
+The uniform distribution on question order was a symmetry choice, not a strategy. Werner
 can do better along two independent axes: how far he looks ahead,
-and whether he commits to an order beforehand or lets each
-question depend on the answers so far. \emph{Greedy} asks, at
+and whether he commits to an order beforehand or pivots contingent on the answers so far. A \emph{Greedy} Werner asks, at
 every step, the single question with the largest expected drop of
 $H(M)$: one step of lookahead. \emph{$\ell$-optimal} maximizes the
 expected knowledge after exactly $\ell$ questions, looking the
 whole horizon ahead. All four combinations are straightforward
-with the machinery at hand.
+with the machinery at hand. $1$-optimal coincides with Greedy at the start.
 
 \begin{center}
 \begin{tabular}{|c|>{\raggedright\arraybackslash}m{5.35cm}|>{\raggedright\arraybackslash}m{5.35cm}|}
@@ -2499,108 +2501,115 @@ with the machinery at hand.
  & \textbf{order fixed beforehand} & \textbf{contingent on answers} \\
 \hline
 \rotatebox{90}{~\textbf{greedy}~} &
-Grow the asked set one question at a time, each maximizing the
-expected drop of $H(M)$ averaged over the still-unseen answers.
-One pass of the bookkeeping of
-equation~\eqref{eq:Gk}; front-loads the cheap destruction, but
-cannot react to luck. &
-Recompute the forecasts of Section~\ref{sec:general} after every
-answer and ask the current argmax: the walkthrough's play. One
-update per step; beats its fixed twin whenever an answer
-reshuffles the ranking. \\
+Add planned questions to the docket, each maximizing the immediate
+expected drop of $H(M)$, averaged over the still-unseen answers.
+This before any answers are seen, and cannot react to luck. &
+Recompute the forecasts after every
+answer and ask the current argmax. Question order is a branching tree, each branch
+contingent on last answer. \\
 \hline
 \rotatebox{90}{~\textbf{$\ell$-optimal}~} &
-Updating commutes, so a fixed plan is just a set: search the
+Updating commutes, so a fixed plan is just a set $|\mathcal{S}|=\ell-1$: search the
 $\binom{Q}{\ell}$ subsets for the smallest expected remainder
 $\sum_{q' \notin \mathcal S} H(\psi(q') \mid \psi(\mathcal S))$. The best non-adaptive
 knowledge; sees correlations that the one-step view misses. &
-Backward induction over posteriors,
-$V_t = \min_q \mathbb{E}_a\, V_{t-1}$ with $V_0 = H(M)$. The
-Bayes-optimal policy: dearest to compute, and the ceiling the
-other three approximate. \\
+Backward induction over posteriors. The
+Bayes-optimal policy: recompute optimal further set for remainder at $\ell$, after 
+every answer. \\
 \hline
 \end{tabular}
 \end{center}
 
-Expected knowledge improves left to right and top to bottom. The
+Expected knowledge is non-decreasing left to right and top to bottom. The
 dynamic program in the last cell is exact but grows quickly: its
 states are the reachable posteriors, one per pair of asked set and
 answer pattern, $(1 + A)^{Q}$ in all. That is $81$ for the
-guiding example and astronomical beyond; its policy is also
-horizon-dependent, since the best first question for $\ell = 1$
-need not open the best plan for $\ell = 2$. For
-the guiding prior, contingent greedy already attains the
-contingent optimum at every horizon: expected remaining $1.821$,
-$0.903$, $0.334$ bits, against the uniform $2.113$, $1.328$,
-$0.608$. That is a kindness of this prior, not a law: a prior that
-stores its knowledge in deep shells can defeat greedy in either
-column, since a question worth little now may unlock a cascade
+guiding example and astronomical beyond. Its policy is also
+horizon-dependent, since the best first question for $\ell = k$
+need not open the best plan for $\ell = k+1$. For
+the guiding prior of table~\ref{tab:sixteen}, contingent greedy outperforms the uniform order, 
+and already attains the contingent $\ell$-optimum at every horizon. 
+That is a quirk of this prior, not a law: a prior that
+stores its knowledge in deep shells can defeat Greedy in either
+column: a question worth little now may unlock a cascade
 later.
+
+It turns out that both $\ell$-optimal produce the same trajectory on every set we've tested. 
+This agreement makes it unappealing to perform the full expensive calculation of the right column.
+Whether this is a law, or coincidence, needs further research.
 
 \subsection{The Gibbs complexity prior}\label{sec:gibbs}
 
-Every prior so far was engineered: a mechanism first, a distribution
-second. This section builds the prior the other way around, from a
-single principle -- simple explanations are likelier -- with circuit
-complexity as the measure of simplicity, made quantitative as a Gibbs
+Every prior so far was an arbitrary set of instructively chosen $\{p_j\}$. 
+This section builds the prior the other way around, from a
+single philosophical principle: \emph{simple explanations are likelier}. 
+How do we define simplicity? With circuit
+complexity as the measure, made quantitative as a Gibbs
 ensemble over the hypothesis space. It is an illustration: the
-following chapter does not depend on it.
+later chapters do not depend on the rest of this section.
 
-\subsubsection{NAND complexity, and two cheaper descriptors}
+\subsubsection{NAND complexity}
 \label{sec:nandcomplexity}
 
-Fix the universal gate: the two-input NAND. The complexity $X_j$ of a
-map $\phi_j$ is the fewest gates in any feed-forward circuit that
+There are a number of equivalent, Turing-complete set of boolean logic gates. 
+But it's hard to argue with a set that consists of one universal element, when ordering circuits 
+by complexity. The choice here for that universal element is NAND.
+Let the complexity $X_j$ of a
+map $\phi_j$ be the fewest number of two-input NAND gates in any feed-forward circuit that
 computes it. For the bookkeeping we count in the equivalent
 \emph{and-inverter} form: two-input AND gates of unit cost, with
-inversion free on every wire -- an edge attribute, not a gate. De
+inversion free on every wire (an edge attribute, not a gate). De
 Morgan's laws push inverters along wires and into gates, so an
 and-inverter circuit converts to a NAND-only circuit of the same gate
 count and back; $X_j$ is the standard AIG-size metric of logic
-synthesis. Reference values: AND, OR, NAND and NOR all cost $1$; XOR
-costs $3$; constants, projections and negations cost $0$. For $m > 1$
-outputs, $X_j$ is the size of one \emph{joint} circuit computing all
-output bits together, gates shared -- the honest minimum-hardware
-cost, smaller in general than the sum of per-output circuits.
+synthesis. Reference values in this convention: 
+\begin{itemize}
+  \item AND, OR, NAND and NOR all cost $1$;
+  \item XOR costs $3$;
+  \item constants, projections and negations cost $0$.
+\end{itemize}   
+For $m > 1$ outputs, $X_j$ is the size of one \emph{joint} circuit computing all
+output bits together, gates shared, which is practical. It is the true minimum-hardware
+cost, generally smaller than the sum of per-output circuits.
 
+The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ maps a piece. 
 The tabulation is feasible because $X_j$ is invariant under
-relabeling: permuting or negating inputs, negating or (for $m = 2$)
-swapping outputs are all free operations, so the $65{,}536$ maps of
-the $(4,1)$ and $(3,2)$ spaces collapse to $222$ and $308$
-equivalence classes. The $(4,1)$ class values are published optimal
+relabeling: permuting or negating inputs, negating or (for $m \ge 2$)
+swapping outputs are all free operations, so the $65{,}536$ maps collapse to $222$ and $308$
+equivalence classes respectively. The $(4,1)$ class values are published optimal
 AIG sizes\footnote{The \texttt{github.com/krinkin/bounds}
 reproducibility dataset, cross-checked against our own SAT-based
 synthesizer on random classes with zero mismatches.}; the $(3,2)$
-values come from that synthesizer: circuit sizes $r = 0, 1, 2,
+values come from that synthesizer: circuit sizes $X = 0, 1, 2,
 \ldots$ are encoded as satisfiability instances, and the first
-satisfiable $r$ is provably minimal, every smaller size having been
+satisfiable $X$ is provably minimal, every smaller size having been
 refuted.
 
 Alongside the interior cost $X_j$, which takes a SAT solver to see,
 two descriptors are visible in one pass over the truth table:
 %
 \begin{itemize}
-\item the \emph{footprint} $F_j = n \cdot \text{[Image]} + \text{[Support]}$, where the support
+\item the \textbf{footprint} $F_j = n \cdot \text{[Image]} + \text{[Support]}$, where the support
  counts the input bits the map actually depends on and the
   image size counts the distinct answers it attains (from $1$
-  for constants up to $A$). The combination is lossless --
-  base-$n$ digits, quotient $I$, remainder $S$ -- and reads as the
+  for constants up to $A$). The combination is bijective to the pair, as Support $\le n$.
+  Compare to base-$n$ digits, quotient Image, remainder Support. The footpring can be viewed as the
   map's \emph{interface}: does it react to all its inputs, does it
   use all its values?
-\item the \emph{bias} $B_j$: the number of $1$s minus the number of
+\item the \textbf{bias} $B_j$: the number of $1$s minus the number of
   $0$s among the $mQ$ truth-table bits. This is the
   symmetry breaker: $X_j$ and $F_j$ are even under negating all
-  outputs, $B_j$ is odd -- an energy term coupling to it acts like a
-  magnetic field, switching on the odd correlator shells that a pure
+  outputs, $B_j$ is odd: an energy term coupling to it acts like a
+  magnetic field, favoring 0s or 1s off the bar. In the language of section \ref{sec:correlators}: 
+  switching on the odd correlator shells that a pure
   complexity prior forbids.
 \end{itemize}
 
 \begin{example}
-For the guiding $(2,1)$ space, with each map's prior mass under the
-Occam and Pragmatist field settings of
-Section~\ref{sec:gibbsensemble} drawn as opposed bars about a shared
-axis -- Occam in blue growing left, the Pragmatist in orange growing
-right, full bar width one unit of probability:
+Take again the $(n,m)=(2,1)$ space. Each map's data is listed for illustration.
+The size of two Gibbs priors using these inputs, defined in section~\ref{sec:gibbsensemble} is graphed. 
+Occam in blue growing left, the Pragmatist in orange growing
+right. The Pragmatist is on a log scale, for better readability of the far-from-democratic distribution.
 
 \begin{center}
 \begin{tabular}{clccccc r@{\hspace{2pt}}|@{\hspace{2pt}}l}
@@ -2631,11 +2640,11 @@ $j$ & map & $X_j$ & Support & Image & $F_j$ & $B_j$
 \end{tabular}
 \end{center}
 
-Occam spreads its belief across the six gate-free maps ($0.1106$
+Occam spreads its belief mostly across the six gate-free maps ($0.1106$
 apiece) and thins gradually with cost; the Pragmatist, punishing
-footprint and rewarding ones, piles $0.90$ of its mass onto the two
-constants -- $0.62$ on TRUE against $0.28$ on FALSE, the tilt
-breaking the tie -- and all but abandons the interior of the table.
+footprint and rewarding bits with value 1, piles $0.90$ of its mass onto the two
+constants ($0.62$ on TRUE against $0.28$ on FALSE), the bias
+breaking the tie. It all but abandons the interior of the table. If the map turns out non-constant, that interior is scaled up and becomes relevant.
 Grouped by the full tuple $(X, F, B)$, the sixteen maps fall into
 six energy classes:
 
@@ -2651,17 +2660,19 @@ $(0, 5, 0)$  & 4 & $(3, 6, 0)$  & 2 \\
 \end{tabular}
 \end{center}
 
-Note the guiding space skips $X = 2$ entirely: with two inputs,
-nothing a two-gate circuit computes is out of reach of one gate or
-zero.
+Note the table skips $X = 2$ entirely: with two inputs,
+nothing a two-gate circuit computes is out of reach of one or
+zero gates.
 \end{example}
 
-At the larger sizes the tuple breakdown runs to hundreds of rows
-($102$ distinct tuples at $(4,1)$, $196$ at $(3,2)$), so we tabulate
-the complexity shells alone, with each shell's \emph{aggregate} prior
+At the larger sizes the tuple $(X, F, B)$ breakdown runs to hundreds of rows
+($102$ distinct tuples at $(n,m)=(4,1)$, $196$ at $(3,2)$). It is still interesting to tabulate
+the complexity $X$ shells alone, with each shell's \emph{aggregate} prior
 mass under the Occam setting alongside its head count:
 
 \begin{example}
+These tables illustrate the compromise between exponentially suppressed weight per map, and combinatorics
+putting most maps at middling complexity.
 \begin{center}
 \begin{tabular}{crr@{\hspace{4pt}}l}
 \toprule
@@ -2704,7 +2715,6 @@ total & 65{,}536 & 1 & \\
 \bottomrule
 \end{tabular}
 \end{center}
-The bars are magnified twofold relative to the butterfly table.
 \end{example}
 
 The head counts are thin at both ends: ten gate-free maps at $(4,1)$
@@ -2712,8 +2722,8 @@ The head counts are thin at both ends: ten gate-free maps at $(4,1)$
 $X = 10$. The aggregate mass shows the thermodynamic compromise this
 forces on Occam: the count grows faster than $e^{-X}$ decays until
 $X = 3$ at $(4,1)$ ($X = 2$ at $(3,2)$), so even under a pure
-simplicity prior the \emph{typical} map has middling complexity ---
-shell degeneracy beats shell energy until well past the simplest maps.
+simplicity prior Werner has most faith thst the map has $X_j \in \{2,3\}$.
+Shell degeneracy beats shell energy for the simplest maps.
 
 \subsubsection{The ensemble}\label{sec:gibbsensemble}
 
@@ -2727,11 +2737,12 @@ p_j = \frac{e^{-E_j}}{\sum_k e^{-E_k}},
 \label{eq:gibbs}
 \end{equation}
 %
-with no overall temperature: the couplings are the fields. Positive
+with no overall temperature: it's absorbed in the coupling fields. Positive
 $\beta$ suppresses complex maps, positive $\alpha$ suppresses large
-footprints, and $\mu$ couples to the signed bias, $\mu < 0$ tilting
+footprints, and $\mu$ couples to the signed bias like a magnet. $\mu < 0$ tilts
 toward $1$-heavy tables and thereby breaking the output-negation
-symmetry. Three settings are explored below:
+symmetry. Three settings are explored below, chosen out of principle, as well as to exhibit
+interesting learning behavior.
 
 \begin{center}
 \begin{tabular}{lccc}
@@ -2745,15 +2756,16 @@ Pragmatist & $1.5$ & $1$ & $-0.1$ \\
 \end{tabular}
 \end{center}
 
-\emph{Occam} suppresses circuit complexity and nothing else.
-\emph{Occamer} doubles the same field: an even stronger simplicity
+\textbf{Occam} suppresses circuit complexity and nothing else.
+\textbf{Occamer} doubles the same field: an even stronger simplicity
 bias stores more knowledge in the prior, and stores it deeper in the
 correlation shells, where only the later questions of a run can
-release it. The \emph{Pragmatist} judges by the obvious heuristics
-instead: a full footprint field reads the visible interface rather
+release it. The \textbf{Pragmatist} judges by the obvious heuristics
+instead: a footprint reads the visible interface rather
 than the interior circuit, a moderate complexity field seconds it,
 and the tilt $\mu = -0.1$ leans toward $1$-heavy tables, breaking
-the output-negation symmetry that the other two settings keep.
+the output-negation symmetry that the other two settings keep. This last choice is to illustrate
+that Werner isn'tb bound to start with a uniform distribution $M$ before the first question.
 
 \subsubsection{Trajectories}\label{sec:gibbstraj}
 
