@@ -3637,8 +3637,8 @@ $o(Q)$-question boundary layer at $t = 0$. Let
 
 \begin{equation}
   h_0 := \lim_{n\to\infty} G_{n,1}, 
-\end{equation}, 
-which in general will be allowed to converge to something distinct from $gamma(t)$.
+\end{equation}
+which in general will be allowed to converge to something distinct from $\gamma(t)$.
 Suppose the staircases have an
 almost-everywhere limit $\gamma$ on $(0,1)$, with
 $\gamma_{n,\lfloor tQ\rfloor} \to \gamma(t)$ at any particular $t$
@@ -3665,7 +3665,7 @@ It implies $G_{n,Q}/Q \to \int_0^1\gamma > 0$.
 
 Extend the finite increments to a staircase on $[0,1]$ by
 $\gamma_n(t) := \gamma_{n,\lfloor tQ\rfloor}$.
-Telescoping with equation~\ref{eq:teleskippie} gives an exact Riemann-sum identity at grid points,
+Telescoping with equation~\eqref{eq:teleskippie} gives an exact Riemann-sum identity at grid points,
 %
 \begin{equation}
   \frac{G_{n,\ell}}{Q}
@@ -3674,7 +3674,7 @@ Telescoping with equation~\ref{eq:teleskippie} gives an exact Riemann-sum identi
   \label{eq:riemann}
 \end{equation}
 %
-and since $0 \le \gamma_n \le m$, dominated convergence gives
+ignoring the last undefined endpoint in the limit. Since $0 \le \gamma_n \le m$, dominated convergence gives
 
 \begin{equation}
 G_{n,\ell_n}/Q \to g(t) := \int_0^t\gamma; \quad 
