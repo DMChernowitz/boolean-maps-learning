@@ -3363,7 +3363,7 @@ distribution, coarse grained to blocks of questions, is
   \label{eq:spikeGk}
 \end{equation}
 %
-As there are $A^k-1$ terms where $y \neq 0^{mk}$.
+as there are $A^k-1$ terms where $y \neq 0^{mk}$.
 Every choice of $k$ questions obeys the same law, so
 \eqref{eq:spikeGk} is also the mean $k$-question block entropy of
 Chapter~\ref{sec:expectations}. In particular $G_0 = 0$ and $H(M^{(0)}) = Q\,G_1$, with the exact prior entropy
@@ -3541,9 +3541,9 @@ noncommutation with $n \to \infty$.
 
 \subsection{Thermodynamic-limit calculus}\label{sec:tdlcalc}
 
-The spike is solvable because all subsets of the same size have the
-same entropy. The general theory replaces that symmetry by an average
-over subsets.
+The spike is solvable because all subsets of questions of the same size ($k$) have the
+same entropy $G_k$. Averages are free. The general theory replaces that symmetry by an average
+over subsets, which in general have distint entropies.
 
 \subsubsection{The finite sequence from which the limit is taken}
 
@@ -3556,7 +3556,7 @@ equation~\eqref{eq:Gk}, now carrying the system size explicitly:
 \begin{equation}
   G_{n,k}
   \;:=\; \binom{Q}{k}^{-1}
-  \sum_{\substack{\mathcal S \subseteq \mathcal Q\\
+  \sum_{\substack{
     |\mathcal S| = k}} H\big(\psi(\mathcal S)\big),
   \qquad 0 \le k \le Q,
   \label{eq:Gnk}
@@ -3564,7 +3564,12 @@ equation~\eqref{eq:Gk}, now carrying the system size explicitly:
 %
 so that $G_{n,0} = 0$ and $G_{n,Q} = H(\psi) = H(p^{(n)})$, where
 $p^{(n)}$ is the prior law of the random map at size $n$, with
-increments $\gamma_{n,k} := G_{n,k+1} - G_{n,k}$.
+increments 
+
+\begin{equation}
+\gamma_{n,k} := G_{n,k+1} - G_{n,k}.
+\label{eq:teleskippie}
+\end{equation}
 
 By the entropy chain rule, exactly as in the derivation of
 equation~\eqref{eq:law-remaining}, the increment is the mean
@@ -3580,11 +3585,11 @@ conditional entropy of one fresh answer,
   \label{eq:gammank}
 \end{equation}
 %
-There are two separate averages here: the conditional entropy
-averages over answer histories under the prior on the random map,
-while $\mathbb E_{\mathcal S, q}$ averages that entropy over which
-questions were selected. Conditioning reduces entropy, so coupling a
-random $k$-set to a random $(k{+}1)$-set yields
+We write $\mathbb{E}$ to empahsize the average over the selected $q$ distinct from $\mathcal{S}$. 
+The additional average here: the conditional entropy
+averages over answer histories $\phi_j$ under the prior $p_j$ on the random map. 
+Conditioning reduces entropy, so coupling a
+random $k$-set to a random $(k{+}1)$-set yields a \textbf{staircase}
 %
 \begin{equation}
   m \;\ge\; \gamma_{n,0} \;\ge\; \gamma_{n,1} \;\ge\; \cdots
@@ -3593,7 +3598,7 @@ random $k$-set to a random $(k{+}1)$-set yields
 \end{equation}
 %
 This monotonicity is deterministic, the truth and the subset having
-already been averaged over. It should not be called self-averaging;
+already been averaged over. Recall, this is a property of the average, not of any constituent terms.
 concentration of individual learning trajectories would be a separate
 result. The two laws \eqref{eq:law-received} and
 \eqref{eq:law-remaining} then read
@@ -3620,10 +3625,21 @@ equation~\eqref{eq:Lk-G} becomes
 
 \subsubsection{A precise macroscopic-limit statement}
 
-It is useful to keep the initial marginal entropy separate from the
+The next step is to find continuous limits of the functions: $\gamma(t)$ from $\gamma_{n,\ell}$ and $g(t)$ from $G_{n,\ell}$.
+
+The leverage has only these two functions in the numerator. In fact, $G_{n,1}=\gamma_{n,0}$ so we might be
+tempted to express everything terms of the one function $\gamma(t)$, and find the coarse-grained limit
+of that. However, that would miss a crucial \emph{delta-like} contribution to the learning.
+
+It is instead useful to keep the initial marginal entropy separate from the
 macroscopic profile on the right, since that allows an
 $o(Q)$-question boundary layer at $t = 0$. Let
-$h_0 := \lim_{n\to\infty} G_{n,1}$, and suppose the staircases have an
+
+\begin{equation}
+  h_0 := \lim_{n\to\infty} G_{n,1}, 
+\end{equation}, 
+which in general will be allowed to converge to something distinct from $gamma(t)$.
+Suppose the staircases have an
 almost-everywhere limit $\gamma$ on $(0,1)$, with
 $\gamma_{n,\lfloor tQ\rfloor} \to \gamma(t)$ at any particular $t$
 where the remaining entropy is evaluated. At such a point $\gamma(t)$
@@ -3643,18 +3659,13 @@ $t$-fraction has been observed. Four hypotheses suffice:
     positive, $\int_0^1\gamma(x)\,dx > 0$.
 \end{enumerate}
 %
-The fourth condition is the nondegenerate form of extensivity, and it
-implies $G_{n,Q}/Q \to \int_0^1\gamma > 0$. Merely writing
-$G_{n,Q} = \Theta(Q)$ is not sufficient: the entropy density may
-oscillate with $n$, and even a convergent scalar density does not
-determine the profile. Conversely, profile convergence with positive
-area implies the extensivity required. No Gibbs representation and no
-full-support lower bound on individual map probabilities is needed.
+The fourth condition is the nondegenerate form of extensivity, in other words,
+learning continues into the bulk and $M$ doesn't settle within a boundary around $t=0$. 
+It implies $G_{n,Q}/Q \to \int_0^1\gamma > 0$. 
 
 Extend the finite increments to a staircase on $[0,1]$ by
-$\gamma_n(t) := \gamma_{n,\min(\lfloor tQ\rfloor,\,Q-1)}$, the value
-at the single endpoint $t=1$ being irrelevant to the integral.
-Telescoping gives an exact Riemann-sum identity at grid points,
+$\gamma_n(t) := \gamma_{n,\lfloor tQ\rfloor}$.
+Telescoping with equation~\ref{eq:teleskippie} gives an exact Riemann-sum identity at grid points,
 %
 \begin{equation}
   \frac{G_{n,\ell}}{Q}
@@ -3664,9 +3675,13 @@ Telescoping gives an exact Riemann-sum identity at grid points,
 \end{equation}
 %
 and since $0 \le \gamma_n \le m$, dominated convergence gives
-$G_{n,\ell_n}/Q \to g(t) := \int_0^t\gamma$ for
-$\ell_n = \lfloor tQ\rfloor$, while at a point of profile convergence
-$(Q-\ell_n)\gamma_{n,\ell_n}/Q \to (1-t)\gamma(t)$. Substituting both
+
+\begin{equation}
+G_{n,\ell_n}/Q \to g(t) := \int_0^t\gamma; \quad 
+(Q-\ell_n)\gamma_{n,\ell_n}/Q \to (1-t)\gamma(t),
+\end{equation}
+
+using the coordinated construction $\ell_n = \lfloor tQ\rfloor$. Substituting both
 into \eqref{eq:finitelev} proves
 %
 \begin{equation}
@@ -3678,7 +3693,17 @@ into \eqref{eq:finitelev} proves
 \end{equation}
 %
 Since $\gamma$ is nonnegative and nonincreasing, a positive integral
-makes $g(t) > 0$ for every $t > 0$.
+makes $g(t) > 0$ for every $t > 0$. Let us go over the pieces, for physical intuition:
+
+\begin{itemize}
+  \item $\gamma(t)$: the price of the next answer. It is the expected entropy of one fresh answer after a random $t$-fraction of the table has already been observed: what Werner still doesn't know about a question he hasn't asked, given everything he has. It starts at most $m$ and decreases monotonically, because each answer can only explain away some of the next one's novelty. $\gamma$ is the running rate at which surprisal is still available.
+
+\item $g(t)$: the total bill so far. Summing the price of each answer as it was bought gives the cumulative surprisal received by macroscopic time $t$. It is the area under the profile to the left of $t$, and it sits in the denominator of the leverage because it is exactly what Werner 'paid'.
+
+\item $h_0$: the size of the job at the outset. It is the marginal entropy of a single answer before anything is learned, so $Q h_0$ is the whole table's starting uncertainty $H(M^{(0)})$: the total to be destroyed, by asking or by deducing. It is kept as its own constant rather than read off as $\gamma(0^+)$ because learning finished in $o(Q)$ questions leaves no trace on the profile, and the gap $h_0 - \gamma(0^+)$ is precisely that boundary layer.
+
+\item Together: $L(t)$ reads as (everything there was to know) minus (what the unasked columns still hold), over what was paid.
+\end{itemize}
 
 \begin{figure}[H]
 \centering
@@ -3763,14 +3788,13 @@ makes $g(t) > 0$ for every $t > 0$.
   \end{scope}
   \node[black!60] at (10.45,1.6) {$\longrightarrow$};
 \end{tikzpicture}
-\caption{From the finite increments to the profile, drawn for parity
-blocks of size four, whose limit is $\gamma(t) = 1 - t^3$ (dashed).
+\caption{From the finite increments to the profile.
 Each bar has width $1/Q$ and height $\gamma_{n,k}$, so the shaded
-bars sum -- the telescoping identity \eqref{eq:riemann} -- to
-exactly $G_{n,\ell}/Q$, here at $\ell/Q = 5/8$. Refining $Q$ shrinks
+bars sum, the telescoping identity \eqref{eq:riemann}, to
+exactly $G_{n,\ell}/Q$, here at $t=\ell/Q = 5/8$. Refining $Q$ shrinks
 the bars onto the staircase's limit, and dominated convergence turns
 the shaded sum into the area $g(t) = \int_0^t \gamma$: received
-information per question becomes the area under the profile.}
+information per question becomes the dark area under the profile.}
 \label{fig:riemann}
 \end{figure}
 
@@ -3778,10 +3802,8 @@ Monotonicity and boundedness guarantee convergent subsequences by a
 Helly selection argument, but they do not guarantee that the full
 sequence of priors selects a unique profile: a family can alternate
 between two constructions on even and odd $n$. At the prior level one
-therefore needs a coherent construction, such as a fixed exchangeable
-directing measure or fixed local block types with convergent
-frequencies, or must take profile convergence itself as a hypothesis.
-
+therefore needs a coherent construction, or must take profile convergence itself as a hypothesis. 
+In the next section, as well as the appendices, we give examples and explain why they converge neatly.
 
 \subsection{A constructive complexity prior}\label{sec:shapeprior}
 
