@@ -4176,6 +4176,7 @@ Consecutive rates slice $(0,1]$ into
 
 \begin{equation}
   R_{n,d} - R_{n,d-1} = \binom nd / 2^n \le \sqrt{2/\pi n}.
+  \label{eq:rategap}
 \end{equation}
 This partition refines as $n$ grows. Rate gaps can be seen as the proportional thickness of the shells.
 
@@ -4472,7 +4473,7 @@ The check $2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
 
 \subsubsection{Three terms for the leverage average}
 
-The exact finite law \eqref{eq:Lk-G}, in the chapter's notation
+The exact finite law \eqref{eq:Lk-G}, in the TDL chapter's notation
 \eqref{eq:finitelev}, needs three ingredients: 
 
 \begin{enumerate}
@@ -4578,7 +4579,7 @@ Every column carries the constant row's $1$, so flipping
 $\xi_\emptyset$ flips the answer to every question at once: the
 $2^{K_d}$ maps pair off into complementary halves and
 $M_{a,q} = \tfrac12$ at every question, in every class, for every $F$.
-The table starts knowing nothing, $H(M^{(0)}) = Q$. compare to
+The table starts knowing nothing, $H(M^{(0)}) = Q$. Compare to
 \eqref{eq:zkernel}, $\Omega$ is $Z^{\otimes n}$ transposed, its rows
 sorted by degree so that every class is a prefix.
 \end{example}
@@ -4607,7 +4608,7 @@ zero already determine each other for an affine ($d=1$) map, whatever else is
 unsettled. So a question can be redundant early and the rank often is
 not full until late: the switch from one bit per question to none is a smeared step,
 not a sharp one, though the total entropy encloses area $K_d$ regardless. Only the two
-ends escape, the constants ($K_1=1$) and the full space ($K_n = Q$) being the codes for which
+ends escape, the constants ($K_0=1$) and the full space ($K_n = Q$) being the codes for which
 every $K_d$ columns really are independent. And Werner is not told the class; he has
 to read it off the answers, and that costs information. 
 
@@ -4636,10 +4637,16 @@ independent columns, the number of bits needed to describe those
 answers.
 
 \begin{example}
-Where the classes part is what a set of columns spans. Ask $11$, then
-$10$, then $01$ of class $1$: the boxed submatrix
-$\Omega^{(1)}_{\cdot,\mathcal S}$ is square and of full rank $3$, so
-each of the three answers is a fresh bit.
+Say Werner knows $d=1$. This means:
+\begin{equation*}
+  \psi(q) = \rho_\emptyset \oplus \rho_{b_0}b_0(q) \oplus \rho_{b_1}b_1(q)
+\end{equation*}
+See in the matrix below for such affine maps, how the sum of all questions vanishes (linear dependence).
+\begin{equation*}
+  \psi(11) \oplus \psi(10) \oplus \psi(01) \oplus \psi(00) = 4\rho_\emptyset + 2\rho_{b_0}+2\rho_{b_1} = 0
+\end{equation*}
+Ask any three questions, the covered submatrix
+$\Omega^{(1)}_{\cdot,\mathcal S}$ is square and of full rank $3$.
 %
 \begin{center}
 \begin{tikzpicture}
@@ -4665,15 +4672,15 @@ each of the three answers is a fresh bit.
 \end{tikzpicture}
 \end{center}
 %
-But $\operatorname{rank}\Omega^{(1)} = K_1 = 3$ across all four
-columns, and the box has already used the rank up. The fourth column
-is the XOR of the boxed three, so the answer to $00$ is spoken for
-before it is asked: the rows span the even-weight code, whose parity
-check reads
-$\psi(11) \oplus \psi(10) \oplus \psi(01) \oplus \psi(00) = 0$. An
-affine truth pays one bit a question and runs out at its own rate
-$R_{2,1} = \tfrac34$. Class $2$ has full rank $4$ and never runs out;
-class $0$ is spent after a single answer, at $R_{2,0} = \tfrac14$.
+That means the first three questions all have $\gamma_{2,\ell}=1$, they carry a bit
+of surprisal. After that, at $t=R_{2,1} = \tfrac34$, through
+a system of equations we can infer which monomials are present in the polynomial of $\psi$. The final $q$ cannot have 
+any uncertainty left, and $\gamma_{2,4}=0$. In total then, the received entropy is capped at $K_1=3$.
+
+\begin{equation*}
+  G_{2,\ell} = \min(\ell, 3)
+\end{equation*}
+
 \end{example}
 
 Three facts pin the limit of the class average
@@ -4682,11 +4689,15 @@ $\gamma^{(d)}_{n,\ell} = \Pr[\text{a fresh column is independent of }
 \ell \text{ random ones}]$ is nonincreasing in $\ell$, by rank
 submodularity (what is dependent on few columns is dependent on
 more). The increments telescope to the dimension,
-$\sum_{\ell < Q} \gamma^{(d)}_{n,\ell} = K_d$: the finite-$n$ area
-theorem, received equals learnable. And the one imported result --
-Reed--Muller codes achieve capacity on the binary erasure channel
+
+\begin{equation}
+  \sum_{\ell < Q} \gamma^{(d)}_{n,\ell} = K_d,
+\end{equation}
+the finite-$n$ area theorem. Inside a class $d$, there can be at most $K_d$ linearly independent questions, and at most $K_d$ bits to learn. 
+And we must invoke one external result:
+Reed-Muller codes achieve capacity on the binary erasure channel,
 (Kudekar, Kumar, Mondelli, Pfister, \c Sa\c so\u glu and Urbanke,
-2017) -- says that revealing any fraction beyond the rate determines
+2017) states that revealing any fraction beyond the rate determines
 a fresh answer with probability tending to one:
 %
 \begin{equation}
@@ -4697,9 +4708,10 @@ a fresh answer with probability tending to one:
   \label{eq:kkmpsu}
 \end{equation}
 %
-A bounded nonincreasing sequence with area $R_d$ and no mass above
-$R_d$ has nowhere to sit but at height $1$ below, so the class
-increments converge to a pure step, written with the Heaviside
+$m=1$, which is a bound on the increment: $\gamma \in [0,1]$.
+Such a nonincreasing sequence with area $R_d$ and no mass to the right of
+$R_d$ has no freedom. These characteristics force the shape, so the class
+increments converge pointwise to a pure step, written with the Heaviside
 function $\theta(x) = \mathbf 1[x > 0]$:
 %
 \begin{equation}
@@ -4712,54 +4724,17 @@ function $\theta(x) = \mathbf 1[x > 0]$:
   \label{eq:heavistep}
 \end{equation}
 %
-each class pays one full bit per question until its clock stops at
-its own rate, and nothing after. Finally, round the draw $R$ up to
-the top of its rate gap: since $\min(t,\cdot)$ is $1$-Lipschitz and
-the rounding moves $R$ by at most $\sqrt{2/\pi n}$, the class
-average converges to an average over the statistic,
-%
-\begin{equation}
-  \frac{G_{n,\lfloor tQ\rfloor}}{Q}
-  \;\longrightarrow\;
-  \mathbb E_F\big[\min(t, R)\big]
-  \;=\; \int_0^t \big(1 - F(x)\big)\, dx \;=:\; g(t),
-  \label{eq:gF}
-\end{equation}
-%
-the last step by layer cake: pointwise
-$\min(t,R) = \int_0^t \theta(R - x)\,dx$, and
-$\mathbb E\,\theta(R - x) = 1 - F(x)$. Received information per
-question is an average of clipped clocks, the area under the survival
-function.
-
-\emph{The increment.} The sequence $\ell \mapsto G_{n,\ell}$ is
-concave (increments nonincreasing), and slopes of concave functions
-converge wherever the limit is differentiable, so at every continuity
-point of $F$
-%
-\begin{equation}
-  \gamma_{n,\lfloor tQ\rfloor}
-  \;\longrightarrow\;
-  g'(t) = 1 - F(t) = \Pr(R > t).
-  \label{eq:gammaF}
-\end{equation}
-%
-This is the heart of the construction: the mean conditional entropy
-of a fresh answer is the probability that the true class is not yet
-exhausted. The survival function of the statistic is not a postulate;
-it is the increment term of the finite law.
-
+each class pays one full bit per question until its tank runs out at
+its own rate, and nothing after. 
 \begin{example}
-Where $\gamma$ comes from, at $F(x) = 1-(1-x)^2$. Conditional on the
+Where the step in $\gamma$ comes from. Conditional on the
 latent class $D$, the answers on $\mathcal S$ are
 $\xi^{\mathsf T}\Omega_{\cdot,\mathcal S}$, so their entropy is the rank
 of that column submatrix, and $\gamma^{(D)}_{n,\ell}$ is the chance a
-fresh column is still independent of the $\ell$ already asked. Nothing
-in that depends on $F$; the statistic enters only by choosing which
-class to watch.
+fresh column is still independent of the $\ell$ already asked. 
 
-Hold the draw fixed at $R = 0.6$ and let $n$ grow. The sampling rule
-hands back whichever class's rate gap contains it, so the class index
+To see the limit approach, Hold the draw fixed at $R = 0.6$ and let $n$ grow. 
+The sampling rule hands back whichever class's rate gap contains it, so the class index
 climbs with $n$, taking $d = 3, 4, 5, 6$ below, while $R$ itself stays
 put; by \eqref{eq:kkmpsu} the increment tends to the black step at
 $R$. Outside the window $\gamma$ is flat: one to the left, nothing to
@@ -4788,18 +4763,56 @@ the right.
 \end{center}
 
 Two things converge, at very different speeds. The \emph{shape} goes
-fast: the smear from $\gamma = 0.9$ down to $0.1$ measures six
+fast: the drop from $\gamma = 0.9$ down to $0.1$ measures six
 questions at every $n$ here, so as a fraction of the run it closes like
 $1/Q$, from $0.094$ at $n = 6$ to $0.0015$ at $n = 12$. The
-\emph{position} goes slowly: each curve steps at its own rate, which is
+\emph{position} of the transition goes slowly with $n$: each curve steps at its own rate, which is
 $R$ rounded up to the grid and so overshoots by at most the gap width
-$\binom nd/2^n \le \sqrt{2/\pi n}$ -- here $0.056, 0.037, 0.023,
-0.013$, closing on $R$ but only at that $1/\sqrt n$, the same rate the
-rounding step before \eqref{eq:gF} has to absorb. Whatever the
+$\binom nd/2^n \le \sqrt{2/\pi n}$. Here $0.056, 0.037, 0.023,
+0.013$. Whatever the
 overshoot, each curve encloses exactly its own rate: the increments
 telescope to the dimension, $\sum_{\ell<Q}\gamma^{(d)}_{n,\ell} = K_d$,
 at every $n$ and with no approximation.
 \end{example}
+
+Finally, round the stochastically sampled $R$ up to
+the top of its rate gap: since $\min(t,\cdot)$ is $1$-Lipschitz and
+the rounding moves $R$ by at most $\sqrt{2/\pi n}$ according to \eqref{eq:rategap}, the class
+average converges to an average over the statistic,
+%
+\begin{equation}
+  \frac{G_{n,\lfloor tQ\rfloor}}{Q}
+  \;\longrightarrow\;
+  \mathbb E_F\big[\min(t, R)\big]
+  \;=\; \int_0^t \big(1 - F(x)\big)\, dx \;=:\; g(t).
+  \label{eq:gF}
+\end{equation}
+%
+The last step is achieved through integration by parts. Pointwise
+
+\begin{equation}
+  \min(t,R) = \int_0^t \theta(R - x)\,dx;\quad \mathbb E\,\theta(R - x) = 1 - F(x),
+\end{equation}
+by the defining sampling process $R \sim F'$.
+Received information per question is an average of rates per class, averaged over the expected contribution of those classes. 
+The correction from the mutual information term from equation \eqref{eq:ungroup} vanishes in the TDL.
+
+3: \emph{The increment.} This one now follows for free. The sequence $\ell \mapsto G_{n,\ell}$ is
+concave (increments nonincreasing), and slopes of concave functions
+converge wherever the limit is differentiable, so at every continuity
+point of $F$
+%
+\begin{equation}
+  \gamma_{n,\lfloor tQ\rfloor}
+  \;\longrightarrow\;
+  g'(t) = 1 - F(t) = \Pr(R > t).
+  \label{eq:gammaF}
+\end{equation}
+%
+This caps the construction: the mean conditional entropy
+of a fresh answer is the probability that the true class is not yet
+exhausted. The survival function of the statistic is not a postulate;
+it is the increment term of the finite law.
 
 \begin{example}
 Averaging over $D$. Slice the belief by class: a horizontal slab of
@@ -4869,11 +4882,11 @@ the coarseness of the rate grid.
   \foreach \x in {0.000000, 0.062500, 0.312500, 0.687500, 0.937500, 1.000000}
     \draw[black!70] (\x,-0.016) -- (\x,0.016);
   \node[font=\scriptsize, black!70, below] at (0.000000,-0.0220) {$0$};
-  \node[font=\scriptsize, black!70, below] at (0.062500,-0.0770) {$R_{4,0}$};
+  \node[font=\scriptsize, black!70, below] at (0.062500,-0.0220) {$R_{4,0}$};
   \node[font=\scriptsize, black!70, below] at (0.312500,-0.0220) {$R_{4,1}$};
   \node[font=\scriptsize, black!70, below] at (0.687500,-0.0220) {$R_{4,2}$};
   \node[font=\scriptsize, black!70, below] at (0.937500,-0.0220) {$R_{4,3}$};
-  \node[font=\scriptsize, black!70, below] at (1.000000,-0.0770) {$1$};
+  \node[font=\scriptsize, black!70, below] at (1.000000,-0.0220) {$1$};
   %% what an answer is worth: not knowing D, and knowing it
   \fill[black!22]
     (0.0000,1.0000) -- (0.0625,1.0000) -- (0.0625,0.9894) --
