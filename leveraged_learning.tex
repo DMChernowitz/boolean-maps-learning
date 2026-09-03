@@ -3543,7 +3543,7 @@ noncommutation with $n \to \infty$.
 
 The spike is solvable because all subsets of questions of the same size ($k$) have the
 same entropy $G_k$. Averages are free. The general theory replaces that symmetry by an average
-over subsets, which in general have distint entropies.
+over subsets, which in general have distinct entropies.
 
 \subsubsection{The finite sequence from which the limit is taken}
 
@@ -3585,7 +3585,7 @@ conditional entropy of one fresh answer,
   \label{eq:gammank}
 \end{equation}
 %
-We write $\mathbb{E}$ to empahsize the average over the selected $q$ distinct from $\mathcal{S}$. 
+We write $\mathbb{E}$ to emphasize the average over the selected $q$ distinct from $\mathcal{S}$. 
 The additional average here: the conditional entropy
 averages over answer histories $\phi_j$ under the prior $p_j$ on the random map. 
 Conditioning reduces entropy, so coupling a
@@ -3807,28 +3807,44 @@ In the next section, as well as the appendices, we give examples and explain why
 
 \subsection{A constructive complexity prior}\label{sec:shapeprior}
 
+What could the TDL of an explicit simplicity-based prior look like?
+
 The Gibbs prior of Section~\ref{sec:gibbs} priced maps by circuit
 complexity: a principled Occam, but one whose complexities had to be
-tabulated by force, map by map, and which therefore stops at small
-$n$. This section builds an Occam prior from a complexity notion that
-is \emph{constructive} -- computable from the truth table by a fast
-transform -- and tractable at every $n$: the degree of the map
-written as a polynomial. Two ideas carry the section. First, a
-non-hyperbolic macroscopic curve requires a prior that is not
-\emph{exchangeable}: if permuting the question labels leaves the
-prior invariant at every size, consistently across sizes, then de
-Finetti's theorem reduces it to a mixture of i.i.d.\ answers over a
-latent bias; the answers pin that bias in $o(Q)$ questions, the
-fresh-answer entropy settles to a constant, and the curve is a
-hyperbola. The polynomial structure of the question cube supplies
-the asymmetry without any partition of the questions into blocks. Second, weighting
-complexity by a single temperature fails for a counting reason made
-precise below: only a thin shell of maps would contribute. The repair
-is to \emph{sample} the complexity shell rather than price it, which
-keeps every shell -- and every single map -- at positive weight all
-the way into the thermodynamic limit. Throughout this section the
-answer width is $m = 1$, so $u = \tfrac12$ and a fresh fair answer
-carries one bit.
+tabulated by force, map by map, and which therefore becomes practically prohibited for larger
+$n$. This section builds a simplicity prior from a complexity notion that
+is \emph{constructive}: computable from the truth table by a fast
+transform, thus tractable at every $n$. Said notion is to write the map as
+a polynomial in its input bits, and weigh by the \emph{degree of that polynomial}.
+
+There are two guiding insights in this section.
+First, we are interested in demonstrating that the leverage in the TDL can be more than
+a hyperbola. In order for this to happen, the rate of information $\gamma(t)$ cannot be a
+flat constant in the bulk. This flatness is conspicuously difficult to escape. Many naive
+constructions are virtually "finding out what latent set of maps Werner's in". The simplest
+example was 'spike-or-not' of section \ref{sec:spike}. 
+Even when this is made richer with more variation, it still costs
+ $o(Q)$ bits to learn the set label, and therefore concludes around $t=0^+$. Once the set is
+ settled (no pun intended), the rate $\gamma(t)$ inside is often constant. Instead, we
+ need a construction maintains stores of information that don't settle until macroscopic times.
+ The polynomial degree prior has that property.
+
+ Second, weighting maps by
+complexity through a single temperature, with an exponentially vanishing weight with degree like the Gibbs ensemble does, reduces 
+to only effectively consider a thin shell of contributing maps. At low degrees, theres too few maps. At high, there's too little weight.
+
+This may be desirable
+in statistical physics to find averages, but as a philosophical choice, Werner won't rule anything out
+in his learning journey. The repair
+is to \emph{sample} maps from a shared quota of weight per degree, which
+keeps every shell, and every single map, at positive weight all
+the way into the thermodynamic limit. 
+
+Throughout this section the
+answer size is $m = 1$, so $u = \tfrac12$ and a fresh uninformed answer
+carries at most one bit. As we saw before, larger $A$ mainly changes the rate of
+culling, and behaves much like $m$ independent maps being learned simultaneously. 
+The single bit case is fully instructive, at little missed generality.
 
 \subsubsection{Polynomials over
 \texorpdfstring{$\mathbb F_2$}{F2}, and the butterfly}
@@ -3845,26 +3861,33 @@ is, the two-element field $\mathbb F_2$, whose two operations are
   \label{eq:f2}
 \end{equation}
 %
-Two consequences carry the rest. Every element is its own additive
+Three observations:
+\begin{enumerate}
+  \item Every element is its own additive
 inverse, $b \oplus b = 0$, so there is no subtraction and there are no
-minus signs: a term contributed twice cancels. And every element is
+minus signs: a term contributed twice cancels.
+\item Every element is
 idempotent, $b^2 = b$, so no variable is ever squared, and a product
 of input bits is fixed by \emph{which} bits it contains, never by how
-often. All matrices, vectors, ranks and inverses below are read mod
+often. 
+\item All matrices, vectors, ranks and inverses below are read mod
 $2$.
+\end{enumerate} 
+which define the rules of this space and the functions that inhabit it.
 
-A \emph{monomial} in the input bits $b_{n-1} \cdots b_0$ of a question
-is therefore labelled by the set $\mathcal B$ of bit positions it
-contains: $\prod_{i \in \mathcal B} b_i$ is the map answering $1$
-exactly when every bit in $\mathcal B$ is $1$, the AND of those bits,
-and the empty set gives the empty product, the constant map $1$. A
-position is named by its bit, so we write
-$\mathcal B = \{b_1, b_0\}$ rather than $\{1, 0\}$, and the subscript
-on a coefficient is the monomial itself: $\rho_{b_1 b_0}$ belongs to
-$\mathcal B = \{b_1, b_0\}$, $\rho_\emptyset$ to the constant. There
-are $Q = 2^n$ bit sets, hence $Q$ monomials, hence $2^Q = N$ ways to
+As a consequence, we only need to consider \emph{monomial}s in the input bits $b_{n-1} \cdots b_0$ of a question.
+It is labelled by the set of bit positions it
+contains: $\phi = \prod_i b_i$ is the map answering $1$
+exactly when every bit is $1$, the AND of those bits,
+and the empty set gives the empty product, the constant map $1$. Write e.g.
+$\mathcal B = \{b_1, b_0\}$ a set of input bits, and the subscript
+on a coefficient $\rho\in \{0,1\}$ is tantamount to the monomial itself: $\rho_{b_1 b_0}$ represents $\rho_{b_1 b_0}\cdot b_1\cdot b_0$, the monomial made from
+$\mathcal B$, just as $\rho_\emptyset$ belongs to the constant. There
+are $Q = 2^n$ bit sets, hence $Q$ monomials. Creating functions in this space is akin
+to deciding which monomials are present, which $\rho_{\mathcal B}$ are one (remember property 1: no non-unit coefficients).
+There are $2^Q = N$ ways to
 switch them on and off: exactly as many as there are maps, and the
-correspondence is one to one.
+correspondence is one to one. 
 
 One more piece of vocabulary. The \emph{support} of a question is the
 set of bit positions where it holds a $1$,
@@ -3874,13 +3897,19 @@ set of bit positions where it holds a $1$,
   \label{eq:supp}
 \end{equation}
 %
-so a question and a set of bits are the same data in two costumes,
-and we use the identification freely: $\mathcal B$ names a monomial
+
+A question and a set of bits are the same data in two manifestations,
+and we use the identification freely: $\mathcal B$ names a monomial $\rho_{\mathcal{B}}$
 and equally the question whose $1$s sit exactly at $\mathcal B$. The
-condition $\operatorname{supp}(q) \subseteq \mathcal B$ then picks out
-the \emph{subcube below} $\mathcal B$ -- the $2^{|\mathcal B|}$
-questions that are $0$ everywhere outside $\mathcal B$ and free inside
+condition $\operatorname{supp}(q') \subseteq \mathcal B$ then picks out
+the \emph{subcube below} $\mathcal B$: the $2^{|\mathcal B|}$
+questions $q'$ that are $0$ everywhere outside $\mathcal B$ and free inside
 it.
+
+\begin{example}
+  For instance at $n=4$, $q=1010$ has $\operatorname{supp}(q) = \{1,3\}$. If this is $q\simeq \mathcal{B}$,
+  the subcube below is $q'\in \{1010, 1000, 0010, 0000\}$.
+\end{example}
 
 Every map now has a unique vector of single-bit coefficients
 $\rho_{\mathcal B} \in \{0,1\}$, saying whether monomial $\mathcal B$
@@ -3892,28 +3921,30 @@ is the \emph{algebraic normal form},
                 \prod_{i \in \mathcal B} b_i(q)
           \;=\; \bigoplus_{\mathcal B \,\subseteq\,
                            \operatorname{supp}(q)} \rho_{\mathcal B},
-  \qquad
-  \rho_{\mathcal B} \;=\;
-    \bigoplus_{\operatorname{supp}(q) \,\subseteq\, \mathcal B}
-    \phi(q) .
   \label{eq:anf}
 \end{equation}
 %
-It is worth being explicit about which symbol does what. On the left
+It is worth being explicit about which symbol does what. Above,
 $q$ is the free variable, the question being asked, and $\mathcal B$ a
-dummy running over all $Q$ monomials: this is \emph{evaluation},
-coefficients in, one answer out. The middle expression is the same sum
-with the dead terms dropped, since $\prod_{i \in \mathcal B} b_i(q)$
-equals $1$ precisely when $\mathcal B \subseteq \operatorname{supp}(q)$.
-On the right $\mathcal B$ is the free variable, the coefficient being
+dummy running over all $Q$ monomials. This is \emph{evaluation},
+coefficients in, an answer out. The middle expression is the same sum
+with the dead ($\rho=0$) terms dropped, since $\prod_{i \in \mathcal B} b_i(q)$
+equals $1$ precisely when $\mathcal B \subseteq \operatorname{supp}(q)$. How to go the other way?
+
+\begin{equation}
+  \rho_{\mathcal B} \;=\;
+    \bigoplus_{\operatorname{supp}(q) \,\subseteq\, \mathcal B}
+    \phi(q) .
+\end{equation}
+
+Conversely, here $\mathcal B$ is the free variable, the coefficient being
 extracted, and $q$ the dummy, running over the subcube below
 $\mathcal B$: this is \emph{inversion}, truth table in, one coefficient
-out. So the whole dictionary is one containment read in both
-directions, the right-hand formula being M\"obius inversion. The
-\emph{degree} $\deg\phi$ is the largest $|\mathcal B|$ carrying
+out. The dictionary is both identities, the sceond formula being M\"obius inversion. The
+\textbf{degree} $\deg\phi$ is the largest $|\mathcal B|$ carrying
 $\rho_{\mathcal B} = 1$; it is the complexity notion of this section.
 
-Both directions are then literally one matrix. Write $T$ for the
+Both directions are in fact literally the same matrix. Write $T$ for the
 \emph{truth table} of a map read as a vector, $T[q] = \phi(q)$, with
 the questions in the descending order of Table~\ref{tab:sixteen}, and
 $\rho$ for the coefficient vector with the bit sets in the matching
@@ -3937,10 +3968,12 @@ $11, 10, 01, 00$ (per bit: $1, 0$),
   \label{eq:zkernel}
 \end{equation}
 %
-where $\mathbf 1[\cdot]$ evaluates a statement to a bit, so that row
+where $\mathbf 1[\cdot]$ evaluates a statement to a bit (1 is True, 0 is False). 
+The matrix is called the \emph{XOR-butterfly}, owing to the mod-2 space.
+This way, row
 $\mathcal B$ is the indicator of the subcube below $\mathcal B$. Under
 the identification of bit sets with questions the two halves of
-\eqref{eq:anf} are that one matrix hitting the two vectors,
+\eqref{eq:anf} are The one matrix multiplying the two vectors,
 %
 \begin{equation}
   \rho \;=\; Z^{\otimes n} \, T,
@@ -3954,46 +3987,18 @@ to tabulate a polynomial, transform its coefficients. The two are the
 same operation because over $\mathbb F_2$ the kernel is its own
 inverse, as the one-bit case already shows: $Z^2$ has entries
 $1, 2, 0, 1$, and $2 = 0$, so $Z^2 = I$ and
-$(Z^{\otimes n})^2 = (Z^2)^{\otimes n} = I$ with it.
+$(Z^{\otimes n})^2 = (Z^2)^{\otimes n} = I$ by extension.
 
-Computing $\rho$ is then a matter of ordering the work, and here the
-tensor structure pays. Done literally, \eqref{eq:anf} sums each
-coefficient's subcube from scratch, at a cost of
-$\sum_{\mathcal B} 2^{|\mathcal B|} = 3^n$ XORs, re-adding the deep
-subcubes over and over. But $Z^{\otimes n} = Z_{n-1} \cdots Z_1 Z_0$,
-where $Z_i$ applies $Z$ along the axis of bit $i$ and the identity on
-the other $n - 1$ axes, and the factors commute. The transform is
-therefore $n$ passes, one per bit, and a single pass is just the
-$2 \times 2$ kernel acting on every pair of table slots that differ in
-bit $i$ alone: the slot with $b_i = 0$ is left as it stands (bottom
-row $(0,1)$), the slot with $b_i = 1$ absorbs it (top row $(1,1)$). In
-place, for each bit $i$ and each slot $\mathcal B$ with
-$i \in \mathcal B$,
-%
-\begin{equation}
-  T[\mathcal B] \;\longleftarrow\;
-  T[\mathcal B] \oplus T[\mathcal B \setminus \{i\}] .
-  \label{eq:butterfly}
-\end{equation}
-%
-Follow one slot through. After the pass over bit $0$, slot
-$\mathcal B$ holds the XOR of the two original entries reachable by
-clearing bit $0$; after the pass over bit $1$, of the four reachable
-by clearing bits $0$ and $1$; after all $n$ passes, of every entry
-reachable by clearing any subset of the bits set in $\mathcal B$.
-Those entries are exactly the $q$ with
-$\operatorname{supp}(q) \subseteq \mathcal B$, so the slot now holds
-$\rho_{\mathcal B}$: each pass extends the subcube by one dimension,
-and every partial XOR is shared by all the slots above it rather than
-recomputed. Each pass touches half the table once, for $n\,2^{n-1}$
-XORs in place of $3^n$. This is the FFT butterfly with XOR in place of
-addition, and because $Z^2 = I$, running the very same passes again
-carries coefficients back to the truth table.
+In practice, computing $\rho$ is an efficient operation up to high $n$ due to its tensor product nature. See an example
+on the $(n,m)=(2,1)$ space.
 
 \begin{example}
 Take NAND, map $j = 7$ of Table~\ref{tab:sixteen}, which answers $0$
 only when both input bits are $1$, so that
-$T = \big(\phi(11), \phi(10), \phi(01), \phi(00)\big) = (0,1,1,1)$.
+
+\begin{equation*}
+  T = \big(\phi(11), \phi(10), \phi(01), \phi(00)\big) = (0,1,1,1).
+\end{equation*}
 Its four supports are $\operatorname{supp}(11) = \{b_1, b_0\}$,
 $\operatorname{supp}(10) = \{b_1\}$,
 $\operatorname{supp}(01) = \{b_0\}$ and
@@ -4085,8 +4090,7 @@ same $1,0$ ordering
   \label{eq:wfactor}
 \end{equation}
 %
-the matrix form of $\prod_q (1 - 2y_q) = \sum_T (-2)^{|T|}
-\prod_{q\in T} y_q$: the ledger transform is two M\"obius passes with
+The ledger transform is two M\"obius passes with
 a $(-2)^{|T|}$ rescaling between them, and reducing mod $2$ leaves
 exactly the XOR butterfly.
 
@@ -4137,15 +4141,27 @@ top monomial buys.
 
 \subsubsection{Complexity classes and the sampling rule}
 
+Using the dictionary, every map is bijective with a polynomial, and each polynomial has a degree.
 Grade the hypothesis space by degree. The class of all maps of degree
 at most $d$ is a linear space of dimension
-$K_d = \sum_{i \le d} \binom ni$ -- one coefficient bit per allowed
-monomial -- and the classes are nested, from the two constants
+
+\begin{equation}
+K_d = \sum_{i \le d} \binom ni.
+\end{equation}
+$K_d$ counts one coefficient bit $\rho_{\mathcal B}$ per allowed
+monomial. It's linear space because polynomials distribute, and any sum of polynomials, each with degree $\le d$, is again
+a polynomial of degree $\le d$, and therefore the space is closed.
+
+The classes run from the two constant polynomials $\rho_\emptyset \in \{0,1\}$
 ($d = 0$) to the full map space ($d = n$). In coding theory this
-class is the Reed--Muller code $\mathrm{RM}(d,n)$. Two words are used
-precisely below: the \emph{class} $d$ collects all maps of degree at
-most $d$ (nested), while its outermost layer, the maps of degree
-exactly $d$, is the \emph{shell} $d$ (disjoint). The class's \emph{rate}
+class is the Reed-Muller code $\mathrm{RM}(d,n)$. Two definitions are posited to avoid confusion
+\begin{itemize}
+\item the \emph{class} $d$ is the union of all maps of degree at
+most $d$. Classes are nested.
+\item A class's outermost layer, the maps of degree
+exactly $d$, is the \emph{shell} $d$. Shells are disjoint. 
+\end{itemize} 
+The class's \emph{rate}
 is its dimension per question,
 %
 \begin{equation}
@@ -4154,28 +4170,36 @@ is its dimension per question,
 \end{equation}
 %
 and it will turn out to be the fraction of a full run at which the
-class is learned out. Consecutive rates slice $(0,1]$ into
+class is 'learned out', i..e Werner has settled whether the map $\psi$ is this class or not. 
+Consecutive rates slice $(0,1]$ into
 \emph{rate gaps} $(R_{n,d-1}, R_{n,d}]$ of lengths
-$\binom nd / 2^n \le \sqrt{2/\pi n}$: one cell per class, a partition
-that refines as $n$ grows.
+
+\begin{equation}
+  R_{n,d} - R_{n,d-1} = \binom nd / 2^n \le \sqrt{2/\pi n}.
+\end{equation}
+This partition refines as $n$ grows. Rate gaps can be seen as the proportional thickness of the shells.
 
 \begin{example}
-The monomial shelf at $n = 4$: one box per monomial, grouped by
-degree into shells. Each box is one coefficient bit, a fair coin
-when drawing within a class, so the shelf prefix of length $K_d$
+  This graphic explains the stochasitc process that samples $\psi$. 
+  Sampling $\sim F$ determines a class (a maximum degree $d$). Inside that linear space, any polynomial is equally likely.
+  higher classes have exponentially more maps in them.
+This case illustrates the $n = 4$ case: take one box per monomial, grouped by $d$ into shells. Each box is one coefficient bit, which has
+50-50 odds to be included in the true polynomial of $\psi$.
+So $K_d$, the number of monomials under consideration
 \emph{is} the class $\mathrm{RM}(d,4)$ measured in bits, holding
 $2^{K_d}$ maps, and shell $d$ is the $\binom 4d$ boxes the class
-adds. The geometry is fixed once and for all -- dividing the edge by
+adds to the previous. The boxes lie ordered along a sampled line. 
+Dividing the position of the edge of a class by
 $Q = 16$ puts the class boundaries at the rates $R_{4,d} = K_d/16$,
-with the shells as the rate gaps -- and none of it depends on $F$.
+with the shells inhabiting the rate gaps. So far, the structure is fixed
+ and none of it depends on $F$.
 The statistic enters only through the dart: draw $U$ uniformly on
 the vertical axis, bounce off the graph of $F$, and land at
-$R = F^{-1}(U)$, drawn here for $F(x) = 1-(1-x)^2$, the smaller
-of two uniform draws -- the $r = 2$ member of the
-constant-leverage family \eqref{eq:Lmin} -- which tilts the
-landing law toward the simple end. For $F(x) = x$ the bounce is
-trivial, and each shell is hit with probability exactly its
-width.
+$R = F^{-1}(U)$, drawn here for $F(x) = 1-(1-x)^2$ (the smaller
+of two uniform draws: the $r = 2$ member of the
+constant-leverage family \eqref{eq:Lmin}), which favors simple (low-degree) maps.
+The rate-gap the dart hits determines the maximum allowed $d$. For this dart, $d \le 1$,
+and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \rho_{b_i}b_i$.
 
 \begin{center}
 \begin{tikzpicture}[x=0.85cm, y=1cm]
@@ -4200,9 +4224,9 @@ width.
   % ---------------- class bracket ----------------
   \draw[decorate, decoration={brace, amplitude=3pt}, black!70]
     (0,1.75) -- (11,1.75) node[pos=0.6, above=3pt, font=\scriptsize]
-    {class $\mathrm{RM}(2,4)$: the first $K_2 = 11$ coins};
+    {class $\mathrm{RM}(2,4)$: the first $K_2 = 11$ monomials};
   % ---------------- shell fills ----------------
-  \node[font=\scriptsize, rotate=90] at (-0.45,0.8) {shells};
+  \node[font=\scriptsize, rotate=90] at (-0.45,0.8) {monomials};
   \fill[black!12]  (0,0)  rectangle (1,1.6);
   \fill[cf2!22]    (1,0)  rectangle (5,1.6);
   \fill[cf3!25]    (5,0)  rectangle (11,1.6);
@@ -4222,7 +4246,7 @@ width.
       black!70] (\l,-0.1) -- (\r,-0.1);
     \node[font=\scriptsize, below] at ({(\l+\r)/2},-0.22) {\lab};}
   \node[font=\scriptsize, anchor=east] at (-0.15,-0.35)
-    {$\binom4d$:};
+    {shell $d$:};
   % ---------------- rate axis ----------------
   \draw[->] (0,-1.25) -- (16.4,-1.25);
   \foreach \x/\lab in {0/{$0$}, 1/{$\tfrac1{16}$}, 5/{$\tfrac5{16}$},
@@ -4236,22 +4260,12 @@ width.
 \end{tikzpicture}
 \end{center}
 
-Reading the shelf against the table below it: the shell widths
-$1, 4, 6, 4, 1$ are the populations' logarithmic footprints, while
-the map \emph{counts} $2^{K_d}$ explode left to right -- the bulge
-in boxes is mild, the bulge in maps is the cliff.
+The shell widths
+$1, 4, 6, 4, 1$ below the boxes are the populations' logarithmic footprints, while
+the map \emph{counts} $2^{K_d}$ explode left to right.
 \end{example}
 
-Why sample a shell rather than weight the maps? The natural Occam
-move, $p_j \propto e^{-\beta \deg\phi_j}$, fails by a scaling
-argument. There are $2^{K_k}$ maps of degree at most $k$, so raising
-the cutoff by one buys $\binom n{k+1} \ln 2$ nats of entropy against
-a linear price $\beta$; no single temperature balances jumps of that
-size at more than one $k$. The ensemble concentrates on the shell
-$\binom n{d^*} \approx \beta / \ln 2$ -- at most two adjacent degrees
--- and every map outside it retains only vanishing relative weight. A
-single temperature hears a thin shell of the hypothesis space and
-nothing else. The cliff in numbers: the share of maps of degree
+The exponential explosion in numbers: the share of maps of degree
 exactly $d$ is $2^{K_d - Q} - 2^{K_{d-1} - Q}$, and
 
 \begin{center}
@@ -4275,16 +4289,17 @@ $\le n-4$ & rest
 
 Half of all maps sit at full degree, all but a $2^{-(n+1)}$ sliver in
 the top two shells, and everything below is doubly exponentially rare:
-this is the population any per-map weight has to fight. The repair
-prices the \emph{shell}, not the map:
+this is the population contour any per-map weight has to compensate. In our case, we put allocate
+a macroscopic amount of weight to each shell by construction. Then divide that weight among 
+the constituent maps. This scales nicely in the TDL, to never effectively rule out any degree, but also keep nonzero weight on each individual map.
 %
 \begin{enumerate}
   \item draw a single random number $R \in [0,1]$ (the
     \emph{statistic}) from a fixed law $\mu$ with CDF
     $F(x) = \Pr(R \le x)$ and, when it exists, density $f = F'$;
   \item let $D$ be the class whose rate gap contains $R$;
-  \item draw the truth uniformly from class $D$: each allowed
-    coefficient by a fair coin.
+  \item draw the truth uniformly from class $D$: each \emph{allowed} monomial
+    coefficient $\rho$ by a fair coin.
 \end{enumerate}
 %
 In every expectation below the random object is this one draw $R$;
