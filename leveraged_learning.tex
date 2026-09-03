@@ -4191,21 +4191,17 @@ $2^{K_d}$ maps, and shell $d$ is the $\binom 4d$ boxes the class
 adds to the previous. The boxes lie ordered along a sampled line. 
 Dividing the position of the edge of a class by
 $Q = 16$ puts the class boundaries at the rates $R_{4,d} = K_d/16$,
-with the shells inhabiting the rate gaps. So far, the structure is fixed
- and none of it depends on $F$.
-The statistic enters only through the dart: draw $U$ uniformly on
-the vertical axis, bounce off the graph of $F$, and land at
-$R = F^{-1}(U)$, drawn here for $F(x) = 1-(1-x)^2$ (the smaller
-of two uniform draws: the $r = 2$ member of the
-constant-leverage family \eqref{eq:Lmin}), which favors simple (low-degree) maps.
-The rate-gap the dart hits determines the maximum allowed $d$. For this dart, $d \le 1$,
-and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \rho_{b_i}b_i$.
+with the shells inhabiting the rate gaps. 
+
+The shell widths
+$1, 4, 6, 4, 1$ below the boxes are the populations' logarithmic footprints, while
+the map \emph{counts} $2^{K_d}$ explode left to right.
 
 \begin{center}
 \begin{tikzpicture}[x=0.83cm, y=1cm]
   % ---------------- CDF panel: sample by inverse bounce ----------
   \draw[black!30] (0,2.7) -- (16,2.7);
-  \draw[->] (0,2.7) -- (0,5.05);
+  \draw[->] (0,2.7) -- (0,4.95);
   \draw (-0.1,4.8) -- (0.1,4.8);
   \node[font=\scriptsize, left] at (-0.12,4.8) {$1$};
   \draw[cf1!60!black, thick]
@@ -4239,30 +4235,43 @@ and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \r
     14/{b_3b_2b_1}, 15/{b_3b_2b_1b_0}}{
     \draw[black!35, line width=0.3pt] (\i,0) rectangle ({\i+1},1.6);
     \node[font=\tiny, rotate=90] at ({\i+0.5},0.8) {$\lab$};}
+  % ---------------- shell bands behind the three lower rows -------
+  \foreach \l/\r/\sh in {0/1/6, 1/5/14, 5/11/6, 11/15/14, 15/16/6}
+    \fill[black!\sh] (\l,-0.02) rectangle (\r,-1.95);
   % ---------------- shell braces with counts ----------------
   \foreach \l/\r/\lab in {0/1/{$1$}, 1/5/{$4$}, 5/11/{$6$},
     11/15/{$4$}, 15/16/{$1$}}{
     \draw[decorate, decoration={brace, mirror, amplitude=2.5pt},
       black!70] (\l,-0.1) -- (\r,-0.1);
     \node[font=\scriptsize, below] at ({(\l+\r)/2},-0.22) {\lab};}
-  \node[font=\scriptsize, anchor=east, align=right] at (-0.15,-0.35)
-    {shell $d$:};
   % ---------------- rate axis ----------------
-  \draw[->] (0,-1.25) -- (16.4,-1.25);
+  \draw[->] (0,-0.95) -- (16.4,-0.95);
   \foreach \x/\lab in {0/{$0$}, 1/{$\tfrac1{16}$}, 5/{$\tfrac5{16}$},
     11/{$\tfrac{11}{16}$}, 15/{$\tfrac{15}{16}$}, 16/{$1$}}{
-    \draw (\x,-1.31) -- (\x,-1.19);
-    \node[font=\scriptsize, below] at (\x,-1.33) {\lab};}
-  \node[font=\scriptsize, anchor=east] at (-0.15,-1.25)
+    \draw (\x,-1.01) -- (\x,-0.89);
+    \node[font=\scriptsize, below] at (\x,-1.03) {\lab};}
+  \node[font=\scriptsize, anchor=east] at (-0.15,-0.95)
     {$R_{4,d}$:};
   \foreach \x in {1,5,11,15,16}
-    \draw[black!40, line width=0.3pt, dashed] (\x,-0.55) -- (\x,-1.19);
+    \draw[black!40, line width=0.3pt, dashed] (\x,-0.55) -- (\x,-0.89);
+  % ---------------- degree row ----------------
+  \foreach \l/\r/\lab in {0/1/{$0$}, 1/5/{$1$}, 5/11/{$2$},
+    11/15/{$3$}, 15/16/{$4$}}
+    \node[font=\scriptsize] at ({(\l+\r)/2},-1.75) {\lab};
+  \node[font=\scriptsize, anchor=east, align=right] at (-0.15,-1.75)
+    {shell\\$d$:};
 \end{tikzpicture}
 \end{center}
 
-The shell widths
-$1, 4, 6, 4, 1$ below the boxes are the populations' logarithmic footprints, while
-the map \emph{counts} $2^{K_d}$ explode left to right.
+So far, the structure is fixed and none of it depends on $F$.
+The statistic enters only through the dart: draw $U$ uniformly on
+the vertical axis, bounce off the graph of $F$, and land at
+$R = F^{-1}(U)$, drawn here for $F(x) = 1-(1-x)^2$ (the smaller
+of two uniform draws: the $r = 2$ member of the
+constant-leverage family \eqref{eq:Lmin}), which favors simple (low-degree) maps.
+The rate-gap the dart hits determines $D$, the maximum $d$. For this dart, $D=1$,
+and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \rho_{b_i}b_i$.
+
 \end{example}
 
 The exponential explosion in numbers: the share of maps of degree
@@ -4295,7 +4304,7 @@ the constituent maps. This scales nicely in the TDL, to never effectively rule o
 %
 \begin{enumerate}
   \item draw a single random number $R \in [0,1]$ (the
-    \emph{statistic}) from a fixed law $\mu$ with CDF
+    \emph{statistic}) from a fixed law with CDF
     $F(x) = \Pr(R \le x)$ and, when it exists, density $f = F'$;
   \item let $D$ be the class whose rate gap contains $R$;
   \item draw the truth uniformly from class $D$: each \emph{allowed} monomial
@@ -4331,20 +4340,18 @@ full support, at every $n$ and in the limit.
 Every shell, and every map, gets a chance, and still it's a genuine Occam. 
 Semantically, $F$ budgets
 the \emph{shells} while nestedness orders the \emph{maps}: $w_d$ is,
-up to a $2^{-\binom nd}$ sliver leaking in from higher classes, the
+up to an exponentially suppressed sliver leaking in from higher classes, the
 total weight of the degree-$d$ shell, split evenly within it. 
 
 A judicious choice of $F$ is what puts the correct portion of
 aggregate belief on the complexity that Werner expects from nature.
 The per-map Occam ordering holds for every $F$, and $F$ decides
-only how much aggregate weight each shell carries. If we equate shells with the set of 
-polynomials with \emph{exactly} degree $d$, a
-populous shell can however outweigh a simpler one, even though each of its
-members is individually lighter. 
+only how much aggregate weight each shell carries. The Occam ordering comes 
+from the natural explosion of maps at higher degrees, sharing the shell's marginal weight.
 
 \begin{example}
-The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
-statistic $F(x) = 1-(1-x)^2$, the $r = 2$ member of \eqref{eq:Fmin}.
+A geometric interpreration of the prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
+statistic $F(x) = 1-(1-x)^2$, which is concave (the $r = 2$ member of \eqref{eq:Fmin}).
 The three classes have
 %
 \begin{align*}
@@ -4355,8 +4362,8 @@ The three classes have
 so the rates $K_d/Q$ are $\tfrac14$, $\tfrac34$ and $1$. Class $d$
 offers a map it contains a rectangle: width $w_d$, the chance the lottery calls that
 class, by height $2^{-K_d}$, the chance the class then calls that map.
-A map of degree $e$ lies in every class $d \ge e$, so it collects
-every block from $e$ rightward -- all the blocks a harder map
+A map of degree $d$ lies in every class $D \ge d$, so it collects
+every block from $D$ rightward: all the blocks a harder map
 collects, and one more besides.
 
 \begin{center}
@@ -4430,16 +4437,13 @@ collects, and one more besides.
 \end{center}
 
 Each step up in degree curtails the sum from the left, so $p_j$ falls
-with the degree by construction rather than by fiat: the two constants
+with the degree by construction, regardless of $F$: the two constants
 of Table~\ref{tab:sixteen} take all three blocks, $\tfrac{73}{256}$,
-the six affine maps lose the first, $\tfrac{17}{256}$, and the eight
+the six affine maps lose the biggest, $\tfrac{17}{256}$, and the eight
 curved maps keep only the last, $\tfrac1{256}$. The blocks are drawn
-to scale, and that is the whole Occam story in one picture. A concave
-$F$ makes the constants' block the widest draw but for the middle one,
-and having only two members to split between makes it much the
-tallest, so it carries $56$ of the $73$ parts; the full class is a
-chip at both ends and contributes $1$. The check
-$2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
+to scale, illustrating the Occam prior. A concave
+$F$ boosts early widths. The small occupancy of low shells boosts early heights. 
+The check $2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
 
 \begin{center}
 \begin{tikzpicture}[x=1cm, y=3.6cm]
@@ -4460,6 +4464,8 @@ $2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
     at (1.825,0.3984375) {$\tfrac{102}{256}$};
   \node[font=\small, above, inner sep=2pt]
     at (3.225,0.03125) {$\tfrac{8}{256}$};
+  \node[font=\scriptsize, below, inner sep=2pt]
+    at (1.825,-0.08) {$\deg \phi_j$};
 \end{tikzpicture}
 \end{center}
 \end{example}
@@ -4467,14 +4473,20 @@ $2\cdot73 + 6\cdot17 + 8\cdot1 = 256$ closes the distribution.
 \subsubsection{Three terms for the leverage average}
 
 The exact finite law \eqref{eq:Lk-G}, in the chapter's notation
-\eqref{eq:finitelev}, needs three ingredients: the prior table
-entropy $Q\,G_{n,1}$, the received entropy $G_{n,\ell}$, and the
-increment $\gamma_{n,\ell}$. Each reduces to a statement about $F$.
+\eqref{eq:finitelev}, needs three ingredients: 
 
-\emph{The table entropy.} A class is a linear code; make the
-structure explicit once. The \emph{generator matrix} $\Omega$ of class
-$d$ is the $K_d \times Q$ matrix over $\mathbb F_2$ whose rows are the
-monomials the class allows, evaluated at every question,
+\begin{enumerate}
+  \item the prior table entropy $Q\,G_{n,1}$,
+  \item the received entropy $G_{n,\ell}$,
+  \item the increment $\gamma_{n,\ell}$.
+\end{enumerate}
+Each reduces to a statement about $F$.
+
+Term 1: \emph{The table entropy.} A class is a linear code. We'll make the
+structure explicit. The \textbf{generator matrix} $\Omega$ of class
+$d$ is a $K_d \times Q$ matrix over $\mathbb F_2$. 
+Monomials are trivially themselves polynomials, and therefore boolean maps.
+$\Omega$'s rows are the monomials $\mathcal B$ that the class contains, evaluated at every question $q$.
 %
 \begin{equation}
   \Omega_{\mathcal B,q}
@@ -4484,13 +4496,13 @@ monomials the class allows, evaluated at every question,
   \label{eq:genmat}
 \end{equation}
 %
-so that a uniform class member is $\psi = \xi^{\mathsf T} \Omega$
-with $\xi$ uniform on $\{0,1\}^{K_d}$. Every column of $\Omega$ is
+so that a uniformly random class member is $\psi = \xi^{\mathsf T} \Omega$
+with $\xi$ uniformly random on $\{0,1\}^{K_d}$. Every column of $\Omega$ is
 nonzero (its constant-monomial entry is $1$), so each single answer is
 the image of a uniform $\xi$ under a surjective linear map onto
-$\mathbb F_2$: a
-fair bit, in every class, and a mixture of fair bits is a fair bit.
-At every finite $n$, with no limit taken and no reference to $\mu$,
+$\mathbb F_2$: a fair bit, in every class. Any bit that is flipped with 50\% chance is fair, which is what happens when the constant bit is added.
+In other words, the initial $M$ is fully uniform.
+At every finite $n$, with no limit taken and no reference to $F(x)$,
 %
 \begin{equation}
   G_{n,1} = 1,
@@ -4503,9 +4515,9 @@ The prior predicts nothing about any single answer; its entire
 content is correlational.
 
 \begin{example}
-The generator matrix at $n = 2$: the questions across the top in
+The generator matrix $\Omega$ at $n = 2$: the questions across the top in
 descending order, the monomials down the side in degree order, and the
-entry where they meet the value \eqref{eq:genmat} gives. The three boxes are the three classes, each
+entry where they cross: the value \eqref{eq:genmat} gives. The three boxes are the three classes, each
 keeping the first $K_d$ rows, which is what makes them nest:
 %
 \begin{center}
@@ -4532,7 +4544,7 @@ keeping the first $K_d$ rows, which is what makes them nest:
     \draw[\col, line width=0.5pt, rounded corners=1.2pt]
       ([shift={(-\pad,-\top)}]m-1-2.west |- m-1-1.south)
       rectangle ([shift={(\pad,-\pad)}]m-1-5.east |- m-\rw-5.south);
-  \node[anchor=east] at ([xshift=-6pt]m.west) {$\Omega \;=$};
+  \node[anchor=east] at ([xshift=-6pt]m.west) {$\Omega_{\mathcal B,q} \;=$};
   \node[font=\scriptsize, cf2!80!black, anchor=west]
     at ([xshift=12pt]m-1-5.east |- m-3-5) {$d = 0$};
   \node[font=\scriptsize, cf3!80!black, anchor=west]
@@ -4542,13 +4554,13 @@ keeping the first $K_d$ rows, which is what makes them nest:
 \end{tikzpicture}
 \end{center}
 %
-A class member is $\psi = \xi^{\mathsf T}\Omega^{(d)}$, the XOR of the
-rows that the coin string $\xi$ switches on. The $K_d$ rows are
+A class member is $\psi = \xi^{\mathsf T}\Omega^{(d)}$, the element-wise XOR of the
+rows that the coin-sequence $\xi$ switches on. The $K_d$ rows are
 independent, so $\xi \mapsto \psi$ is a bijection onto the class:
 flipping $K_d$ fair coins, one per allowed monomial, lands on each of
 the $2^{K_d}$ maps exactly once, which is step 3 of the sampling rule
-and why no map inside a class is favoured over another. Three draws,
-each extending the last:
+and why no map inside a class is favoured over another. 
+Three examples of coin-sequences, yield three maps, at three different class degrees $d$
 %
 \begin{align*}
   \xi &= (1)
@@ -4566,36 +4578,41 @@ Every column carries the constant row's $1$, so flipping
 $\xi_\emptyset$ flips the answer to every question at once: the
 $2^{K_d}$ maps pair off into complementary halves and
 $M_{a,q} = \tfrac12$ at every question, in every class, for every $F$.
-The table starts knowing nothing, $H(M^{(0)}) = Q$. Read against
+The table starts knowing nothing, $H(M^{(0)}) = Q$. compare to
 \eqref{eq:zkernel}, $\Omega$ is $Z^{\otimes n}$ transposed, its rows
 sorted by degree so that every class is a prefix.
 \end{example}
 
-\emph{The received entropy.} Take the easy case first: suppose Werner
-were told the class. Inside class $d$ the truth is
-$\psi = \xi^{\mathsf T}\Omega$ with $\xi$ a string of $K_d$ fair coins,
-so his answers are uniform on the image of the columns he has asked
-and their entropy is that submatrix's rank. Every fresh column
-independent of its predecessors buys one whole bit; once the rank
-reaches $K_d$ the coins are pinned, $\xi$ is known, and every answer
-after that is forced and worth nothing. Average that behaviour over
+Term 2: \emph{The received entropy.} Let us approach this answer in steps.  
+For a straightforward intermediate, suppose \emph{Werner
+were told the class}. His prior would instantly collapse to only those maps. 
+Inside class $d$ the truth is $\psi = \xi^{\mathsf T}\Omega$ with $\xi$ a string of $K_d$ fair coins,
+so his answers are uniform on the image of the columns of $\Omega$ he has asked
+and their entropy is that submatrix's rank. Every fresh column (question \& answer)
+independent of its predecessors buys one whole bit; once the rank of the 
+submatrix seen this way reaches $K_d$, the coins are pinned. 
+$\xi$ is known, and every answer
+after that is completely determined, and there is no more entropy. Average that behaviour over
 the classes with weight $w_d = \Pr(D = d)$ and the received entropy
 would be settled.
 
-Two things spoil it at finite $n$, and both dissolve in the limit.
-Asking $K_d$ questions is not the same as spending the rank, because
+Two things spoil this reasoning at finite $n$, and both dissolve in the TDL.
+Asking $K_d$ questions is not the same as reconstructing a full rank submatrix, because
 the columns are not in general position: the smallest dependent set has
 $2^{d+1}$ members, the minimum distance of the dual code
 $\mathrm{RM}(n{-}d{-}1,n)$, and for the middle classes that falls well
-short of $K_d$ -- four questions against $K_1 = 5$ at $n = 4$, eight
+short of $K_d$. For instance, four questions against $K_1 = 5$ at $n = 4$, eight
 against $K_2 = 37$ at $n = 8$. Four questions whose bit patterns XOR to
-zero already determine each other for an affine map, whatever else is
+zero already determine each other for an affine ($d=1$) map, whatever else is
 unsettled. So a question can be redundant early and the rank often is
-not full until late: the switch from one bit to none is a smeared step,
-not a sharp one, though it encloses area $K_d$ regardless. Only the two
-ends escape, the constants and the full space being the codes for which
+not full until late: the switch from one bit per question to none is a smeared step,
+not a sharp one, though the total entropy encloses area $K_d$ regardless. Only the two
+ends escape, the constants ($K_1=1$) and the full space ($K_n = Q$) being the codes for which
 every $K_d$ columns really are independent. And Werner is not told the class; he has
-to read it off the answers, and that costs. Computing
+to read it off the answers, and that costs information. 
+
+Again, let $\mathcal S$ be the set of questions asked at some point during learning.
+Computing
 $H(\psi(\mathcal S), D)$ by the chain rule in both orders prices the
 second of these,
 %
@@ -4609,7 +4626,7 @@ second of these,
 \end{equation}
 %
 mixture entropy is mean class entropy plus what the answers reveal
-about the label, and the label is cheap -- $o(1)$ bits per question.
+about the label, and the label is cheap: $o(1)$ bits per question.
 Within class $d$ the answers on $\mathcal S$ are
 $\xi^{\mathsf T}\Omega_{\cdot,\mathcal S}$, uniform on the image of
 the column submatrix, so
@@ -4704,7 +4721,7 @@ average converges to an average over the statistic,
 \begin{equation}
   \frac{G_{n,\lfloor tQ\rfloor}}{Q}
   \;\longrightarrow\;
-  \mathbb E_\mu\big[\min(t, R)\big]
+  \mathbb E_F\big[\min(t, R)\big]
   \;=\; \int_0^t \big(1 - F(x)\big)\, dx \;=:\; g(t),
   \label{eq:gF}
 \end{equation}
@@ -6318,11 +6335,11 @@ construction. The numerator has its own reading: destroyed density is
 the asked fraction $t$ plus $F(t)$ per unasked column, since an
 unasked answer is deducible exactly when the class died before $t$.
 Asked plus deduced, over received. Expanding at the ends,
-$L_F(0^+) = 1 + f(0^+)$ and $L_F(1) = 1/\mathbb E_\mu[R]$: the curve
+$L_F(0^+) = 1 + f(0^+)$ and $L_F(1) = 1/\mathbb E_F[R]$: the curve
 starts at baseline plus the density of the statistic at zero, and
 completes at the reciprocal mean rate. Conversely, any nonincreasing
 profile with values in $[0,1]$ is the survival function of exactly
-one law $\mu$ (read the layer cake backwards), so \eqref{eq:LF} is
+one law $F(x)$ (read the layer cake backwards), so \eqref{eq:LF} is
 not one family among many: the sampling rule realizes every
 admissible curve of \eqref{eq:master} at $m = 1$, and the statistic
 is the profile. A parallel construction from blocks of questions,
