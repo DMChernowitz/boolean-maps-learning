@@ -3873,9 +3873,9 @@ often.
 \item All matrices, vectors, ranks and inverses below are read mod
 $2$.
 \end{enumerate} 
-which define the rules of this space and the functions that inhabit it.
+These define the rules of this space and the functions that inhabit it.
 
-As a consequence, we only need to consider \emph{monomial}s in the input bits $b_{n-1} \cdots b_0$ of a question.
+As a consequence, we only need to consider \emph{monomials} in the input bits $b_{n-1} \cdots b_0$ of a question.
 It is labelled by the set of bit positions it
 contains: $\phi = \prod_i b_i$ is the map answering $1$
 exactly when every bit is $1$, the AND of those bits,
@@ -3940,7 +3940,7 @@ equals $1$ precisely when $\mathcal B \subseteq \operatorname{supp}(q)$. How to 
 Conversely, here $\mathcal B$ is the free variable, the coefficient being
 extracted, and $q$ the dummy, running over the subcube below
 $\mathcal B$: this is \emph{inversion}, truth table in, one coefficient
-out. The dictionary is both identities, the sceond formula being M\"obius inversion. The
+out. The dictionary is both identities, the second formula being M\"obius inversion. The
 \textbf{degree} $\deg\phi$ is the largest $|\mathcal B|$ carrying
 $\rho_{\mathcal B} = 1$; it is the complexity notion of this section.
 
@@ -3973,7 +3973,7 @@ The matrix is called the \emph{XOR-butterfly}, owing to the mod-2 space.
 This way, row
 $\mathcal B$ is the indicator of the subcube below $\mathcal B$. Under
 the identification of bit sets with questions the two halves of
-\eqref{eq:anf} are The one matrix multiplying the two vectors,
+\eqref{eq:anf} are the one matrix multiplying the two vectors,
 %
 \begin{equation}
   \rho \;=\; Z^{\otimes n} \, T,
@@ -4170,7 +4170,7 @@ is its dimension per question,
 \end{equation}
 %
 and it will turn out to be the fraction of a full run at which the
-class is 'learned out', i..e Werner has settled whether the map $\psi$ is this class or not. 
+class is 'learned out', i.e Werner has settled whether the map $\psi$ is this class or not. 
 Consecutive rates slice $(0,1]$ into
 \emph{rate gaps} $(R_{n,d-1}, R_{n,d}]$ of lengths
 
@@ -4180,7 +4180,7 @@ Consecutive rates slice $(0,1]$ into
 This partition refines as $n$ grows. Rate gaps can be seen as the proportional thickness of the shells.
 
 \begin{example}
-  This graphic explains the stochasitc process that samples $\psi$. 
+  This graphic explains the stochastic process that samples $\psi$. 
   Sampling $\sim F$ determines a class (a maximum degree $d$). Inside that linear space, any polynomial is equally likely.
   higher classes have exponentially more maps in them.
 This case illustrates the $n = 4$ case: take one box per monomial, grouped by $d$ into shells. Each box is one coefficient bit, which has
@@ -4202,7 +4202,7 @@ The rate-gap the dart hits determines the maximum allowed $d$. For this dart, $d
 and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \rho_{b_i}b_i$.
 
 \begin{center}
-\begin{tikzpicture}[x=0.85cm, y=1cm]
+\begin{tikzpicture}[x=0.83cm, y=1cm]
   % ---------------- CDF panel: sample by inverse bounce ----------
   \draw[black!30] (0,2.7) -- (16,2.7);
   \draw[->] (0,2.7) -- (0,5.05);
@@ -4218,12 +4218,12 @@ and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \r
   \draw[cf1!60!black, dashed, line width=0.7pt]
     (0,3.456) -- (3.2,3.456);
   \draw[cf1!60!black, dashed, line width=0.7pt,
-    -{Stealth[length=4pt]}] (3.2,3.725) -- (3.2,1.7);
+    -{Stealth[length=4pt]}] (3.2,3.456) -- (3.2,1.7);
   \node[font=\scriptsize, cf1!60!black, anchor=east]
     at (2.95,2.4) {$R = F^{-1}(U)$};
   % ---------------- class bracket ----------------
   \draw[decorate, decoration={brace, amplitude=3pt}, black!70]
-    (0,1.75) -- (11,1.75) node[pos=0.6, above=3pt, font=\scriptsize]
+    (0,1.75) -- (11,1.75) node[pos=0.68, above=3pt, font=\scriptsize]
     {class $\mathrm{RM}(2,4)$: the first $K_2 = 11$ monomials};
   % ---------------- shell fills ----------------
   \node[font=\scriptsize, rotate=90] at (-0.45,0.8) {monomials};
@@ -4245,7 +4245,7 @@ and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \r
     \draw[decorate, decoration={brace, mirror, amplitude=2.5pt},
       black!70] (\l,-0.1) -- (\r,-0.1);
     \node[font=\scriptsize, below] at ({(\l+\r)/2},-0.22) {\lab};}
-  \node[font=\scriptsize, anchor=east] at (-0.15,-0.35)
+  \node[font=\scriptsize, anchor=east, align=right] at (-0.15,-0.35)
     {shell $d$:};
   % ---------------- rate axis ----------------
   \draw[->] (0,-1.25) -- (16.4,-1.25);
@@ -4289,7 +4289,7 @@ $\le n-4$ & rest
 
 Half of all maps sit at full degree, all but a $2^{-(n+1)}$ sliver in
 the top two shells, and everything below is doubly exponentially rare:
-this is the population contour any per-map weight has to compensate. In our case, we put allocate
+this is the population contour any per-map weight has to compensate. In our case, we allocate
 a macroscopic amount of weight to each shell by construction. Then divide that weight among 
 the constituent maps. This scales nicely in the TDL, to never effectively rule out any degree, but also keep nonzero weight on each individual map.
 %
@@ -4302,12 +4302,15 @@ the constituent maps. This scales nicely in the TDL, to never effectively rule o
     coefficient $\rho$ by a fair coin.
 \end{enumerate}
 %
-In every expectation below the random object is this one draw $R$;
-the $R_{n,d}$ are the deterministic grid it lands among. The class
-label $D$ is latent -- Werner never observes it -- and is one value
-among $n+1$, worth at most $\log_2(n+1)$ bits. Integrating the
-lottery, and using nestedness (a map of degree $e$ belongs to every
-class $d \ge e$),
+So the $R$ and $D$ only determine which monomial terms are ruled out because they're too high degree. 
+The $R_{n,d}$ are the deterministic grid $R$ lands in.
+Only $d \le D$ are allowed: those with $R_{n,d-1} < R$.
+
+ The class
+label $D$ is \emph{latent}, meaning Werner never observes it. It is one value
+among $n+1$, worth at most $\log_2(n+1)$ bits. Due to nested classes, a map $\phi_j$ of degree $d$ can result
+from any $D \ge d$. To find the probability of that map, we integrate over $D$.
+
 %
 \begin{equation}
   w_d \;=\; F(R_{n,d}) - F(R_{n,d-1}),
@@ -4318,21 +4321,26 @@ class $d \ge e$),
 %
 with $\sum_d w_d = 1$ telescoping. If $F$ increases across every gap
 (any positive density), then every $w_d > 0$, and two properties
-follow at once: $p_j$ is \emph{strictly decreasing in the degree},
-each step down costing a factor of order $2^{-\binom nd}$ -- a
-genuine Occam -- and $p_j \ge w_n 2^{-Q} > 0$ for every single map:
-full support, with no noise channel, at every $n$ and in the limit.
-Every shell, and every map, gets a chance. Semantically, $F$ budgets
+follow trivially: 
+\begin{itemize}
+  \item $p_j$ is \emph{strictly decreasing in the degree},
+each step up losing a factor of order $2^{-\binom nd}$
+\item $p_j \ge w_n 2^{-Q} > 0$ for every single map:
+full support, at every $n$ and in the limit.
+\end{itemize}
+Every shell, and every map, gets a chance, and still it's a genuine Occam. 
+Semantically, $F$ budgets
 the \emph{shells} while nestedness orders the \emph{maps}: $w_d$ is,
 up to a $2^{-\binom nd}$ sliver leaking in from higher classes, the
-total weight of the degree-$d$ shell, split evenly within it. The
-per-map Occam ordering therefore holds for every $F$, and $F$ decides
-only how much aggregate weight each shell carries -- a
-populous shell can outweigh a simpler one even though each of its
-members is individually lighter.
+total weight of the degree-$d$ shell, split evenly within it. 
 
 A judicious choice of $F$ is what puts the correct portion of
 aggregate belief on the complexity that Werner expects from nature.
+The per-map Occam ordering holds for every $F$, and $F$ decides
+only how much aggregate weight each shell carries. If we equate shells with the set of 
+polynomials with \emph{exactly} degree $d$, a
+populous shell can however outweigh a simpler one, even though each of its
+members is individually lighter. 
 
 \begin{example}
 The prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
