@@ -4306,7 +4306,7 @@ the constituent maps. This scales nicely in the TDL, to never effectively rule o
 \begin{enumerate}
   \item draw a single random number $R \in [0,1]$ (the
     \emph{statistic}) from a fixed law with CDF
-    $F(x) = \Pr(R \le x)$ and, when it exists, density $f = F'$;
+    $F(x) = \Pr(R \le x)$ and, when it exists, density $F'$;
   \item let $D$ be the class whose rate gap contains $R$;
   \item draw the truth uniformly from class $D$: each \emph{allowed} monomial
     coefficient $\rho$ by a fair coin.
@@ -4612,7 +4612,7 @@ ends escape, the constants ($K_0=1$) and the full space ($K_n = Q$) being the co
 every $K_d$ columns really are independent. And Werner is not told the class; he has
 to read it off the answers, and that costs information. 
 
-Again, let $\mathcal S$ be the set of questions asked at some point during learning.
+Again, let $\mathcal S$ be the set of questions asked at some point during learning, and $D$ be the class label.
 Computing
 $H(\psi(\mathcal S), D)$ by the chain rule in both orders prices the
 second of these,
@@ -4636,6 +4636,28 @@ exactly: the number of $\mathbb F_2$-linearly
 independent columns, the number of bits needed to describe those
 answers.
 
+Averaging \eqref{eq:ungroup} over the $\binom Q\ell$ sets of size $\ell$
+turns the left side into $G_{n,\ell}$ of \eqref{eq:Gnk} and the right
+side into a mean rank, one per class:
+%
+\begin{equation}
+  \underbrace{G_{n,\ell}}_{\text{Average}}
+  \;=\; \underbrace{\sum_d w_d\, G^{(d)}_{n,\ell}}_{\text{told the class}}
+  \;+\; \underbrace{I_{n,\ell}}_{\le\,\log_2(n+1)},
+  \qquad
+  G^{(d)}_{n,\ell}
+  \;:=\; \binom Q\ell^{-1} \sum_{|\mathcal S| = \ell}
+    \operatorname{rank}\big(H_d\left(\psi(\mathcal S)\right)\big),
+  \label{eq:Gmix}
+\end{equation}
+%
+where $I_{n,\ell}$ is the label term of \eqref{eq:ungroup} averaged
+over the same sets, inheriting its bound. Only $G_{n,\ell}/Q$ ever
+enters the leverage, and $\log_2(n+1)/Q \to 0$, so the label costs a
+vanishing fraction of the run: $G_{n,\lfloor tQ\rfloor}/Q$ and
+$\sum_d w_d\, G^{(d)}_{n,\lfloor tQ\rfloor}/Q$ have the same limit at
+every $t$. It is enough to find the class averages.
+
 \begin{example}
 Say Werner knows $d=1$. This means:
 \begin{equation*}
@@ -4643,9 +4665,9 @@ Say Werner knows $d=1$. This means:
 \end{equation*}
 See in the matrix below for such affine maps, how the sum of all questions vanishes (linear dependence).
 \begin{equation*}
-  \psi(11) \oplus \psi(10) \oplus \psi(01) \oplus \psi(00) = 4\rho_\emptyset + 2\rho_{b_0}+2\rho_{b_1} = 0
+  \psi(11) \oplus \psi(10) \oplus \psi(01) \oplus \psi(00) = 4\rho_\emptyset \oplus 2\rho_{b_0} \oplus 2\rho_{b_1} = 0
 \end{equation*}
-Ask any three questions, the covered submatrix
+Ask any three questions $\mathcal S$, the covered submatrix
 $\Omega^{(1)}_{\cdot,\mathcal S}$ is square and of full rank $3$.
 %
 \begin{center}
@@ -4675,7 +4697,7 @@ $\Omega^{(1)}_{\cdot,\mathcal S}$ is square and of full rank $3$.
 That means the first three questions all have $\gamma_{2,\ell}=1$, they carry a bit
 of surprisal. After that, at $t=R_{2,1} = \tfrac34$, through
 a system of equations we can infer which monomials are present in the polynomial of $\psi$. The final $q$ cannot have 
-any uncertainty left, and $\gamma_{2,4}=0$. In total then, the received entropy is capped at $K_1=3$.
+any uncertainty left, and $\gamma_{2,3}=0$. In total then, the received entropy is capped at $K_1=3$.
 
 \begin{equation*}
   G_{2,\ell} = \min(\ell, 3)
@@ -4684,7 +4706,7 @@ any uncertainty left, and $\gamma_{2,4}=0$. In total then, the received entropy 
 \end{example}
 
 Three facts pin the limit of the class average
-$G^{(d)}_{n,\ell} = \mathbb E\,\mathrm{rank}$. The mean increment
+$G^{(d)}_{n,\ell} = \mathbb E\,\mathrm{rank \Omega^{(d)}}$. The mean increment
 $\gamma^{(d)}_{n,\ell} = \Pr[\text{a fresh column is independent of }
 \ell \text{ random ones}]$ is nonincreasing in $\ell$, by rank
 submodularity (what is dependent on few columns is dependent on
@@ -4708,6 +4730,7 @@ a fresh answer with probability tending to one:
   \label{eq:kkmpsu}
 \end{equation}
 %
+So if the class rate tends to the statistic $R$, the support of the entropy rate tends to below $R$.
 $m=1$, which is a bound on the increment: $\gamma \in [0,1]$.
 Such a nonincreasing sequence with area $R_d$ and no mass to the right of
 $R_d$ has no freedom. These characteristics force the shape, so the class
@@ -4733,7 +4756,7 @@ $\xi^{\mathsf T}\Omega_{\cdot,\mathcal S}$, so their entropy is the rank
 of that column submatrix, and $\gamma^{(D)}_{n,\ell}$ is the chance a
 fresh column is still independent of the $\ell$ already asked. 
 
-To see the limit approach, Hold the draw fixed at $R = 0.6$ and let $n$ grow. 
+To see the limit approach, hold the draw fixed at $R = 0.6$ and let $n$ grow. 
 The sampling rule hands back whichever class's rate gap contains it, so the class index
 climbs with $n$, taking $d = 3, 4, 5, 6$ below, while $R$ itself stays
 put; by \eqref{eq:kkmpsu} the increment tends to the black step at
@@ -4775,8 +4798,11 @@ telescope to the dimension, $\sum_{\ell<Q}\gamma^{(d)}_{n,\ell} = K_d$,
 at every $n$ and with no approximation.
 \end{example}
 
-Finally, round the stochastically sampled $R$ up to
-the top of its rate gap: since $\min(t,\cdot)$ is $1$-Lipschitz and
+So, for a given sampled $R$, class $D$ is pinned, and we know $G^{(D)}_{n,\lfloor tQ\rfloor}$ in terms of $R_D$. All that is left is to integrate 
+over $R$ to get the true prior average.
+
+We round the top of the rate $R_D$ down to $R$ itself.
+Since $\min(t,\cdot)$ is $1$-Lipschitz and
 the rounding moves $R$ by at most $\sqrt{2/\pi n}$ according to \eqref{eq:rategap}, the class
 average converges to an average over the statistic,
 %
@@ -4797,7 +4823,7 @@ by the defining sampling process $R \sim F'$.
 Received information per question is an average of rates per class, averaged over the expected contribution of those classes. 
 The correction from the mutual information term from equation \eqref{eq:ungroup} vanishes in the TDL.
 
-3: \emph{The increment.} This one now follows for free. The sequence $\ell \mapsto G_{n,\ell}$ is
+Term 3: \emph{The increment.} This one now follows for free. The sequence $\ell \mapsto G_{n,\ell}$ is
 concave (increments nonincreasing), and slopes of concave functions
 converge wherever the limit is differentiable, so at every continuity
 point of $F$
@@ -4815,25 +4841,21 @@ exhausted. The survival function of the statistic is not a postulate;
 it is the increment term of the finite law.
 
 \begin{example}
-Averaging over $D$. Slice the belief by class: a horizontal slab of
-thickness $w_d$ each, stacked longest-lived first, the arrows on the
-axis reading off the weights. The right edge is the survival curve
-itself, which enters slab $d$ at the rate $R_{n,d-1}$ and leaves it at
-$R_{n,d}$ -- the dashed verticals -- so the shaded region has height
-$\gamma(t) = 1 - F(t)$ everywhere and area $g(t)$ to the left of $t$:
-the layer cake, drawn. Raising $n$ does not move the region, it only
-cuts it into more slabs, the gaps closing like
-$\binom nd/2^n \le \sqrt{2/\pi n}$.
+This example is meant to illustrate how equation~\eqref{eq:ungroup} behaves in the TDL.
+Concisely, the left sum leads to a staircase in $\gamma(t)$, and the $I$ mutual information 
+an extra dusting of uncertainty that lies on top.
 
-Over it sit the two exact increments, one question answered under two
+The shaded region has height $\gamma(t) = 1 - F(t)$: the sampling distribution. The average over $D$ has contributions from all classes $d\le n$ present.
+Dashed vertical lines are the class rate boundaries $R_{n,d}$. 
+The horizontal lines are the aggregate class weights, largest below, adding 
+lower classes as we rise. This puts the shortest lived ones on top, so as we move
+to the right through time, more and more classes 'settle', and stop contributing uncertainty.
+Increasing $n$ cuts the region into more filigree rate gaps horizontally, and more
+class weights vertically.
+The two jagged functions on top are two exact increments, the entropy of a single answer, under two
 states of knowledge. Dashed: what a fresh answer is worth to someone
 already \emph{told} the class, $\sum_d w_d\gamma^{(d)}_{n,\ell}$.
-Solid: what it is worth to Werner, who is not. By \eqref{eq:ungroup}
-the mixture is more uncertain than its components by exactly what the
-answers say about the label, so the shaded wedge between the two is
-the label, and the white between the dashed curve and the region is
-the coarseness of the rate grid.
-
+Solid: $\gamma_{n,\ell}$ is what it's worth to Werner, who is not. 
 \begin{center}
 \begin{tikzpicture}[x=10.5cm, y=3.7cm]
   %% same reserved extent in every panel, so they line up
@@ -4936,7 +4958,7 @@ the coarseness of the rate grid.
     (0.8750,0.1532) -- (0.8750,0.1313) -- (0.9375,0.1313) --
     (0.9375,0.0146) -- (1.0000,0.0146);
   %% which curve is which
-  \node[font=\scriptsize, black!85, anchor=west] at (0.50,0.93) {$\gamma(t)$};
+  \node[font=\scriptsize, black!85, anchor=west] at (0.50,0.93) {$\gamma_{n\ell}$};
   \draw[->, black!75, line width=0.35pt] (0.505,0.910) -- (0.415,0.725);
   \node[font=\scriptsize, black!70, anchor=west] at (0.745,0.45) {$\sum_d w_d\,\gamma^{(d)}_{n,\ell}$};
   \draw[->, black!75, line width=0.35pt] (0.745,0.425) -- (0.705,0.235);
@@ -6320,19 +6342,30 @@ the coarseness of the rate grid.
   \node[font=\small, black!70, anchor=east] at (1.0,0.88) {$n = 12$};
 \end{tikzpicture}
 \end{center}
+By \eqref{eq:ungroup}
+the mixture is more uncertain than its components by exactly what the
+answers say about the label, so the gray shaded region between the two integrates to $I_{n,\ell}$:
+the label, and the white between the dashed curve and the region is due to
+the coarseness of the rate grid.
+Pretending the steps are smooth is \eqref{eq:gF}. Ignoring the gray is \eqref{eq:Gmix}.
+\end{example}
 
 The relative value of the label vanishes with $n$ as
-$\log_2(n+1)/Q$. The steps emerge because at any time a class has
-either been settled, and contributes nothing, or is still running, and
-contributes its full bit at every question, until the next class
-boundary is reached. The steps hug $1 - F$ as $n \to \infty$.
-\end{example}
+$\log_2(n+1)/Q$. As $n$ grows, the sliver of $I_{n,\ell}$ scales away.
+
+The steps emerge because at a given time a class has
+either been settled, and contributes no uncertainty, or is still running, and
+contributes its full bit (scaled by the probability of that class: the step height) at every question, until the next class
+boundary is reached. The number of questions in which $K_d$ rank (total information) is reached inside a class, statistically, is $o(Q)$, 
+which rounds the step edges. At low $n$, they bleed together, but at high $n$, the steps become distinct.
+
+The steps hug $1 - F$ as $n \to \infty$, by construction of the sampling protocol \eqref{eq:shapepj}.
 
 \subsubsection{The macroscopic curve}
 
 Substitute \eqref{eq:shapeT1}, \eqref{eq:gF} and \eqref{eq:gammaF}
 into \eqref{eq:Lk-G} and cancel the common factor $Q$; the numerator
-tidies to $1 - (1-t)(1-F(t)) = t + (1-t)F(t)$, and
+tidies from  $1 - (1-t)(1-F(t))$ to
 %
 \begin{equation}
   L_F(t)
@@ -6341,23 +6374,30 @@ tidies to $1 - (1-t)(1-F(t)) = t + (1-t)F(t)$, and
   \label{eq:LF}
 \end{equation}
 %
-This is the master law \eqref{eq:master} realized with $h_0 = 1$,
-$\gamma(t) = 1 - F(t)$ and $g(t) = \int_0^t(1-F)$; the hypotheses
-hold for free, $\gamma$ being bounded and nonincreasing by
-construction. The numerator has its own reading: destroyed density is
-the asked fraction $t$ plus $F(t)$ per unasked column, since an
-unasked answer is deducible exactly when the class died before $t$.
-Asked plus deduced, over received. Expanding at the ends,
-$L_F(0^+) = 1 + f(0^+)$ and $L_F(1) = 1/\mathbb E_F[R]$: the curve
+This is the master law \eqref{eq:master} realized with 
+\begin{equation}
+  h_0 = 1;\quad \gamma(t) = 1 - F(t); \quad g(t) = \int_0^t(1-F),
+\end{equation}
+the convergence hypotheses for the TDL hold naturally, $\gamma$ being bounded and nonincreasing by
+construction. The numerator has its own reading: destroyed uncertainty density is
+the asked fraction $t$ plus $F(t)$ per unasked question (column), since an
+unasked answer is deducible exactly for maps whose class died before $t$.
+Asked plus deduced, over received. Zooming in on the endpoints,
+\begin{equation}
+  L_F(0) = 1 + F'(0);\quad L_F(1) = \frac 1{\mathbb E_F[R]},
+\end{equation}
+the curve
 starts at baseline plus the density of the statistic at zero, and
-completes at the reciprocal mean rate. Conversely, any nonincreasing
-profile with values in $[0,1]$ is the survival function of exactly
-one law $F(x)$ (read the layer cake backwards), so \eqref{eq:LF} is
-not one family among many: the sampling rule realizes every
-admissible curve of \eqref{eq:master} at $m = 1$, and the statistic
-is the profile. A parallel construction from blocks of questions,
-mathematically complete in the same sense but less aligned with
-modeling a learner, is collected in Appendix~\ref{app:blockpriors}.
+completes at the reciprocal mean class rate. 
+
+Conversely, any nonincreasing
+profile with values in $[0,1]$ is the survival function $\Pr(R>x)$ of exactly
+one law $F(x)$. This means \eqref{eq:LF} is invertible: pick any desired increment profile, and
+\eqref{eq:master} at $m = 1$, can achieve it with $F(x) = 1- \gamma(x)$.
+
+A parallel construction, where we construct priors by postulating blocks of questions have exchangeable answers,
+is mathematically complete in the same sense. However, as it is less philosophically aligned with
+modeling a learner, it is collected in Appendix~\ref{app:blockpriors}.
 
 \subsubsection{Toy statistics: min and max draws}
 
@@ -6427,13 +6467,13 @@ rank profile, latent-label information included). Convergence is slow
 from below: the label costs $O(\log n)$ of the $Q$ available bits, and
 the mean rate approaches
 its limit only as $1/\sqrt n$. The left edge is a boundary layer:
-$L_F(0^+) = 1 + f(0^+)$ presumes $1 \ll \ell \ll Q$, while at
+$L_F(0) = 1 + F'(0)$ presumes $1 \ll \ell \ll Q$, while at
 $\ell = 1$ the only exhaustible class is the constants and
 $\langle L_1\rangle = 1 + (Q-1)\,w_0^2/(2\ln 2) + O(w_0^3)$, the
 early deductions being spent on identifying the latent label. The
 finite curves also scallop, most visibly at $n = 8$: each surge is
 one class being learned out near its rate $K_d/Q$, a discreteness the
-limit smooths away as the rate grid refines.}
+limit scrunches away as the rate grid refines.}
 \label{fig:Fexamples}
 \end{figure}
 
@@ -6454,22 +6494,22 @@ limit smooths away as the rate grid refines.}
 \legend{{$F_1(x)=x$}, {$F^+_2(x)=x^2$}, {$F^-_2(x)=1-(1-x)^2$}}
 \end{axis}
 \end{tikzpicture}
-\caption{The profiles behind Figure~\ref{fig:Fexamples}: the survival
-function $\gamma(t) = 1 - F(t)$ of each statistic, which by
-\eqref{eq:gammaF} is the mean entropy of a fresh answer at
+\caption{The increment profiles behind Figure~\ref{fig:Fexamples}: the survival
+function $\gamma(t) = 1 - F(t)$ of each statistic. By
+\eqref{eq:gammaF} it is the mean entropy (expected surprisal) of one fresh answer at
 macroscopic time $t$. Convex, straight and concave $F$ give concave,
-straight and convex profiles; the smaller of two draws spends its
+straight and convex profiles respectively; the smaller of two draws spends its
 predictive power earliest, the larger of two hoards it.}
 \label{fig:Fprofiles}
 \end{figure}
 
 Two one-parameter families are enough to see the law work. Draw $r$
-independent uniforms on $[0,1]$ and keep one of them: keeping the
-smaller drags the rate toward zero, keeping the larger pushes it
+independent uniformly random values on $[0,1]$ and keep one of them: keeping the
+smaller drags the suppresses toward zero, keeping the larger inflates it
 toward one, and $r$ sets how hard. Every curve in
-Figure~\ref{fig:Fexamples} comes from one of the two.
+Figure~\ref{fig:Fexamples} comes from either choice.
 
-\emph{The smaller of $r$ draws.} All $r$ land above $x$ with
+The smaller of $r$ draws: All $r$ land above $x$ with
 probability $(1-x)^r$, so
 %
 \begin{equation}
@@ -6481,9 +6521,9 @@ probability $(1-x)^r$, so
   \label{eq:Fmin}
 \end{equation}
 %
-The density $r(1-x)^{r-1}$ decreases, so budget is pushed onto the low
-shells. Substituting into \eqref{eq:LF}, the numerator folds up and
-the denominator comes back carrying the same bracket,
+The density $r(1-x)^{r-1}$ is a decreasing function, so budget (weight) is pulled into the low
+shells. Substituting into \eqref{eq:LF}, the numerator factorizes and
+the denominator ends up carrying the same bracket,
 %
 \begin{equation}
   L^-_r(t)
@@ -6495,12 +6535,12 @@ the denominator comes back carrying the same bracket,
 \end{equation}
 %
 at every macroscopic time: a whole ladder of constant curves, one rung
-per $r$, $r$ deduced bits riding on each received one. Both endpoint
-identities below \eqref{eq:LF} return that same number, $1 + f(0^+) =
-1 + r$ at the start and $1/\mathbb E[R] = r+1$ at the finish, and with
+per $r$, $r$ deduced bits accompanying each received one. Both endpoint
+identities below \eqref{eq:LF} return that same number, $1 + F'(0^+) =
+1 + r$ at the start and $1/\mathbb E_F[R] = r+1$ at the finish, and with
 a constant curve they have no choice but to agree.
 
-\emph{The larger of $r$ draws.} All $r$ land below $x$ with
+The larger of $r$ draws: All $r$ land below $x$ with
 probability $x^r$, so
 %
 \begin{equation}
@@ -6513,7 +6553,7 @@ probability $x^r$, so
 \end{equation}
 %
 an increasing density, budget on the high shells. Nothing telescopes
-now and the leverage moves,
+now and the leverage varies with $t$,
 %
 \begin{equation}
   L^+_r(t)
@@ -6523,51 +6563,51 @@ now and the leverage moves,
 \end{equation}
 %
 rising monotonically across the run. At the start the density vanishes
-and $L^+_r(0^+) = 1 + f(0^+) = 1$ for every $r > 1$: no leverage at
-all, each early answer paid in full. At the finish
-$L^+_r(1) = 1/\mathbb E[R] = (r+1)/r$, so the deductions are
-late-loaded and even the last of them buys only $1/r$ extra. The two
+and $L^+_r(0) = 1 + F'(0) = 1$ for every $r > 1$: no leverage at
+all, each early answer releases no direct deductions. At the finish
+$L^+_r(1) = 1/\mathbb E_F[R] = (r+1)/r$, so the deductions are
+late-loaded, but even the last of them buys only $1/r$ extra. The two
 finishes are complements, $1/L^-_r(1) + 1/L^+_r(1) = 1$, because the
 mean of the smaller and the mean of the larger of the same $r$ draws
 sum to one. Pushing $r$ below $1$ gives up the min-max reading and
 flips the tilt of $F^+_r$ back to concave, but with an infinite
 density at the origin ($F = \sqrt x$ at $r = \tfrac12$), and
-$L^+_r(0^+)$ diverges: front-loaded deduction, the shape of a boundary
+$L^+_r(0)$ diverges: front-loaded deduction, the shape of a boundary
 layer, no longer a constant.
 
-\emph{Where they meet.} At $r = 1$ there is nothing to choose between
+Where the two choices meet? At $r = 1$ the min is the max,
 and both families collapse onto the single uniform draw $F(x) = x$,
 whose numerator $t(2-t)$ cancels its denominator $t(2-t)/2$ to leave
 $L \equiv 2$ exactly. That is the hinge of
-Figure~\ref{fig:Fexamples}: the blue line is the shared $r = 1$ point,
+Figure~\ref{fig:Fexamples}: the blue line is the shared $r = 1$ case,
 and the curves either side of it are the $r = 2$ members of the two
-families, $L^+_2$ climbing from $1$ to $\tfrac32$ and $L^-_2 \equiv 3$.
+families, $L^+_2(t)$ climbing from $1$ to $\tfrac32$ and $L^-_2(t) \equiv 3$.
 The uniform draw is also the flattest Occam on offer, each shell
-receiving exactly the share of coefficient space its degree opens,
-$w_d = \binom nd/2^n$. It does not identify its microscopics: pairing
-questions into equality cliques (Appendix~\ref{app:blockpriors})
-produces the same constant $2$ by a completely different mechanism.
+receiving exactly the share of coefficient space its degree inhabits,
+$w_d = \binom nd/2^n$. An observed flat leverage does not mean we had this microscopic prescription:
+Appendix~\ref{app:blockpriors} produces the same constant $2$ by a completely different mechanism.
 
-\emph{A tilt, not a switch.} The concave direction may look like the
+The concave direction may look like the
 natural one, a simplicity prior ought to favour simple worlds, but
 $F$ never decides \emph{whether} Werner is an Occamist. The classes
 are nested, so the weight $p_j$ of a single map falls with its degree
 for every $F$ whatsoever, and even the convex $F^+_r$, which loads the
-high shells, still ranks each complicated map below each simple one.
+high shells, still ranks each complicated (high degree, highly composite) map as less likely than each simple one.
 What $F$ moves is the aggregate: which shell carries the belief, and
 with it the leverage, from $r$ deduced bits per received one under
 $F^-_r$ down to at most $1/r$ under $F^+_r$.
 
 \begin{example}
-The whole construction, priced out at $n = 4$, $m = 1$, with the
-statistic of the shelf above: $F(x) = 1 - (1-x)^2$, the smaller of
+How is belief split over the aggregate degree shells? We will illustrate for $n = 4$, $m = 1$, with the
+statistic: $F(x) = 1 - (1-x)^2$, the smaller of
 two uniform draws. The five classes have dimensions
-$K_d = 1, 5, 11, 15, 16$ and rates $R_{4,d} = K_d/16$, so
-\eqref{eq:shapepj} hands out shell budgets
-$w_d = \tfrac{31}{256},\, \tfrac{104}{256},\, \tfrac{96}{256},\,
-\tfrac{24}{256},\, \tfrac1{256}$ and, to a map of degree $d$, the
-weight $p_j = 7.34\cdot 10^{-2},\, 1.29\cdot 10^{-2},\,
-1.86\cdot 10^{-4},\, 2.92\cdot 10^{-6},\, 2^{-24}$.
+\begin{align*}
+  K_d &\in \left\{1, 5, 11, 15, 16\right\},\\
+  w_d & \in \left\{\tfrac{31}{256},\, \tfrac{104}{256},\, \tfrac{96}{256},\,
+\tfrac{24}{256},\, \tfrac1{256} \right\},
+\end{align*}
+using \eqref{eq:shapepj} with rates $R_{4,d} = K_d/16$. We can visualize what prior weight maps
+of each polynomial degree receive.
 
 \begin{center}
 \begin{tikzpicture}
@@ -6605,24 +6645,17 @@ weight $p_j = 7.34\cdot 10^{-2},\, 1.29\cdot 10^{-2},\,
 \end{tikzpicture}
 \end{center}
 
-The two panels answer different questions and their axes say so. On
-the left, one map: the weight drops by $5.7$, then $69$, $64$, $49$
--- the factor $2^{\binom 4d}$ that the next class costs in dimension,
-tilted by the budget ratio $w_{d-1}/w_d$ -- six decades across five
+On the left, per map: the weight drops by a factor $5.7$, then $69$, $64$, $49$,
+equal to $2^{\binom 4d}$ that the next class costs in dimension,
+tilted by the budget ratio $w_{d-1}/w_d$. Six decades across five
 degrees, which is why the axis is logarithmic. Occam is priced per
-map, and it is brutal. On the right, one shell: the
+map, and it is highly undemocratic. On the right, one shell: the
 $2, 30, 2016, 30720, 32768$ maps of each degree carry
-$14.7\%, 38.6\%, 37.5\%, 9.0\%, 0.2\%$ of the belief, on a linear
-axis, the peak one step away from the simplest shell and the next
-shell all but level with it. Degree $1$ outweighs the constants
-better than five to two although each of its thirty members is nearly
-six times lighter: population beats simplicity in the aggregate,
-while the per-map ordering never wavers. The open bars are the
-budgets $w_d$, and the daylight between the two is the
-$2^{-\binom 4d}$ shrinkage: half of $w_4$ at full degree, invisible at
-$d = 2$ where it is repaid almost exactly by what leaks down from
-above, and the surplus piling onto the two constants, $0.147$ against
-a budget of $0.121$.
+$14.7\%, 38.6\%, 37.5\%, 9.0\%, 0.2\%$ of the belief, in blue on a linear
+axis, peaking at the affine ($d=1$) maps. In general, population can beat simplicity in the aggregate,
+while the per-map ordering never wavers. The white bars are the
+budgets $w_d$, and the slight difference between the two is the
+$2^{-\binom 4d}$ leakage into a degree from higher classes.
 \end{example}
 
 
