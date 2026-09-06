@@ -946,12 +946,12 @@ residue class of $j$, so the cadence of the survivors is regular.
   \node[anchor=north, font=\small\itshape] at (-7,-0.05) {a};
   % round 0: all 256 maps
   \foreach \j in {0,...,255}
-    \draw[line width=0.1pt] (\j,0) -- (\j,-1.4);
+    \draw[blue!55, line width=0.1pt] (\j,0) -- (\j,-1.4);
   % filter q=00, a=11: passes digit0 = 3, i.e. j mod 4 = 3
-  \draw[gray, line width=1pt] (-2,-1.4) -- (2.5,-1.4);
+  \draw[orange!85, line width=1pt] (-2,-1.4) -- (2.5,-1.4);
   \foreach \k in {0,...,62}
-    \draw[gray, line width=1pt] (4*\k+3.5,-1.4) -- (4*\k+6.5,-1.4);
-  \draw[gray, line width=1pt] (255.5,-1.4) -- (257,-1.4);
+    \draw[orange!85, line width=1pt] (4*\k+3.5,-1.4) -- (4*\k+6.5,-1.4);
+  \draw[orange!85, line width=1pt] (255.5,-1.4) -- (257,-1.4);
   \node[font=\small] at (-20,-1.4) {$00$};
   \node[font=\small] at (-7,-1.4) {$11$};
   % survivors: j mod 4 = 3 (j = 4k+3), weight classes by k mod 3,
@@ -959,49 +959,49 @@ residue class of $j$, so the cadence of the survivors is regular.
   % k=0 -> 2, k=1 -> 4, k=2 -> 1; question order 00, 10, 01, 11;
   % layer masses 149 -> 39 -> 9 -> 2
   \foreach \j in {3,15,...,255}
-    \draw[line width=0.6pt] (\j,-1.4) -- (\j,-2.8);
+    \draw[blue!55, line width=0.6pt] (\j,-1.4) -- (\j,-2.8);
   \foreach \j in {7,19,...,247}
-    \draw[line width=1.2pt] (\j,-1.4) -- (\j,-2.8);
+    \draw[blue!55, line width=1.2pt] (\j,-1.4) -- (\j,-2.8);
   \foreach \j in {11,23,...,251}
-    \draw[line width=0.3pt] (\j,-1.4) -- (\j,-2.8);
+    \draw[blue!55, line width=0.3pt] (\j,-1.4) -- (\j,-2.8);
   % filter q=10, a=01: passes digit2 = 1, i.e. j mod 64 in [16,32);
   % windows nudged right so the finite-width survivor lines clear them
-  \draw[gray, line width=1pt] (-2,-2.8) -- (17,-2.8);
+  \draw[orange!85, line width=1pt] (-2,-2.8) -- (17,-2.8);
   \foreach \s in {0,...,2}
-    \draw[gray, line width=1pt] (64*\s+33,-2.8) -- (64*\s+81,-2.8);
-  \draw[gray, line width=1pt] (225,-2.8) -- (257,-2.8);
+    \draw[orange!85, line width=1pt] (64*\s+33,-2.8) -- (64*\s+81,-2.8);
+  \draw[orange!85, line width=1pt] (225,-2.8) -- (257,-2.8);
   \node[font=\small] at (-20,-2.8) {$10$};
   \node[font=\small] at (-7,-2.8) {$01$};
   % survivors: digit 2 = 1, i.e. j mod 64 in {19,23,27,31},
   % all rescaled by 149/39
   \foreach \j in {23,83,95,155,215}
-    \draw[line width=1.15pt] (\j,-2.8) -- (\j,-4.2);
+    \draw[blue!55, line width=1.15pt] (\j,-2.8) -- (\j,-4.2);
   \foreach \j in {27,87,147,159,219}
-    \draw[line width=2.29pt] (\j,-2.8) -- (\j,-4.2);
+    \draw[blue!55, line width=2.29pt] (\j,-2.8) -- (\j,-4.2);
   \foreach \j in {19,31,91,151,211,223}
-    \draw[line width=4.58pt] (\j,-2.8) -- (\j,-4.2);
+    \draw[blue!55, line width=4.58pt] (\j,-2.8) -- (\j,-4.2);
   % filter q=01, a=10: passes digit1 = 2, i.e. j mod 16 in [8,12);
   % windows nudged right so the finite-width survivor lines clear them
-  \draw[gray, line width=1pt] (-2,-4.2) -- (9.2,-4.2);
+  \draw[orange!85, line width=1pt] (-2,-4.2) -- (9.2,-4.2);
   \foreach \t in {0,...,14}
-    \draw[gray, line width=1pt] (16*\t+13.2,-4.2) -- (16*\t+25.2,-4.2);
-  \draw[gray, line width=1pt] (253.2,-4.2) -- (257,-4.2);
+    \draw[orange!85, line width=1pt] (16*\t+13.2,-4.2) -- (16*\t+25.2,-4.2);
+  \draw[orange!85, line width=1pt] (253.2,-4.2) -- (257,-4.2);
   \node[font=\small] at (-20,-4.2) {$01$};
   \node[font=\small] at (-7,-4.2) {$10$};
   % survivors: j mod 64 = 27, all rescaled by 39/9
-  \draw[line width=9.93pt]  (27,-4.2)  -- (27,-5.6);
-  \draw[line width=19.87pt] (91,-4.2)  -- (91,-5.6);
-  \draw[line width=4.97pt]  (155,-4.2) -- (155,-5.6);
-  \draw[line width=9.93pt]  (219,-4.2) -- (219,-5.6);
+  \draw[blue!55, line width=9.93pt]  (27,-4.2)  -- (27,-5.6);
+  \draw[blue!55, line width=19.87pt] (91,-4.2)  -- (91,-5.6);
+  \draw[blue!55, line width=4.97pt]  (155,-4.2) -- (155,-5.6);
+  \draw[blue!55, line width=9.93pt]  (219,-4.2) -- (219,-5.6);
   % filter q=11, a=00: passes digit3 = 0, i.e. j mod 256 in [0,64);
   % the left stub is drawn a little longer than cell-exact, purely to
   % emphasize that the window's offset can be nonzero
-  \draw[gray, line width=1pt] (-2,-5.6) -- (1,-5.6);
-  \draw[gray, line width=1pt] (63.5,-5.6) -- (257,-5.6);
+  \draw[orange!85, line width=1pt] (-2,-5.6) -- (1,-5.6);
+  \draw[orange!85, line width=1pt] (63.5,-5.6) -- (257,-5.6);
   \node[font=\small] at (-20,-5.6) {$11$};
   \node[font=\small] at (-7,-5.6) {$00$};
   % survivor: j = 27, rescaled by 9/2, labeled on a white patch
-  \draw[line width=44.7pt] (27,-5.6) -- (27,-7.0);
+  \draw[blue!55, line width=44.7pt] (27,-5.6) -- (27,-7.0);
   \node[fill=white, inner sep=1.5pt, font=\small, align=center]
     at (27,-6.3) {$\psi$\\[-1pt] $j{=}27$};
   % survivor counts per stage, superimposed mid-row on white patches
@@ -3901,6 +3901,13 @@ noncommutation with $n \to \infty$.
 The spike is solvable because all subsets of questions of the same size ($k$) have the
 same entropy $G_k$. Averages are free. The general theory replaces that symmetry by an average
 over subsets, which in general have distinct entropies.
+Any symmetry of the prior reduces that average to a sum over orbits of
+$k$-subsets, weighted by orbit size, and the spike is the extreme case:
+invariant under every permutation of the questions, it has one orbit
+per size and $G_k$ collapses to a single term. Less symmetrical priors
+divide the number of terms by their order. Nonetheless, this is
+instrumental in obtaining moderate $n$ results numerically. More
+comments in Appendix~\ref{app:aig}, for instance.
 
 \subsubsection{The finite sequence from which the limit is taken}
 
@@ -7046,6 +7053,114 @@ budgets $w_d$, and the slight difference between the two is the
 $2^{-\binom 4d}$ leakage into a degree from higher classes.
 \end{example}
 
+
+\section{Next steps}\label{sec:next}
+
+\subsection{Stochastic truths}
+
+Nature answers deterministically here: $\psi$ is a map, and an answer
+that disagrees with a candidate kills it outright. Replace the truth by
+a conditional law $\Psi(a \mid q)$ and the update rule
+\eqref{eq:update} becomes genuine Bayes, reweighting each candidate by
+its likelihood instead of eliminating it, with the hypothesis space a
+simplex rather than the finite set of $N$ maps. Much of the bookkeeping
+should survive the change: \eqref{eq:telescope} and the two laws that
+follow from it use only the chain rule for the joint law of the
+answers, which does not care whether that law came from a map. What
+breaks is the identification $G_Q = H(p)$. Answers no longer determine
+the truth, so a complete run does not end with the belief settled, and
+the correlation store $C = H(M) - H(p)$ of \eqref{eq:C} loses its
+reading as a stock that can be spent to exhaustion. The profile
+inherits that: no class is ever finished, so $\gamma$ stays positive
+to the end of the run, as the lapse blocks of
+Appendix~\ref{app:blockpriors} already do at $\delta > 0$. The question
+is what becomes of the master law \eqref{eq:master} when its numerator
+can no longer reach zero.
+
+\subsection{A prior that is wrong}
+
+Every average in this work assumes Werner's prior is nature's law, and
+the assumption is load-bearing: it is what makes the expected surprisal
+of a question equal to the entropy of its own column. Let nature draw
+from $\pi$ while Werner believes $p$, and his expected surprisal at
+$q$ becomes a cross-entropy, $H(\pi_q) + D(\pi_q \Vert M_{\cdot,q})$:
+he pays the true uncertainty plus the divergence of his belief from it.
+The numerator of \eqref{eq:leverage} is still measured in his own
+units, so the ratio falls twice over, once for the inflated bill and
+once for deductions drawn on correlations that are not there. The sharp
+failure is worse than a poor ratio. Under elimination a wrong prior can
+rule out the truth outright, leaving $M_{a,q} = 0$ at some later
+question: an infinite surprisal and an undefined update. Full support,
+$p_j > 0$ for every map at every $n$, is exactly the insurance
+\eqref{eq:shapepj} was built to carry, and it would be worth knowing
+what it buys quantitatively. Two questions in particular: can
+$\langle L_\ell\rangle$ fall below one in expectation, and if so, is
+the deficit a divergence, a sum of per-question KL terms in the way
+that a code's redundancy is?
+
+\subsection{Designing a curve, shell by shell}
+
+The truncation remark of Chapter~\ref{sec:expectations} cuts both ways.
+Read forward it says the first $\ell$ rounds cannot see correlators
+spanning more than $\ell+1$ questions; read backward it says the shell
+of order $\ell+1$ is the first place a designer can act on round
+$\ell$, and nowhere earlier. Suppose then that a particular sequence of
+leverages is wanted. Equation \eqref{eq:Lk-G} inverts,
+%
+\begin{equation}
+  G_{\ell+1} \;=\; G_\ell
+  \;+\; \frac{Q\,G_1 - \langle L_\ell\rangle\, G_\ell}{Q - \ell},
+  \label{eq:designrec}
+\end{equation}
+%
+so the demanded curve fixes the whole block-entropy sequence
+recursively from $G_1$, and each $G_{\ell+1}$ in that recursion is
+exactly the quantity its own shell is the first to move. One could then
+try to build the prior a shell at a time: shell $1$ to set $G_1$, shell
+$2$ to hit $G_2$, and onward, every shell absorbing one term of the
+target while leaving the earlier rounds untouched. Two obstructions
+stand in the way and are the interesting part. Not every sequence is
+admissible, since submodularity forces $G$ to be concave with
+increments in $[0,m]$, which rules out most curves before any prior is
+attempted. And the shells cannot be chosen freely: they must be the
+transform of an actual distribution, so the positivity of every $p_j$
+is a global constraint that a shell-by-shell construction has no local
+way to respect. The same language is worth carrying into the limit. To
+second order the block entropy reads
+%
+\begin{equation}
+  G_k \;=\; km \;-\; \frac{1}{2\ln 2}
+  \sum_{\mathcal T \neq \emptyset}
+  \Pr\big[\mathcal T \subseteq \mathcal S\big]\, \chi_{\mathcal T}^2
+  \;+\; O(\chi^4),
+  \label{eq:Gshell}
+\end{equation}
+%
+and the inclusion probability of a correlator touching $r$ questions
+tends to $t^{\,r}$ at macroscopic time, so each shell enters the
+profile discounted by its own power of $t$: the quantitative form of
+the claim, made in words throughout this work, that knowledge stored
+deep is knowledge spent late.
+
+\subsection{Measuring leverage in a real learner}
+
+The protocol of Section~\ref{sec:general} is an experiment, not only a
+calculation, and a language model is an unusually convenient Werner:
+its answer matrix is directly observable, the token probabilities at a
+yes-or-no prompt being the column $M_{\cdot,q}$ itself. Fix a finite
+universe of questions with a latent rule, ask them one at a time,
+record the surprisal of each answer and the drop in total predictive
+entropy over the questions not yet asked, and both halves of
+\eqref{eq:leverage} are measured rather than modelled. The same
+protocol runs on a network trained online, reading the predictive
+entropy off a held-out question set between updates. The obstacle is
+scale: $t = \ell/Q$ needs a question universe small enough to exhaust,
+or the whole experiment lives in the boundary layer at $t = 0^+$ and
+reports nothing about macroscopic learning. What one would look for is
+the shape. A hyperbola says the model's knowledge was a label settled
+in the first few answers; a curve that holds up across the run says it
+carried structure at macroscopic times, and its profile $\gamma$ would
+be a measured simplicity prior rather than a postulated one.
 
 \appendix
 
