@@ -9,14 +9,14 @@
 \usepackage[most]{tcolorbox}
 
 % gray boxes with a subtle title strip, marking example material
-\newtcolorbox[auto counter]{example}{
+\newtcolorbox[auto counter]{example}[1][]{
   enhanced,
   colback=gray!8, colframe=gray!50, boxrule=0.4pt, arc=1.5pt,
   colbacktitle=gray!22, coltitle=black!60,
   fonttitle=\small\scshape, title={example~\thetcbcounter},
   toptitle=1.5pt, bottomtitle=1.5pt,
   left=7pt, right=7pt, top=5pt, bottom=5pt,
-  before upper={\setlength{\parindent}{15pt}}}
+  before upper={\setlength{\parindent}{15pt}}, #1}
 \usepackage{graphicx}
 \usepackage{colortbl}
 \usepackage{tikz}
@@ -45,10 +45,15 @@
     \useasboundingbox (-1.3,-0.17) rectangle (0,0.17);
     \fill[blue!40] ({-#2*1.3*#1},-0.15) rectangle (0,0.15);
   \end{tikzpicture}}
-\newcommand{\pbarP}[2][1]{%
+% The Pragmatist spans four decades, so a linear bar would show only
+% the two constants. \pbarP takes the probability and draws its
+% position on a five-decade logarithmic scale: full width 1.3cm at
+% probability 1, zero length at 10^{-5}, nothing clipped.
+\newcommand{\pbarP}[1]{%
   \begin{tikzpicture}[baseline=-0.55ex]
     \useasboundingbox (0,-0.17) rectangle (1.3,0.17);
-    \fill[orange!70] (0,-0.15) rectangle ({#2*1.3*#1},0.15);
+    \pgfmathsetmacro{\pblen}{max(0, 1.3*(1 + ln(#1)/2.302585/5))}%
+    \fill[orange!70] (0,-0.15) rectangle (\pblen,0.15);
   \end{tikzpicture}}
 \newcommand{\pbarB}[2][1]{%
   \begin{tikzpicture}[baseline=-0.55ex]
@@ -2697,7 +2702,8 @@ synthesizer on random classes with zero mismatches.}; the $(3,2)$
 values come from that synthesizer: circuit sizes $X = 0, 1, 2,
 \ldots$ are encoded as satisfiability instances, and the first
 satisfiable $X$ is provably minimal, every smaller size having been
-refuted.
+refuted. Appendix~\ref{app:aig} gives the encoding, the symmetry
+reduction that makes it tractable, and the provenance of every value.
 
 Alongside the interior cost $X_j$, which takes a SAT solver to see,
 two descriptors are visible in one pass over the truth table:
@@ -2723,7 +2729,9 @@ two descriptors are visible in one pass over the truth table:
 Take again the $(n,m)=(2,1)$ space. Each map's data is listed for illustration.
 The size of two Gibbs priors using these inputs, defined in section~\ref{sec:gibbsensemble} is graphed. 
 Occam in blue growing left, the Pragmatist in orange growing
-right. The Pragmatist is on a log scale, for better readability of the far-from-democratic distribution.
+right. The Pragmatist bars are logarithmic, five decades to the full
+width, since a linear scale on the same axis as Occam's would show
+nothing but the two constants.
 
 \begin{center}
 \begin{tabular}{clccccc r@{\hspace{2pt}}|@{\hspace{2pt}}l}
@@ -2733,23 +2741,23 @@ $j$ & map & $X_j$ & Support & Image & $F_j$ & $B_j$
  & & & & & & & {\scriptsize\color{blue!55!black} Occam}
   & {\scriptsize\color{orange!85!black} Pragmatist} \\
 \midrule
-0  & FALSE                          & 0 & 0 & 1 & 2 & $-4$ & \pbarO[3]{0.1106} & \pbarP[3]{0.2799} \\
-1  & $\lnot(b_1 \vee b_0)$ (NOR)    & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0014} \\
-2  & $\lnot b_1 \wedge b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0014} \\
-3  & $\lnot b_1$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP[3]{0.0208} \\
-4  & $b_1 \wedge \lnot b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0014} \\
-5  & $\lnot b_0$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP[3]{0.0208} \\
-6  & $b_1 \oplus b_0$ (XOR)         & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP[3]{0.0001} \\
-7  & $\lnot(b_1 \wedge b_0)$ (NAND) & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0021} \\
-8  & $b_1 \wedge b_0$ (AND)         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0014} \\
-9  & $b_1 = b_0$ (XNOR)             & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP[3]{0.0001} \\
-10 & $b_0$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP[3]{0.0208} \\
-11 & $b_1 \to b_0$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0021} \\
-12 & $b_1$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP[3]{0.0208} \\
-13 & $b_0 \to b_1$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0021} \\
-14 & $b_1 \vee b_0$ (OR)            & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP[3]{0.0021} \\
+0  & FALSE                          & 0 & 0 & 1 & 2 & $-4$ & \pbarO[3]{0.1106} & \pbarP{0.2799} \\
+1  & $\lnot(b_1 \vee b_0)$ (NOR)    & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+2  & $\lnot b_1 \wedge b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+3  & $\lnot b_1$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+4  & $b_1 \wedge \lnot b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+5  & $\lnot b_0$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+6  & $b_1 \oplus b_0$ (XOR)         & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP{0.0001} \\
+7  & $\lnot(b_1 \wedge b_0)$ (NAND) & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+8  & $b_1 \wedge b_0$ (AND)         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+9  & $b_1 = b_0$ (XNOR)             & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP{0.0001} \\
+10 & $b_0$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+11 & $b_1 \to b_0$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+12 & $b_1$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+13 & $b_0 \to b_1$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+14 & $b_1 \vee b_0$ (OR)            & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
 % the TRUE bar is drawn at half its value so it stays inside the column
-15 & TRUE                           & 0 & 0 & 1 & 2 & $+4$ & \pbarO[3]{0.1106} & \pbarP[3]{0.3114} \\
+15 & TRUE                           & 0 & 0 & 1 & 2 & $+4$ & \pbarO[3]{0.1106} & \pbarP{0.3114} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -2880,6 +2888,171 @@ than the interior circuit, a moderate complexity field seconds it,
 and the tilt $\mu = -0.1$ leans toward $1$-heavy tables, breaking
 the output-negation symmetry that the other two settings keep. This last choice is to illustrate
 that Werner isn't bound to start with a uniform distribution $M$ before the first question.
+
+\subsubsection{The layered entropy books}\label{sec:gibbsbooks}
+
+Let us visualize the uniform question-order average for the various ensembles,
+at various sizes. The following graphs illustrate the flow of bits. 
+The three quantities of \eqref{eq:Lk-avg} partition
+the starting table entropy at every $\ell$: what is still in the table,
+what was paid for in surprisal, and what was inferred. The third has no
+standing name, so give it one,
+%
+\begin{equation}
+  \big\langle \text{deduced} \big\rangle_\ell
+  \;:=\; C_0 - \langle C_\ell\rangle
+  \;=\; H\big(M^{(0)}\big)
+        - \big\langle H\big(M^{(\ell)}\big)\big\rangle
+        - G_\ell ,
+  \label{eq:deduced}
+\end{equation}
+%
+the expected withdrawal from the correlation store. The second equality
+is \eqref{eq:C} at both ends together with $\langle \Delta H(p)\rangle =
+G_\ell$. In expectation, the belief entropy falls by exactly the
+surprisal received, so whatever else the table lost came out of $C$.
+The three therefore sum to $H(M^{(0)})$ at every $\ell$, and each
+panel below is a full-height bar whose composition shifts from all
+remaining uncertainty to received plus deduced. One row per system size, sharing a
+vertical scale in bits; one column per prior.
+\begin{center}
+\begin{tikzpicture}[y=0.32cm]
+  \fill[blue!55] (0,0) rectangle (0.32,0.24);
+  \node[right, font=\small] at (0.40,0.12)
+    {remaining $\langle H(M^{(\ell)})\rangle$};
+  \fill[orange!85] (4.6,0) rectangle (4.92,0.24);
+  \node[right, font=\small] at (5.0,0.12) {received $G_\ell$};
+  \fill[green!55!black!60] (8.0,0) rectangle (8.32,0.24);
+  \node[right, font=\small] at (8.4,0.12)
+    {deduced $C_0 - \langle C_\ell\rangle$};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
+  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
+  title={(2,1), Occam}, title style={font=\scriptsize},
+  xlabel={$\ell$}, ylabel={bits},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,4.00000) (1,2.90370) (2,1.83001) (3,0.81104) (4,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,-0.00000) (1,1.00000) (2,1.96790) (3,2.88290) (4,3.69394)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.09630) (2,0.20209) (3,0.30606) (4,0.30606)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
+  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
+  title={(2,1), Occamer}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,4.00000) (1,2.82620) (2,1.63686) (3,0.51162) (4,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.94207) (3,2.76050) (4,3.27212)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.17380) (2,0.42107) (3,0.72788) (4,0.72788)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
+  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
+  title={(2,1), Pragmatist}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,3.65070) (1,0.98017) (2,0.45071) (3,0.06902) (4,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,0.91268) (2,1.23940) (3,1.46475) (4,1.53378)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,1.75786) (2,1.96059) (3,2.11692) (4,2.11692)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
+  title={(3,2), Occam}, title style={font=\scriptsize},
+  xlabel={$\ell$}, ylabel={bits},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,13.66381) (2,11.38982) (3,9.18077) (4,7.05614) (5,5.04253) (6,3.16734) (7,1.46045) (8,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,2.00000) (2,3.95197) (3,5.85028) (4,7.68643) (5,9.45046) (6,11.13131) (7,12.71498) (8,14.17543)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.33619) (2,0.65821) (3,0.96896) (4,1.25743) (5,1.50700) (6,1.70136) (7,1.82457) (8,1.82457)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
+  title={(3,2), Occamer}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,13.09000) (2,10.16649) (3,7.29628) (4,4.84181) (5,2.96269) (6,1.56885) (7,0.54633) (8,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,2.00000) (2,3.87000) (3,5.56442) (4,7.02367) (5,8.23412) (6,9.22169) (7,10.00612) (8,10.55244)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.91000) (2,1.96351) (3,3.13930) (4,4.13452) (5,4.80318) (6,5.20946) (7,5.44756) (8,5.44756)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
+  title={(3,2), Pragmatist}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,11.43030) (1,3.30547) (2,1.95822) (3,1.05175) (4,0.51932) (5,0.25230) (6,0.11491) (7,0.02763) (8,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.42879) (2,1.90100) (3,2.22737) (4,2.43772) (5,2.56755) (6,2.65165) (7,2.70911) (8,2.73673)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,6.69605) (2,7.57109) (3,8.15118) (4,8.47326) (5,8.61046) (6,8.66374) (7,8.69357) (8,8.69357)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
+  title={(4,1), Occam}, title style={font=\scriptsize},
+  xlabel={$\ell$}, ylabel={bits},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,14.74710) (2,13.52461) (3,12.32975) (4,11.16169) (5,10.02089) (6,8.90878) (7,7.82738) (8,6.77913) (9,5.76681) (10,4.79345) (11,3.86229) (12,2.97690) (13,2.14140) (14,1.36113) (15,0.64341) (16,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.98314) (3,2.94918) (4,3.89763) (5,4.82777) (6,5.73876) (7,6.62963) (8,7.49934) (9,8.34673) (10,9.17056) (11,9.96947) (12,10.74193) (13,11.48616) (14,12.19996) (15,12.88052) (16,13.52393)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.25290) (2,0.49225) (3,0.72106) (4,0.94069) (5,1.15134) (6,1.35246) (7,1.54299) (8,1.72153) (9,1.88646) (10,2.03599) (11,2.16823) (12,2.28117) (13,2.37244) (14,2.43891) (15,2.47607) (16,2.47607)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
+  title={(4,1), Occamer}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,14.02313) (2,12.05565) (3,10.07789) (4,8.24016) (5,6.64167) (6,5.29847) (7,4.18012) (8,3.24929) (9,2.47724) (10,1.84273) (11,1.32708) (12,0.91199) (13,0.58080) (14,0.32107) (15,0.12665) (16,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.93488) (3,2.79599) (4,3.57122) (5,4.25790) (6,4.86168) (7,5.39153) (8,5.85599) (9,6.26215) (10,6.61604) (11,6.92316) (12,7.18858) (13,7.41658) (14,7.61018) (15,7.77071) (16,7.89736)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,-0.00000) (1,0.97687) (2,2.00947) (3,3.12612) (4,4.18863) (5,5.10044) (6,5.83985) (7,6.42835) (8,6.89472) (9,7.26062) (10,7.54123) (11,7.74976) (12,7.89943) (13,8.00262) (14,8.06875) (15,8.10264) (16,8.10264)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
+  title={(4,1), Pragmatist}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,4.40913) (1,1.02252) (2,0.66648) (3,0.44062) (4,0.29637) (5,0.20423) (6,0.14404) (7,0.10281) (8,0.07319) (9,0.05137) (10,0.03532) (11,0.02367) (12,0.01528) (13,0.00922) (14,0.00480) (15,0.00170) (16,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,-0.00000) (1,0.27557) (2,0.34374) (3,0.39134) (4,0.42524) (5,0.44994) (6,0.46850) (7,0.48291) (8,0.49433) (9,0.50348) (10,0.51082) (11,0.51670) (12,0.52144) (13,0.52526) (14,0.52833) (15,0.53073) (16,0.53243)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,3.11104) (2,3.39891) (3,3.57716) (4,3.68752) (5,3.75497) (6,3.79659) (7,3.82341) (8,3.84161) (9,3.85428) (10,3.86299) (11,3.86876) (12,3.87241) (13,3.87466) (14,3.87600) (15,3.87670) (16,3.87670)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsubsection{Trajectories}\label{sec:gibbstraj}
 
@@ -4515,6 +4688,12 @@ aggregate belief on the complexity that Werner expects from nature.
 The per-map Occam ordering holds for every $F$, and $F$ decides
 only how much aggregate weight each shell carries. The Occam ordering comes 
 from the natural explosion of maps at higher degrees, sharing the shell's marginal weight.
+The heaviest shell itself is rarely the simplest one: it is whichever
+rate gap carries the most $F$-mass. The $d$ maximizing
+$w_d$ from equation~\eqref{eq:shapepj} is a contest between the gap width
+$\binom nd/2^n$, widest at $d \approx n/2$, and the density of $F$
+there. See Example~\ref{ex:shellsplit} at the end of the chapter
+for an illustration.
 
 \begin{example}
 A geometric interpreration of the prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
@@ -6773,7 +6952,7 @@ What $F$ moves is the aggregate: which shell carries the belief, and
 with it the leverage, from $r$ deduced bits per received one under
 $F^-_r$ down to at most $1/r$ under $F^+_r$.
 
-\begin{example}
+\begin{example}[label=ex:shellsplit]
 How is belief split over the aggregate degree shells? We will illustrate for $n = 4$, $m = 1$, with the
 statistic: $F(x) = 1 - (1-x)^2$, the smaller of
 two uniform draws. The five classes have dimensions
@@ -7747,6 +7926,93 @@ maximum of $1.645$ at $t \simeq 0.72$ against the completion value
 $1.6$.}
 \label{fig:blockfinite}
 \end{figure}
+
+\clearpage
+\section{Computing the circuit complexities}\label{app:aig}
+
+The footprint and the bias of Section~\ref{sec:nandcomplexity} are read
+off a truth table in one pass. The complexity $X_j$ is not: it is a
+minimum over all circuits, and has to be computed. This appendix
+records how the $65{,}536$ values in each of the $(4,1)$ and $(3,2)$
+tables were obtained. The pipeline is described in
+\texttt{gibbs\_complexity.md}, and implemented in
+\texttt{aig\_synth.py}, \texttt{groups.py},
+\texttt{run\_synth\_3to2.py} and the
+\texttt{build\_table} drivers.
+
+\emph{Reduction by symmetry.} Relabelling wires is free in an
+and-inverter circuit: permuting inputs is rewiring, negating an input
+or an output is an edge attribute, and for $m = 2$ swapping the two
+outputs renames which wire is which. So $X_j$ is constant on the orbits
+of the relabelling groups
+%
+\begin{equation}
+  |G_{4,1}| = 4!\cdot 2^4\cdot 2 = 768,
+  \qquad
+  |G_{3,2}| = 3!\cdot 2^3\cdot 2^2\cdot 2 = 384,
+\end{equation}
+%
+the first being the standard NPN group of logic synthesis.
+\texttt{groups.py} applies every group element to every truth table and
+keeps the numerically smallest image as the class representative, which
+collapses $65{,}536$ maps to $222$ classes at $(4,1)$ and $308$ at
+$(3,2)$. Exact synthesis then runs a few hundred times instead of
+$65{,}536$.
+
+\emph{Exact synthesis as satisfiability.} For a fixed gate budget $r$,
+\texttt{aig\_synth.py} builds a formula that is satisfiable exactly when
+some $r$-gate and-inverter circuit computes the target. Three families
+of variables carry it. First $t_{s,\rho}$, the bit that signal $s$
+holds on truth-table row $\rho$, with signal $0$ the constant and
+signals $1,\ldots,n$ the inputs, all pinned by unit clauses. Then a
+one-hot selector $\sigma_{g,a,b,\iota_a,\iota_b}$ saying that gate $g$
+draws its two fanins from \emph{earlier} signals $a \le b$, inverted
+according to $\iota$; restricting to earlier signals is what makes the
+circuit acyclic by construction, so no ordering constraints are needed.
+Last a one-hot selector $o_{k,s,\iota}$ naming which signal, at which
+polarity, carries output $k$. The AND semantics costs three clauses per
+gate, candidate and row, and the output constraint pins the chosen
+signal to the target column on every row. Two structural clauses tighten
+the search without excluding any minimum circuit: every gate must feed
+a later gate or an output, and no two gates may carry identical truth
+tables. Then
+%
+\begin{equation}
+  X_j \;=\; \min\{\, r \ge 0 \;:\; \text{the $r$-gate formula is
+  satisfiable} \,\},
+  \label{eq:aigmin}
+\end{equation}
+%
+searched by trying $r = 0, 1, 2, \ldots$ upward. The answer is a proven
+minimum rather than a best effort: every smaller budget was refuted by
+the solver, not merely left unfound. The back end is CaDiCaL through
+PySAT. Run as a script the synthesizer reproduces the textbook
+two-input values, AND, OR and NAND at $1$ and XOR at $3$.
+
+\emph{Provenance.} At $(4,1)$ the class values are adopted from the
+published \texttt{github.com/\allowbreak krinkin/\allowbreak bounds}
+reproducibility dataset of the $222$ NPN classes, and
+\texttt{crosscheck.py} re-derives ten of them
+at random with our own synthesizer, finding no mismatch. At $(3,2)$
+there is no reference table, so all $308$ classes were synthesized from
+scratch by \texttt{run\_synth\_3to2.py} over a process pool. The
+resulting ranges are $X \le 10$ at $(4,1)$ and $X \le 9$ at $(3,2)$,
+with the head counts tabulated in Section~\ref{sec:nandcomplexity}.
+
+\emph{One caveat, stated plainly.} The reference dataset carries a
+status column, and two of its $222$ entries are not proofs: the classes
+of $\mathtt{0x1669}$ and $\mathtt{0x166b}$ hold a best-known upper
+bound of $10$ rather than a demonstration that $9$ is impossible. Their
+orbits contain $32$ and $64$ maps, so at most $96$ of the $65{,}536$
+entries, one part in seven hundred, could in principle be one gate too
+high. Both sit at the ceiling of the range, where the Occam weight
+$e^{-\beta X}$ is smallest and the shell holds $320$ of $65{,}536$
+maps, so no curve in Section~\ref{sec:gibbstraj} turns on them. Our own
+synthesizer reproduces the difficulty rather than resolving it: for
+$\mathtt{0x1669}$ it refutes $r = 5$ in under a second and $r = 7$ in
+half a minute, and does not settle $r = 9$ in fifteen. The search grows
+steeply with the budget, which is why these two are where the published
+proofs stop.
 
 \clearpage
 \section{Symbols}\label{app:symbols}
