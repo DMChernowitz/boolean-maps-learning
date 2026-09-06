@@ -1588,6 +1588,10 @@ as a correlator. Shell $1$ is $M$ in different clothes:
   M_{a,q} \;=\; \tfrac12\big(1 + (-1)^a\, \chi_{\{q\}}\big),
 \end{equation}
 the bias of column $q$. For $m=1$, we elegantly see the first shell correlators are the distance from fair coins. 
+A prior invariant under negating every answer simultaneously sends
+$\chi_{\mathcal S} \mapsto (-1)^{|\mathcal S|}\chi_{\mathcal S}$, so all
+its odd shells vanish identically. Specifically, with an agnostic
+matrix $M$.
 
 Shell $2$ holds the agreement biases of
 pairs of questions, knowledge $M$ cannot see: two priors can
@@ -2508,6 +2512,18 @@ Some observations.
     expectation of the ratio is dominated by lucky runs with
     vanishing denominators.
 \end{itemize}
+
+Recall \eqref{eq:M-m} from the discussion on correlators,
+Section~\ref{sec:correlators}. The joint law of the answers to any set
+$\mathcal S$ of questions is an inverse transform over the correlators
+with support contained inside $\mathcal S$'s blocks. The mean block
+entropy $G_{|\mathcal S|}$ does not depend on higher correlators
+(involving more questions) than are in $\mathcal S$. Since the expected
+leverage up to $\ell$ questions is assembled from $G_\ell$ and
+$G_{\ell+1}$ alone, it depends only on correlators supported on at most
+$\ell+1$ questions. Two priors agreeing in correlators to that order
+are indistinguishable through round $\ell$. Deeper shells are
+invisible.
 
 There is also a monotonicity property hiding in $G$. Entropy is
 \emph{submodular}: a fresh answer is worth at most in a larger
@@ -7005,9 +7021,26 @@ equal to $2^{\binom 4d}$ that the next class costs in dimension,
 tilted by the budget ratio $w_{d-1}/w_d$. Six decades across five
 degrees, which is why the axis is logarithmic. Occam is priced per
 map, and it is highly undemocratic. On the right, one shell: the
-$2, 30, 2016, 30720, 32768$ maps of each degree carry
-$14.7\%, 38.6\%, 37.5\%, 9.0\%, 0.2\%$ of the belief, in blue on a linear
-axis, peaking at the affine ($d=1$) maps. In general, population can beat simplicity in the aggregate,
+$2^{K_d} - 2^{K_{d-1}}$ maps of each degree carry the belief in blue on
+a linear axis, peaking at the affine ($d = 1$) maps.
+
+\begin{center}
+\begin{tabular}{crrr}
+\toprule
+$d$ & maps in shell & shell weight & budget $w_d$ \\
+\midrule
+0 & $2$        & $14.7\%$ & $12.1\%$ \\
+1 & $30$       & $38.6\%$ & $40.6\%$ \\
+2 & $2{,}016$  & $37.5\%$ & $37.5\%$ \\
+3 & $30{,}720$ & $9.0\%$  & $9.4\%$ \\
+4 & $32{,}768$ & $0.2\%$  & $0.4\%$ \\
+\midrule
+total & $65{,}536$ & $100\%$ & $100\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In general, population can beat simplicity in the aggregate,
 while the per-map ordering never wavers. The white bars are the
 budgets $w_d$, and the slight difference between the two is the
 $2^{-\binom 4d}$ leakage into a degree from higher classes.
