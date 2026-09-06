@@ -267,7 +267,7 @@ $t = \ell/Q$. The increments become a profile $\gamma(t)$, the received
 entropy its integral, and the limit is obtained,
 %
 \[
-  L(t) \;=\; \frac{h_0 - (1-t)\,\gamma(t)}{g(t)},
+  L(t) \;=\; \frac{\eta_0 - (1-t)\,\gamma(t)}{g(t)},
   \qquad
   g(t) = \int_0^t \gamma(x)\,dx .
 \]
@@ -716,7 +716,7 @@ after two questions is
 Our knowledge about the world has allowed us to be more certain
 after our inference. Set
 $p = \tfrac12$, and the prior is the uniform one of
-Section~\ref{sec:unintelligent}: $h = 1$, $L_1 = L_2 = 1$, and nothing is
+Section~\ref{sec:unintelligent}: $h_2 = 1$, $L_1 = L_2 = 1$, and nothing is
 leveraged at all. As $p$ skews further from $\tfrac12$, the first question unlocks more. The
 second question carries less and less expected information, and Werner's
 potential for learning from it goes down with it. The column it could clean up is nearly settled already. In the limit $p = 0$, we recover the non-constant
@@ -2276,14 +2276,14 @@ the maps that answer the pattern $y$ on a set $\mathcal S$.
 The sums of the
 surprisals displayes the chain rule of probability
 \begin{equation}
-\sum_{i=1}^{\ell} s_i = -\log_2 \left[\prod_{i=1}^{\ell}  \frac{P_{\mathcal S_1, y}}{P_{\mathcal S_0, y}}\,
+\sum_{i=1}^{\ell} s_i = -\log_2 \left[\prod_{i=1}^{\ell}  P_{\mathcal S_1, y}\,
         \frac{P_{\mathcal S_2, y}}{P_{\mathcal S_1, y}}\,
         \frac{P_{\mathcal S_3, y}}{P_{\mathcal S_2, y}}
         \,\cdots\,
         \frac{P_{\mathcal S_\ell, y}}{P_{\mathcal S_{\ell-1}, y}}\right],
 \end{equation}
-where we use the shorthand that $\mathcal S_i$ contains the first $i$ questions, and the pattern $y$ uses only the first $i$ of them.
-$P_{\mathcal S_0, y} = 1$ and each conditioning cancels against the next term's outcome. Thus we arrive at the expression with no path dependence:
+where we use the shorthand that $\mathcal S_i$ contains the first $i$ questions, and is answered by the first $i$ elements of pattern $y$.
+Each conditioning cancels against the next term's outcome, and $\mathcal S_\ell = \mathcal S$. Thus we arrive at the expression with no path dependence:
 \begin{equation}\label{eq:telescope}
   \sum_{i=1}^{\ell} s_i \;=\; -\log_2 P_{\mathcal S, y},
   \qquad
@@ -3534,11 +3534,15 @@ agree with it at any one question. Substituting that limit,
   \;&=\; h_2(P_1) + (1-P_1)\log_2(A-1) \\
   \;&\longrightarrow\;
   h_2\big(p + (1-p)u\big) + (1-p)(1-u)\log_2(A-1)
-  \;=:\; h_{\rm spike}(p,m).
+  \;=:\; \eta_0(p,m).
 \end{aligned}
   \label{eq:hspike}
 \end{equation}
 %
+An $\eta_0$-term features in the numerator of every macroscopic
+leverage, the entropy of the first answer, as in \eqref{eq:master}. The spike produces this shape; 
+in general $\eta_0$ depends on the prior and has no general closed form.
+
 The received entropy: Evaluate \eqref{eq:spikeGsplit} at
 $k = \ell = \lfloor tQ\rfloor$. By \eqref{eq:spikelargeN}
 $P_\ell \to p$, so the split entropy stays bounded while the
@@ -3583,7 +3587,7 @@ Filling the three limits into \eqref{eq:Lk-G} term by term,
 \[
   \langle L_\ell\rangle
   = \frac{\overbrace{H\big(M^{(0)}\big)}^{\textstyle\to\,
-      Q\,h_{\rm spike}(p,m)}
+      Q\,\eta_0(p,m)}
     \;-\; \overbrace{(Q-\ell)\big(G_{\ell+1}-G_\ell\big)}
       ^{\textstyle\to\, Q\,(1-t)(1-p)m}}
     {\underbrace{G_\ell\vphantom{\big(}}_{\textstyle\to\,
@@ -3594,8 +3598,8 @@ and cancelling the common factor $Q$ gives
 %
 \begin{equation}
   L_p(t)
-  = \frac{h_{\rm spike}(p,m) - (1-t)(1-p)m}{t(1-p)m}
-  = 1 + \frac{h_{\rm spike}(p,m) - (1-p)m}{t(1-p)m},
+  = \frac{\eta_0(p,m) - (1-t)(1-p)m}{t(1-p)m}
+  = 1 + \frac{\eta_0(p,m) - (1-p)m}{t(1-p)m},
   \qquad 0 < t \le 1. 
   \label{eq:spikehyperbola}
 \end{equation}
@@ -3610,7 +3614,7 @@ afterwards.
 \begin{semilogyaxis}[width=7.4cm, height=5.4cm,
   title={$m = 1$}, title style={font=\small},
   xlabel={$t = \ell/Q$},
-  ylabel={$\lim_{n\to\infty}\langle L_{tQ}\rangle$},
+  ylabel={$L_p$},
   xmin=0, xmax=1, ymin=0.9, ymax=400, domain=0.02:1, samples=120,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12},
@@ -3646,6 +3650,56 @@ shape; the prior sets only the coefficient, which grows from
 $0.001$ at $p = 0.001$ to above $5$ at $p = 0.999$.}
 \label{fig:spikehyp}
 \end{figure}
+
+\begin{example}
+The approach to \eqref{eq:spikehyperbola} the hyperbolic limit. 
+Both panels evaluate the
+exact finite law \eqref{eq:Lk-G} on the block entropies
+\eqref{eq:spikeGsplit} at increasing finite $n$, and
+set it against the thermodynamic curve in black.
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.0cm, height=5.2cm,
+  title={$m = 1$, $p = 0.3$}, title style={font=\small},
+  xlabel={$t = \ell/Q$}, ylabel={$\langle L_{\ell}\rangle$},
+  xmin=0, xmax=1, ymin=1, ymax=5, ytick={1,2,3,4,5},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east,
+    draw=black!25, fill=white},
+  legend cell align=left]
+\addplot[black, thick, domain=0.02:1, samples=120]
+  {1+0.33438/x};
+\dataplot{cn1!65!black, only marks, mark=*, mark size=1.3}{t}{lev}{figures/data/spikefin_m1p30_n4.dat}
+\dataplot{cn2!85!black, only marks, mark=*, mark size=1.1}{t}{lev}{figures/data/spikefin_m1p30_n5.dat}
+\dataplot{cn3, only marks, mark=*, mark size=0.9}{t}{lev}{figures/data/spikefin_m1p30_n6.dat}
+\dataplot{cn4, only marks, mark=*, mark size=0.6}{t}{lev}{figures/data/spikefin_m1p30_n8.dat}
+\datalegend{{$n=\infty$}, {$n=4$}, {$n=5$}, {$n=6$}, {$n=8$}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.0cm, height=5.2cm,
+  title={$m = 2$, $p = 0.8$}, title style={font=\small},
+  xlabel={$t = \ell/Q$},
+  xmin=0, xmax=1, ymin=1, ymax=12, ytick={2,4,6,8,10,12},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}]
+\addplot[black, thick, domain=0.02:1, samples=120]
+  {1+1.11896/x};
+\dataplot{cn1!65!black, only marks, mark=*, mark size=1.3}{t}{lev}{figures/data/spikefin_m2p80_n4.dat}
+\dataplot{cn2!85!black, only marks, mark=*, mark size=1.1}{t}{lev}{figures/data/spikefin_m2p80_n5.dat}
+\dataplot{cn3, only marks, mark=*, mark size=0.9}{t}{lev}{figures/data/spikefin_m2p80_n6.dat}
+\dataplot{cn4, only marks, mark=*, mark size=0.6}{t}{lev}{figures/data/spikefin_m2p80_n8.dat}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+Every finite curve approaches the limit from below, and the gap
+closes last at the left edge: the hyperbola diverges as $t \to 0$,
+while a run of $Q$ questions has its first point at $t = 1/Q$ with a
+finite value there. The boundary layer is a limiting phenomenon.
+\end{example}
 
 We have explored a number of other characteristics of the spike
 prior in Appendix~\ref{app:spike}: the branch-by-branch effect of
@@ -3750,7 +3804,7 @@ macroscopic profile on the right, since that allows an
 $o(Q)$-question boundary layer at $t = 0$. Let
 
 \begin{equation}
-  h_0 := \lim_{n\to\infty} G_{n,1}, 
+  \eta_0 := \lim_{n\to\infty} G_{n,1}, 
 \end{equation}
 which in general will be allowed to converge to something distinct from $\gamma(t)$.
 Suppose the staircases have an
@@ -3763,7 +3817,7 @@ $t$-fraction has been observed. Four hypotheses suffice:
 \begin{enumerate}
   \item \textbf{Fixed answer width.} The integer $m$ is fixed, which
     supplies the uniform bound $0 \le \gamma_{n,k} \le m$.
-  \item \textbf{Initial-entropy convergence.} The limit $h_0$ exists.
+  \item \textbf{Initial-entropy convergence.} The limit $\eta_0$ exists.
   \item \textbf{Profile convergence.} The staircase
     $t \mapsto \gamma_{n,\lfloor tQ\rfloor}$ converges almost
     everywhere on $(0,1)$, with direct convergence at any $t$ where
@@ -3799,7 +3853,7 @@ using the coordinated construction $\ell_n = \lfloor tQ\rfloor$. Substituting bo
 into \eqref{eq:finitelev} proves
 %
 \begin{equation}
-  L(t) \;=\; \frac{h_0 - (1-t)\,\gamma(t)}{g(t)},
+  L(t) \;=\; \frac{\eta_0 - (1-t)\,\gamma(t)}{g(t)},
   \qquad
   g(t) = \int_0^t \gamma(x)\,dx,
   \qquad 0 < t < 1. 
@@ -3814,7 +3868,7 @@ makes $g(t) > 0$ for every $t > 0$. Let us go over the pieces, for physical intu
 
 \item $g(t)$: the total bill so far. Summing the price of each answer as it was bought gives the cumulative surprisal received by macroscopic time $t$. It is the area under the profile to the left of $t$, and it sits in the denominator of the leverage because it is exactly what Werner 'paid'.
 
-\item $h_0$: the size of the job at the outset. It is the marginal entropy of a single answer before anything is learned, so $Q h_0$ is the whole table's starting uncertainty $H(M^{(0)})$: the total to be destroyed, by asking or by deducing. It is kept as its own constant rather than read off as $\gamma(0^+)$ because learning finished in $o(Q)$ questions leaves no trace on the profile, and the gap $h_0 - \gamma(0^+)$ is precisely that boundary layer.
+\item $\eta_0$: the size of the job at the outset. It is the marginal entropy of a single answer before anything is learned, so $Q \eta_0$ is the whole table's starting uncertainty $H(M^{(0)})$: the total to be destroyed, by asking or by deducing. It is kept as its own constant rather than read off as $\gamma(0^+)$ because learning finished in $o(Q)$ questions leaves no trace on the profile, and the gap $\eta_0 - \gamma(0^+)$ is precisely that boundary layer.
 
 \item Together: $L(t)$ reads as (everything there was to know) minus (what the unasked columns still hold), over what was paid.
 \end{itemize}
@@ -4598,21 +4652,21 @@ Each reduces to a statement about $F$.
 \subsubsection{The table entropy}
 
 A class is a linear code. We'll make the
-structure explicit. The \textbf{generator matrix} $\Omega$ of class
+structure explicit. The \textbf{generator matrix} $\Omega^{(d)}$ of class
 $d$ is a $K_d \times Q$ matrix over $\mathbb F_2$. 
 Monomials are trivially themselves polynomials, and therefore boolean maps.
-$\Omega$'s rows are the monomials $\mathcal B$ that the class contains, evaluated at every question $q$.
+$\Omega^{(d)}$'s rows are the monomials $\mathcal B$ that the class contains, evaluated at every question $q$.
 %
 \begin{equation}
-  \Omega_{\mathcal B,q}
+  \Omega^{(d)}_{\mathcal B,q}
     \;=\; \prod_{i \in \mathcal B} b_i(q)
     \;=\; \mathbf 1[\, \mathcal B \subseteq \operatorname{supp}(q) \,],
   \qquad |\mathcal B| \le d ,
   \label{eq:genmat}
 \end{equation}
 %
-so that a uniformly random class member is $\psi = \xi^{\mathsf T} \Omega$
-with $\xi$ uniformly random on $\{0,1\}^{K_d}$. Every column of $\Omega$ is
+so that a uniformly random class member is $\psi = \xi^{\mathsf T} \Omega^{(d)}$
+with $\xi$ uniformly random on $\{0,1\}^{K_d}$. Every column of $\Omega^{(d)}$ is
 nonzero (its constant-monomial entry is $1$), so each single answer is
 the image of a uniform $\xi$ under a surjective linear map onto
 $\mathbb F_2$: a fair bit, in every class. Any bit that is flipped with 50\% chance is fair, which is what happens when the constant bit is added.
@@ -4703,8 +4757,8 @@ sorted by degree so that every class is a prefix.
 Let us approach this answer in steps.  
 For a straightforward intermediate, suppose \emph{Werner
 were told the class}. His prior would instantly collapse to only those maps. 
-Inside class $d$ the truth is $\psi = \xi^{\mathsf T}\Omega$ with $\xi$ a string of $K_d$ fair coins,
-so his answers are uniform on the image of the columns of $\Omega$ he has asked
+Inside class $d$ the truth is $\psi = \xi^{\mathsf T}\Omega^{(d)}$ with $\xi$ a string of $K_d$ fair coins,
+so his answers are uniform on the image of the columns of $\Omega^{(d)}$ he has asked
 and their entropy is that submatrix's rank. Every fresh column (question \& answer)
 independent of its predecessors buys one whole bit; once the rank of the 
 submatrix seen this way reaches $K_d$, the coins are pinned. 
@@ -4735,7 +4789,7 @@ second of these,
 %
 \begin{equation}
   H\big(\psi(\mathcal S)\big)
-  = \sum_d w_d\, H_d\big(\psi(\mathcal S)\big)
+  = \sum_d w_d\, H^{(d)}\big(\psi(\mathcal S)\big)
   + I\big(D; \psi(\mathcal S)\big),
   \qquad
   0 \le I \le \log_2(n+1):
@@ -4745,9 +4799,9 @@ second of these,
 mixture entropy is mean class entropy plus what the answers reveal
 about the label, and the label is cheap: $o(1)$ bits per question.
 Within class $d$ the answers on $\mathcal S$ are
-$\xi^{\mathsf T}\Omega_{\cdot,\mathcal S}$, uniform on the image of
+$\xi^{\mathsf T}\Omega^{(d)}_{\cdot,\mathcal S}$, uniform on the image of
 the column submatrix, so
-$H_d(\psi(\mathcal S)) = \operatorname{rank}(\Omega_{\cdot,\mathcal S})$
+$H^{(d)}(\psi(\mathcal S)) = \operatorname{rank}(\Omega^{(d)}_{\cdot,\mathcal S})$
 exactly: the number of $\mathbb F_2$-linearly
 independent columns, the number of bits needed to describe those
 answers.
@@ -4763,7 +4817,7 @@ side into a mean rank, one per class:
   \qquad
   G^{(d)}_{n,\ell}
   \;:=\; \binom Q\ell^{-1} \sum_{|\mathcal S| = \ell}
-    \operatorname{rank}\big(H_d\left(\psi(\mathcal S)\right)\big),
+    \operatorname{rank}\big(H^{(d)}\left(\psi(\mathcal S)\right)\big),
   \label{eq:Gmix}
 \end{equation}
 %
@@ -4848,18 +4902,19 @@ a fresh answer with probability tending to one:
 %
 So if the class rate tends to the statistic $R$, the support of the entropy rate tends to below $R$.
 $m=1$, which is a bound on the increment: $\gamma \in [0,1]$.
-Such a nonincreasing sequence with area $R_d$ and no mass to the right of
-$R_d$ has no freedom. These characteristics force the shape, so the class
-increments converge pointwise to a pure step, written with the Heaviside
-function $\theta(x) = \mathbf 1[x > 0]$:
+Such a nonincreasing sequence with area $R_{n,d_n}$ and no mass to the
+right of it has no freedom. These characteristics force the shape, so
+along that same sequence of classes the increments converge pointwise
+to a pure step, written with the Heaviside function
+$\theta(x) = \mathbf 1[x > 0]$:
 %
 \begin{equation}
-  \lim_{n\to\infty} \gamma^{(d)}_{n,\lfloor tQ\rfloor}
-  \;=\; \theta(R_d - t),
+  \lim_{n\to\infty} \gamma^{(d_n)}_{n,\lfloor tQ\rfloor}
+  \;=\; \theta(R - t),
   \qquad
-  \frac{G^{(d)}_{n,\lfloor tQ\rfloor}}{Q}
+  \frac{G^{(d_n)}_{n,\lfloor tQ\rfloor}}{Q}
   \;\longrightarrow\;
-  \int_0^t \theta(R_d - x)\, dx = \min(t, R_d):
+  \int_0^t \theta(R - x)\, dx = \min(t, R):
   \label{eq:heavistep}
 \end{equation}
 %
@@ -4868,8 +4923,8 @@ its own rate, and nothing after.
 \begin{example}
 Where the step in $\gamma$ comes from. Conditional on the
 latent class $D$, the answers on $\mathcal S$ are
-$\xi^{\mathsf T}\Omega_{\cdot,\mathcal S}$, so their entropy is the rank
-of that column submatrix, and $\gamma^{(D)}_{n,\ell}$ is the chance a
+$\xi^{\mathsf T}\Omega^{(d)}_{\cdot,\mathcal S}$, so their entropy is the rank
+of that column submatrix, and $\gamma^{(d)}_{n,\ell}$ is the chance a
 fresh column is still independent of the $\ell$ already asked. 
 
 To see the limit approach, hold the draw fixed at $R = 0.6$ and let $n$ grow. 
@@ -4883,7 +4938,7 @@ the right.
 \begin{tikzpicture}
 \begin{axis}[width=11cm, height=5.6cm,
   xlabel={$t = \ell/Q$},
-  ylabel={$\gamma^{(D)}_{n,\ell}$},
+  ylabel={$\gamma^{(d)}_{n,\ell}$},
   xmin=0.5, xmax=0.8, ymin=0, ymax=1.08,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12},
@@ -4914,12 +4969,15 @@ telescope to the dimension, $\sum_{\ell<Q}\gamma^{(d)}_{n,\ell} = K_d$,
 at every $n$ and with no approximation.
 \end{example}
 
-So, for a given sampled $R$, class $D$ is pinned, and we know $G^{(D)}_{n,\lfloor tQ\rfloor}$ in terms of $R_D$. All that is left is to integrate 
-over $R$ to get the true prior average.
+So, for a given sampled $R$, class $D$ is pinned, and it is exactly a
+sequence of the kind \eqref{eq:heavistep} asks for: $R_{n,D}$ is $R$
+rounded up to the top of its gap, and by \eqref{eq:rategap} that gap is
+at most $\sqrt{2/\pi n}$ wide, so $R_{n,D} \to R$ and
+$G^{(D)}_{n,\lfloor tQ\rfloor}/Q \to \min(t,R)$. All that is left is to
+integrate over $R$ to get the true prior average.
 
-We round the top of the rate $R_D$ down to $R$ itself.
-Since $\min(t,\cdot)$ is $1$-Lipschitz and
-the rounding moves $R$ by at most $\sqrt{2/\pi n}$ according to \eqref{eq:rategap}, the class
+Since $\min(t,\cdot)$ is $1$-Lipschitz the same gap bound controls the
+expectation, and the class
 average converges to an average over the statistic,
 %
 \begin{equation}
@@ -6494,7 +6552,7 @@ tidies from  $1 - (1-t)(1-F(t))$ to
 %
 This is the master law \eqref{eq:master} realized with 
 \begin{equation}
-  h_0 = 1;\quad \gamma(t) = 1 - F(t); \quad g(t) = \int_0^t(1-F),
+  \eta_0 = 1;\quad \gamma(t) = 1 - F(t); \quad g(t) = \int_0^t(1-F),
 \end{equation}
 the convergence hypotheses for the TDL hold naturally, $\gamma$ being bounded and nonincreasing by
 construction. The numerator has its own reading: destroyed uncertainty density is
@@ -7189,7 +7247,7 @@ approached pointwise in $t$ but never uniformly.}
 
 As $p \to 1^-$ the fixed-$p$ coefficient of
 \eqref{eq:spikehyperbola} diverges,
-$\big[h_{\rm spike}(p,m)-(1-p)m\big]/\big[(1-p)m\big]
+$\big[\eta_0(p,m)-(1-p)m\big]/\big[(1-p)m\big]
 \sim \tfrac{1-2^{-m}}{m}\log_2\tfrac1{1-p}$, which is the
 noncommutation in explicit form. Writing
 $L_{p,n}(t) := \langle L_{\lfloor tQ\rfloor}\rangle$ and comparing
@@ -7293,15 +7351,16 @@ question drawn uniformly from $\mathcal V\setminus\mathcal J$ gives
 the within-block increments
 %
 \begin{equation}
-  \eta_\kappa(i) := H_\kappa(i+1)-H_\kappa(i)
+  \zeta_\kappa(i) := H_\kappa(i+1)-H_\kappa(i)
   = \mathbb E_{\mathcal J, q}
   \big[H\big(\psi(q)\mid\psi(\mathcal J)\big)\big],
   \qquad 0 \le i \le r_\kappa - 1,
-  \label{eq:eta}
+  \label{eq:zetakappa}
 \end{equation}
 %
 the mean uncertainty in one fresh answer after $i$ of its block
-partners have been answered. This is why the block-entropy profile is
+partners have been answered. It's $\gamma$ restricted to a block type. 
+This is why the block-entropy profile is
 useful: it converts a joint law on an entire block into exactly the
 conditional entropies the learning curve needs. The endpoints make
 the meaning concrete, $H_\kappa(0) = 0$ while
@@ -7321,7 +7380,7 @@ $0 \le \ell < Q$,
   \gamma_{n,\ell}
   = \sum_\kappa w_{\kappa,n}\sum_{i=0}^{r_\kappa-1}
   \frac{\binom{r_\kappa-1}{i}\binom{Q-r_\kappa}{\ell-i}}
-       {\binom{Q-1}{\ell}}\,\eta_\kappa(i).
+       {\binom{Q-1}{\ell}}\,\zeta_\kappa(i).
   \label{eq:blockfinitegamma}
 \end{equation}
 %
@@ -7345,13 +7404,13 @@ asked by macroscopic time $t$. The limiting profile is therefore
 \begin{equation}
   \gamma(t)
   = \sum_\kappa w_\kappa\sum_{i=0}^{r_\kappa-1}
-  \beta_{r_\kappa-1,i}(t)\,\eta_\kappa(i). 
+  \beta_{r_\kappa-1,i}(t)\,\zeta_\kappa(i). 
   \label{eq:bernsteinprofile}
 \end{equation}
 %
 At the start of the run no partner has been asked, so only the
 $i = 0$ term survives and
-$h_0 = \gamma(0) = \sum_\kappa w_\kappa\eta_\kappa(0)
+$\eta_0 = \gamma(0) = \sum_\kappa w_\kappa\zeta_\kappa(0)
 = \sum_\kappa w_\kappa H_\kappa(1)$: the same block-entropy profile
 supplies both the initial marginal entropy and the entire macroscopic
 conditional-entropy curve.
@@ -7482,7 +7541,7 @@ parity ($\sigma$) & uniform on the coset
   rises $1 \to r/(r-1)$, late \\
 tilted parity & i.i.d.\ Bernoulli($\theta$) bits conditioned on the
   coset &
-  $\theta^{|y|}(1-\theta)^{r-|y|}/\zeta_{r,\sigma}$ on the coset,
+  $\theta^{|y|}(1-\theta)^{r-|y|}/\mathcal Z_{r,\sigma}$ on the coset,
   else $0$ &
   same shape, bent by $\varepsilon = 1-2\theta$ \\
 $[r,k]_A$ MDS & uniform on an MDS code ($A \ge r$) &
@@ -7520,14 +7579,14 @@ remaining question for free: $L \equiv 2$.
 From any row of the table the route to leverage is the one already
 walked in Section~\ref{sec:shapeprior}. The block law fixes the
 subset entropies \eqref{eq:blockprofile}, their differences give the
-increments $\eta$ \eqref{eq:eta}, and the hypergeometric average
+increments $\zeta$ \eqref{eq:zetakappa}, and the hypergeometric average
 \eqref{eq:blockfinitegamma} is exact at every finite $n$; its
 binomial limit is the Bernstein profile \eqref{eq:bernsteinprofile}.
 No capacity theorem is needed: blocks are bounded, so elementary
 hypergeometric-to-binomial convergence replaces it. The finite law
 \eqref{eq:finitelev} then gives $\langle L_\ell\rangle$ exactly at
 every $n$, and the master law \eqref{eq:master} gives the curve, with
-$h_0 = \sum_\kappa w_\kappa \eta_\kappa(0)$.
+$\eta_0 = \sum_\kappa w_\kappa \zeta_\kappa(0)$.
 
 \subsection{Bernstein polynomials as a profile language}
 
@@ -7535,12 +7594,12 @@ For a single block type, suppressing the type label,
 equation~\eqref{eq:bernsteinprofile} reads
 %
 \begin{equation}
-  \gamma(t) = \eta(0)(1-t)^2 + 2\eta(1)t(1-t) + \eta(2)t^2
+  \gamma(t) = \zeta(0)(1-t)^2 + 2\zeta(1)t(1-t) + \zeta(2)t^2
   \label{eq:bernstein3}
 \end{equation}
 %
 at $r = 3$, and
-$\eta(0)(1-t)^3 + 3\eta(1)t(1-t)^2 + 3\eta(2)t^2(1-t) + \eta(3)t^3$
+$\zeta(0)(1-t)^3 + 3\zeta(1)t(1-t)^2 + 3\zeta(2)t^2(1-t) + \zeta(3)t^3$
 at $r = 4$. Some useful coefficient vectors, with $h_{\rm fresh}$ the
 entropy of one independent fresh answer and $h_{\rm clique}$ the
 entropy of the value copied through a clique:
@@ -7548,7 +7607,7 @@ entropy of the value copied through a clique:
 \begin{center}
 \begin{tabular}{lll}
 \toprule
-block & $(\eta(0),\ldots,\eta(r-1))$ & profile \\
+block & $(\zeta(0),\ldots,\zeta(r-1))$ & profile \\
 \midrule
 independent fresh answers
   & $(h_{\rm fresh},\ldots,h_{\rm fresh})$ & $h_{\rm fresh}$ \\
@@ -7562,14 +7621,14 @@ $(r,k)$ MDS & $k$ entries $m$, then zeros
 \end{center}
 
 Entropy submodularity gives
-$m \ge \eta_\kappa(0) \ge \cdots \ge \eta_\kappa(r_\kappa-1)\ge0$,
+$m \ge \zeta_\kappa(0) \ge \cdots \ge \zeta_\kappa(r_\kappa-1)\ge0$,
 and the derivative identity for Bernstein polynomials makes the
 macroscopic monotonicity explicit,
 %
 \begin{equation}
   \gamma'(t)
   = \sum_\kappa w_\kappa(r_\kappa-1)\sum_{i=0}^{r_\kappa-2}
-  \big(\eta_\kappa(i+1)-\eta_\kappa(i)\big)\beta_{r_\kappa-2,i}(t)
+  \big(\zeta_\kappa(i+1)-\zeta_\kappa(i)\big)\beta_{r_\kappa-2,i}(t)
   \;\le\; 0 ,
   \label{eq:bernsteinderiv}
 \end{equation}
@@ -7598,7 +7657,7 @@ Leverage itself need not be monotone.
 \caption{The degree-three Bernstein basis: bump functions scanning
 left to right, the $i$-th peaked at $i/3$. A block profile is a
 positive combination of such bumps weighted by the microscopic
-conditional entropies $\eta(i)$, so the shape of $L$ becomes a
+conditional entropies $\zeta(i)$, so the shape of $L$ becomes a
 question about \emph{where the coefficients drop}.}
 \label{fig:bernstein}
 \end{figure}
@@ -7722,7 +7781,7 @@ $\gamma_{n,k}$ & increment $G_{n,k+1} - G_{n,k}$, what one fresh answer is worth
 $t = \ell/Q$ & macroscopic time, the fraction of the table already asked \\
 $\gamma(t)$ & the profile: the increment's limit, entropy of a fresh answer at $t$ \\
 $g(t)$ & $\int_0^t\gamma$, the surprisal received per question by time $t$ \\
-$h_0$ & marginal entropy of one answer before anything has been asked \\
+$\eta_0$ & marginal entropy of one answer before anything has been asked \\
 \addlinespace[5pt]
 $F$, $R$ & the statistic: a law on $[0,1]$ and the value drawn from it \\
 $D$ & the complexity class that draw selects \\
