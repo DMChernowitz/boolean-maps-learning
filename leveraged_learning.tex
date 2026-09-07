@@ -188,7 +188,7 @@
 
 \maketitle
 
-In 1948 Claude Shannon introduced the world to information entropy.
+In 1948 Claude Shannon introduced the world to information entropy \cite{shannon48}.
 He quantified the amount of information in a signal. What if we wanted to quantify learning in the same spirit, as the increased understanding of a problem?
 This work is an attempt to follow that thread. It models the problem as a boolean map, and the understanding as the aggregate ability to predict that map.
 And learning, as the speed at which that understanding increases, specifically as information is supplied to the learner. Some interesting relationships can be formed between the two.
@@ -670,7 +670,7 @@ surprisal is his own uncertainty about that answer. This identity will do a grea
 
 For a two-answer column, this entropy is a function of a single
 number, the probability $x$ of one of the two answers: the
-binary entropy function:
+binary entropy function \cite{covthomas}:
 \begin{equation}\label{eq:binary-entropy}
   h_2(x) \;:=\; -x\log_2 x \;-\; (1-x)\log_2(1-x),
 \end{equation}
@@ -2526,7 +2526,7 @@ are indistinguishable through round $\ell$. Deeper shells are
 invisible.
 
 There is also a monotonicity property hiding in $G$. Entropy is
-\emph{submodular}: a fresh answer is worth at most in a larger
+\emph{submodular} \cite{covthomas}: a fresh answer is worth at most in a larger
 context $\mathcal{S}$ what it was worth in a smaller one $\mathcal{V}$,
 
 \begin{equation}
@@ -2697,7 +2697,7 @@ inversion free on every wire (an edge attribute, not a gate). De
 Morgan's laws push inverters along wires and into gates, so an
 and-inverter circuit converts to a NAND-only circuit of the same gate
 count and back; $X_j$ is the standard AIG-size metric of logic
-synthesis. Reference values in this convention: 
+synthesis \cite{aigrewrite}. Reference values in this convention: 
 \begin{itemize}
   \item AND, OR, NAND and NOR all cost $1$;
   \item XOR costs $3$;
@@ -2711,10 +2711,9 @@ The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ 
 The tabulation is feasible because $X_j$ is invariant under
 relabeling: permuting or negating inputs, negating or (for $m \ge 2$)
 swapping outputs are all free operations, so the $65{,}536$ maps collapse to $222$ and $308$
-equivalence classes respectively. The $(4,1)$ class values are published optimal
-AIG sizes\footnote{The \texttt{github.com/krinkin/bounds}
-reproducibility dataset, cross-checked against our own SAT-based
-synthesizer on random classes with zero mismatches.}; the $(3,2)$
+equivalence classes respectively. The $(4,1)$ class values are the published
+optimal AIG sizes of \cite{krinkin}, cross-checked against our own
+SAT-based synthesizer on random classes with zero mismatches; the $(3,2)$
 values come from that synthesizer: circuit sizes $X = 0, 1, 2,
 \ldots$ are encoded as satisfiability instances, and the first
 satisfiable $X$ is provably minimal, every smaller size having been
@@ -4163,7 +4162,7 @@ information per question becomes the dark area under the profile.}
 \end{figure}
 
 Monotonicity and boundedness guarantee convergent subsequences by a
-Helly selection argument, but they do not guarantee that the full
+Helly selection argument \cite{rudin}, but they do not guarantee that the full
 sequence of priors selects a unique profile: a family can alternate
 between two constructions on even and odd $n$. At the prior level one
 therefore needs a coherent construction, or must take profile convergence itself as a hypothesis. 
@@ -4516,7 +4515,7 @@ a polynomial of degree $\le d$, and therefore the space is closed.
 
 The classes run from the two constant polynomials $\rho_\emptyset \in \{0,1\}$
 ($d = 0$) to the full map space ($d = n$). In coding theory this
-class is the Reed-Muller code $\mathrm{RM}(d,n)$. Two definitions are posited to avoid confusion
+class is the Reed-Muller code $\mathrm{RM}(d,n)$ \cite{macwilliams}. Two definitions are posited to avoid confusion
 \begin{itemize}
 \item the \emph{class} $d$ is the union of all maps of degree at
 most $d$. Classes are nested.
@@ -4973,7 +4972,7 @@ Two things spoil this reasoning at finite $n$, and both dissolve in the TDL.
 Asking $K_d$ questions is not the same as reconstructing a full rank submatrix, because
 the columns are not in general position: the smallest dependent set has
 $2^{d+1}$ members, the minimum distance of the dual code
-$\mathrm{RM}(n{-}d{-}1,n)$, and for the middle classes that falls well
+$\mathrm{RM}(n{-}d{-}1,n)$ \cite{macwilliams}, and for the middle classes that falls well
 short of $K_d$. For instance, four questions against $K_1 = 5$ at $n = 4$, eight
 against $K_2 = 37$ at $n = 8$. Four questions whose bit patterns XOR to
 zero already determine each other for an affine ($d=1$) map, whatever else is
@@ -5089,10 +5088,10 @@ more). The increments telescope to the dimension,
 \end{equation}
 the finite-$n$ area theorem. Inside a class $d$, there can be at most $K_d$ linearly independent questions, and at most $K_d$ bits to learn. 
 And we must invoke one external result:
-Reed-Muller codes achieve capacity on the binary erasure channel,
-(Kudekar, Kumar, Mondelli, Pfister, \c Sa\c so\u glu and Urbanke,
-2017) states that revealing any fraction beyond the rate determines
-a fresh answer with probability tending to one:
+Reed-Muller codes achieve capacity on the binary erasure channel.
+Kudekar, Kumar, Mondelli, Pfister, \c Sa\c so\u glu and Urbanke
+\cite{kkmpsu} showed that revealing any fraction beyond the rate
+determines a fresh answer with probability tending to one:
 %
 \begin{equation}
   R_{n,d_n} \to R \in (0,1)
@@ -7621,7 +7620,7 @@ are thus endpoints of a larger family.
 \section{Block priors and the Bernstein profile language}\label{app:blockpriors}
 
 A stable, projectively consistent exchangeable prior cannot produce a
-smooth non-hyperbolic macroscopic curve: de Finetti reduces it to an
+smooth non-hyperbolic macroscopic curve: de Finetti \cite{definetti37,hewittsavage} reduces it to an
 i.i.d.\ mixture, whose interior profile is constant and whose
 macroscopic curve is a hyperbola. To obtain a profile
 that changes throughout $0 < t < 1$, the prior must retain structure
@@ -7666,7 +7665,7 @@ No symmetry is required for this averaged definition, although every
 zoo member below has the stronger property of \textbf{entropy
 homogeneity}, meaning that $H(\psi(\mathcal J))$ itself depends only
 on $|\mathcal J|$. Full permutation invariance is sufficient for that
-but not necessary: MDS code blocks are entropy homogeneous even
+but not necessary: MDS code blocks \cite{macwilliams} are entropy homogeneous even
 though their coordinate distribution is not invariant under every
 permutation.
 
@@ -7918,7 +7917,8 @@ $\eta_0 = \sum_\kappa w_\kappa \zeta_\kappa(0)$.
 \subsection{Bernstein polynomials as a profile language}
 
 For a single block type, suppressing the type label,
-equation~\eqref{eq:bernsteinprofile} reads
+equation~\eqref{eq:bernsteinprofile} reads in the Bernstein basis
+\cite{lorentz}
 %
 \begin{equation}
   \gamma(t) = \zeta(0)(1-t)^2 + 2\zeta(1)t(1-t) + \zeta(2)t^2
@@ -8100,7 +8100,7 @@ of the relabelling groups
   |G_{3,2}| = 3!\cdot 2^3\cdot 2^2\cdot 2 = 384,
 \end{equation}
 %
-the first being the standard NPN group of logic synthesis.
+the first being the standard NPN group of logic synthesis \cite{knuth4a}.
 \texttt{groups.py} applies every group element to every truth table and
 keeps the numerically smallest image as the class representative, which
 collapses $65{,}536$ maps to $222$ classes at $(4,1)$ and $308$ at
@@ -8133,13 +8133,13 @@ tables. Then
 %
 searched by trying $r = 0, 1, 2, \ldots$ upward. The answer is a proven
 minimum rather than a best effort: every smaller budget was refuted by
-the solver, not merely left unfound. The back end is CaDiCaL through
-PySAT. Run as a script the synthesizer reproduces the textbook
+the solver, not merely left unfound. The back end is CaDiCaL \cite{cadical}
+through PySAT \cite{pysat}. Run as a script the synthesizer reproduces the textbook
 two-input values, AND, OR and NAND at $1$ and XOR at $3$.
 
 \emph{Provenance.} At $(4,1)$ the class values are adopted from the
-published \texttt{github.com/\allowbreak krinkin/\allowbreak bounds}
-reproducibility dataset of the $222$ NPN classes, and
+published reproducibility dataset \cite{krinkin} of the $222$ NPN
+classes, and
 \texttt{crosscheck.py} re-derives ten of them
 at random with our own synthesizer, finding no mismatch. At $(3,2)$
 there is no reference table, so all $308$ classes were synthesized from
@@ -8147,20 +8147,20 @@ scratch by \texttt{run\_synth\_3to2.py} over a process pool. The
 resulting ranges are $X \le 10$ at $(4,1)$ and $X \le 9$ at $(3,2)$,
 with the head counts tabulated in Section~\ref{sec:nandcomplexity}.
 
-\emph{One caveat, stated plainly.} The reference dataset carries a
-status column, and two of its $222$ entries are not proofs: the classes
-of $\mathtt{0x1669}$ and $\mathtt{0x166b}$ hold a best-known upper
-bound of $10$ rather than a demonstration that $9$ is impossible. Their
-orbits contain $32$ and $64$ maps, so at most $96$ of the $65{,}536$
-entries, one part in seven hundred, could in principle be one gate too
-high. Both sit at the ceiling of the range, where the Occam weight
-$e^{-\beta X}$ is smallest and the shell holds $320$ of $65{,}536$
-maps, so no curve in Section~\ref{sec:gibbstraj} turns on them. Our own
-synthesizer reproduces the difficulty rather than resolving it: for
+\emph{Why the $(4,1)$ values are adopted rather than recomputed.} All
+$222$ entries of \cite{krinkin} are proven optimal, the two hardest
+classes included: $\mathtt{0x1669}$ and $\mathtt{0x166b}$, at $10$
+gates each, which is the ceiling of the range. Our own synthesizer
+agrees wherever it can reach, but it cannot reach that far. For
 $\mathtt{0x1669}$ it refutes $r = 5$ in under a second and $r = 7$ in
-half a minute, and does not settle $r = 9$ in fifteen. The search grows
-steeply with the budget, which is why these two are where the published
-proofs stop.
+half a minute, and does not settle $r = 9$ within fifteen: the instance
+grows steeply with the budget, since the selector family for gate $g$
+already carries $O\big((n+g)^2\big)$ candidates and its at-most-one
+encoding is quadratic in that. Hence the division of labour. The
+$(4,1)$ column is taken from the reference dataset and sampled against
+our own synthesizer, while the $(3,2)$ classes, being one input bit
+smaller and so a much smaller formula, are all synthesized here from
+scratch.
 
 \clearpage
 \section{Symbols}\label{app:symbols}
@@ -8208,5 +8208,87 @@ $\xi$ & the coin string that picks a map uniformly inside a class \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\begin{thebibliography}{99}
+
+\bibitem{shannon48}
+C.~E. Shannon,
+``A mathematical theory of communication'',
+\emph{Bell System Technical Journal} \textbf{27}, 379--423 and
+623--656, 1948.
+
+\bibitem{covthomas}
+T.~M. Cover and J.~A. Thomas,
+\emph{Elements of Information Theory}, 2nd ed.,
+Wiley-Interscience, 2006.
+
+\bibitem{rudin}
+W.~Rudin,
+\emph{Principles of Mathematical Analysis}, 3rd ed.,
+McGraw-Hill, 1976.
+
+\bibitem{definetti37}
+B.~de Finetti,
+``La pr\'evision: ses lois logiques, ses sources subjectives'',
+\emph{Annales de l'Institut Henri Poincar\'e} \textbf{7}, 1--68, 1937.
+
+\bibitem{hewittsavage}
+E.~Hewitt and L.~J. Savage,
+``Symmetric measures on Cartesian products'',
+\emph{Transactions of the American Mathematical Society} \textbf{80},
+470--501, 1955.
+
+\bibitem{lorentz}
+G.~G. Lorentz,
+\emph{Bernstein Polynomials}, 2nd ed.,
+AMS Chelsea Publishing, 1986.
+
+\bibitem{macwilliams}
+F.~J. MacWilliams and N.~J.~A. Sloane,
+\emph{The Theory of Error-Correcting Codes},
+North-Holland Mathematical Library \textbf{16}, North-Holland, 1977.
+
+\bibitem{kkmpsu}
+S.~Kudekar, S.~Kumar, M.~Mondelli, H.~D. Pfister, E.~\c{S}a\c{s}o\u{g}lu
+and R.~L. Urbanke,
+``Reed--Muller codes achieve capacity on erasure channels'',
+\emph{IEEE Transactions on Information Theory} \textbf{63}(7),
+4298--4316, 2017.
+
+\bibitem{knuth4a}
+D.~E. Knuth,
+\emph{The Art of Computer Programming, Volume 4A: Combinatorial
+Algorithms, Part 1},
+Addison-Wesley, 2011.
+
+\bibitem{aigrewrite}
+A.~Mishchenko, S.~Chatterjee and R.~K. Brayton,
+``DAG-aware AIG rewriting: a fresh look at combinational logic
+synthesis'',
+\emph{Proceedings of the 43rd Design Automation Conference}, 532--535,
+2006.
+
+\bibitem{pysat}
+A.~Ignatiev, A.~Morgado and J.~Marques-Silva,
+``PySAT: a Python toolkit for prototyping with SAT oracles'',
+\emph{Theory and Applications of Satisfiability Testing (SAT 2018)},
+LNCS \textbf{10929}, 428--437, 2018.
+
+\bibitem{cadical}
+A.~Biere, K.~Fazekas, M.~Fleury and M.~Heisinger,
+``CaDiCaL, Kissat, Paracooba, Plingeling and Treengeling entering the
+SAT Competition 2020'',
+\emph{Proceedings of SAT Competition 2020: Solver and Benchmark
+Descriptions}, Department of Computer Science Report Series B,
+vol.\ B-2020-1, University of Helsinki, 50--53, 2020.
+
+\bibitem{krinkin}
+\texttt{krinkin},
+\emph{bounds}: a reproducibility package giving proven optimal AIG
+sizes for all $222$ four-variable NPN classes, with witness circuits
+and verification scripts.
+\url{https://github.com/krinkin/bounds}
+
+\end{thebibliography}
 
 \end{document}

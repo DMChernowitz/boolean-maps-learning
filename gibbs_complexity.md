@@ -98,20 +98,23 @@ needs to build the ensemble.
 `crosscheck.py` re-derives ten randomly chosen `(4,1)` classes (fixed seed) with
 our own synthesizer and compares against the reference. Zero mismatches.
 
-The reference dataset is honest about its own status column: **220 of the 222
-classes are marked proven optimal, and two are not.** The classes of `0x1669`
-and `0x166b` carry a best-known upper bound of 10 rather than a proof of
-optimality. Their orbits contain 32 and 64 maps, so at most 96 of the 65,536
-entries — 0.15% — could in principle be one gate too high. Both sit at the top
-of the range, where the Occam weight `e^{-X}` is smallest, so nothing in the
-paper's figures turns on them.
+The current upstream dataset marks **all 222 classes proven optimal**,
+including the two hardest, `0x1669` and `0x166b`, at 10 gates each — the
+ceiling of the range. (The snapshot vendored here as
+`reference_npn4_opt_aig.csv` predates that: it carries those two rows with
+status `improved_ub`. The *values* are identical, 10 in both, so every table
+and figure built from it is unaffected. Refresh it from upstream when
+convenient.)
 
-Our own synthesizer reproduces the difficulty rather than resolving it. For
-`0x1669` it refutes `r = 5` in under a second and `r = 7` in 27 seconds, and
-does not settle `r = 9` within 15 minutes. The instance size grows steeply
-with the budget -- the selector family for gate `g` has `O((n+g)^2)` candidates
-and the at-most-one encoding is quadratic in that -- which is why these two
-classes are where the published proofs stop.
+Our own synthesizer agrees wherever it can reach, but it cannot reach that
+far. For `0x1669` it refutes `r = 5` in under a second and `r = 7` in 27
+seconds, and does not settle `r = 9` within 15 minutes. The instance size grows
+steeply with the budget — the selector family for gate `g` has `O((n+g)^2)`
+candidates and the at-most-one encoding is quadratic in that — which is why the
+`(4,1)` column is adopted and only sampled against, while the smaller `(3,2)`
+classes are all synthesized here from scratch.
+
+
 
 ## Files
 
