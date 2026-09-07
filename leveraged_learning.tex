@@ -3889,6 +3889,152 @@ while a run of $Q$ questions has its first point at $t = 1/Q$ with a
 finite value there. The boundary layer is a limiting phenomenon.
 \end{example}
 
+\subsubsection{Exchangeable answers and de Finetti's theorem}
+\label{sec:spikedefinetti}
+
+The block law \eqref{eq:spikeUk} has a strong property. Whatever set $\mathcal S$
+Werner asks, the all-zero pattern $y=0^{mk}$ carries probability $P_k$ and every other pattern
+carries $U_k$. Both depend on $\mathcal S$ solely through its size $k$. 
+Which questions were asked, and in which order, is not relevant. 
+A prior with that property is called \textbf{exchangeable}, and
+a classical theorem constrians such priors to be equivalent to a restrictive construction.
+
+Write the answers in the order they arrive as a sequence of random
+symbols,
+%
+\begin{equation}
+  \xi_i \;:=\; \psi(q_i) \;\in\; \mathcal A,
+  \qquad i = 1, \ldots, Q,
+  \label{eq:xiseq}
+\end{equation}
+%
+so that $\xi$ is the random object Werner actually observes (in this case $m$ bits each), one
+coordinate per question-answer. The sequence is exchangeable when its joint law
+is unchanged by permuting the indices: for every permutation $\sigma$
+and every pattern $y$,
+%
+\begin{equation}
+  \Pr\big(\xi_1 = y_1, \ldots, \xi_k = y_k\big)
+  \;=\;
+  \Pr\big(\xi_{\sigma(1)} = y_1, \ldots, \xi_{\sigma(k)} = y_k\big).
+  \label{eq:exchangeable}
+\end{equation}
+%
+Exchangeability is weaker than independence. Independent answers tell
+each other nothing, whereas exchangeable ones may be strongly
+dependent; all that is asked is that they be dependent
+\emph{symmetrically}, so that no question occupies a special position.
+
+De Finetti's theorem \cite{definetti37,hewittsavage} states that
+symmetric dependence, for sequences of unbounded length, is equivalent to a \emph{mixture of coins}. 
+Let $\tau$ be a distribution on the answer alphabet $\mathcal A$, an \textbf{answer law}, writing
+$\tau(a) = \Pr(a)$ for the weight it puts on the answer $a$. Let $\Lambda$
+be a distribution over such answer laws, the \textbf{directing
+measure}. Then for an exchangeable sequence there is exactly one
+$\Lambda$ with
+%
+\begin{equation}
+  \Pr\big(\xi_1 = y_1, \ldots, \xi_k = y_k\big)
+  \;=\; \int \prod_{i=1}^{k} \tau(y_i)\; d\Lambda(\tau) ,
+  \label{eq:definetti}
+\end{equation}
+%
+for every $k$ and every pattern. The RHS is executed as a
+two-stage experiment. Nature first draws one answer law $\tau$ from
+$\Lambda$, once and for all, and then answers every question
+independently from that single $\tau$. Conditional on $\tau$ the answers
+are independent; unconditionally they are correlated. The
+correlation is mediated by Werner considering each $\tau$ possible a priori.
+The theorem needs the sequence to extend to an infinite one, or
+equivalently the family of finite laws to be consistent as $Q$ grows;
+a finite exchangeable law taken in isolation need not be a mixture of
+independent draws of $\tau$. Sampling without replacement is the standard
+counterexample. In the infinite set limit, sampling with and without replacement is 
+equivalent.
+
+In general $\Lambda$ may spread over any collection of answer laws
+$\tau_1, \tau_2, \ldots$, finite, countable or a continuum, and the
+richer that collection the more there is to learn about which one was
+drawn. The spike prior is the simplest interesting case: $\Lambda$ is a discrete
+distribution on 2 points. Let $\tau_0$ be the spike,
+and let $\tau_{>}$ be the uniform law, which allows answers $\neq 0^m$ as
+well. These distributions on $\mathcal A$ have probabilities
+\begin{equation}
+  \tau_0(a) = \delta_{a,0^m},\quad\quad
+  \tau_>(a) = u
+\end{equation}
+Then
+%
+\begin{equation}
+  \Lambda \;=\;
+  \Big(p - \frac{1-p}{N-1}\Big)\, \delta_{\tau_0}
+  \;+\;
+  (1-p)\,\frac{N}{N-1}\, \delta_{\tau_{>}},
+  \label{eq:spikedefinetti}
+\end{equation}
+%
+with $\delta_\tau$ the point mass at $\tau$, reproduces the spike
+exactly. Substituting \eqref{eq:spikedefinetti} into
+\eqref{eq:definetti}, the confirming pattern $0^{mk}$ receives full
+weight from $\tau_0$ and $u^k$ from $\tau_{>}$, while every other
+pattern receives nothing from $\tau_0$ and $u^k$ from $\tau_{>}$:
+%
+\begin{equation}
+\begin{aligned}
+  \Pr\big(\psi(\mathcal S) = 0^{mk}\big)
+  &= \Big(p - \frac{1-p}{N-1}\Big) + (1-p)\,\frac{N u^k}{N-1}
+  = p + (Nu^k - 1)\,\omega , \\[2pt]
+  \Pr\big(\psi(\mathcal S) = y\big)
+  &= (1-p)\,\frac{N u^k}{N-1} = N u^k \omega
+  \qquad (y \neq 0^{mk}),
+\end{aligned}
+  \label{eq:spikedefinettitwo}
+\end{equation}
+%
+which are \eqref{eq:spikePk} and \eqref{eq:spikeUk} exactly. The
+prior on boolean maps comes back too. A map is answered by $\tau_0$ on all questions 
+only if it is $\phi_0$, and by $\tau_{>}$ with weight $u^Q = 1/N$ whatever its
+truth table holds. We can find the prior probability of $\phi_0$ by reconstructing the probability
+of only receiving zero answers, through either $\tau$. Starting from \eqref{eq:definetti}, substituting \eqref{eq:spikedefinetti} at $k = Q$ returns
+\begin{equation}
+  \Pr\big(\xi_1 = 0^m, \ldots, \xi_Q = 0^m\big)
+  \;=\; \Big(p - \frac{1-p}{N-1}\Big) \cdot 1^Q + (1-p)\,\frac{N}{N-1} \cdot u^Q = p,
+  \label{eq:definettispecif}
+\end{equation}
+And the reader can convince themselves that the probabilities of every other map (where the first term vanishes) are equal.
+$p_j = \omega$. Together, these reproduce \eqref{eq:spikeprior}. 
+
+Why is the leverage a hyperbola? All the prior knows is which of the
+two answer laws $\tau$ was drawn, and that is settled within $o(Q)$ questions. Afterwards, every remaining answer is an independent draw from a known law
+and costs the same $\mathbb E_\Lambda[H(\tau)] \to (1-p)m$ bits of surprisal, so the
+profile $\gamma$ is flat on $(0,1)$ and \eqref{eq:master} has no
+freedom left but a $1/t$ curve. The coefficient can be read off as
+well. Since
+%
+\begin{equation}
+  \eta_0 - (1-p)m
+  \;=\; H\big(\mathbb E_\Lambda\, \tau\big)
+      - \mathbb E_\Lambda\big[H(\tau)\big]
+  \;=\; I\big(\tau \,;\, \xi_1\big),
+  \label{eq:spikejensen}
+\end{equation}
+%
+the numerator of \eqref{eq:spikehyperbola} is the mutual information
+between the drawn answer law and a single answer: the whole of the
+spike's leverage is what one question reveals about which world Werner
+is in, divided by what an answer costs him once he knows.
+
+For the spike, $p_j = f(|j|)$ here in its simplest form: the weight of a map
+depends on its truth table only through whether the Hamming weight $|j|$
+vanishes. This generalizes, and both the exchangeability and its
+consequence for the limit are recognizable from the prior alone. Any
+$\{p_j\}$ whose weight depends on the truth table only through the
+\emph{count} of each answer is exchangeable, and vice
+versa. Under convergence of those counts in distribution to some
+$\Lambda$ as $n \to \infty$, the profile $\gamma(t)$ is flat and the
+leverage curve is a hyperbola, whether or not any finite prior along
+the way is literally a mixture of independent draws.
+
 We have explored a number of other characteristics of the spike
 prior in Appendix~\ref{app:spike}: the branch-by-branch effect of
 the first question, the extraction ratio, and various further
@@ -7619,17 +7765,74 @@ are thus endpoints of a larger family.
 
 \section{Block priors and the Bernstein profile language}\label{app:blockpriors}
 
-A stable, projectively consistent exchangeable prior cannot produce a
-smooth non-hyperbolic macroscopic curve: de Finetti \cite{definetti37,hewittsavage} reduces it to an
-i.i.d.\ mixture, whose interior profile is constant and whose
-macroscopic curve is a hyperbola. To obtain a profile
-that changes throughout $0 < t < 1$, the prior must retain structure
-tied to particular groups or addresses of questions, and a fixed
-partition into local blocks is the simplest solvable construction.
-The statement needs its consistency qualification: a separate finite
-exchangeable law can be chosen at every $n$ without forming one
-infinite exchangeable family, and such a sequence need be neither an
-i.i.d.\ mixture nor possessed of any thermodynamic limit.
+Section~\ref{sec:spikedefinetti} read the spike prior as a mixture over
+two answer laws. Nothing there forced the number to be two, and the
+whole exchangeable family is worth seeing before it is left behind.
+Let $\Lambda$ be any distribution over answer laws $\tau$ on
+$\mathcal A$. Reading \eqref{eq:definetti} at $k = Q$, the prior it
+induces on maps is
+%
+\begin{equation}
+  p_j \;=\; \int \prod_{q \in \mathcal Q} \tau\big(\phi_j(q)\big)\;
+  d\Lambda(\tau),
+  \label{eq:definettiprior}
+\end{equation}
+%
+a map drawn by fixing one answer law and then answering every question
+independently from it, and by de Finetti's theorem
+\cite{definetti37,hewittsavage} every projectively consistent
+exchangeable prior is of this form and no other.
+
+
+The construction is generous. Support is full wherever $\Lambda$'s is,
+with no sliver to argue about. Consistency across sizes holds by
+definition, since $\Lambda$ carries no reference to $n$, so the
+sequence of priors converges without the separate hypothesis that
+Section~\ref{sec:tdlcalc} otherwise has to assume. And every block law
+depends on $\mathcal S$ through its size alone, so $G_k$ is the entropy
+of $A^k$ block probabilities, each a moment of $\Lambda$, and the limit
+closes in form:
+%
+\begin{equation}
+  \gamma(t) \;\equiv\; \mathbb E_\Lambda\big[H(\tau)\big],
+  \qquad
+  \eta_0 \;=\; H\big(\mathbb E_\Lambda\, \tau\big),
+  \qquad
+  L(t) \;=\; 1 + \frac{I(\tau\,;\,\xi_1)}
+                      {\mathbb E_\Lambda\big[H(\tau)\big]\; t},
+  \label{eq:definettilimit}
+\end{equation}
+%
+the numerator once more a mutual information, as at
+\eqref{eq:spikejensen}. Take $m = 1$ and $\Lambda$ uniform on the coin
+biases, for instance. The prior is then
+$p_j = \big((Q+1)\binom{Q}{|j|}\big)^{-1}$, with $|j|$ the number of
+ones in the truth table, positive on every one of the $N$ maps, and
+$\eta_0 = 1$ against
+$\mathbb E_\Lambda[H(\tau)] = \int_0^1 h_2 = 1/(2\ln 2)$ gives
+%
+\begin{equation}
+  L(t) \;=\; 1 + \frac{2\ln 2 - 1}{t} \;=\; 1 + \frac{0.3863}{t}
+  \label{eq:definettiuniform}
+\end{equation}
+%
+exactly: a full-support prior whose thermodynamic limit is closed form,
+with no external theorem needed to take it.
+
+And there the family stops. Every member has a flat interior profile
+and therefore a hyperbola, so a curve that changes throughout
+$0 < t < 1$ needs a prior that retains structure tied to particular
+groups or addresses of questions, and a fixed partition into local
+blocks is the simplest solvable construction. The escape is narrower
+than it looks. Failing to be a mixture of independent draws is not
+enough: a prior supported on the truth tables with an even number of
+ones is exchangeable and is no such mixture at any $Q \ge 4$, since
+giving zero weight to a single one forces the mixing law onto the two
+constant answers and thereby kills every other count as well, yet its
+frequencies still converge and its profile still goes flat. What does
+escape is a family whose count law never settles, alternating between
+constructions on even and odd $n$; that sequence has no limiting
+frequency law, and so no thermodynamic limit to speak of.
 
 \subsection{Independent blocks of questions}
 
