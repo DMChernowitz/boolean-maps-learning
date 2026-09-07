@@ -7201,55 +7201,56 @@ $2^{-\binom 4d}$ leakage into a degree from higher classes.
 
 \section{Next steps}\label{sec:next}
 
-\subsection{Stochastic truths}
+\subsection{Stochastic truth maps}
 
-Nature answers deterministically here: $\psi$ is a map, and an answer
+To all questions in this essay, nature answers deterministically: $\psi$ is a map, and an answer
 that disagrees with a candidate kills it outright. Replace the truth by
 a conditional law $\Psi(a \mid q)$ and the update rule
-\eqref{eq:update} becomes genuine Bayes, reweighting each candidate by
-its likelihood instead of eliminating it, with the hypothesis space a
+\eqref{eq:update} becomes genuine Bayes conditioning, reweighting each candidate by
+its likelihood instead of eliminating it. The hypothesis for the single truth space becomes a
 simplex rather than the finite set of $N$ maps. Much of the bookkeeping
 should survive the change: \eqref{eq:telescope} and the two laws that
 follow from it use only the chain rule for the joint law of the
-answers, which does not care whether that law came from a map. What
-breaks is the identification $G_Q = H(p)$. Answers no longer determine
-the truth, so a complete run does not end with the belief settled, and
-the correlation store $C = H(M) - H(p)$ of \eqref{eq:C} loses its
-reading as a stock that can be spent to exhaustion. The profile
-inherits that: no class is ever finished, so $\gamma$ stays positive
-to the end of the run, as the lapse blocks of
-Appendix~\ref{app:blockpriors} already do at $\delta > 0$. The question
+answers, which does not care whether that law came from a map. An example of what
+breaks is the identification $G_Q = H(p)$. Answers no longer pin down
+the truth fully, so a complete run does not end with the belief settled. 
+The profile inherits that: no class is ever finished, so $\gamma$ stays positive
+forever, as faith in individual answers grows asymptotically. The question
 is what becomes of the master law \eqref{eq:master} when its numerator
 can no longer reach zero.
 
 \subsection{A prior that is wrong}
 
-Every average in this work assumes Werner's prior is nature's law, and
-the assumption is load-bearing: it is what makes the expected surprisal
+Every average in this work assumes Werner's prior is that from which Nature samples.
+This assumption is woven into all results. It is what makes the expected surprisal
 of a question equal to the entropy of its own column. Let nature draw
-from $\pi$ while Werner believes $p$, and his expected surprisal at
-$q$ becomes a cross-entropy, $H(\pi_q) + D(\pi_q \Vert M_{\cdot,q})$:
-he pays the true uncertainty plus the divergence of his belief from it.
+from $\{p'_j\}$ while Werner believes $\{p_j\}$, and his expected surprisal at
+$q$ becomes a cross-entropy, $H(\pi_q) + D(\pi_q \Vert M_{\cdot,q})$
+\cite{covthomas}:
+costing him the true uncertainty plus the divergence of his belief from it.
 The numerator of \eqref{eq:leverage} is still measured in his own
 units, so the ratio falls twice over, once for the inflated bill and
-once for deductions drawn on correlations that are not there. The sharp
-failure is worse than a poor ratio. Under elimination a wrong prior can
-rule out the truth outright, leaving $M_{a,q} = 0$ at some later
-question: an infinite surprisal and an undefined update. Full support,
-$p_j > 0$ for every map at every $n$, is exactly the insurance
-\eqref{eq:shapepj} was built to carry, and it would be worth knowing
-what it buys quantitatively. Two questions in particular: can
-$\langle L_\ell\rangle$ fall below one in expectation, and if so, is
-the deficit a divergence, a sum of per-question KL terms in the way
-that a code's redundancy is?
+once for deductions drawn on correlations that are not there. Some quantities analogous 
+to the KL-divergence could be derived.
+The interesting
+assumption is a prior with full support, so under elimination Werner can't rule out the truth outright, 
+which would leave $M_{a,q} = 0$ at some later
+question: an infinite surprisal and an undefined update. Two questions in particular: when would expected leverage
+$\langle L_\ell\rangle$ fall below one? If so, is
+the deficit a divergence, or a sum of per-question KL terms? For the
+denominator alone the answer is already known: the cumulative excess
+surprisal of a wrong model is exactly the relative entropy between the
+two joint laws, which is the redundancy of universal
+prediction~\cite{merhav98}. What that literature does not price is the
+numerator.
 
 \subsection{Designing a curve, shell by shell}
 
 The truncation remark of Chapter~\ref{sec:expectations} cuts both ways.
 Read forward it says the first $\ell$ rounds cannot see correlators
 spanning more than $\ell+1$ questions; read backward it says the shell
-of order $\ell+1$ is the first place a designer can act on round
-$\ell$, and nowhere earlier. Suppose then that a particular sequence of
+of order $\ell+1$ is the first place that has an influence on learning at
+step $\ell$. Suppose then that a particular sequence of
 leverages is wanted. Equation \eqref{eq:Lk-G} inverts,
 %
 \begin{equation}
@@ -7259,60 +7260,79 @@ leverages is wanted. Equation \eqref{eq:Lk-G} inverts,
 \end{equation}
 %
 so the demanded curve fixes the whole block-entropy sequence
-recursively from $G_1$, and each $G_{\ell+1}$ in that recursion is
-exactly the quantity its own shell is the first to move. One could then
-try to build the prior a shell at a time: shell $1$ to set $G_1$, shell
-$2$ to hit $G_2$, and onward, every shell absorbing one term of the
-target while leaving the earlier rounds untouched. Two obstructions
-stand in the way and are the interesting part. Not every sequence is
-admissible, since submodularity forces $G$ to be concave with
-increments in $[0,m]$, which rules out most curves before any prior is
-attempted. And the shells cannot be chosen freely: they must be the
-transform of an actual distribution, so the positivity of every $p_j$
+recursively from $G_1$. Each $G_{\ell+1}$ in that recursion, with the previously
+fixed correlators, form a set of conditions on shell $\ell+2$. 
+One could then
+try to build the prior a shell at a time: shell $1$ to fix $G_1$, shell
+$2$ to fix $G_2$, and onward, leaving the earlier rounds untouched. 
+One constraint is submodularity on $G$, which forces it to be concave with
+increments in $[0,m]$. What makes this nontrivial is that not every set of correlators $\chi_{\mathcal S}$ is
+admissible: the shells cannot be chosen freely: they must be the
+transform of an actual distribution. The positivity and boundedness of every $p_j$
 is a global constraint that a shell-by-shell construction has no local
-way to respect. The same language is worth carrying into the limit. To
+way to respect. The admissible sets form the correlation polytope, and
+deciding membership in it is NP-complete~\cite{pitowsky91}, so no local
+rule can exist to be found. The same language is worth carrying into the limit. To
 second order the block entropy reads
 %
 \begin{equation}
   G_k \;=\; km \;-\; \frac{1}{2\ln 2}
-  \sum_{\mathcal T \neq \emptyset}
-  \Pr\big[\mathcal T \subseteq \mathcal S\big]\, \chi_{\mathcal T}^2
+  \sum_{\mathcal V \neq \emptyset}
+  \Pr\big[\mathcal V \subseteq \mathcal S\big]\, \chi_{\mathcal V}^2
   \;+\; O(\chi^4),
   \label{eq:Gshell}
 \end{equation}
 %
 and the inclusion probability of a correlator touching $r$ questions
-tends to $t^{\,r}$ at macroscopic time, so each shell enters the
-profile discounted by its own power of $t$: the quantitative form of
-the claim, made in words throughout this work, that knowledge stored
-deep is knowledge spent late.
+tends to $t^{\,r}$ at macroscopic time. Each shell enters the
+profile suppressed by its own power of $t$. This codifies the idea of
+storing knowledge in deep correlations and it not appearing until late.
+For this approach to work, along the way, we would develop TDLs of the 
+correlators themselves, which would be an interesting exercise in its own right.
 
 \subsection{Measuring leverage in a real learner}
 
 The protocol of Section~\ref{sec:general} is an experiment, not only a
-calculation, and a language model is an unusually convenient Werner:
-its answer matrix is directly observable, the token probabilities at a
-yes-or-no prompt being the column $M_{\cdot,q}$ itself. Fix a finite
+calculation, and a language model is a convenient Werner:
+its answer matrix is directly observable, the token probabilities in response to a prompt being the column $M_{\cdot,q}$ itself. 
+Fix a finite
 universe of questions with a latent rule, ask them one at a time,
 record the surprisal of each answer and the drop in total predictive
 entropy over the questions not yet asked, and both halves of
 \eqref{eq:leverage} are measured rather than modelled. The same
-protocol runs on a network trained online, reading the predictive
-entropy off a held-out question set between updates. The obstacle is
+protocol runs on a network during training, reading the predictive
+entropy off a held-out question set between updates. Tracking a
+learner's predictive entropy is established ground, and its
+sub-extensive part is already the standard measure of how much there
+was to learn~\cite{bnt01}; what leverage adds is the denominator, the
+price paid for the drop. The obstacle is
 scale: $t = \ell/Q$ needs a question universe small enough to exhaust,
 or the whole experiment lives in the boundary layer at $t = 0^+$ and
-reports nothing about macroscopic learning. What one would look for is
-the shape. A hyperbola says the model's knowledge was a label settled
+reports nothing about macroscopic learning. Nonetheless, we think the 
+TDL is the correct regime to understand NNs, as the scale should be large
+enough to coarse-grain away the microscopic details of boolean maps.
+What one would look to match is
+the shape of the leverage. A hyperbola says the model's knowledge was a label settled
 in the first few answers; a curve that holds up across the run says it
-carried structure at macroscopic times, and its profile $\gamma$ would
-be a measured simplicity prior rather than a postulated one.
+carried structure at macroscopic times, and its profile $\gamma$ might allow us to 
+infer the implied prior (up to some equivalence, Unfortunately) that the model employs.
 
 \appendix
+
+\phantomsection
+\section*{Appendices}
+\addcontentsline{toc}{section}{Appendices}
 
 Appendix~\ref{app:spike} continues the spike-prior example of
 Section~\ref{sec:spike}. Appendix~\ref{app:blockpriors} collects the
 block-prior construction and its Bernstein profile language, a
 block-based route to the same family of macroscopic curves.
+Appendix~\ref{app:aig} records how the circuit complexities of
+Section~\ref{sec:nandcomplexity} were obtained, the symmetry reduction
+and the satisfiability encoding that make a minimum over all circuits
+computable at all. Appendix~\ref{app:symbols} collects every symbol
+used in this work on one page, in the order the argument introduces
+them.
 
 \section{More characteristics of the spike prior}\label{app:spike}
 
@@ -8425,6 +8445,17 @@ T.~M. Cover and J.~A. Thomas,
 \emph{Elements of Information Theory}, 2nd ed.,
 Wiley-Interscience, 2006.
 
+\bibitem{merhav98}
+N.~Merhav and M.~Feder,
+``Universal prediction'',
+\emph{IEEE Transactions on Information Theory} \textbf{44}(6),
+2124--2147, 1998.
+
+\bibitem{bnt01}
+W.~Bialek, I.~Nemenman and N.~Tishby,
+``Predictability, complexity, and learning'',
+\emph{Neural Computation} \textbf{13}(11), 2409--2463, 2001.
+
 \bibitem{rudin}
 W.~Rudin,
 \emph{Principles of Mathematical Analysis}, 3rd ed.,
@@ -8457,6 +8488,11 @@ and R.~L. Urbanke,
 ``Reed--Muller codes achieve capacity on erasure channels'',
 \emph{IEEE Transactions on Information Theory} \textbf{63}(7),
 4298--4316, 2017.
+
+\bibitem{pitowsky91}
+I.~Pitowsky,
+``Correlation polytopes: their geometry and complexity'',
+\emph{Mathematical Programming} \textbf{50}, 395--414, 1991.
 
 \bibitem{knuth4a}
 D.~E. Knuth,
