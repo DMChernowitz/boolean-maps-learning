@@ -127,7 +127,7 @@
 }
 \usepackage[colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black]{hyperref}
 \newlength{\dgcw}\newlength{\dgcl}\newlength{\dgcr}
-% Top-left corner cell of the labelled tables: a real diagonal rule,
+% Top-left corner cell of the labeled tables: a real diagonal rule,
 % the row variable under it and the column variable over it. The rule
 % runs corner to corner of the cell, meeting the column rule and the
 % \hline of the surrounding array. The optional argument is the widest
@@ -154,7 +154,7 @@
   \end{tikzpicture}}
 
 % a chapter is a top-level \section here, and every one of them opens a
-% fresh page; the starred headings (Summary of results, Appendices) too
+% fresh page; \stdsection is the un-broken original, for the headings
 \let\stdsection\section
 \renewcommand{\section}{\clearpage\stdsection}
 
@@ -178,7 +178,7 @@
     \mathbf{1} & #5 & #6 & #7 & #8
   \end{array}}
 
-% branch colours of the thermodynamic-limit figures: the answer that
+% branch colors of the thermodynamic-limit figures: the answer that
 % agrees with the special map, the answers that refute it, and the
 % expectation over both; plus the pre-question reference curve
 \definecolor{cok}{HTML}{1BAF7A}
@@ -233,17 +233,17 @@ Allow us to enumerate the seminal tenets of this treatise.
 reviewed is not the right measure of a learner's investment. What
 counts is the information received from asking them. Not all
 questions are created equal: about some, the learner already knows
-something priori, and their answers count for \emph{less}.
+something a priori, and their answers count for \emph{less}.
 \item Conversely, with instincts about the world, one can infer \emph{more} than a single bit from a yes--no
 question. One answer settles expectations on any number of yet unseen questions. 
-\item This ability to extrapolate from prior information is codified here as \textbf{leverage}
+\item This ability to extrapolate from prior information is codified here as \textbf{leverage}.
 \end{enumerate}
 %
 \begin{equation}
   \text{Leverage of Yes/No} = \frac{\text{Learned} > 1 \text{ bit}}{\text{Received} < 1 \text{ bit}} > 1.
 \end{equation}
 
-\section*{Summary of results}
+\stdsection*{Summary of results}
 
 \begin{enumerate}
 \item \textbf{Setup.} Let there be $Q$ questions $q$, which can each beget $A$ answers $a$,
@@ -313,7 +313,7 @@ entropy its integral, and the limit is obtained,
 Bounded and nonincreasing is all that is asked of $\gamma$.
 
 \item \textbf{An Occam prior's macroscopic limit.} Write a boolean map as a polynomial
-over $\{0,1\}^n$ and group maps by their degree. Allocate prior weight to shells of varying degrees by a cdf
+over $\{0,1\}^n$ and group maps by their degree. Allocate prior weight to shells of varying degrees by a CDF
 $F(x)$, dividing the $p_j$ uniformly over the maps inside it. A map's weights decrease strictly with degree, 
 making this genuinely Occam, and its macroscopic profile is closed form,
 %
@@ -481,7 +481,7 @@ this answer, to Werner, is $1$ bit, because the probability he
 assigned to it was one half.
 \end{example}
 
-In general, when an event a belief holds
+In general, when an event that a belief holds
 with probability $P$ actually occurs, its surprisal is
 \begin{equation}
   s \;=\; -\log_2 P \quad \text{bits},
@@ -613,7 +613,7 @@ the lone survivor is NOT:
 This time \emph{both} columns collapse at once. Werner received the
 same single bit of surprisal as before, but cleaned up $2$ bits of
 table: the answer at $q = 0$ he observed, and the answer at $q = 1$
-he \emph{deduced}, without ever asking. Pre-emting the constants
+he \emph{deduced}, without ever asking. Pre-empting the constants
 means $\phi(1) \neq \phi(0)$, so his prior held the two answers
 perfectly anticorrelated, and settling one settles the other. He is
 done after one question instead of two.
@@ -672,8 +672,8 @@ symmetry of the prior it actually does not matter for this argument.
 And we are now going to talk about \emph{expected} values, instead
 of realized ones: averages over the possible maps, denoted
 $\langle\,\cdot\,\rangle$. We must assume our prior is \emph{a
-priori} correct, if we had better assumptions, those would be
-reflected in the prior. In other words, we model nature to draw 
+priori} correct: if we had better assumptions, we would have put
+them in the prior. In other words, we model nature to draw 
 the truth from the very distribution
 Werner believes. Therefore, the average over $\psi$ simply zips with the
 weights: $\langle X \rangle = \sum_j p_j\, X(\psi{=}\phi_j)$.
@@ -681,8 +681,8 @@ weights: $\langle X \rangle = \sum_j p_j\, X(\psi{=}\phi_j)$.
 How much surprisal should Werner expect from asking a question $q$?
 The answer comes back $a$ exactly when the truth answers $a$, which
 under the zipped average happens with probability
-$\sum_{j:\phi_j(q)=a} p_j = M_{a,q}$ --- the very probability Werner
-assigned to it --- and when it does, it costs him $-\log_2 M_{a,q}$
+$\sum_{j:\phi_j(q)=a} p_j = M_{a,q}$ - the very probability Werner
+assigned to it - and when it does, it costs him $-\log_2 M_{a,q}$
 of surprisal. Grouping the average over maps by the answer each map
 gives:
 \begin{equation}\label{eq:surprisal-entropy}
@@ -727,7 +727,7 @@ the possible maps: with probability $\tfrac12$ the answer is $1$
 \end{equation}
 Either way, the asked column is one-hot and the unasked column is a
 coin of bias $p$: what survives on $q = 1$ is precisely the
-class uncertainty "constant or not". The total
+class uncertainty ``constant or not''. The total
 entropy of the table is now
 \begin{equation}
   H(M') \;=\; 0 + h_2(p) \;=\; h_2(p),
@@ -759,7 +759,7 @@ second question carries less and less expected information, and Werner's
 potential for learning from it goes down with it. The column it could clean up is nearly settled already. In the limit $p = 0$, we recover the non-constant
 world from the start of Section~\ref{sec:intelligent}. There is no
 surprisal and no improvement to $M$ left in the second question at
-all: it contributes nothing to denominator or enumerator, and $L_1 = L_2$. Figure~\ref{fig:oneparam} traces all three curves
+all: it contributes nothing to denominator or numerator, and $L_1 = L_2$. Figure~\ref{fig:oneparam} traces all three curves
 between these extremes.
 
 \begin{figure}[H]
@@ -811,13 +811,13 @@ In general, in a larger world, if there are $d$ questions to disagree on between
 \section{The general case}\label{sec:general}
 
 Now let us give the definitions in full generality. Let questions be bit
-strings of length $n$, and answers are bit strings of length $m$:
+strings of length $n$, and answers bit strings of length $m$:
 \begin{equation}
   q \in \mathcal Q = \{0,1\}^n \equiv \mathbb{F}_2^{\otimes n},
   \qquad
   a \in \mathcal A = \{0,1\}^m \equiv \mathbb{F}_2^{\otimes m},
 \end{equation}
-reminding the binary field $\mathbb{F}$. We write the sizes of those two sets without bars,
+where $\mathbb{F}_2$ is the binary field. We write the sizes of those two sets without bars,
 \begin{equation}
   Q \;:=\; |\mathcal Q| \;=\; 2^n,
   \qquad
@@ -842,15 +842,15 @@ belief is a distribution over all of them, $\sum_{j=0}^{N-1} p_j = 1$.
 
 \begin{example}
 The example we will use to guide the general case is $n = 2$,
-$m = 1$, which has $N = 2^{1 \cdot 4} = 16$ maps: every Boolean
+$m = 1$, which has $N = 2^{1 \cdot 4} = 16$ maps: every boolean
 function of the two input bits $b_1, b_0$, with $q$ represented as $b_1 b_0$, or read as
 an ordinary binary number, $q = 2 b_1 + b_0$. Each $\phi_j$ in
 Table~\ref{tab:sixteen} is shown as its truth table, printed in
 descending question order $(11, 10, 01, 00)$ so that the answer to
 question $q$ occupies the digit of weight $2^q$. The printed
 string is exactly $j$ in binary (e.g.\ AND, which answers $1$ only to
-$q = 11$, reads $1000$, so it is $j = 8$). An arbitrary prior $p_j$ alongside
-is conjured up for illustration.
+$q = 11$, reads $1000$, so it is $j = 8$). Alongside we conjure an arbitrary prior $p_j$ for
+illustration.
 
 \begin{center}
 \begin{tabular}{c |cccc| l c c}
@@ -908,12 +908,12 @@ summed along the map index,
 The second form is pure arithmetic on the index: by the
 numeral convention, $\phi_j(q)$ is nothing but the $q$-th digit of
 $j$ in base $A$. For $m = 1$ this reduces to: bit $q$ of $j$ equals $a$. 
-This means $E$ never needs to be stored, membership of
-$j$ in the entry $M_{a,q}$ is read directly off the digits of $j$. This is a good thing, $E$ is astronomically large for even moderate $m$ and $n$.
+So we never need to store $E$: we read membership of
+$j$ in the entry $M_{a,q}$ directly off the digits of $j$. Just as well: $E$ is astronomically large for even moderate $m$ and $n$.
  The tensor
 $E$ is moreover sparse and perfectly regular: each question-slice ($q$ fixed)
 holds exactly $N$ nonzero entries: every map answers exactly one
-$a$ divided evenly over the $A$ answer rows, $N/A$ apiece.
+$a$, and the maps divide evenly over the $A$ answer rows, $N/A$ apiece.
 Within a slice the nonzero row follows the odometer pattern of a
 numeral system: runs of $A^{q}$ consecutive $j$ share a digit,
 cycling through all $A$ rows with period $A^{q+1}$. 
@@ -926,7 +926,7 @@ $j \bmod 2^{q+1} < 2^q$, and equals $1$ otherwise.
 Each entry of $M$ collects the eight maps from two to one bit of Table~\ref{tab:sixteen}
 whose truth tables carry the right digit. Filling in the entries - note the period halves column by column. The outer columns
 are written in their simplified forms, $j \bmod 16 < 8$ being simply
-$j < 8$ and $j \bmod 2 < 1$ simply "$j$ even".
+$j < 8$ and $j \bmod 2 < 1$ simply ``$j$ even''.
 \begin{equation}\label{eq:M16}
 \begin{aligned}
   M \;&=\;
@@ -965,7 +965,7 @@ The total set of survivors depends on the set of asked questions, those that fel
 Figure~\ref{fig:cull} makes the process visual for $n = m = 2$: a
 schematic prior $\{p_j\}$ over $N = 4^4 = 256$ maps, drawn as vertical
 lines with thickness representing weight. Each answer stops $3$ out of every $A=4$ surviving lines:
-maps whose truth table carry a wrong digit at the asked question. Renormalization inflates the weight of the rest, so the total probability is always unit. Four questions cut
+maps whose truth tables carry a wrong digit at the asked question. Renormalization inflates the weight of the rest, so the total probability is always unit. Four questions cut
 $256 \to 64 \to 16 \to 4 \to 1$, and the last line standing is the
 truth. Note the regularity of the cull: each answer keeps a single
 residue class of $j$, so the cadence of the survivors is regular.
@@ -1046,12 +1046,12 @@ residue class of $j$, so the cadence of the survivors is regular.
 \captionsetup{skip=8pt}
 \captionof{figure}{The update rule as a cull, for $n = m = 2$. All $256$
 candidate maps start as vertical lines under a schematic prior. The truth is
-the bitwise negation $\psi(q) = \lnot q$ ($j = 27$, '0123' base 4.), and the four
-questions are asked in the order $00, 10, 01, 11$ ('0, 2, 1, 3' base 4). Each answer terminates the
+the bitwise negation $\psi(q) = \lnot q$ ($j = 27$, ``0123'' base 4), and the four
+questions are asked in the order $00, 10, 01, 11$ (``0, 2, 1, 3'' base 4). Each answer terminates the
 $3/4$ of surviving maps whose truth-table digit at the asked question
 disagrees. Every survivor's thickness, proportional to its
 weight, is rescaled by the renormalization factor of that update, preserving
-their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the 'smallest' question. After the three smallest $q$, even spacing returns.}
+their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the ``smallest'' question. After the three smallest $q$, even spacing returns.}
 \label{fig:cull}
 \end{center}
 \end{example}
@@ -1080,7 +1080,7 @@ the table a name:
 \end{equation}
 $H(p)$, Werner's uncertainty about the \emph{identity} of the truth,
 obeys the same ceiling: a distribution over $N$ maps has entropy at
-most $\log_2 N = mQ$, attained again by the uniform prior.  The information in the
+most $\log_2 N = mQ$, attained again by the uniform prior. The information in the
 prior is not directly useful for prediction, but it is good to track. 
 
 Why is $C>0$? The answers jointly determine the map, so $H(p)$ is the
@@ -1093,10 +1093,10 @@ single column of $M$.
 
 We choose this convention for $H(M)$ because \emph{in the ignorant case}
 \begin{enumerate}
-  \item $H(M)$ is the total amount of information we must collect from questions to settle the map
+  \item $H(M)$ is the total amount of information we must collect from questions to settle the map.
   \item $H(M) = H(p)$, so the ignorance agrees in both bases, without correlations.
 \end{enumerate}
-Therefore, the scaling is sensible. How these quantities respond to an \emph{intelligent} prior, is the main question of this work.
+Therefore, the scaling is sensible. How these quantities respond to an \emph{intelligent} prior is the main question of this work.
 
 \subsection{Playing the guiding example}
 
@@ -1165,7 +1165,7 @@ probability $0.415$ and drops it only to $2.178$, so
 \begin{example}
 Both forecast rows point to $q = 11$: it is the closest thing to a
 coin on offer ($\langle s\rangle = 0.979$) and moves the whole
-table most, by a wide margin. Part of the $\Delta H(M)$ is the $\langle s \rangle$.
+table most, by a wide margin. Part of $\Delta H(M)$ is just $\langle s \rangle$ itself.
 Werner asks it, and nature answers $a = 1$ (probability $0.415$,
 surprisal $s_1 = 1.269$). Eight maps die:
 %
@@ -1174,14 +1174,14 @@ surprisal $s_1 = 1.269$). Eight maps die:
 \toprule
 $j$ & $\phi_j(11)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
-\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.394 & --- & \tikzmark{w1ae} \\
-\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.010 & --- & \tikzmark{w1be} \\
-\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.010 & --- & \tikzmark{w1ce} \\
-\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.010 & --- & \tikzmark{w1de} \\
-\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.131 & --- & \tikzmark{w1ee} \\
-\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.010 & --- & \tikzmark{w1fe} \\
-\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.010 & --- & \tikzmark{w1ge} \\
-\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.010 & --- & \tikzmark{w1he} \\
+\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.394 & - & \tikzmark{w1ae} \\
+\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.010 & - & \tikzmark{w1be} \\
+\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.010 & - & \tikzmark{w1ce} \\
+\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.010 & - & \tikzmark{w1de} \\
+\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.131 & - & \tikzmark{w1ee} \\
+\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.010 & - & \tikzmark{w1fe} \\
+\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.010 & - & \tikzmark{w1ge} \\
+\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.010 & - & \tikzmark{w1he} \\
 8 & 1 & $b_1 \wedge b_0$ (AND) & 0.213 & 0.513 & \pbar{0.513} \\
 9 & 1 & $b_1 = b_0$ (XNOR) & 0.092 & 0.222 & \pbar{0.222} \\
 10 & 1 & $b_0$ (projection) & 0.040 & 0.096 & \pbar{0.096} \\
@@ -1253,13 +1253,13 @@ surprisal is only $s_2 = 0.604$ bits. Four of the eight die:
 $j$ & $\phi_j(00)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
 8 & 0 & $b_1 \wedge b_0$ (AND) & 0.513 & 0.780 & \pbar{0.780} \\
-\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.222 & --- & \tikzmark{w2ae} \\
+\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.222 & - & \tikzmark{w2ae} \\
 10 & 0 & $b_0$ (projection) & 0.096 & 0.147 & \pbar{0.147} \\
-\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.024 & --- & \tikzmark{w2be} \\
+\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.024 & - & \tikzmark{w2be} \\
 12 & 0 & $b_1$ (projection) & 0.024 & 0.037 & \pbar{0.037} \\
-\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.072 & --- & \tikzmark{w2ce} \\
+\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.072 & - & \tikzmark{w2ce} \\
 14 & 0 & $b_1 \vee b_0$ (OR) & 0.024 & 0.037 & \pbar{0.037} \\
-\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.024 & --- & \tikzmark{w2de} \\
+\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.024 & - & \tikzmark{w2de} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1336,9 +1336,9 @@ surprisal $s_3 = 0.292$). Two die:
 $j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
 8 & 0 & $b_1 \wedge b_0$ (AND) & 0.780 & 0.955 & \pbar{0.955} \\
-\tikzmark{w3a}10 & 1 & $b_0$ (projection) & 0.147 & --- & \tikzmark{w3ae} \\
+\tikzmark{w3a}10 & 1 & $b_0$ (projection) & 0.147 & - & \tikzmark{w3ae} \\
 12 & 0 & $b_1$ (projection) & 0.037 & 0.045 & \pbar{0.045} \\
-\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.037 & --- & \tikzmark{w3be} \\
+\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.037 & - & \tikzmark{w3be} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1361,8 +1361,8 @@ has dropped to zero.
 \end{example}
 
 $C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. 
-Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$ Expressing $M$ as a linear combination of maps drops knowledge.
-That's not the case when the number of free parameters has been reduced by learning to 1 each.
+Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$. Expressing $M$ as a linear combination of maps drops knowledge.
+That's not the case once learning has reduced the number of free parameters to one each.
 
 \begin{example}
 \textbf{Question 4.} One question, one heavily loaded coin:
@@ -1396,7 +1396,7 @@ $s_4 = 0.066$):
 $j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
 \midrule
 8 & 0 & $b_1 \wedge b_0$ (AND) & 0.955 & 1.000 & \pbar{1.000} \\
-\tikzmark{w4a}12 & 1 & $b_1$ (projection) & 0.045 & --- & \tikzmark{w4ae} \\
+\tikzmark{w4a}12 & 1 & $b_1$ (projection) & 0.045 & - & \tikzmark{w4ae} \\
 \bottomrule
 \end{tabular}
 \begin{tikzpicture}[overlay, remember picture]
@@ -1413,7 +1413,7 @@ The ledger closes:
   C\colon 0 \to 0.
 \]
 The truth is AND. The step destroyed $0.264$ for $0.066$ received
-(ratio $3.990$) --- not deduction this time, but luck: the destroyed
+(ratio $3.990$) - not deduction this time, but luck: the destroyed
 amount was fixed in advance (the column's full entropy), while the
 realized surprisal undershot it because the likelier answer arrived.
 In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
@@ -1465,7 +1465,7 @@ remaining table entropy plus cumulative surprisal received, after
 each question, against the initial total (dashed). The gap between
 each stack and the line is the cumulative deduced part. At
 $\ell = 1$ the stack tops out $0.521$ bits \emph{above} the
-line --- the negative deduction of question 1, plainly visible. At
+line - the negative deduction of question 1, plainly visible. At
 $\ell = 2$ the stack still grazes the line from above ($0.013$ bits);
 only from $\ell = 3$ on do the stacks fall short of it, as genuine
 deduction overtakes the early loss.}
@@ -1540,7 +1540,7 @@ row $c = 0$ computes the normalization, row $c = 1$ the spin bias.
 Distribution in, correlators out.
 \end{example}
 
-The normalization riding along is a redundancy. The original distribution also uses one variable more than its degrees of freedom.
+The normalization riding along is a redundancy. The original distribution also carries one variable more than its degrees of freedom.
 
 \begin{example}
 Tensoring two copies (the $n=1$ case) does the same for two bits at once:
@@ -1623,11 +1623,11 @@ as a correlator. Shell $1$ is $M$ in different clothes:
   \qquad
   M_{a,q} \;=\; \tfrac12\big(1 + (-1)^a\, \chi_{\{q\}}\big),
 \end{equation}
-the bias of column $q$. For $m=1$, we elegantly see the first shell correlators are the distance from fair coins. 
+the bias of column $q$. For $m=1$, we see that, elegantly, the first shell correlators are the distance from fair coins. 
 A prior invariant under negating every answer simultaneously sends
 $\chi_{\mathcal S} \mapsto (-1)^{|\mathcal S|}\chi_{\mathcal S}$, so all
-its odd shells vanish identically. Specifically, with an agnostic
-matrix $M$.
+its odd shells vanish identically, shell $1$ among them: such a
+prior has an agnostic matrix $M$.
 
 Shell $2$ holds the agreement biases of
 pairs of questions, knowledge $M$ cannot see: two priors can
@@ -1674,7 +1674,7 @@ Shell $1$ reproduces the columns of equation~\eqref{eq:M16}:
 $(1 + 0.170)/2 = 0.585 = M_{0,11}$, and likewise $0.779$, $0.890$,
 $0.818$. The negative entry $\chi_{1100}$ says questions $11$
 and $10$ disagree slightly more often than they agree; every other
-pair leans toward agreement. This is a reflection of the strong coherent $0$-preference encoded in the prior. Answering $1$ would give negative 1-shells.
+pair leans toward agreement. This is a reflection of the strong coherent $0$-preference encoded in the prior. A prior leaning toward $1$ would give a negative shell $1$.
 \end{example}
 
 Now look at the \emph{rows} of $W^{\otimes Q}$ as functions of
@@ -1788,7 +1788,7 @@ set fixes the normalization and
 saturates the asked bias; each blue double arrow averages a pair
 into both of its members, and the net flow of structure is one
 shell down, toward $M$. The thin gray arrows from the
-asked $q$ to every other pill remind that this sets the
+asked $q$ to every other pill are a reminder that this sets the
 renormalization. The fill encodes each prior value to
 scale: darker is larger, orange is negative.}
 \label{fig:pairing}
@@ -1802,7 +1802,7 @@ Read formula~\eqref{eq:corr-update} by cases:
     Normalization is preserved.
   \item $\mathcal S = \{q\}$, the asked question: partner $\emptyset$, giving
     $(\chi_{\{q\}} + (-1)^a)/(1 + (-1)^a \chi_{\{q\}}) = (-1)^a$.
-    The bias saturates to certainty --- the one-hot collapse of
+    The bias saturates to certainty - the one-hot collapse of
     column $q$, derived rather than decreed.
   \item $\mathcal S = \{q'\}$, an unasked question: the partner is the pair
     $\{q', q\}$, and one line of algebra puts the
@@ -1817,7 +1817,7 @@ Read formula~\eqref{eq:corr-update} by cases:
     Unasked columns move in proportion to their covariance with the
     asked question: knowledge stored one shell up descends into the
     predictions. A product prior has zero covariance everywhere, so
-    its unasked columns are frozen --- the ``$C = 0$ means no
+    its unasked columns are frozen - the ``$C = 0$ means no
     transfer'' fact, now a one-line consequence.
   \item Higher shells: the same cascade. Each update marries
     shell-$k$ sets containing $q$ to shell-$(k{-}1)$ sets without
@@ -1984,13 +1984,13 @@ $x = 1$, where its height is the updated correlator $\chi'_{\mathcal S}$.}
 \end{example}
 
 As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
-The 2-shell answers questions such as 'If the answer to $\psi(10) = 0$, then $\psi(01) = 1$'. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
+The 2-shell answers questions such as ``if $\psi(10) = 0$, then $\psi(01) = 1$''. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
 
 \begin{example}
 The remaining
 questions of the run ($00$, $01$, $10$, all answered $0$, so with
 sign $+1$) each saturate their own bit the same way, and since
-XOR toggles commute, the order does not matter --- the
+XOR toggles commute, the order does not matter - the
 commutativity of updating, seen again. After all four, the ledger
 is pure signs, $\chi_{\mathcal S} = (-1)^{|\mathcal S \cap \{11\}|}$, which is $-1$ on every
 set containing $11$, $+1$ on the rest: the transform
@@ -2121,7 +2121,7 @@ $a = \psi(q)$ combines every correlator with its $A$ partners ---
 one per toggle $\mathcal T$ within the asked block:
 \begin{equation}\label{eq:corr-update-m}
   \chi'_{\mathcal S} \;=\; \frac{\sum_{\mathcal T \subseteq \mathcal B_q} (-1)^{a \cdot \mathcal T}\,
-    \chi_{\mathcal S \triangle T}}{A\, M_{a,q}},
+    \chi_{\mathcal S \triangle \mathcal T}}{A\, M_{a,q}},
 \end{equation}
 the denominator once more the $\mathcal S = \emptyset$ instance of the
 numerator. For $m = 1$ the three
@@ -2271,7 +2271,7 @@ $-0.200$, the renormalized value $-\chi'_{\{011_0\}}$.}
 \section{Expectations}\label{sec:expectations}
 
 While the games of the previous chapters may be entertaining, they don't readily divulge any universal laws. When we average (integrate) out the question order, and the specific map drawn,
-many more robust quantities appear. This is a stepping stone to our terminus: the thermodynamic limit, where we expect questions to flow in and learning to happen on a continuum. Where such ensemble average statements are
+many more robust quantities appear. This is a stepping stone to our terminus: the thermodynamic limit, where we expect questions to flow in and learning to happen on a continuum, where such ensemble-average statements are
 physically instructive and often quite descriptive of nature.
 
 Let $\langle \ldots\rangle$ denote expectation over both
@@ -2318,7 +2318,7 @@ M^{(k-1)}_{y_k, q_k} = \Pr(\psi(q_k) = y_k \mid \psi(q_1) = y_1,
 Take $P_{\mathcal S, y}$ to be the mass of
 the maps that answer the pattern $y$ on a set $\mathcal S$. 
 The sums of the
-surprisals displayes the chain rule of probability
+surprisals display the chain rule of probability
 \begin{equation}
 \sum_{k=1}^{\ell} s_k = -\log_2 \left[\prod_{k=1}^{\ell}  P_{\mathcal S_1, y}\,
         \frac{P_{\mathcal S_2, y}}{P_{\mathcal S_1, y}}\,
@@ -2337,7 +2337,7 @@ Each conditioning cancels against the next term's outcome, and $\mathcal S_\ell 
 \end{equation}
 Averaging
 \eqref{eq:telescope} over $\psi$ gives the entropy of the block
-distribution $P_{\mathcal S,\cdot}$: the distibution over such sets. Everything is generated by
+distribution $P_{\mathcal S,\cdot}$: the distribution over such sets. Everything is generated by
 one sequence, the \textbf{mean block entropy} at size $k$:
 \begin{equation}\label{eq:Gk}
   G_k \;:=\; \binom{Q}{k}^{-1} \sum_{|\mathcal S| = k}
@@ -2510,7 +2510,7 @@ entropies of the posterior table. The
 remaining table entropy of an asked set is the total marginal weight of the
 up-edges leaving its node. There are $Q - \ell$ of them, drawn in
 blue above for $\mathcal S = \{11\}$; summed and averaged over the
-rank, they are exactly equation~\eqref{eq:law-remaining}'s $H^{(\ell)}$, a component of
+rank, they are exactly equation~\eqref{eq:law-remaining}'s $\big\langle H\big(M^{(\ell)}\big)\big\rangle$, a component of
 the leverage.
 \end{example}
 
@@ -2674,7 +2674,7 @@ with the machinery at hand. $1$-optimal coincides with Greedy at the start.
 \rotatebox{90}{~\textbf{greedy}~} &
 Add planned questions to the docket, each maximizing the immediate
 expected drop of $H(M)$, averaged over the still-unseen answers.
-This before any answers are seen, and cannot react to luck. &
+All of this before any answer is seen, so the plan cannot react to luck. &
 Recompute the forecasts after every
 answer and ask the current argmax. Question order is a branching tree, each branch
 contingent on last answer. \\
@@ -2725,7 +2725,7 @@ later chapters do not depend on the rest of this section.
 \subsubsection{NAND complexity}
 \label{sec:nandcomplexity}
 
-There are a number of equivalent, Turing-complete set of boolean logic gates. 
+There are a number of equivalent, Turing-complete sets of boolean logic gates. 
 But it's hard to argue with a set that consists of one universal element, when ordering circuits 
 by complexity. The choice here for that universal element is NAND.
 Let the complexity $X_j$ of a
@@ -2746,7 +2746,7 @@ For $m > 1$ outputs, $X_j$ is the size of one \emph{joint} circuit computing all
 output bits together, gates shared, which is practical. It is the true minimum-hardware
 cost, generally smaller than the sum of per-output circuits.
 
-The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ maps a piece. 
+The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ maps apiece. 
 The tabulation is feasible because $X_j$ is invariant under
 relabeling: permuting or negating inputs, negating or (for $m \ge 2$)
 swapping outputs are all free operations, so the $65{,}536$ maps collapse to $222$ and $308$
@@ -2774,14 +2774,14 @@ two descriptors are visible in one pass over the truth table:
   $0$s among the $mQ$ truth-table bits. This is the
   symmetry breaker: $X_j$ and $F_j$ are even under negating all
   outputs, $B_j$ is odd: an energy term coupling to it acts like a
-  magnetic field, favoring 0s or 1s off the bar. In the language of Section~\ref{sec:correlators}: 
+  magnetic field, favoring 0s or 1s off the bat. In the language of Section~\ref{sec:correlators}: 
   switching on the odd correlator shells that a pure
   complexity prior forbids.
 \end{itemize}
 
 \begin{example}
 Take again the $(n,m)=(2,1)$ space. Each map's data is listed for illustration.
-The size of two Gibbs priors using these inputs, defined in Subsection~\ref{sec:gibbsensemble} is graphed. 
+We graph two of the Gibbs priors built from these inputs, defined in Subsection~\ref{sec:gibbsensemble}. 
 Occam in blue growing left, the Pragmatist in orange growing
 right. The Pragmatist bars are logarithmic, five decades to the full
 width, since a linear scale on the same axis as Occam's would show
@@ -2820,7 +2820,7 @@ Occam spreads its belief mostly across the six gate-free maps ($0.1106$
 apiece) and thins gradually with cost; the Pragmatist, punishing
 footprint and rewarding bits with value 1, piles $0.90$ of its mass onto the two
 constants ($0.62$ on TRUE against $0.28$ on FALSE), the bias
-breaking the tie. It all but abandons the interior of the table. If the map turns out non-constant, that interior is scaled up and becomes relevant.
+breaking the tie. It all but abandons the interior of the table. If the map turns out non-constant, renormalization scales that interior up, and it becomes relevant.
 Grouped by the full tuple $(X, F, B)$, the sixteen maps fall into
 six energy classes:
 %
@@ -2916,8 +2916,8 @@ p_j = \frac{e^{-E_j}}{\sum_k e^{-E_k}},
 with no overall temperature: it's absorbed in the coupling fields. Positive
 $\beta$ suppresses complex maps, positive $\alpha$ suppresses large
 footprints, and $\mu$ couples to the signed bias like a magnet. $\mu < 0$ tilts
-toward $1$-heavy tables and thereby breaking the output-negation
-symmetry. Three settings are explored below, chosen out of principle, as well as to exhibit
+toward $1$-heavy tables and thereby breaks the output-negation
+symmetry. We explore three settings below, chosen out of principle, as well as to exhibit
 interesting learning behavior.
 
 \begin{table}[H]
@@ -2949,8 +2949,8 @@ that Werner isn't bound to start with a uniform distribution $M$ before the firs
 
 \subsubsection{The layered entropy books}\label{sec:gibbsbooks}
 
-Let us visualize the uniform question-order average for the various ensembles,
-at various sizes. The following graphs illustrate the flow of bits. 
+Let us visualize the uniform question-order average for the three ensembles,
+at each system size. The following graphs illustrate the flow of bits. 
 The three quantities of \eqref{eq:Lk-avg} partition
 the starting table entropy at every $\ell$: what is still in the table,
 what was paid for in surprisal, and what was inferred. The third has no
@@ -3122,7 +3122,7 @@ the halfway horizon $\ell^* = Q/2$ and is plotted only up to it:
 past its own horizon the optimizer's continuation is not defined.
 Inside the optimal set the questions are asked in random
 order (the graph averages that order). 
-Its contingent twin is omitted everywhere: wherever we can
+We omit its contingent twin everywhere: wherever we can
 afford to compute it, it reproduces the fixed optimum's curve to
 machine precision, and one for which no symmetry argument yet is known. 
 Two consistency checks hold in every panel: all schedules agree at $\ell = 1$, because
@@ -3266,8 +3266,8 @@ coincides exactly; the Pragmatist's fields finally separate them.}
 \end{tikzpicture}
 \caption{Expected leverage under the Gibbs priors at $(3,2)$,
 $\ell^* = 4$. Greedy Werner's fixed set is the optimal set under Occam and,
-up to an input negation, under Occamer. For the Pragmatist, the $\ell^*-optimal$ has the 
-worst leverage at the horizon, reminding that we're optimizing for information received, while
+up to an input negation, under Occamer. For the Pragmatist, the $\ell^*$-optimal has the 
+worst leverage at the horizon, a reminder that we optimize for information received, while
 accepting that may cost even more surprisal.}
 \label{fig:gibbs32}
 \end{figure}
@@ -3384,7 +3384,7 @@ $1.262$ at the Occam $\ell^*$ horizon) but finds it exactly under the
 Pragmatist whose prior, $0.90$ of its mass on the two constants,
 is a two-sided spike in disguise: $H(p) = 0.53$ bits, leverage
 running from $12.29$ down to $8.28$, a great deal of inference
-about a game that is mostly over after 2 questions.
+about a game that is mostly over after two questions.
 
 \section{The thermodynamic limit}\label{sec:tdl}
 
@@ -3427,7 +3427,7 @@ Take the earmarked boolean
 map to be the all-zero map, $\phi_0(q) = 0^m$ for every
 $q \in \mathcal Q$, so that its answer to any $k$ questions is the
 all-zero block $0^{mk}$. This is fully general by symmetry: the answer
-alphabet may be relabelled separately at each question. Then take convention
+alphabet may be relabeled separately at each question. We then adopt the convention
 %
 \begin{equation}
   p_0 = p,
@@ -3460,11 +3460,11 @@ If we started in this prior with probability $P_0=1$ (full faith), Werner avoids
   P_1 = p + \left(Nu-1\right)\omega
 \end{equation}
 %
-We say we have $P_1$ probability to still believe $\psi$ could be $\phi_0$.
+With probability $P_1$ we can still believe $\psi = \phi_0$.
 In this case, what exactly is the shape of the posterior? The Bayesian consistency condition holds that 
 unconditional probability cannot be created without measurement. At this point in the ansatz, we must have the same credence in $\phi_0$. 
 
-At every step, there is a $p_0$, but as a member of an ever shrinking cohort.
+At every step, there is a $p_0$, but as a member of an ever-shrinking cohort.
 Let $r_1$ be the height of the peak $p_0$, after one question. Then we must have $r_1\cdot P_1 = p$.
 The rest of the probability is spread again over the $Nu-1$ other surviving maps. Conversely, with probability $1-P_1$, we've refuted the zero map, and are in a uniform posterior corresponding to a nonzero answer to the question.
 
@@ -3653,7 +3653,7 @@ ever leaves.
 \end{center}
 
 The two columns of boxes are the macrostates of \eqref{eq:spikeflow},
-each arrow is labelled by the answer that drives its transition, and
+each arrow is labeled by the answer that drives its transition, and
 each row's map space is one quarter of the row above. The outer columns track the branch
 probabilities $P_k$ and $1 - P_k$, and the invariant $P_k r_k = p$ is
 visible between the $P_k$ bars and the $r_k=p_0$ bars. The bars inside the boxes 
@@ -3662,7 +3662,7 @@ exactly as fast as its branch loses probability,
 $0.3 = 1 \times 0.3 = 0.475 \times 0.632 = 0.344 \times 0.873$.
 \end{example}
 
-For $p \in (0,1)$, we can combine equations \eqref{eq:spikeprior} and \eqref{eq:spikePk} to get the limiting odds on the surviving branch. Also the surviving posterior, from equation \eqref{eq:spikeposterior}:
+For $p \in (0,1)$, we can combine equations \eqref{eq:spikeprior} and \eqref{eq:spikePk} to get the limiting odds on the surviving branch and, from equation \eqref{eq:spikeposterior}, the surviving posterior:
 
 %
 \begin{equation}
@@ -3701,7 +3701,7 @@ $N u^k$ background maps and therefore carries the common probability
 \end{equation}
 %
 for any question set $\mathcal S$ of size $k$. The entropy of the above
-distribution, coarse grained to blocks of questions, is
+distribution, coarse-grained to blocks of questions, is
 %
 \begin{equation}
   G_k \;=\; -P_k\log_2 P_k - (A^k-1)\,U_k\log_2 U_k,
@@ -3772,7 +3772,7 @@ agree with it at any one question. Substituting that limit,
 %
 An $\eta_0$-term features in the numerator of every macroscopic
 leverage, the entropy of the first answer, as in \eqref{eq:master}. The spike produces this shape; 
-in general $\eta_0$ depends on the prior and has no general closed form.
+in general $\eta_0$ depends on the prior and has no closed form.
 
 The received entropy: Evaluate \eqref{eq:spikeGsplit} at
 $k = \ell = \lfloor tQ\rfloor$. By \eqref{eq:spikelargeN}
@@ -3825,7 +3825,7 @@ Filling the three limits into \eqref{eq:Lk-G} term by term,
       Q\,t(1-p)m}},
 \]
 %
-and cancelling the common factor $Q$ gives
+and canceling the common factor $Q$ gives
 %
 \begin{equation}
   L_p(t)
@@ -3883,7 +3883,7 @@ $0.001$ at $p = 0.001$ to above $5$ at $p = 0.999$.}
 \end{figure}
 
 \begin{example}
-The approach to \eqref{eq:spikehyperbola} the hyperbolic limit. 
+The approach to the hyperbolic limit \eqref{eq:spikehyperbola}. 
 Both panels evaluate the
 exact finite law \eqref{eq:Lk-G} on the block entropies
 \eqref{eq:spikeGsplit} at increasing finite $n$, and
@@ -3940,7 +3940,7 @@ Werner asks, the all-zero pattern $y=0^{mk}$ carries probability $P_k$ and every
 carries $U_k$. Both depend on $\mathcal S$ solely through its size $k$. 
 Which questions were asked, and in which order, is not relevant. 
 A prior with that property is called \textbf{exchangeable}, and
-a classical theorem constrians such priors to be equivalent to a restrictive construction.
+a classical theorem constrains such priors to be equivalent to a restrictive construction.
 
 Write the answers in the order they arrive as a sequence of random
 symbols,
@@ -3999,7 +3999,7 @@ In general $\Lambda$ may spread over any collection of answer laws
 $\tau_1, \tau_2, \ldots$, finite, countable or a continuum, and the
 richer that collection the more there is to learn about which one was
 drawn. The spike prior is the simplest interesting case: $\Lambda$ is a discrete
-distribution on 2 points. Let $\tau_0$ be the spike,
+distribution on two points. Let $\tau_0$ be the spike,
 and let $\tau_{>}$ be the uniform law, which allows answers $\neq 0^m$ as
 well. These distributions on $\mathcal A$ have probabilities
 \begin{equation}
@@ -4151,7 +4151,7 @@ random $k$-set to a random $(k{+}1)$-set yields a \textbf{staircase}
 %
 This monotonicity is deterministic, the truth and the subset having
 already been averaged over. Recall, this is a property of the average, not of any constituent terms.
-concentration of individual learning trajectories would be a separate
+Concentration of individual learning trajectories would be a separate
 result. The two laws \eqref{eq:law-received} and
 \eqref{eq:law-remaining} then read
 %
@@ -4180,7 +4180,7 @@ equation~\eqref{eq:Lk-G} becomes
 The next step is to find continuous limits of the functions: $\gamma(t)$ from $\gamma_{n,\ell}$ and $g(t)$ from $G_{n,\ell}$.
 
 The leverage has only these two functions in the numerator. In fact, $G_{n,1}=\gamma_{n,0}$ so we might be
-tempted to express everything terms of the one function $\gamma(t)$, and find the coarse-grained limit
+tempted to express everything in terms of the one function $\gamma(t)$, and find the coarse-grained limit
 of that. However, that would miss a crucial \emph{delta-like} contribution to the learning.
 
 It is instead useful to keep the initial marginal entropy separate from the
@@ -4250,7 +4250,7 @@ makes $g(t) > 0$ for every $t > 0$. Let us go over the pieces, for physical intu
 \begin{itemize}
   \item $\gamma(t)$: the price of the next answer. It is the expected entropy of one fresh answer after a random $t$-fraction of the table has already been observed: what Werner still doesn't know about a question he hasn't asked, given everything he has. It starts at most $m$ and decreases monotonically, because each answer can only explain away some of the next one's novelty. $\gamma$ is the running rate at which surprisal is still available.
 
-\item $g(t)$: the total bill so far. Summing the price of each answer as it was bought gives the cumulative surprisal received by macroscopic time $t$. It is the area under the profile to the left of $t$, and it sits in the denominator of the leverage because it is exactly what Werner 'paid'.
+\item $g(t)$: the total bill so far. Summing the price of each answer as it was bought gives the cumulative surprisal received by macroscopic time $t$. It is the area under the profile to the left of $t$, and it sits in the denominator of the leverage because it is exactly what Werner ``paid''.
 
 \item $\eta_0$: the size of the job at the outset. It is the marginal entropy of a single answer before anything is learned, so $Q \eta_0$ is the whole table's starting uncertainty $H(M^{(0)})$: the total to be destroyed, by asking or by deducing. It is kept as its own constant rather than read off as $\gamma(0^+)$ because learning finished in $o(Q)$ questions leaves no trace on the profile, and the gap $\eta_0 - \gamma(0^+)$ is precisely that boundary layer.
 
@@ -4371,17 +4371,17 @@ There are two guiding insights in this chapter.
 First, we are interested in demonstrating that the leverage in the TDL can be more than
 a hyperbola. In order for this to happen, the rate of information $\gamma(t)$ cannot be a
 flat constant in the bulk. This flatness is conspicuously difficult to escape. Many naive
-constructions are virtually "finding out what latent set of maps Werner's in". The simplest
-example was 'spike-or-not' of Section~\ref{sec:spike}. 
+constructions are virtually ``finding out what latent set of maps Werner is in''. The simplest
+example was ``spike-or-not'' of Section~\ref{sec:spike}. 
 Even when this is made richer with more variation, it still costs
  $o(Q)$ bits to learn the set label, and therefore concludes around $t=0^+$. Once the set is
  settled (no pun intended), the rate $\gamma(t)$ inside is often constant. Instead, we
- need a construction maintains stores of information that don't settle until macroscopic times.
+ need a construction that maintains stores of information that don't settle until macroscopic times.
  The polynomial degree prior has that property.
 
  Second, weighting maps by
 complexity through a single temperature, with an exponentially vanishing weight with degree like the Gibbs ensemble does, reduces 
-to only effectively consider a thin shell of contributing maps. At low degrees, theres too few maps. At high, there's too little weight.
+to only effectively consider a thin shell of contributing maps. At low degrees, there are too few maps. At high, there's too little weight.
 
 This may be desirable
 in statistical physics to find averages, but as a philosophical choice, Werner won't rule anything out
@@ -4394,7 +4394,7 @@ Throughout this chapter the
 answer size is $m = 1$, so $u = \tfrac12$ and a fresh uninformed answer
 carries at most one bit. As we saw before, larger $A$ mainly changes the rate of
 culling, and behaves much like $m$ independent maps being learned simultaneously. 
-The single bit case is fully instructive, at little missed generality.
+The single-bit case is fully instructive, and costs little generality.
 
 \subsection{Polynomials over
 \texorpdfstring{$\mathbb F_2$}{F2}, and the butterfly}
@@ -4426,11 +4426,11 @@ $2$.
 These define the rules of this space and the functions that inhabit it.
 
 As a consequence, we only need to consider \emph{monomials} in the input bits $b_{n-1} \cdots b_0$ of a question.
-It is labelled by the set of bit positions it
+Each monomial is labeled by the set of bit positions it
 contains: $\phi = \prod_i b_i$ is the map answering $1$
 exactly when every bit is $1$, the AND of those bits,
-and the empty set gives the empty product, the constant map $1$. Write e.g.
-$\mathcal B = \{b_1, b_0\}$ a set of input bits, and the subscript
+and the empty set gives the empty product, the constant map $1$. Write, for example,
+$\mathcal B = \{b_1, b_0\}$ for a set of input bits, and the subscript
 on a coefficient $\rho\in \{0,1\}$ is tantamount to the monomial itself: $\rho_{b_1 b_0}$ represents $\rho_{b_1 b_0}\cdot b_1\cdot b_0$, the monomial made from
 $\mathcal B$, just as $\rho_\emptyset$ belongs to the constant. There
 are $Q = 2^n$ bit sets, hence $Q$ monomials. Creating functions in this space is akin
@@ -4443,7 +4443,7 @@ One more piece of vocabulary. The \textbf{support} of a question is the
 set of bit positions where it holds a $1$,
 %
 \begin{equation}
-  \operatorname{supp}(q) \;=\; \{\, i : b_i(q) = 1 \,\},
+  \operatorname{supp}(q) \;=\; \{\, i : b_i(q) = 1 \,\}.
   \label{eq:supp}
 \end{equation}
 %
@@ -4457,7 +4457,7 @@ questions $q'$ that are $0$ everywhere outside $\mathcal B$ and free inside
 it.
 
 \begin{example}
-  For instance at $n=4$, $q=1010$ has $\operatorname{supp}(q) = \{1,3\}$. If this is $q\simeq \mathcal{B}$,
+  For instance at $n=4$, $q=1010$ has $\operatorname{supp}(q) = \{b_1, b_3\}$. If this is $q\simeq \mathcal{B}$,
   the subcube below is $q'\in \{1010, 1000, 0010, 0000\}$.
 \end{example}
 
@@ -4470,7 +4470,7 @@ is the \emph{algebraic normal form},
   \phi(q) \;=\; \bigoplus_{\mathcal B} \rho_{\mathcal B}
                 \prod_{i \in \mathcal B} b_i(q)
           \;=\; \bigoplus_{\mathcal B \,\subseteq\,
-                           \operatorname{supp}(q)} \rho_{\mathcal B},
+                           \operatorname{supp}(q)} \rho_{\mathcal B}.
   \label{eq:anf}
 \end{equation}
 %
@@ -4636,7 +4636,7 @@ same $1,0$ ordering
 %
 \begin{equation}
   W = \begin{pmatrix} -1 & 1 \\ 1 & 1 \end{pmatrix}
-  = Z \begin{pmatrix} -2 & 0 \\ 0 & 1 \end{pmatrix} Z^{\mathsf T},
+  = Z \begin{pmatrix} -2 & 0 \\ 0 & 1 \end{pmatrix} Z^{\mathsf T}.
   \label{eq:wfactor}
 \end{equation}
 %
@@ -4699,12 +4699,12 @@ at most $d$ is a linear space of dimension
 K_d = \sum_{i \le d} \binom ni.
 \end{equation}
 $K_d$ counts one coefficient bit $\rho_{\mathcal B}$ per allowed
-monomial. It's linear space because polynomials distribute, and any sum of polynomials, each with degree $\le d$, is again
+monomial. It is a linear space because polynomials distribute, and any sum of polynomials, each with degree $\le d$, is again
 a polynomial of degree $\le d$, and therefore the space is closed.
 
 The classes run from the two constant polynomials $\rho_\emptyset \in \{0,1\}$
 ($d = 0$) to the full map space ($d = n$). In coding theory this
-class is the Reed-Muller code $\mathrm{RM}(d,n)$ \cite{macwilliams}. Two definitions are posited to avoid confusion
+class is the Reed-Muller code $\mathrm{RM}(d,n)$ \cite{macwilliams}. We posit two definitions to avoid confusion:
 \begin{itemize}
 \item the \textbf{class} $d$ is the union of all maps of degree at
 most $d$. Classes are nested.
@@ -4720,7 +4720,7 @@ is its dimension per question,
 \end{equation}
 %
 and it will turn out to be the fraction of a full run at which the
-class is 'learned out', i.e Werner has settled whether the map $\psi$ is this class or not. 
+class is ``learned out'', i.e., Werner has settled whether the map $\psi$ is this class or not. 
 Consecutive rates slice $(0,1]$ into
 \textbf{rate gaps} $(R_{n,d-1}, R_{n,d}]$ of lengths
 %
@@ -4733,8 +4733,8 @@ This partition refines as $n$ grows. Rate gaps can be seen as the proportional t
 \begin{example}
   This graphic explains the stochastic process that samples $\psi$. 
   Sampling $\sim F$ determines a class (a maximum degree $d$). Inside that linear space, any polynomial is equally likely.
-  higher classes have exponentially more maps in them.
-This case illustrates the $n = 4$ case: take one box per monomial, grouped by $d$ into shells. Each box is one coefficient bit, which has
+  Higher classes have exponentially more maps in them.
+The graphic illustrates $n = 4$: take one box per monomial, grouped by $d$ into shells. Each box is one coefficient bit, which has
 50-50 odds to be included in the true polynomial of $\psi$.
 So $K_d$, the number of monomials under consideration
 \emph{is} the class $\mathrm{RM}(d,4)$ measured in bits, holding
@@ -4821,7 +4821,7 @@ $R = F^{-1}(U)$, drawn here for $F(x) = 1-(1-x)^2$ (the smaller
 of two uniform draws: the $r = 2$ member of the
 constant-leverage family \eqref{eq:Lmin}), which favors simple (low-degree) maps.
 The rate-gap the dart hits determines $D$, the maximum $d$. For this dart, $D=1$,
-and we sample $\psi$ uniformly from polynomials with $\rho_\emptyset + \sum_i \rho_{b_i}b_i$.
+and we sample $\psi$ uniformly from polynomials of the form $\rho_\emptyset \oplus \bigoplus_i \rho_{b_i}b_i$.
 
 \end{example}
 
@@ -4841,9 +4841,9 @@ $n-1$ & $\tfrac12 - 2^{-(n+1)}$
 $n-2$ & $\approx 2^{-(n+1)}$
   & $12.5\%$ & $3.1\%$ & $0.78\%$ & $0.20\%$ \\
 $n-3$ & $\approx 2^{-(n+1+\binom n2)}$
-  & --- & $4.6\cdot10^{-4}$ & $2.4\cdot10^{-7}$ & $7.3\cdot10^{-12}$ \\
+  & - & $4.6\cdot10^{-4}$ & $2.4\cdot10^{-7}$ & $7.3\cdot10^{-12}$ \\
 $\le n-4$ & rest
-  & --- & $3.1\cdot10^{-5}$ & $2.3\cdot10^{-13}$ & $1.0\cdot10^{-28}$ \\
+  & - & $3.1\cdot10^{-5}$ & $2.3\cdot10^{-13}$ & $1.0\cdot10^{-28}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -4866,8 +4866,8 @@ the constituent maps. This scales nicely in the TDL, to never effectively rule o
     coefficient $\rho$ by a fair coin.
 \end{enumerate}
 %
-So the $R$ and $D$ only determine which monomial terms are ruled out because they're too high degree. 
-The $R_{n,d}$ are the deterministic grid $R$ lands in.
+So $R$ and $D$ only decide which monomials are ruled out as too high a degree.
+The $R_{n,d}$ form the deterministic grid that $R$ lands in.
 Only $d \le D$ are allowed: those with $R_{n,d-1} < R$.
 
  The class
@@ -4892,7 +4892,7 @@ each step up losing a factor of order $2^{-\binom nd}$
 \item $p_j \ge w_n 2^{-Q} > 0$ for every single map:
 full support, at every $n$ and in the limit.
 \end{itemize}
-Every shell, and every map, gets a chance, and still it's a genuine Occam. 
+Every shell, and every map, gets a chance, and still it's a genuine Occam prior. 
 Semantically, $F$ budgets
 the \emph{shells} while nestedness orders the \emph{maps}: $w_d$ is,
 up to an exponentially suppressed sliver leaking in from higher classes, the
@@ -4911,7 +4911,7 @@ there. See Example~\ref{ex:shellsplit} at the end of the chapter
 for an illustration.
 
 \begin{example}
-A geometric interpreration of the prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
+A geometric interpretation of the prior \eqref{eq:shapepj} at $(n,m) = (2,1)$ with the guiding
 statistic $F(x) = 1-(1-x)^2$, which is concave (the $r = 2$ member of \eqref{eq:Fmin}).
 The three classes have
 %
@@ -4921,8 +4921,8 @@ The three classes have
 \end{align*}
 %
 so the rates $K_d/Q$ are $\tfrac14$, $\tfrac34$ and $1$. Class $d$
-offers a map it contains a rectangle: width $w_d$, the chance the lottery calls that
-class, by height $2^{-K_d}$, the chance the class then calls that map.
+offers each map it contains a rectangle: width $w_d$, the chance the lottery calls that
+class, times height $2^{-K_d}$, the chance the class then calls that map.
 A map of degree $d$ lies in every class $D \ge d$, so it collects
 every block from $D$ rightward: all the blocks a harder map
 collects, and one more besides.
@@ -5132,7 +5132,7 @@ rows that the coin-sequence $\xi$ switches on. The $K_d$ rows are
 independent, so $\xi \mapsto \psi$ is a bijection onto the class:
 flipping $K_d$ fair coins, one per allowed monomial, lands on each of
 the $2^{K_d}$ maps exactly once, which is step 3 of the sampling rule
-and why no map inside a class is favoured over another. 
+and why no map inside a class is favored over another. 
 Three examples of coin-sequences, yield three maps, at three different class degrees $d$
 %
 \begin{align*}
@@ -5167,7 +5167,7 @@ and their entropy is that submatrix's rank. Every fresh column (question \& answ
 independent of its predecessors buys one whole bit; once the rank of the 
 submatrix seen this way reaches $K_d$, the coins are pinned. 
 $\xi$ is known, and every answer
-after that is completely determined, and there is no more entropy. Average that behaviour over
+after that is completely determined, and there is no more entropy. Average that behavior over
 the classes with weight $w_d = \Pr(D = d)$ and the received entropy
 would be settled.
 
@@ -5221,7 +5221,7 @@ side into a mean rank, one per class:
   \qquad
   G^{(d)}_{n,\ell}
   \;:=\; \binom Q\ell^{-1} \sum_{|\mathcal S| = \ell}
-    \operatorname{rank}\big(H^{(d)}\left(\psi(\mathcal S)\right)\big),
+    H^{(d)}\big(\psi(\mathcal S)\big),
   \label{eq:Gmix}
 \end{equation}
 %
@@ -5237,7 +5237,7 @@ Say Werner knows $d=1$. This means:
 \begin{equation*}
   \psi(q) = \rho_\emptyset \oplus \rho_{b_0}b_0(q) \oplus \rho_{b_1}b_1(q)
 \end{equation*}
-See in the matrix below for such affine maps, how the sum of all questions vanishes (linear dependence).
+In the matrix below, see how the sum of all questions vanishes for such affine maps (a linear dependence).
 \begin{equation*}
   \psi(11) \oplus \psi(10) \oplus \psi(01) \oplus \psi(00) = 4\rho_\emptyset \oplus 2\rho_{b_0} \oplus 2\rho_{b_1} = 0
 \end{equation*}
@@ -5315,7 +5315,7 @@ determines a fresh answer with probability tending to one:
 \end{equation}
 %
 So if the class rate tends to the statistic $R$, the support of the entropy rate tends to below $R$.
-$m=1$, which is a bound on the increment: $\gamma \in [0,1]$.
+Here $m = 1$, which bounds the increment: $\gamma \in [0,1]$.
 Such a nonincreasing sequence with area $R_{n,d_n}$ and no mass to the
 right of it has no freedom. These characteristics force the shape, so
 along that same sequence of classes the increments converge pointwise
@@ -5408,7 +5408,7 @@ The last step is achieved through integration by parts. Pointwise
   \min(t,R) = \int_0^t \theta(R - x)\,dx;\quad \mathbb E\,\theta(R - x) = 1 - F(x),
 \end{equation}
 by the defining sampling process $R \sim F'$.
-Received information per question is an average of rates per class, averaged over the expected contribution of those classes. 
+Received information per question is a mean of the rates per class, weighted by the expected contribution of those classes. 
 The correction from the mutual information term from equation \eqref{eq:ungroup} vanishes in the TDL.
 
 \subsubsection{The increment}
@@ -5432,14 +5432,14 @@ it is the increment term of the finite law.
 
 \begin{example}
 This example is meant to illustrate how equation~\eqref{eq:ungroup} behaves in the TDL.
-Concisely, the left sum leads to a staircase in $\gamma(t)$, and the $I$ mutual information 
+Concisely, the left sum leads to a staircase in $\gamma(t)$, and the mutual information $I$ adds
 an extra dusting of uncertainty that lies on top.
 
 The shaded region has height $\gamma(t) = 1 - F(t)$: the sampling distribution. The average over $D$ has contributions from all classes $d\le n$ present.
 Dashed vertical lines are the class rate boundaries $R_{n,d}$. 
 The horizontal lines are the aggregate class weights, largest below, adding 
-lower classes as we rise. This puts the shortest lived ones on top, so as we move
-to the right through time, more and more classes 'settle', and stop contributing uncertainty.
+lower classes as we rise. This puts the shortest-lived ones on top, so as we move
+to the right through time, more and more classes ``settle'', and stop contributing uncertainty.
 Increasing $n$ cuts the region into more filigree rate gaps horizontally, and more
 class weights vertically.
 The two jagged functions on top are two exact increments, the entropy of a single answer, under two
@@ -6955,7 +6955,7 @@ The steps hug $1 - F$ as $n \to \infty$, by construction of the sampling protoco
 
 Substitute \eqref{eq:shapeT1}, \eqref{eq:gF} and \eqref{eq:gammaF}
 into \eqref{eq:Lk-G} and cancel the common factor $Q$; the numerator
-tidies from  $1 - (1-t)(1-F(t))$ to
+tidies from $1 - (1-t)(1-F(t))$ to
 %
 \begin{equation}
   L_F(t)
@@ -6983,9 +6983,9 @@ completes at the reciprocal mean class rate.
 Conversely, any nonincreasing
 profile with values in $[0,1]$ is the survival function $\Pr(R>x)$ of exactly
 one law $F(x)$. This means \eqref{eq:LF} is invertible: pick any desired increment profile, and
-\eqref{eq:master} at $m = 1$, can achieve it with $F(x) = 1- \gamma(x)$.
+\eqref{eq:master} at $m = 1$ can achieve it with $F(x) = 1- \gamma(x)$.
 
-A parallel construction, where we construct priors by postulating blocks of questions have exchangeable answers,
+A parallel construction, in which we build priors by postulating that blocks of questions have exchangeable answers,
 is mathematically complete in the same sense. However, as it is less philosophically aligned with
 modeling a learner, it is collected in Appendix~\ref{app:blockpriors}.
 
@@ -7004,7 +7004,7 @@ modeling a learner, it is collected in Appendix~\ref{app:blockpriors}.
     legend columns=3, draw=black!25, fill=white,
     /tikz/every even column/.append style={column sep=8pt}},
   legend cell align=left]
-% ---- colour = statistic, marker = n; both halves of the key here,
+% ---- color = statistic, marker = n; both halves of the key here,
 % the profile panel having moved to its own figure
 \addlegendimage{cf2, thick}
 \addlegendentry{$F_1(x)=x$}
@@ -7095,7 +7095,7 @@ predictive power earliest, the larger of two hoards it.}
 
 Two one-parameter families are enough to see the law work. Draw $r$
 independent uniformly random values on $[0,1]$ and keep one of them: keeping the
-smallest drags the suppresses toward zero, keeping the largest inflates it
+smallest suppresses it toward zero, keeping the largest inflates it
 toward one, $r$ controls how hard. Every curve in
 Figure~\ref{fig:Fexamples} comes from this extended family.
 
@@ -7165,7 +7165,7 @@ density at the origin ($F = \sqrt x$ at $r = \tfrac12$), and
 $L^+_r(0)$ diverges: front-loaded deduction, the shape of a boundary
 layer, no longer a constant.
 
-Where the two choices meet? At $r = 1$ the min is the max,
+Where do the two choices meet? At $r = 1$ the min is the max,
 and both families collapse onto the single uniform draw $F(x) = x$,
 whose numerator $t(2-t)$ cancels its denominator $t(2-t)/2$ to leave
 $L \equiv 2$ exactly. That is the hinge of
@@ -7178,11 +7178,11 @@ $w_d = \binom nd/2^n$. An observed flat leverage does not mean we had this micro
 Appendix~\ref{app:blockpriors} produces the same constant $2$ by a completely different mechanism.
 
 The concave direction may look like the
-natural one, a simplicity prior ought to favour simple worlds, but
+natural one, a simplicity prior ought to favor simple worlds, but
 $F$ never decides \emph{whether} Werner is an Occamist. The classes
 are nested, so the weight $p_j$ of a single map falls with its degree
 for every $F$ whatsoever, and even the convex $F^+_r$, which loads the
-high shells, still ranks each complicated (high degree, highly composite) map as less likely than each simple one.
+high shells, still ranks each complicated (high-degree, highly composite) map as less likely than each simple one.
 What $F$ moves is the aggregate: which shell carries the belief, and
 with it the leverage, from $r$ deduced bits per received one under
 $F^-_r$ down to at most $1/r$ under $F^+_r$.
@@ -7236,7 +7236,7 @@ of each polynomial degree receive.
 \end{center}
 
 On the left, per map: the weight drops by a factor $5.7$, then $69$, $64$, $49$,
-equal to $2^{\binom 4d}$ that the next class costs in dimension,
+matching the factor $2^{\binom 4d}$ that the next class costs in dimension,
 tilted by the budget ratio $w_{d-1}/w_d$. Six decades across five
 degrees, which is why the axis is logarithmic. Occam is priced per
 map, and it is highly undemocratic. On the right, one shell: the
@@ -7287,7 +7287,7 @@ can no longer reach zero.
 
 \subsection{A prior that is wrong}
 
-Every average in this work assumes Werner's prior is that from which Nature samples.
+Every average in this work assumes Werner's prior is that from which nature samples.
 This assumption is woven into all results. It is what makes the expected surprisal
 of a question equal to the entropy of its own column. Let nature draw
 from $\{p'_j\}$ while Werner believes $\{p_j\}$, and his expected surprisal at
@@ -7301,8 +7301,8 @@ to the KL-divergence could be derived.
 The interesting
 assumption is a prior with full support, so under elimination Werner can't rule out the truth outright, 
 which would leave $M_{a,q} = 0$ at some later
-question: an infinite surprisal and an undefined update. Two questions in particular: when would expected leverage
-$\langle L_\ell\rangle$ fall below one? If so, is
+question: an infinite surprisal and an undefined update. Two questions in particular: does expected leverage
+$\langle L_\ell\rangle$ ever fall below one? If so, is
 the deficit a divergence, or a sum of per-question KL terms? For the
 denominator alone the answer is already known: the cumulative excess
 surprisal of a wrong model is exactly the relative entropy between the
@@ -7316,8 +7316,8 @@ The truncation remark of Chapter~\ref{sec:expectations} cuts both ways.
 Read forward it says the first $\ell$ rounds cannot see correlators
 spanning more than $\ell+1$ questions; read backward it says the shell
 of order $\ell+1$ is the first place that has an influence on learning at
-step $\ell$. Suppose then that a particular sequence of
-leverages is wanted. Equation \eqref{eq:Lk-G} inverts,
+step $\ell$. Suppose then that we want a particular sequence of
+leverages. Equation \eqref{eq:Lk-G} inverts,
 %
 \begin{equation}
   G_{\ell+1} \;=\; G_\ell
@@ -7327,13 +7327,13 @@ leverages is wanted. Equation \eqref{eq:Lk-G} inverts,
 %
 so the demanded curve fixes the whole block-entropy sequence
 recursively from $G_1$. Each $G_{\ell+1}$ in that recursion, with the previously
-fixed correlators, form a set of conditions on shell $\ell+2$. 
+fixed correlators, forms a set of conditions on shell $\ell+2$. 
 One could then
 try to build the prior a shell at a time: shell $1$ to fix $G_1$, shell
 $2$ to fix $G_2$, and onward, leaving the earlier rounds untouched. 
 One constraint is submodularity on $G$, which forces it to be concave with
 increments in $[0,m]$. What makes this nontrivial is that not every set of correlators $\chi_{\mathcal S}$ is
-admissible: the shells cannot be chosen freely: they must be the
+admissible. The shells cannot be chosen freely: they must be the
 transform of an actual distribution. The positivity and boundedness of every $p_j$
 is a global constraint that a shell-by-shell construction has no local
 way to respect. The admissible sets form the correlation polytope, and
@@ -7352,7 +7352,7 @@ second order the block entropy reads
 and the inclusion probability of a correlator touching $r$ questions
 tends to $t^{\,r}$ at macroscopic time. Each shell enters the
 profile suppressed by its own power of $t$. This codifies the idea of
-storing knowledge in deep correlations and it not appearing until late.
+storing knowledge in deep correlations that do not surface until late.
 For this approach to work, along the way, we would develop TDLs of the 
 correlators themselves, which would be an interesting exercise in its own right.
 
@@ -7365,7 +7365,7 @@ Fix a finite
 universe of questions with a latent rule, ask them one at a time,
 record the surprisal of each answer and the drop in total predictive
 entropy over the questions not yet asked, and both halves of
-\eqref{eq:leverage} are measured rather than modelled. The same
+\eqref{eq:leverage} are measured rather than modeled. The same
 protocol runs on a network during training, reading the predictive
 entropy off a held-out question set between updates. Tracking a
 learner's predictive entropy is established ground, and its
@@ -7375,13 +7375,13 @@ price paid for the drop. The obstacle is
 scale: $t = \ell/Q$ needs a question universe small enough to exhaust,
 or the whole experiment lives in the boundary layer at $t = 0^+$ and
 reports nothing about macroscopic learning. Nonetheless, we think the 
-TDL is the correct regime to understand NNs, as the scale should be large
+TDL is the correct regime to understand neural networks, as the scale should be large
 enough to coarse-grain away the microscopic details of boolean maps.
 What one would look to match is
 the shape of the leverage. A hyperbola says the model's knowledge was a label settled
 in the first few answers; a curve that holds up across the run says it
 carried structure at macroscopic times, and its profile $\gamma$ might allow us to 
-infer the implied prior (up to some equivalence, Unfortunately) that the model employs.
+infer the implied prior (up to some equivalence, unfortunately) that the model employs.
 
 \appendix
 
@@ -7798,7 +7798,7 @@ correction to the unnormalized leverage.
 answer width. Middle: the sharp-prior curve \eqref{eq:sharpLk}
 normalized by $Q$, whose $O(1)$ boundary layer is squeezed into the
 origin as $n$ grows, leaving the plateau at $1-u$. Right: the
-approach at fixed $n = 6$, $m = 1$, labelled by $1-p$. Tightening the
+approach at fixed $n = 6$, $m = 1$, labeled by $1-p$. Tightening the
 prior lifts the curve only logarithmically, so the plateau is
 approached pointwise in $t$ but never uniformly.}
 \label{fig:sharpflow}
@@ -7835,13 +7835,13 @@ the formal endpoint $\lambda = \infty$ the first. Putting
 $\varepsilon_n = 1-p_n$, the leading entropies for $0 < t < 1$ and
 $\ell = \lfloor tQ\rfloor$ are
 $G_1 \sim (1-u)\varepsilon_n\lambda Q$,
-$G_\ell \sim \varepsilon_n Q(\lambda + mx)$ and
+$G_\ell \sim \varepsilon_n Q(\lambda + mt)$ and
 $G_{\ell+1}-G_\ell \sim \varepsilon_n m$, and substitution into
 \eqref{eq:Lk-G} gives the crossover
 %
 \begin{equation}
   \frac{L_{p_n,n}(t)}{Q}
-  \longrightarrow (1-u)\,\frac{\lambda}{\lambda + mx}. 
+  \longrightarrow (1-u)\,\frac{\lambda}{\lambda + mt}. 
   \label{eq:crossover}
 \end{equation}
 %
@@ -7929,7 +7929,7 @@ $w_{\kappa,n} := r_\kappa K_{\kappa,n}/Q$, the fraction of all
 questions belonging to them, assuming $w_{\kappa,n}\to w_\kappa$ with
 $\sum_\kappa w_\kappa = 1$. A type $\kappa$ carries a size
 $r_\kappa$, a fixed joint distribution on its $r_\kappa$ answers
-shared by every block of that type up to relabelling, and a mean
+shared by every block of that type up to relabeling, and a mean
 subset-entropy profile defined as follows. Let
 $\mathcal V \subseteq \mathcal Q$ be one particular block of type
 $\kappa$, fix an ordering of it once and for all, and give every
@@ -8373,21 +8373,22 @@ $1.6$.}
 
 \section{Computing the circuit complexities}\label{app:aig}
 
-The footprint and the bias of Subsection~\ref{sec:nandcomplexity} are read
-off a truth table in one pass. The complexity $X_j$ is not: it is a
-minimum over all circuits, and has to be computed. This appendix
-records how the $65{,}536$ values in each of the $(4,1)$ and $(3,2)$
-tables were obtained. The pipeline is described in
-\texttt{gibbs\_complexity.md}, and implemented in
+We read the footprint and the bias of
+Subsection~\ref{sec:nandcomplexity} off a truth table in one pass. The
+complexity $X_j$ we cannot: it is a minimum over all circuits, and we
+have to compute it. This appendix records how we obtained the
+$65{,}536$ values in each of the $(4,1)$ and $(3,2)$
+tables. We describe the pipeline in
+\texttt{gibbs\_complexity.md}, and implement it in
 \texttt{aig\_synth.py}, \texttt{groups.py},
 \texttt{run\_synth\_3to2.py} and the
 \texttt{build\_table} drivers.
 
-\emph{Reduction by symmetry.} Relabelling wires is free in an
+Reduction by symmetry: Relabeling wires is free in an
 and-inverter circuit: permuting inputs is rewiring, negating an input
 or an output is an edge attribute, and for $m = 2$ swapping the two
 outputs renames which wire is which. So $X_j$ is constant on the orbits
-of the relabelling groups
+of the relabeling groups
 %
 \begin{equation}
   |G_{4,1}| = 4!\cdot 2^4\cdot 2 = 768,
@@ -8396,14 +8397,14 @@ of the relabelling groups
 \end{equation}
 %
 the first being the standard NPN group of logic synthesis \cite{knuth4a}.
-\texttt{groups.py} applies every group element to every truth table and
-keeps the numerically smallest image as the class representative, which
-collapses $65{,}536$ maps to $222$ classes at $(4,1)$ and $308$ at
-$(3,2)$. Exact synthesis then runs a few hundred times instead of
+In \texttt{groups.py} we apply every group element to every truth table
+and keep the numerically smallest image as the class representative,
+which collapses $65{,}536$ maps to $222$ classes at $(4,1)$ and $308$ at
+$(3,2)$. We then run exact synthesis a few hundred times instead of
 $65{,}536$.
 
-\emph{Exact synthesis as satisfiability.} For a fixed gate budget $r$,
-\texttt{aig\_synth.py} builds a formula that is satisfiable exactly when
+Exact synthesis as satisfiability: For a fixed gate budget $r$, in
+\texttt{aig\_synth.py} we build a formula that is satisfiable exactly when
 some $r$-gate and-inverter circuit computes the target. Three families
 of variables carry it. First $t_{s,\rho}$, the bit that signal $s$
 holds on truth-table row $\rho$, with signal $0$ the constant and
@@ -8411,14 +8412,14 @@ signals $1,\ldots,n$ the inputs, all pinned by unit clauses. Then a
 one-hot selector $\sigma_{g,a,b,\iota_a,\iota_b}$ saying that gate $g$
 draws its two fanins from \emph{earlier} signals $a \le b$, inverted
 according to $\iota$; restricting to earlier signals is what makes the
-circuit acyclic by construction, so no ordering constraints are needed.
+circuit acyclic by construction, so we need no ordering constraints.
 Last a one-hot selector $o_{k,s,\iota}$ naming which signal, at which
 polarity, carries output $k$. The AND semantics costs three clauses per
 gate, candidate and row, and the output constraint pins the chosen
-signal to the target column on every row. Two structural clauses tighten
-the search without excluding any minimum circuit: every gate must feed
-a later gate or an output, and no two gates may carry identical truth
-tables. Then
+signal to the target column on every row. We add two structural clauses
+that tighten the search without excluding any minimum circuit: every
+gate must feed a later gate or an output, and no two gates may carry
+identical truth tables. Then
 %
 \begin{equation}
   X_j \;=\; \min\{\, r \ge 0 \;:\; \text{the $r$-gate formula is
@@ -8426,23 +8427,23 @@ tables. Then
   \label{eq:aigmin}
 \end{equation}
 %
-searched by trying $r = 0, 1, 2, \ldots$ upward. The answer is a proven
-minimum rather than a best effort: every smaller budget was refuted by
-the solver, not merely left unfound. The back end is CaDiCaL \cite{cadical}
-through PySAT \cite{pysat}. Run as a script the synthesizer reproduces the textbook
-two-input values, AND, OR and NAND at $1$ and XOR at $3$.
+which we search by trying $r = 0, 1, 2, \ldots$ upward. We get a proven
+minimum rather than a best effort: the solver refuted every smaller
+budget, and did not merely fail to find one. We run CaDiCaL \cite{cadical}
+as the back end, through PySAT \cite{pysat}. Run as a script, the synthesizer
+reproduces the textbook two-input values, AND, OR and NAND at $1$ and
+XOR at $3$.
 
-\emph{Provenance.} At $(4,1)$ the class values are adopted from the
+Provenance: At $(4,1)$ we adopt the class values from the
 published reproducibility dataset \cite{krinkin} of the $222$ NPN
-classes, and
-\texttt{crosscheck.py} re-derives ten of them
+classes, and in \texttt{crosscheck.py} we re-derive ten of them
 at random with our own synthesizer, finding no mismatch. At $(3,2)$
-there is no reference table, so all $308$ classes were synthesized from
-scratch by \texttt{run\_synth\_3to2.py} over a process pool. The
+there is no reference table, so we synthesized all $308$ classes from
+scratch with \texttt{run\_synth\_3to2.py} over a process pool. The
 resulting ranges are $X \le 10$ at $(4,1)$ and $X \le 9$ at $(3,2)$,
-with the head counts tabulated in Subsection~\ref{sec:nandcomplexity}.
+and we tabulate the head counts in Subsection~\ref{sec:nandcomplexity}.
 
-\emph{Why the $(4,1)$ values are adopted rather than recomputed.} All
+Why we adopt the $(4,1)$ values rather than recompute them: All
 $222$ entries of \cite{krinkin} are proven optimal, the two hardest
 classes included: $\mathtt{0x1669}$ and $\mathtt{0x166b}$, at $10$
 gates each, which is the ceiling of the range. Our own synthesizer
@@ -8451,10 +8452,10 @@ $\mathtt{0x1669}$ it refutes $r = 5$ in under a second and $r = 7$ in
 half a minute, and does not settle $r = 9$ within fifteen: the instance
 grows steeply with the budget, since the selector family for gate $g$
 already carries $O\big((n+g)^2\big)$ candidates and its at-most-one
-encoding is quadratic in that. Hence the division of labour. The
-$(4,1)$ column is taken from the reference dataset and sampled against
+encoding is quadratic in that. Hence our division of labour. We take the
+$(4,1)$ column from the reference dataset and sample it against
 our own synthesizer, while the $(3,2)$ classes, being one input bit
-smaller and so a much smaller formula, are all synthesized here from
+smaller and so a much smaller formula, we synthesize here from
 scratch.
 
 \section{Symbols}\label{app:symbols}
