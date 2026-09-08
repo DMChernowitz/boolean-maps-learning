@@ -1,4 +1,0 @@
-{
-    "files.autoSave": "onFocusChange",
-    "latex-workshop.latex.autoBuild.run": "onSave"
-}
