@@ -489,7 +489,7 @@ with probability $P$ actually occurs, its surprisal is
 here $s = -\log_2 M_{a,q}$ for answer $a$ arriving at question $q$.
 Surprisal measures how much the received information deviates from
 what was already expected: an answer held certain ($P = 1$) carries
-$0$ bits: nothing new. A coin toss carries exactly $1$ bit; and
+$0$ bits: nothing new \cite{baldiitti10}. A coin toss carries exactly $1$ bit; and
 the surprisal grows without bound as the answer gets more unexpected,
 $P \to 0$. It is additive: the surprisal of two independent events
 occurring is the sum of their surprisals, just as their probabilities
@@ -1055,6 +1055,15 @@ their ratios. After four questions a single map remains. Interestingly, the firs
 \label{fig:cull}
 \end{center}
 \end{example}
+
+What an answer does to a learner admits more than one measure. Baldi and
+Itti score a such a datapoint by the relative entropy between the prior and the
+posterior it induces, rather than by how unexpected the datum
+was~\cite{baldiitti10}. Under the paradigm of this work, the elimination
+of exact maps, the two coincide. Likelihood is either $0$ or $1$. The posterior is the prior restricted to
+the survivors, each of them rescaled by the same $1/M_{a,q}$, so the
+relative entropy of the posterior from the prior is $-\log_2 M_{a,q}$.
+Surprisal is the measure of information received.
 
 \subsection{Entropy bookkeeping}
 
@@ -7265,7 +7274,7 @@ budgets $w_d$, and the slight difference between the two is the
 $2^{-\binom 4d}$ leakage into a degree from higher classes.
 \end{example}
 
-\section{Next steps}\label{sec:next}
+\section{Discussion and Next Steps}\label{sec:next}
 
 \subsection{Stochastic truth maps}
 
@@ -7284,6 +7293,20 @@ The profile inherits that: no class is ever finished, so $\gamma$ stays positive
 forever, as faith in individual answers grows asymptotically. The question
 is what becomes of the master law \eqref{eq:master} when its numerator
 can no longer reach zero.
+
+The denominator needs reconsidering as well. Under elimination the
+surprisal of an answer is also the relative entropy between prior and
+posterior, so one number both prices the answer and measures how much it shifted 
+the Bayesian belief. A soft likelihood (not $0$ or $1$) separates them, and this is exactly the
+distinction Baldi and Itti draw between actual informational content and
+surprise~\cite{baldiitti10}: a datapoint can carry a large $-\log_2 M_{a,q}$
+and barely disturb the belief, or be unremarkable and shift the posterior by a landslide.
+Leverage then has a choice of denominator, and the two choices are
+different theories. Pricing by surprisal keeps the accounting of
+Chapter~\ref{sec:general} and the telescoping identity
+\eqref{eq:telescope} with it; pricing by belief movement measures what the
+learner absorbed rather than what it paid, and gives up that identity.
+It would be interesting to research how to reconcile these methods.
 
 \subsection{A prior that is wrong}
 
@@ -7370,18 +7393,16 @@ protocol runs on a network during training, reading the predictive
 entropy off a held-out question set between updates. Tracking a
 learner's predictive entropy is established ground, and its
 sub-extensive part is already the standard measure of how much there
-was to learn~\cite{bnt01}; what leverage adds is the denominator, the
-price paid for the drop. The obstacle is
+was to learn~\cite{bnt01}. That work models learning as mutual information between
+past and future, in a statistical physics paradigm. It reproduces the de Finetti result
+for $o(Q)$ settling of the label. In our language, that would emerge as hyperbolic leverage. 
+Let us now apply these ideas to LLMs. Perhaps they store their correlations deeper.
+The obstacle is
 scale: $t = \ell/Q$ needs a question universe small enough to exhaust,
 or the whole experiment lives in the boundary layer at $t = 0^+$ and
 reports nothing about macroscopic learning. Nonetheless, we think the 
 TDL is the correct regime to understand neural networks, as the scale should be large
 enough to coarse-grain away the microscopic details of boolean maps.
-What one would look to match is
-the shape of the leverage. A hyperbola says the model's knowledge was a label settled
-in the first few answers; a curve that holds up across the run says it
-carried structure at macroscopic times, and its profile $\gamma$ might allow us to 
-infer the implied prior (up to some equivalence, unfortunately) that the model employs.
 
 \appendix
 
@@ -8520,6 +8541,12 @@ C.~E. Shannon,
 T.~M. Cover and J.~A. Thomas,
 \emph{Elements of Information Theory}, 2nd ed.,
 Wiley-Interscience, 2006.
+
+\bibitem{baldiitti10}
+P.~Baldi and L.~Itti,
+``Of bits and wows: a Bayesian theory of surprise with applications to
+attention'',
+\emph{Neural Networks} \textbf{23}(5), 649--666, 2010.
 
 \bibitem{merhav98}
 N.~Merhav and M.~Feder,
