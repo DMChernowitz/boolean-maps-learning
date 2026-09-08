@@ -3,6 +3,12 @@ which are pasted into leveraged_learning.tex rather than read at
 compile time.  Needs figures/data/rmlabel_n{n}.dat for the two
 increment curves; run rm_label_data.py first.
 
+Those three tables (rmlabel_n4, rmlabel_n8, rmlabel_n12) are the only
+files under figures/data that leveraged_learning.tex never opens, so an
+audit of the .tex will report them as unused.  They are not: this script
+reads them and emits tikz that is pasted into the source by hand.  Do not
+delete them.
+
 
 Bands are cut at the 1-F curve, so the shaded region is exactly the
 limiting object: height 1-F(t) = gamma(t), area to the left g(t).  The

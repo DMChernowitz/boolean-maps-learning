@@ -2608,7 +2608,7 @@ The expected leverage humps at $\ell = 2$ and lands on
 $2.925/2.707 = 1.081$. The realized run of
 Chapter~\ref{sec:general} scattered around this gentle
 expectation: greedy questioning and a lucky truth delivered
-$1.311$. Figure~\ref{fig:expected-stack} stacks the expected
+$1.311$. The figure below stacks the expected
 bits.
 
 \begin{center}
@@ -2652,15 +2652,13 @@ bits.
     {deduced $C_0 - \langle C_\ell \rangle$};
 \end{tikzpicture}
 \captionsetup{skip=8pt}
-\captionof{figure}{The expected run through the guiding example.
+\end{center}
 Conservation is now exact at every $\ell$: remaining plus received
 plus deduced reaches $H(M^{(0)})$, so the cake always tops out on the
 dashed line, and no overshoot is possible. The top layer is the
 expected withdrawal from the correlation store,
 $C_0 - \langle C_\ell \rangle$; it saturates at $C_0 = 0.218$
-already at $\ell = 3$.}
-\label{fig:expected-stack}
-\end{center}
+already at $\ell = 3$.
 \end{example}
 
 \subsection{Choosing the questions}\label{sec:strategies}
@@ -7420,7 +7418,8 @@ Subsection~\ref{sec:nandcomplexity} were obtained, the symmetry reduction
 and the satisfiability encoding that make a minimum over all circuits
 computable at all. Appendix~\ref{app:symbols} collects every symbol
 used in this work on one page, in the order the argument introduces
-them.
+them. Appendix~\ref{app:scripts} lists the scripts that produce the
+numbers and the curves.
 
 \section{More characteristics of the spike prior}\label{app:spike}
 
@@ -8528,6 +8527,78 @@ $\xi$ & the coin string that picks a map uniformly inside a class \\
 \caption{Every symbol used in this work, in the order the argument introduces it.}
 \label{tab:symbols}
 \end{table}
+
+\section{Scripts}\label{app:scripts}
+
+Numbers, curves, and combinatoric sets in this work are produced by the scripts
+below. They are hosted with the source, at
+\url{https://github.com/DMChernowitz/boolean-maps-learning}.
+
+
+\begin{table}[H]
+\begin{center}
+\small
+\begin{tabular}{@{}l p{10.3cm}@{}}
+\toprule
+script & what it does \\
+\midrule
+\texttt{tikz\_data.py} & Tabulates the spike-prior curves of
+  Appendix~\ref{app:spike}, the one-question anatomy, the branch leverages,
+  the extraction ratio and the sharp-prior flow, and the Bernstein basis of
+  Appendix~\ref{app:blockpriors}. \\
+\texttt{spike\_finite\_data.py} & Exact finite-$n$ leverage of the spike
+  prior from its closed block entropies. \\
+\texttt{rm\_gamma\_data.py} & Mean rank increment
+  $\gamma^{(d)}_{n,\ell}$ of one Reed-Muller class along a random question
+  order. \\
+\texttt{rm\_finite\_data.py} & Exact finite-$n$ leverage of the
+  polynomial-degree prior, for the three statistics of
+  Figure~\ref{fig:Fexamples}. \\
+\texttt{block\_finite\_data.py} & Exact finite-$n$ leverage of the clique,
+  parity and MDS block priors, through the hypergeometric increment
+  \eqref{eq:blockfinitegamma}. \\
+\addlinespace[5pt]
+\texttt{rm\_label\_data.py} & Splits the received entropy into the class
+  average and the label term $I_{n,\ell}$ of \eqref{eq:Gmix}. \\
+\texttt{rm\_carpet\_fig.py} & Draws the layered increments that
+  illustrate \eqref{eq:ungroup} in the limit, from those tables. \\
+\texttt{gibbs\_curves.py} & Expected leverage trajectories under the three
+  Gibbs settings, and the descriptor tables they are read from. \\
+\texttt{gibbs\_stack\_data.py} & The three-layer split of the table entropy
+  at every $\ell$, for the panels of Subsection~\ref{sec:gibbsbooks}. \\
+\addlinespace[5pt]
+\texttt{aig\_synth.py} & Exact minimum-size and-inverter synthesis as
+  satisfiability, one formula per gate budget. \\
+\texttt{groups.py} & Canonical representatives of the relabeling classes,
+  of order $768$ at $(4,1)$ and $384$ at $(3,2)$. \\
+\texttt{run\_synth\_3to2.py} & Runs the synthesizer over all $308$ classes
+  of the $(3,2)$ space on a process pool. \\
+\texttt{crosscheck.py} & Re-derives random classes of the published $(4,1)$
+  dataset with our own synthesizer. \\
+\texttt{build\_table\_4to1.py} & Assembles the $65{,}536$-row $(4,1)$ table
+  of complexity, footprint and bias. \\
+\texttt{build\_table\_3to2.py} & The same at $(3,2)$, where the complexity
+  is one joint circuit for both output bits. \\
+\texttt{build\_table\_3to1.py} & The same at $(3,1)$, which the checks below
+  use as a small test space. \\
+\addlinespace[5pt]
+\texttt{expected\_trajectory.py} & Checks the two exact laws, and the
+  expected run of the guiding example, by enumerating every question set. \\
+\texttt{walsh\_update.py} & Checks the correlator ledger and the two-term
+  update rule \eqref{eq:corr-update} at $m = 1$. \\
+\texttt{correlator\_shells.py} & The same at general $m$, on the $(3,2)$
+  space, against \eqref{eq:corr-update-m}. \\
+\texttt{spike\_flow.py} & Checks the two-state renormalization flow
+  \eqref{eq:spikeflow} and the invariant $P_k r_k = p$. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption{The scripts behind this work, grouped by role: the tables read at
+compile time, the figures generated and pasted in, the circuit-complexity
+pipeline of Appendix~\ref{app:aig}, and the checks.}
+\label{tab:scripts}
+\end{table}
+
 
 \begin{thebibliography}{99}
 
