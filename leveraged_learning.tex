@@ -983,7 +983,7 @@ surprisal, and its belief mass becomes the normalization. Every update shrinks t
 The total set of survivors depends on the set of asked questions, those that fell through the slits, not the order: updating commutes. This is illustrated in the example below.
 
 \begin{example}
-Figure~\ref{fig:cull} makes the process visual for $n = m = 2$: a
+The figure below makes the process visual for $n = m = 2$: a
 schematic prior $\{p_j\}$ over $N = 4^4 = 256$ maps, drawn as vertical
 lines with thickness representing weight. Each answer stops $3$ out of every $A=4$ surviving lines:
 maps whose truth tables carry a wrong digit at the asked question. Renormalization inflates the weight of the rest, so the total probability is always unit. Four questions cut
@@ -1064,17 +1064,15 @@ residue class of $j$, so the cadence of the survivors is regular.
   \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-4.9) {$4$};
   \node[fill=white, inner sep=1.5pt, font=\small] at (127.5,-6.3) {$1$};
 \end{tikzpicture}}
-\captionsetup{skip=8pt}
-\captionof{figure}{The update rule as a cull, for $n = m = 2$. All $256$
+\end{center}
+The update rule as a cull, for $n = m = 2$. All $256$
 candidate maps start as vertical lines under a schematic prior. The truth is
 the bitwise negation $\psi(q) = \lnot q$ ($j = 27$, ``0123'' base 4), and the four
 questions are asked in the order $00, 10, 01, 11$ (``0, 2, 1, 3'' base 4). Each answer terminates the
 $3/4$ of surviving maps whose truth-table digit at the asked question
 disagrees. Every survivor's thickness, proportional to its
 weight, is rescaled by the renormalization factor of that update, preserving
-their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the ``smallest'' question. After the three smallest $q$, even spacing returns.}
-\label{fig:cull}
-\end{center}
+their ratios. After four questions a single map remains. Interestingly, the first cull's survivors are evenly spaced because it's the ``smallest'' question. After the three smallest $q$, even spacing returns.
 \end{example}
 
 What an answer does to a learner admits more than one measure. Baldi and
@@ -1496,11 +1494,11 @@ In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
 tower $0$.
 \end{example}
 
-\begin{example}
+\begin{example}[label=ex:run21]
 Cumulatively: $2.925$ bits of table
 destroyed, all of it, for $2.231$ bits of
 surprisal received: $L_4 = 1.311$. Most of that was luck, not
-intelligence. Figure~\ref{fig:run21}
+intelligence. The figure below
 stacks the bits after each question: what uncertainty remains, plus what was
 received. Once it dips below the starting entropy, our prior has done net work. 
 
@@ -1536,7 +1534,8 @@ received. Once it dips below the starting entropy, our prior has done net work.
   \fill[orange!85] (5.4,1.55) rectangle (5.7,1.8);
   \node[right, font=\small] at (5.7,1.67) {received $\sum s$};
 \end{tikzpicture}
-\captionof{figure}{The realized run through the guiding example:
+\end{center}
+The realized run through the guiding example:
 remaining table entropy plus cumulative surprisal received, after
 each question, against the initial total (dashed). The gap between
 each stack and the line is the cumulative deduced part. At
@@ -1544,15 +1543,13 @@ $\ell = 1$ the stack tops out $0.521$ bits \emph{above} the
 line - the negative deduction of question 1, plainly visible. At
 $\ell = 2$ the stack still grazes the line from above ($0.013$ bits);
 only from $\ell = 3$ on do the stacks fall short of it, as genuine
-deduction overtakes the early loss.}
-\label{fig:run21}
-\end{center}
+deduction overtakes the early loss.
 \end{example}
 
 \subsection{Leverage}
 
 If the prior is good, meaning it actually models reality (the prevalence of maps),
-we expect graphs such as Figure~\ref{fig:run21} to drop as questions come in.
+we expect graphs such as the one in Example~\ref{ex:run21} to drop as questions come in.
 The ratio of table entropy destroyed per bit of
 surprisal received deserves a name.
 
@@ -1856,8 +1853,8 @@ the ledger.
   \node[rotate=90, gray, font=\scriptsize] at (10.1,2)
     {structure descends};
 \end{tikzpicture}
-\captionsetup{skip=8pt}
-\captionof{figure}{The update rule in the ledger, drawn for the
+\end{center}
+The update rule in the ledger, drawn for the
 guiding example's first question ($q = 11$). Every set is paired
 with the partner whose membership of $11$ is toggled (arrows);
 each pair is averaged with the answer's sign and renormalized,
@@ -1869,9 +1866,7 @@ into both of its members, and the net flow of structure is one
 shell down, toward $M$. The thin gray arrows from the
 asked $q$ to every other pill are a reminder that this sets the
 renormalization. The fill encodes each prior value to
-scale: darker is larger, orange is negative.}
-\label{fig:pairing}
-\end{center}
+scale: darker is larger, orange is negative.
 \end{example}
 
 Read formula~\eqref{eq:corr-update} by cases:
@@ -2046,8 +2041,8 @@ question $11$ carries independent knowledge anymore.
   \node[font=\tiny, below] at (0.830,-4.28) {$0.830$};
   \node[font=\tiny, below] at (1,-4.28) {$1$};
 \end{tikzpicture}
-\captionsetup{skip=8pt}
-\captionof{figure}{The update rule of
+\end{center}
+The update rule of
 equation~\eqref{eq:corr-update}, drawn for the guiding example's
 first update ($q = 11$, $a = 1$, so $(-1)^a = -1$ and toggled bit
 $1000$). One row per set $\mathcal S$. At $x = 2M_{a,q} = 1 + (-1)^a
@@ -2057,9 +2052,7 @@ contribution $(-1)^a \chi_{\mathcal S \triangle \{q\}}$ (orange), hanging
 from the level where the first bar ends. The two subscripts
 differ by the flipped bit. The ray from the origin through the
 waterfall's endpoint rescales it, by similar triangles, to
-$x = 1$, where its height is the updated correlator $\chi'_{\mathcal S}$.}
-\label{fig:update-rays}
-\end{center}
+$x = 1$, where its height is the updated correlator $\chi'_{\mathcal S}$.
 \end{example}
 
 As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
@@ -2250,15 +2243,16 @@ $A M_{11,110} = 0.8$. The pairs of the $m = 1$ figure become
   \node[font=\tiny, gray, below, rotate=20] at (4.0,1.62)
     {renormalizes};
 \end{tikzpicture}
-\captionsetup{skip=8pt}
-\captionof{figure}{For $m = 2$, toggling any subset of the asked
+\end{center}
+For $m = 2$, toggling any subset of the asked
 block's two sites ties four correlators into a clique that
 averages jointly, per equation~\eqref{eq:corr-update-m}. The
 on-block quartet (orange hull) contains the normalization and the
 entire block of $M_{\cdot,110}$; its signed sum is the denominator
 that renormalizes every other quartet. Fills to scale for the
-sparse prior, as before.}
-\label{fig:quartets}
+sparse prior, as before.
+
+\begin{center}
 
 \begin{tikzpicture}[x=8cm, y=1.2cm]
   % \node[font=\small\itshape] at (0.5,0.55)
@@ -2334,17 +2328,15 @@ sparse prior, as before.}
   \node[font=\tiny, below] at (0.8,-3.91) {$0.8$};
   \node[font=\tiny, below] at (1,-3.91) {$1$};
 \end{tikzpicture}
-\captionsetup{skip=8pt}
-\captionof{figure}{The $m = 2$ update, three sets from the sparse
+\end{center}
+The $m = 2$ update, three sets from the sparse
 prior. The waterfall now has four segments: $\chi_{\mathcal S}$ (blue) and
 its three signed quartet partners, in toggle order $110_0$,
 $110_1$, both (light to dark orange). The ray from the origin
 rescales the endpoint from $x = A M_{a,q} = 0.8$ to $x = 1$.
 The asked site saturates to $-1$; the foreign site $011_0$ flips
 sign, $-0.060 \to +0.200$; and $\{011_0, 110_1\}$ lands on
-$-0.200$, the renormalized value $-\chi'_{\{011_0\}}$.}
-\label{fig:update-rays-m2}
-\end{center}
+$-0.200$, the renormalized value $-\chi'_{\{011_0\}}$.
 \end{example}
 
 \section{Expectations}\label{sec:expectations}
@@ -2650,22 +2642,29 @@ and all other terms are nonnegative, proving the lower bound.
 Averaging over the uniformly chosen sets and dividing by $G_\ell$
 preserves both inequalities. Independence attains the lower bound;
 a single nondegenerate random answer copied to every question attains
-the upper bound. The second is the prior that draws one answer
-$a \sim \nu$ and returns it to every question,
+the upper bound. For the second, let $\tau$ be a discrete probability
+distribution on the answer alphabet $\mathcal A$, with $\tau(a)$ the
+weight it puts on the answer $a$, and let the prior draw one
+$a \sim \tau$ and return that same $a$ to every question,
 %
 \begin{equation}
   p_j \;=\;
   \begin{cases}
-    \nu(a), & \phi_j \equiv a \ \text{ for some } a \in \mathcal A,\\
+    \tau(a), & \phi_j \equiv a \ \text{ for some } a \in \mathcal A,\\
     0, & \text{otherwise},
   \end{cases}
   \label{eq:cliqueQ}
 \end{equation}
 %
-for any $\nu$ on $\mathcal A$ that is not a point mass. Every nonempty
-block then carries $H(\psi(\mathcal S)) = H(\nu)$, so $G_\ell = H(\nu)$
-for all $\ell \ge 1$, the increment vanishes, and
-$\mathcal L_\ell = Q$ at every $\ell$. It is the clique block law of
+for any $\tau$ that is not a point mass. The support of $\tau$ fixes the
+support of $p$: the maps of positive weight are exactly the constant
+maps $\phi \equiv a$ with $\tau(a) > 0$, one apiece, and every
+non-constant map has $p_j = 0$. Every nonempty block then carries
+$H(\psi(\mathcal S)) = H(\tau)$, so $G_\ell = H(\tau)$ for all
+$\ell \ge 1$, the increment vanishes, and $\mathcal L_\ell = Q$ at
+every $\ell$. Werner knows the map is constant, so a single
+observation collapses all the uncertainty at once, as in
+Section~\ref{sec:intelligent}. It is the clique block law of
 Appendix~\ref{app:blockpriors} taken at full size, $r = Q$.
 
 Recall \eqref{eq:M-m} from the discussion on correlators,
@@ -4149,7 +4148,16 @@ equivalent.
 In general $\Lambda$ may spread over any collection of answer laws
 $\tau_1, \tau_2, \ldots$, finite, countable or a continuum, and the
 richer that collection the more there is to learn about which one was
-drawn. The spike prior is the simplest interesting case: $\Lambda$ is a discrete
+drawn.
+
+Such a $\tau$ has appeared once already, at \eqref{eq:cliqueQ}, but it 
+is used differently here. There, one draw from $\tau$
+was copied as the answer to every question, which in the present language is
+$\Lambda$ only sampling from such degenerate laws, carrying weight $\tau(a)$ on
+the law that answers $a$ with certainty: Perfect correlation of answers. Here, after drawing $\tau$ from $\Lambda$, each 
+answer is independent, the opposite.
+
+The spike prior is the simplest nontrivial such example: $\Lambda$ is a discrete
 distribution on two points. Let $\tau_0$ be the spike,
 and let $\tau_{>}$ be the uniform law, which allows answers $\neq 0^m$ as
 well. These distributions on $\mathcal A$ have probabilities
@@ -4864,11 +4872,10 @@ $j$ & map & $T$ & $\rho$ & polynomial & $\deg$ \\
 15 & TRUE & $(1,1,1,1)$ & $(0,0,0,1)$ & $1$ & $0$ \\
 \bottomrule
 \end{tabular}
-\captionof{table}{The guiding example in both bases: every map of
-Table~\ref{tab:sixteen} as a truth table $T$ and as a coefficient
-vector $\rho$, with its polynomial and its degree.}
-\label{tab:anf16}
 \end{center}
+The guiding example in both bases: every map of
+Table~\ref{tab:sixteen} as a truth table $T$ and as a coefficient
+vector $\rho$, with its polynomial and its degree.
 
 Read the table from both ends at once: $j$ and $15 - j$ are negations
 of each other, and their coefficient vectors differ in $\rho_\emptyset$
