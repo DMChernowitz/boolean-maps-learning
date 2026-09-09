@@ -2642,25 +2642,25 @@ and all other terms are nonnegative, proving the lower bound.
 Averaging over the uniformly chosen sets and dividing by $G_\ell$
 preserves both inequalities. Independence attains the lower bound;
 a single nondegenerate random answer copied to every question attains
-the upper bound. For the second, let $\tau$ be a discrete probability
-distribution on the answer alphabet $\mathcal A$, with $\tau(a)$ the
+the upper bound. For the second, let $\nu$ be a discrete probability
+distribution on the answer alphabet $\mathcal A$, with $\nu(a)$ the
 weight it puts on the answer $a$, and let the prior draw one
-$a \sim \tau$ and return that same $a$ to every question,
+$a \sim \nu$ and return that same $a$ to every question,
 %
 \begin{equation}
   p_j \;=\;
   \begin{cases}
-    \tau(a), & \phi_j \equiv a \ \text{ for some } a \in \mathcal A,\\
+    \nu(a), & \phi_j \equiv a \ \text{ for some } a \in \mathcal A,\\
     0, & \text{otherwise},
   \end{cases}
   \label{eq:cliqueQ}
 \end{equation}
 %
-for any $\tau$ that is not a point mass. The support of $\tau$ fixes the
+for any $\nu$ that is not a point mass. The support of $\nu$ fixes the
 support of $p$: the maps of positive weight are exactly the constant
-maps $\phi \equiv a$ with $\tau(a) > 0$, one apiece, and every
+maps $\phi \equiv a$ with $\nu(a) > 0$, one apiece, and every
 non-constant map has $p_j = 0$. Every nonempty block then carries
-$H(\psi(\mathcal S)) = H(\tau)$, so $G_\ell = H(\tau)$ for all
+$H(\psi(\mathcal S)) = H(\nu)$, so $G_\ell = H(\nu)$ for all
 $\ell \ge 1$, the increment vanishes, and $\mathcal L_\ell = Q$ at
 every $\ell$. Werner knows the map is constant, so a single
 observation collapses all the uncertainty at once, as in
@@ -4120,66 +4120,66 @@ dependent; all that is asked is that they be dependent
 
 De Finetti's theorem \cite{definetti37,hewittsavage} states that
 symmetric dependence, for sequences of unbounded length, is equivalent to a \emph{mixture of coins}. 
-Let $\tau$ be a distribution on the answer alphabet $\mathcal A$, an \textbf{answer law}, writing
-$\tau(a) = \Pr(a)$ for the weight it puts on the answer $a$. Let $\Lambda$
+Let $\nu$ be a distribution on the answer alphabet $\mathcal A$, an \textbf{answer law}, writing
+$\nu(a) = \Pr(a)$ for the weight it puts on the answer $a$. Let $\Lambda$
 be a distribution over such answer laws, the \textbf{directing
 measure}. Then for an exchangeable sequence there is exactly one
 $\Lambda$ with
 %
 \begin{equation}
   \Pr\big(\xi_1 = y_1, \ldots, \xi_k = y_k\big)
-  \;=\; \int \prod_{i=1}^{k} \tau(y_i)\; d\Lambda(\tau) ,
+  \;=\; \int \prod_{i=1}^{k} \nu(y_i)\; d\Lambda(\nu) ,
   \label{eq:definetti}
 \end{equation}
 %
 for every $k$ and every pattern. The RHS is executed as a
-two-stage experiment. Nature first draws one answer law $\tau$ from
+two-stage experiment. Nature first draws one answer law $\nu$ from
 $\Lambda$, once and for all, and then answers every question
-independently from that single $\tau$. Conditional on $\tau$ the answers
+independently from that single $\nu$. Conditional on $\nu$ the answers
 are independent; unconditionally they are correlated. The
-correlation is mediated by Werner considering each $\tau$ possible a priori.
+correlation is mediated by Werner considering each $\nu$ possible a priori.
 The theorem needs the sequence to extend to an infinite one, or
 equivalently the family of finite laws to be consistent as $Q$ grows;
 a finite exchangeable law taken in isolation need not be a mixture of
-independent draws of $\tau$. Sampling without replacement is the standard
+independent draws of $\nu$. Sampling without replacement is the standard
 counterexample. In the infinite set limit, sampling with and without replacement is 
 equivalent.
 
 In general $\Lambda$ may spread over any collection of answer laws
-$\tau_1, \tau_2, \ldots$, finite, countable or a continuum, and the
+$\nu_1, \nu_2, \ldots$, finite, countable or a continuum, and the
 richer that collection the more there is to learn about which one was
 drawn.
 
-Such a $\tau$ has appeared once already, at \eqref{eq:cliqueQ}, but it 
-is used differently here. There, one draw from $\tau$
+Such a $\nu$ has appeared once already, at \eqref{eq:cliqueQ}, but it 
+is used differently here. There, one draw from $\nu$
 was copied as the answer to every question, which in the present language is
-$\Lambda$ only sampling from such degenerate laws, carrying weight $\tau(a)$ on
-the law that answers $a$ with certainty: Perfect correlation of answers. Here, after drawing $\tau$ from $\Lambda$, each 
+$\Lambda$ only sampling from such degenerate laws, carrying weight $\nu(a)$ on
+the law that answers $a$ with certainty: Perfect correlation of answers. Here, after drawing $\nu$ from $\Lambda$, each 
 answer is independent, the opposite.
 
 The spike prior is the simplest nontrivial such example: $\Lambda$ is a discrete
-distribution on two points. Let $\tau_0$ be the spike,
-and let $\tau_{>}$ be the uniform law, which allows answers $\neq 0^m$ as
+distribution on two points. Let $\nu_0$ be the spike,
+and let $\nu_{>}$ be the uniform law, which allows answers $\neq 0^m$ as
 well. These distributions on $\mathcal A$ have probabilities
 \begin{equation}
-  \tau_0(a) = \delta_{a,0^m},\quad\quad
-  \tau_>(a) = u
+  \nu_0(a) = \delta_{a,0^m},\quad\quad
+  \nu_>(a) = u
 \end{equation}
 Then
 %
 \begin{equation}
   \Lambda \;=\;
-  \Big(p - \frac{1-p}{N-1}\Big)\, \delta_{\tau_0}
+  \Big(p - \frac{1-p}{N-1}\Big)\, \delta_{\nu_0}
   \;+\;
-  (1-p)\,\frac{N}{N-1}\, \delta_{\tau_{>}},
+  (1-p)\,\frac{N}{N-1}\, \delta_{\nu_{>}},
   \label{eq:spikedefinetti}
 \end{equation}
 %
-with $\delta_\tau$ the point mass at $\tau$, reproduces the spike
+with $\delta_\nu$ the point mass at $\nu$, reproduces the spike
 exactly. Substituting \eqref{eq:spikedefinetti} into
 \eqref{eq:definetti}, the confirming pattern $0^{mk}$ receives full
-weight from $\tau_0$ and $u^k$ from $\tau_{>}$, while every other
-pattern receives nothing from $\tau_0$ and $u^k$ from $\tau_{>}$:
+weight from $\nu_0$ and $u^k$ from $\nu_{>}$, while every other
+pattern receives nothing from $\nu_0$ and $u^k$ from $\nu_{>}$:
 %
 \begin{equation}
 \begin{aligned}
@@ -4194,10 +4194,10 @@ pattern receives nothing from $\tau_0$ and $u^k$ from $\tau_{>}$:
 \end{equation}
 %
 which are \eqref{eq:spikePk} and \eqref{eq:spikeUk} exactly. The
-prior on boolean maps comes back too. A map is answered by $\tau_0$ on all questions 
-only if it is $\phi_0$, and by $\tau_{>}$ with weight $u^Q = 1/N$ whatever its
+prior on boolean maps comes back too. A map is answered by $\nu_0$ on all questions 
+only if it is $\phi_0$, and by $\nu_{>}$ with weight $u^Q = 1/N$ whatever its
 truth table holds. We can find the prior probability of $\phi_0$ by reconstructing the probability
-of only receiving zero answers, through either $\tau$. Starting from \eqref{eq:definetti}, substituting \eqref{eq:spikedefinetti} at $k = Q$ returns
+of only receiving zero answers, through either $\nu$. Starting from \eqref{eq:definetti}, substituting \eqref{eq:spikedefinetti} at $k = Q$ returns
 \begin{equation}
   \Pr\big(\xi_1 = 0^m, \ldots, \xi_Q = 0^m\big)
   \;=\; \Big(p - \frac{1-p}{N-1}\Big) \cdot 1^Q + (1-p)\,\frac{N}{N-1} \cdot u^Q = p,
@@ -4207,17 +4207,17 @@ And the reader can convince themselves that the probabilities of every other map
 $p_j = \omega$. Together, these reproduce \eqref{eq:spikeprior}. 
 
 Why is the leverage a hyperbola? All the prior knows is which of the
-two answer laws $\tau$ was drawn, and that is settled within $o(Q)$ questions. Afterwards, every remaining answer is an independent draw from a known law
-and costs the same $\mathbb E_\Lambda[H(\tau)] \to (1-p)m$ bits of surprisal, so the
+two answer laws $\nu$ was drawn, and that is settled within $o(Q)$ questions. Afterwards, every remaining answer is an independent draw from a known law
+and costs the same $\mathbb E_\Lambda[H(\nu)] \to (1-p)m$ bits of surprisal, so the
 profile $\gamma$ is flat on $(0,1)$ and \eqref{eq:master} has no
 freedom left but a $1/t$ curve. The coefficient can be read off as
 well. Since
 %
 \begin{equation}
   \eta_0 - (1-p)m
-  \;=\; H\big(\mathbb E_\Lambda\, \tau\big)
-      - \mathbb E_\Lambda\big[H(\tau)\big]
-  \;=\; I\big(\tau \,;\, \xi_1\big),
+  \;=\; H\big(\mathbb E_\Lambda\, \nu\big)
+      - \mathbb E_\Lambda\big[H(\nu)\big]
+  \;=\; I\big(\nu \,;\, \xi_1\big),
   \label{eq:spikejensen}
 \end{equation}
 %
@@ -8082,13 +8082,13 @@ are thus endpoints of a larger family.
 Subsection~\ref{sec:spikedefinetti} read the spike prior as a mixture over
 two answer laws. Nothing there forced the number to be two, and the
 whole exchangeable family is worth seeing before it is left behind.
-Let $\Lambda$ be any distribution over answer laws $\tau$ on
+Let $\Lambda$ be any distribution over answer laws $\nu$ on
 $\mathcal A$. Reading \eqref{eq:definetti} at $k = Q$, the prior it
 induces on maps is
 %
 \begin{equation}
-  p_j \;=\; \int \prod_{q \in \mathcal Q} \tau\big(\phi_j(q)\big)\;
-  d\Lambda(\tau),
+  p_j \;=\; \int \prod_{q \in \mathcal Q} \nu\big(\phi_j(q)\big)\;
+  d\Lambda(\nu),
   \label{eq:definettiprior}
 \end{equation}
 %
@@ -8107,12 +8107,12 @@ of $A^k$ block probabilities, each a moment of $\Lambda$, and the limit
 closes in form:
 %
 \begin{equation}
-  \gamma(t) \;\equiv\; \mathbb E_\Lambda\big[H(\tau)\big],
+  \gamma(t) \;\equiv\; \mathbb E_\Lambda\big[H(\nu)\big],
   \qquad
-  \eta_0 \;=\; H\big(\mathbb E_\Lambda\, \tau\big),
+  \eta_0 \;=\; H\big(\mathbb E_\Lambda\, \nu\big),
   \qquad
-  L(t) \;=\; 1 + \frac{I(\tau\,;\,\xi_1)}
-                      {\mathbb E_\Lambda\big[H(\tau)\big]\; t},
+  L(t) \;=\; 1 + \frac{I(\nu\,;\,\xi_1)}
+                      {\mathbb E_\Lambda\big[H(\nu)\big]\; t},
   \label{eq:definettilimit}
 \end{equation}
 %
@@ -8122,7 +8122,7 @@ biases, for instance. The prior is then
 $p_j = \big((Q+1)\binom{Q}{|j|}\big)^{-1}$, with $|j|$ the number of
 ones in the truth table, positive on every one of the $N$ maps, and
 $\eta_0 = 1$ against
-$\mathbb E_\Lambda[H(\tau)] = \int_0^1 h_2 = 1/(2\ln 2)$ gives
+$\mathbb E_\Lambda[H(\nu)] = \int_0^1 h_2 = 1/(2\ln 2)$ gives
 %
 \begin{equation}
   L(t) \;=\; 1 + \frac{2\ln 2 - 1}{t} \;=\; 1 + \frac{0.3863}{t}
@@ -8410,8 +8410,8 @@ played in Chapter~\ref{sec:shapeprior}.
 \begin{example}
 Cliques at $(n,m) = (2,1)$: partition the four questions by their
 high bit, $\mathcal V_1 = \{00, 01\}$ and
-$\mathcal V_2 = \{10, 11\}$, with $\nu_1 = (0.8, 0.2)$ and
-$\nu_2 = (0.55, 0.45)$ on the answers $(0,1)$. A supported map must
+$\mathcal V_2 = \{10, 11\}$, with $\nu_{\mathcal V_1} = (0.8, 0.2)$ and
+$\nu_{\mathcal V_2} = (0.55, 0.45)$ on the answers $(0,1)$. A supported map must
 be constant on both blocks, so it can depend only on $b_1$: of the
 sixteen maps of Table~\ref{tab:sixteen}, only FALSE ($j = 0$),
 $\lnot b_1$ ($j = 3$), $b_1$ ($j = 12$) and TRUE ($j = 15$) survive,
@@ -8694,7 +8694,8 @@ scratch.
 \toprule
 $n$ & number of bits in a question \\
 $m$ & number of bits in an answer \\
-$q$, $a$ & one question and one answer \\
+$q \in \mathcal{Q}$ & set of all questions \\ 
+$a \in \mathcal {A}$ & set of all answers \\
 $Q = 2^n$ & how many distinct questions exist, the width of $M$ \\
 $A = 2^m$ & how many answers any one question admits \\
 $N = A^Q$ & how many candidate maps exist, the size of the hypothesis space \\
@@ -8708,10 +8709,10 @@ $H(p)$ & entropy of the belief itself, over the $N$ maps \\
 $C$ & correlation store $H(M) - H(p)$, knowledge no single column sees \\
 $\chi_{\mathcal S}$ & correlator: the mean parity of the answers on a set of sites \\
 \addlinespace[5pt]
-$\mathcal S$ & the set of questions asked so far \\
+$\mathcal V \subseteq \mathcal S$ & subset and set of questions asked so far \\
 $\ell$ & how many have been asked, $|\mathcal S|$ \\
 $y$ & the pattern of answers received on $\mathcal S$ \\
-$s_k$ & surprisal of round $k$, minus the log of the probability that answer had \\
+$s_k$ & surprisal of round $k$. Negative log of the probability of the answer \\
 $L_\ell$ & leverage: table entropy destroyed per bit of surprisal received \\
 $\mathcal L_\ell$ & ratio of expected table-entropy reduction to expected surprisal \\
 $\eta_n(v)$ & fresh-answer entropy at independent reveal probability $v$ \\
@@ -8722,19 +8723,21 @@ $t = \ell/Q$ & macroscopic time, the fraction of the table already asked \\
 $\gamma(t)$ & the profile: the increment's limit, entropy of a fresh answer at $t$ \\
 $g(t)$ & $\int_0^t\gamma$, the surprisal received per question by time $t$ \\
 $\eta_0$ & marginal entropy of one answer before anything has been asked \\
+$\nu$ & an answer law: a discrete distribution on the alphabet $\mathcal A$ \\
+$\Lambda$ & the directing measure: a distribution over answer laws $\nu$ \\
 \addlinespace[5pt]
-$F$, $R$ & the statistic: a law on $[0,1]$ and the value drawn from it \\
+$F$, $R$ & the statistic: a CDF probability law on $[0,1]$ and the value drawn from it \\
 $D$ & the complexity class that draw selects \\
 $w_d$ & prior weight of class $d$, the $F$-measure of its rate gap \\
 $K_d$ & dimension of class $d$, the number of monomials of degree $\le d$ \\
 $R_{n,d}$ & rate of class $d$, its dimension per question $K_d/Q$ \\
 $\rho_{\mathcal B}$ & coefficient of the monomial $\mathcal B$ in a map's polynomial \\
 $\Omega$ & generator matrix: a class's monomials evaluated at every question \\
-$\xi$ & the coin string that picks a map uniformly inside a class \\
+$\xi$ & string of random bits, from a coin ($m=1$) or sampled from $\mathcal A$. \\
 \bottomrule
 \end{tabular}
 \end{center}
-\caption{Every symbol used in this work, in the order the argument introduces it.}
+\caption{Most important symbols used in this work, in the order the argument introduces it.}
 \label{tab:symbols}
 \end{table}
 
