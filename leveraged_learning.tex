@@ -213,7 +213,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}[theorem]{Definition}
 
-\title{Leveraged Learning}
+\title{Leveraged Learning: entropy destroyed per bit received.}
 \author{Daniel Chernowitz}
 \date{\today}
 
@@ -240,8 +240,12 @@ question. One answer settles expectations on any number of yet unseen questions.
 \end{enumerate}
 %
 \begin{equation}
-  \text{Leverage of Yes/No} = \frac{\text{Learned} > 1 \text{ bit}}{\text{Received} < 1 \text{ bit}} > 1.
+  \text{Leverage of Yes/No} = \frac{\text{Expected predictive gain}}{\text{Expected surprisal received}}.
 \end{equation}
+
+The expected surprisal of a yes--no answer is its entropy: at most $1$ bit. Its
+expected predictive gain can exceed $1$ bit through deductions about
+other questions. We model successful learning as this ratio being high.
 
 \stdsection*{Summary of results}
 
@@ -254,7 +258,7 @@ the surprisal of each answer, vs the remaining entropy over all $Q$ questions.
 \item \textbf{The answer matrix.} What the prior belief \emph{predicts} at any point in the 
 learning process is the answer matrix, one column per question, holding the total weight
 of the maps that would answer $a$ to $q$. Its column entropies added
-are everything there is left to learn,
+measure the total remaining predictive uncertainty under separate logarithmic scoring,
 %
 \[
   M_{a,q} \;=\; \sum_{j\,:\,\phi_j(q) = a} p_j,
@@ -274,7 +278,7 @@ Let us have seen $\ell$ questions. The ratio of total reduced uncertainty to sur
 \]
 %
 $L = 1$ is what we expect from a uniform prior, one bit destroyed per bit paid.
-Anything above it is deduction: knowledge inferred from a good prior instinct.
+An individual run can exceed this baseline through luck. But ifthe excess is \emph{expected}: that is due deduction from good prior instinct.
 
 \item \textbf{The finite average.} Average over the truth $\psi \sim p_j$ and uniformly 
 over the order in which questions arrive. 
@@ -283,10 +287,12 @@ single sequence, the mean entropy $G_\ell$ of the answers to $\ell$
 questions,
 %
 \[
-  \langle L_\ell\rangle
+  \mathcal L_\ell
   \;=\; \frac{Q\,G_1 - (Q-\ell)\big(G_{\ell+1} - G_\ell\big)}{G_\ell} .
 \]
 %
+Here $\mathcal L_\ell$ divides expected predictive gain by expected
+surprisal. Anything above $1$ in this $\mathcal L_\ell$ is deduction.
 Received surprisal averages to $G_\ell$, and what remains is $Q-\ell$ copies of one
 \textbf{increment}. This is exact at every size and for every prior, with no
 assumption about where the belief came from. The sequence is a combinatoric function 
@@ -656,15 +662,30 @@ recipe:
 \end{equation}
 fair coins in every column, for every value of $p$.
 
-How much is there to learn, in total? We account for the table as a
-whole by declaring entropy \emph{extensive} over the columns. That is, the
-answer-uncertainties of the columns simply add:
+How much is there to learn? We measure that by the predictive uncertainty that remains in total. Suppose Werner
+predicts each answer separately and is scored by logarithmic loss:
+when $a=\psi(q)$ is revealed, his loss is $-\log_2 M_{a,q}$.
+Under his own belief, the expected loss on question $q$ is the entropy
+of its column. Adding the scores over the questions (extensivity) therefore gives
+the table entropy, 
 \begin{equation}\label{eq:HM}
   H(M) \;:=\; \sum_{q} H\big(M_{\cdot,q}\big),
   \qquad
   H\big(M_{\cdot,q}\big) \;:=\; -\sum_{a} M_{a,q}\,\log_2 M_{a,q}.
 \end{equation}
-Here both columns are fair coins carrying $1$ bit each, so the table
+This is an operational choice: $H(M)$ is the aggregate Bayes
+prediction risk under logarithmic loss~\cite{covthomas}. A prediction
+risk is the expected loss of a stated prediction under a fixed scoring
+rule, and it is a Bayes risk when the prediction stated is the one that
+minimizes that expectation. Under logarithmic loss the minimizer is
+Werner's own column $M_{\cdot,q}$, and the value it attains is that
+column's entropy, which is why the two coincide here. It scores
+answers separately, even when they are correlated.
+One observation can improve many separate predictions at once.
+ Identifying the
+whole map is a different task, whose uncertainty is its joint entropy. 
+This may never happen. There is a practical argument to measuring the full uncertainty as it stands.
+In the present example, both columns are fair coins carrying $1$ bit each, so the table
 starts at its maximum: $H(M) = 2$ bits.
 
 Now let us ask a question. Again we could use $q = 0$; by the
@@ -734,9 +755,9 @@ entropy of the table is now
 \end{equation}
 a reduction of $2 - h_2(p)$ bits, purchased with a single bit of
 surprisal. Define the \textbf{leverage} after one question as the
-ratio of table entropy destroyed to surprisal received:
+ratio of expected table entropy destroyed to expected surprisal received:
 \begin{equation}
-  L_1 \;:=\; \frac{2 - h_2(p)}{1} \;=\; 2 - h_2(p) \;\in\; [1, 2].
+  \mathcal L_1 \;:=\; \frac{2 - h_2(p)}{1} \;=\; 2 - h_2(p) \;\in\; [1, 2].
 \end{equation}
 The expected surprisal on the second question is, once more, the
 entropy of its column,
@@ -744,22 +765,22 @@ entropy of its column,
   \langle s_2 \rangle \;=\; h_2(p) \;\leq\; 1 \text{ bit},
 \end{equation}
 after which the table is empty. Cumulatively over the two questions,
-$1 + h_2(p)$ bits of received information reduced the table by the
+$1 + h_2(p)$ expected bits of received information reduced the table by the
 full $2$ bits it started with, so the \textbf{cumulative leverage}
 after two questions is
 \begin{equation}
-  L_2 \;:=\; \frac{2}{1 + h_2(p)} \;\in\; [1, 2].
+  \mathcal L_2 \;:=\; \frac{2}{1 + h_2(p)} \;\in\; [1, 2].
 \end{equation}
 Our knowledge about the world has allowed us to be more certain
 after our inference. Set
 $p = \tfrac12$, and the prior is the uniform one of
-Section~\ref{sec:unintelligent}: $h_2 = 1$, $L_1 = L_2 = 1$, and nothing is
+Section~\ref{sec:unintelligent}: $h_2 = 1$, $\mathcal L_1 = \mathcal L_2 = 1$, and nothing is
 leveraged at all. As $p$ skews further from $\tfrac12$, the first question unlocks more. The
 second question carries less and less expected information, and Werner's
 potential for learning from it goes down with it. The column it could clean up is nearly settled already. In the limit $p = 0$, we recover the non-constant
 world from the start of Section~\ref{sec:intelligent}. There is no
 surprisal and no improvement to $M$ left in the second question at
-all: it contributes nothing to denominator or numerator, and $L_1 = L_2$. Figure~\ref{fig:oneparam} traces all three curves
+all: it contributes nothing to denominator or numerator, and $\mathcal L_1 = \mathcal L_2$. Figure~\ref{fig:oneparam} traces all three curves
 between these extremes.
 
 \begin{figure}[H]
@@ -791,22 +812,22 @@ between these extremes.
   legend cell align=left]
   \addplot[red!80!black, thick, smooth, domain=0.001:0.999, samples=201]
     { 2 - hh(x) };
-  \addlegendentry{$L_1 = 2 - h_2(p)$}
+  \addlegendentry{$\mathcal L_1 = 2 - h_2(p)$}
   \addplot[green!55!black, thick, smooth, domain=0.001:0.999, samples=201]
     { 2/(1 + hh(x)) };
-  \addlegendentry{$L_2 = 2/(1+h_2(p))$}
+  \addlegendentry{$\mathcal L_2 = 2/(1+h_2(p))$}
 \end{axis}
 \end{tikzpicture}
 \caption{The one-parameter world as a function of the constant-map
 probability $p$. Left: the table entropy $h_2(p)$ remaining after one
-question, in bits. Right: the one-question leverage $L_1$ and the
-cumulative leverage $L_2$ after both questions. At $p = \tfrac12$
+question, in bits. Right: the one-question leverage $\mathcal L_1$ and the
+cumulative leverage $\mathcal L_2$ after both questions. At $p = \tfrac12$
 (the uniform prior) nothing is leveraged; toward the
 deterministic-class extremes the first answer doubles its value.}
 \label{fig:oneparam}
 \end{figure}
 
-In general, in a larger world, if there are $d$ questions to disagree on between the two maps, the reader can convince themselves that the limit as $p \to 1$ is $L_1=d$. 
+In general, in a larger world, if there are $d$ questions to disagree on between the two maps, the reader can convince themselves that the limit as $p \to 1$ is $\mathcal L_1=d$. 
 
 \section{The general case}\label{sec:general}
 
@@ -1067,8 +1088,8 @@ Surprisal is the measure of information received.
 
 \subsection{Entropy bookkeeping}
 
-The total entropy of the table is extensive over the columns, exactly
-as in equation~\eqref{eq:HM}:
+The extensive predictive entropy of the table adds the total logarithmic
+prediction risks of its columns, exactly as in equation~\eqref{eq:HM}:
 \begin{equation}\label{eq:HM-general}
   H(M) \;=\; \sum_{q \in \mathcal Q} H\big(M_{\cdot,q}\big)
   \;=\; -\sum_{q \in \mathcal Q} \sum_{a \in \mathcal A} M_{a,q} \log_2 M_{a,q}
@@ -1096,22 +1117,41 @@ Why is $C>0$? The answers jointly determine the map, so $H(p)$ is the
 \emph{joint} entropy of all $Q$ answers, while $H(M)$ sums their
 \emph{marginal} entropies and a joint entropy never exceeds the
 sum of its marginals. Hence $H(p) \leq H(M)$, and the gap $C$, the
-\textbf{total correlation} of the answers, is nonnegative: knowledge
+\textbf{total correlation} of the answers~\cite{watanabe60}, is nonnegative: knowledge
 stored in correlations \emph{between} answers, invisible to every
 single column of $M$.
 
-We choose this convention for $H(M)$ because \emph{in the ignorant case}
+The same scoring interpretation holds through observation updates. Let
+$\mathcal S$ be the questions already asked and $y=\psi(\mathcal S)$
+the string of answers seen. The current table has
+$M_{a',q'}=\Pr(\psi(q')=a'\mid\psi(\mathcal S)=y)$. Its expected
+total logarithmic loss is
+\begin{equation}\label{eq:HM-logloss}
+  \mathbb E\!\left[
+    \sum_{q'\in\mathcal Q}-\log_2 M_{\psi(q'),q'}
+    \,\middle|\,\psi(\mathcal S)=y\right]
+  =\sum_{q'\in\mathcal Q}H\big(\psi(q')\mid\psi(\mathcal S)=y\big)
+  =H(M).
+\end{equation}
+Already answered columns contribute zero. Thus $H(M)$ measures the
+remaining risk of separate predictions, while $H(p)$ measures the
+remaining uncertainty about the map as a whole. 
+Notably, \emph{in the independent case}, of which the ignorant case is an example,
 \begin{enumerate}
   \item $H(M)$ is the total amount of information we must collect from questions to settle the map.
-  \item $H(M) = H(p)$, so the ignorance agrees in both bases, without correlations.
+  \item $H(M) = H(p)$, so the entropy equals the risk, without correlations.
 \end{enumerate}
-Therefore, the scaling is sensible. How these quantities respond to an \emph{intelligent} prior is the main question of this work.
+This equality pins the scaling. How these quantities respond to an \emph{intelligent} prior is the main question of this work.
+
+Their agreement in
+the uniform-prior case is a consequence of independence; correlations
+are what allow one answer to improve several predictions.
 
 \subsection{Playing the guiding example}
 
 Let us watch these ledgers in motion by playing the guiding example
 through all four questions. Werner can compute two forecasts for
-every unasked question, in advance, from $M$ alone: the expected
+every unasked question, in advance, from his current belief: the expected
 surprisal $\langle s \rangle$, which by
 equation~\eqref{eq:surprisal-entropy} is the entropy of that
 question's column, and the expected drop
@@ -1129,7 +1169,34 @@ where $M^{(q,a)}$ is the table after the update
 rule~\eqref{eq:update} processes answer $a$ to question $q$. We know the entropy of column $q$ will drop to zero, ditching $\langle s \rangle(q)$ entropy from $M$. But other columns will also respond.
 The excess of the second over the first is
 the expected transfer to unasked columns, and it can only be paid out
-of correlations. We append both forecasts as extra rows under $M$.
+of correlations.
+
+This transfer has a direct expression in mutual information. Work
+at the current posterior, after the already-seen string
+$y=\psi(\mathcal S)$, and consider asking $q\notin\mathcal S$ next,
+with answer $a=\psi(q)$. For any other question $q'$, averaging its
+entropy drop over the possible $a$ gives
+\begin{equation}\label{eq:column-mutual-gain}
+\begin{aligned}
+ &H\big(\psi(q')\mid\psi(\mathcal S)=y\big)
+ -\sum_a M_{a,q}\,
+   H\big(\psi(q')\mid\psi(\mathcal S)=y,\psi(q)=a\big)\\
+ &\hspace{2cm}=I\big(\psi(q');\psi(q)\mid\psi(\mathcal S)=y\big).
+\end{aligned}
+\end{equation}
+The asked column loses its whole entropy, so summing gives
+\begin{equation}\label{eq:mutual-gain}
+  \langle\Delta H(M)\rangle(q)
+  =H(M_{\cdot,q})+
+   \sum_{q'\ne q}I\big(\psi(q');\psi(q)\mid\psi(\mathcal S)=y\big).
+\end{equation}
+The first term is the expected surprisal received; each term in the
+sum is the expected improvement on another question. Their sum is
+the expected withdrawal from the correlation store. The surprisal
+forecast needs $M$ alone, but the improvement forecast also needs
+the pairwise joint laws of the asked answer and the other answers.
+Two priors with the same $M$ can therefore give different forecasts
+of improvement. We append both forecasts as extra rows under $M$.
 
 \begin{example}
 
@@ -1218,8 +1285,8 @@ The ledger:
 \]
 Werner received $1.269$ bits but destroyed only $0.748$ bits of table.
 Correlations point the right way only on average, not on every draw. In this case, Werner got the much less informative branch, and paid the premium price for it.
-The destroyed-per-received ratio of this round is $0.589$: well below
-$1$, anti-leverage.
+The destroyed-per-received ratio of this round is $L_1 = 0.589$: well
+below $1$, anti-leverage.
 \end{example}
 
 Question 1 is a reminder that the forecast rows are
@@ -1290,7 +1357,7 @@ the extra $0.509$ come from? Partly from the favored answer arriving
 - the belief dropped $1.058$ against only $0.604$ paid - and
 partly from the store: $C$ fell by $0.055$.
 Step ratio $1.842$. Cumulatively, however, $1.860$ destroyed per $1.873$
-received gives a leverage of $0.993$ after 2 steps: still a hair
+received gives $L_2 = 0.993$: still a hair
 below $1$. Even a strong second round has not quite repaid the
 expensive shock of question 1.
 \end{example}
@@ -1364,13 +1431,13 @@ The ledger:
   H(p)\colon 1.035 \to 0.264, \qquad
   C\colon 0.030 \to 0.
 \]
-Again a bargain: $0.801$ destroyed for a mere $0.292$ received, and the
-cumulative ratio finally clears unity, at $1.229$. And note that $C$
+Again a bargain: $0.801$ destroyed for a mere $0.292$ received, and
+$L_3 = 1.229$ finally clears unity. And note that $C$
 has dropped to zero.
 \end{example}
 
 $C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. 
-Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = 2^{m+n}$. Expressing $M$ as a linear combination of maps drops knowledge.
+Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = Q(A-1)$. Expressing $M$ as a linear combination of maps drops knowledge.
 That's not the case once learning has reduced the number of free parameters to one each.
 
 \begin{example}
@@ -1432,8 +1499,8 @@ tower $0$.
 \begin{example}
 Cumulatively: $2.925$ bits of table
 destroyed, all of it, for $2.231$ bits of
-surprisal received: a run ratio of $1.311$. Most of the
-realized $1.311$ was luck, not intelligence. Figure~\ref{fig:run21}
+surprisal received: $L_4 = 1.311$. Most of that was luck, not
+intelligence. Figure~\ref{fig:run21}
 stacks the bits after each question: what uncertainty remains, plus what was
 received. Once it dips below the starting entropy, our prior has done net work. 
 
@@ -1504,8 +1571,11 @@ per bit of surprisal received:
 \end{equation}
 A leverage of $1$ is the uniform-prior baseline: every bit of table
 entropy destroyed was paid for at face value, one bit of surprisal
-each. Anything above $1$ is deduction: table entropy removed
-without ever being observed.
+each. On an individual run, leverage above $1$ can also come from
+windfall, as the guiding example showed. The aggregate quantity
+$\mathcal L_\ell$ defined in Chapter~\ref{sec:expectations} removes
+that windfall in expectation: anything above $1$ in this
+$\mathcal L_\ell$ is deduction.
 
 \subsection{Correlators}\label{sec:correlators}
 
@@ -2290,14 +2360,18 @@ Let $\langle \ldots\rangle$ denote expectation over both
   \item uniformly over the question order $\{q_k\}$.
 \end{itemize}
 We take the ratio of
-the expected entropy cleared from the table $M$ to the surprisal received:
+the expected entropy cleared from the table $M$ to the expected surprisal received:
 \begin{equation}\label{eq:Lk-avg}
-  \langle L_\ell \rangle \;:=\;
+  \mathcal L_\ell \;:=\;
   \frac{H\big(M^{(0)}\big) - \big\langle  H\big(M^{(\ell)}\big) \big\rangle}
        {\big\langle \sum_{k=1}^{\ell} s_k \big\rangle}\;.
 \end{equation}
 %
-We did this implicitly in
+The calligraphic $\mathcal L_\ell$ denotes this ratio of expectations,
+and not the expectation of the individual-run ratio $L_\ell$. The two
+are different quantities: averaging the ratio lets a lucky run with a
+vanishing denominator dominate, while averaging numerator and
+denominator separately does not. We already used this aggregate quantity in
 Subsection~\ref{sec:oneparam}. There, the problem was actually symmetric in $q_0 \leftrightarrow q_1$. That is not the case in general.
 
 As stated above, in order to progress, we will be interested in such averages. Both
@@ -2525,7 +2599,7 @@ the leverage.
 
 Putting together \eqref{eq:HM0}, \eqref{eq:law-received}, and \eqref{eq:law-remaining}, equation~\eqref{eq:Lk-avg} becomes
 \begin{equation}\label{eq:Lk-G}
-  \langle L_\ell \rangle \;=\;
+  \mathcal L_\ell \;=\;
   \frac{Q\,G_1 - (Q - \ell)\big(G_{\ell+1} - G_\ell\big)}
        {G_\ell}\;,
   \qquad 1 \le \ell \le Q,
@@ -2548,14 +2622,51 @@ Some observations.
     $\langle C_{Q - 1} \rangle = 0$. The store is empty before
     the last question, which can only be observed, never
     leveraged.
-  \item $\langle L_\ell \rangle \geq 1$ always, but it need not be
+  \item $\mathcal L_\ell \geq 1$ always, but it need not be
     monotone. The endpoint is forced:
-    $\langle L_{Q} \rangle = H(M^{(0)}) / H(p) = 1 + C_0/H(p)$, the
-    run ratio quoted in Chapter~\ref{sec:general}. This is also
-    why equation~\eqref{eq:Lk-avg} is a ratio of expectations: the
-    expectation of the ratio is dominated by lucky runs with
-    vanishing denominators.
+    $\mathcal L_{Q} = H(M^{(0)}) / H(p) = 1 + C_0/H(p)$, the
+    aggregate completion ratio.
 \end{itemize}
+
+There is a broader baseline than uniformity: any product prior over
+the answers gives $\mathcal L_\ell=1$, whenever the denominator is
+positive. Its columns may be biased, but observing one cannot improve
+another, so expected predictive gain equals expected surprisal.
+
+More generally, the finite aggregate leverage satisfies the sharp bounds
+\begin{equation}\label{eq:leverage-bounds}
+  1\leq\mathcal L_\ell\leq Q,\qquad G_\ell>0.
+\end{equation}
+For a fixed asked set $\mathcal S$, averaging over its answer string
+$y$ gives the total predictive gain
+\[
+  H(M^{(0)})-\mathbb E_y H(M^{(\mathcal S,y)})
+  =\sum_{q\in\mathcal Q}I\big(\psi(q);\psi(\mathcal S)\big).
+\]
+Each term is at most $H(\psi(\mathcal S))$, proving the upper bound.
+The terms with $q\in\mathcal S$ sum to
+$\sum_{q\in\mathcal S}H(\psi(q))\geq H(\psi(\mathcal S))$,
+and all other terms are nonnegative, proving the lower bound.
+Averaging over the uniformly chosen sets and dividing by $G_\ell$
+preserves both inequalities. Independence attains the lower bound;
+a single nondegenerate random answer copied to every question attains
+the upper bound. The second is the prior that draws one answer
+$a \sim \nu$ and returns it to every question,
+%
+\begin{equation}
+  p_j \;=\;
+  \begin{cases}
+    \nu(a), & \phi_j \equiv a \ \text{ for some } a \in \mathcal A,\\
+    0, & \text{otherwise},
+  \end{cases}
+  \label{eq:cliqueQ}
+\end{equation}
+%
+for any $\nu$ on $\mathcal A$ that is not a point mass. Every nonempty
+block then carries $H(\psi(\mathcal S)) = H(\nu)$, so $G_\ell = H(\nu)$
+for all $\ell \ge 1$, the increment vanishes, and
+$\mathcal L_\ell = Q$ at every $\ell$. It is the clique block law of
+Appendix~\ref{app:blockpriors} taken at full size, $r = Q$.
 
 Recall \eqref{eq:M-m} from the discussion on correlators,
 Section~\ref{sec:correlators}. The joint law of the answers to any set
@@ -2595,7 +2706,7 @@ it into the expected run:
 $\ell$ & $G_\ell$
   & $\big\langle H\big(M^{(\ell)}\big) \big\rangle$
   & $\langle C_\ell \rangle$
-  & $\langle L_\ell \rangle$ \\
+  & $\mathcal L_\ell$ \\
 \midrule
 1 & 0.731 & 2.113 & 0.137 & 1.110 \\
 2 & 1.436 & 1.328 & 0.056 & 1.113 \\
@@ -2604,7 +2715,7 @@ $\ell$ & $G_\ell$
 \bottomrule
 \end{tabular}
 \end{center}
-The expected leverage humps at $\ell = 2$ and lands on
+The aggregate leverage humps at $\ell = 2$ and lands on
 $2.925/2.707 = 1.081$. The realized run of
 Chapter~\ref{sec:general} scattered around this gentle
 expectation: greedy questioning and a lucky truth delivered
@@ -2715,9 +2826,45 @@ stores its knowledge in deep shells can defeat Greedy in either
 column: a question worth little now may unlock a cascade
 later.
 
-It turns out that both $\ell$-optimal protocols produce the same trajectory on every set we've tested. 
-This agreement makes it unappealing to perform the full expensive calculation of the right column.
-Whether this is a law, or coincidence, needs further research.
+Both $\ell$-optimal protocols produced the same trajectory in the
+examples tested above, but this is not a law. Adaptive questioning can
+strictly improve on every fixed set of the same size, as Subsection~\ref{sec:adaptive-example} demonstrates.
+
+\subsubsection{When the first answer chooses the next question}
+\label{sec:adaptive-example}
+
+The distinction is that an answer can tell Werner which question
+will be useful next.
+\begin{example}
+Take $n=2$, $m=1$, and put equal prior weight $1/4$ on the four
+maps below, with zero weight on the others. The columns retain the
+descending question order used throughout.
+\begin{center}
+\begin{tabular}{@{}c cccc c@{}}
+\toprule
+$j$ & $\phi_j(11)$ & $\phi_j(10)$ & $\phi_j(01)$ & $\phi_j(00)$ & $p_j$\\
+\midrule
+0 & 0 & 0 & 0 & 0 & $1/4$\\
+2 & 0 & 0 & 1 & 0 & $1/4$\\
+1 & 0 & 0 & 0 & 1 & $1/4$\\
+5 & 0 & 1 & 0 & 1 & $1/4$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Ask $q=00$ first. If $a=\psi(00)=0$, the survivors are maps
+$0$ and $2$, distinguished by asking $q'=01$. If $a=1$, they are
+maps $1$ and $5$, distinguished by asking $q'=10$. Thus two
+adaptive questions identify the map completely and leave $H(M)=0$.
+
+No fixed pair does so. The pairs $\{00,01\}$ and $\{00,10\}$ each
+leave one fair unknown answer with probability $1/2$, hence an
+expected remainder of $1/2$ bit. The pair $\{01,10\}$ leaves maps
+$0$ and $1$ indistinguishable when both answers are zero, again an
+event of probability $1/2$ with one fair unknown answer. These are
+the three best fixed pairs. Pairs containing the constant question
+$11$ leave at least $1$ bit. The optimal fixed remainder is therefore
+$1/2$ bit, strictly above the adaptive remainder of zero.
+\end{example}
 
 \subsection{The Gibbs complexity prior}\label{sec:gibbs}
 
@@ -2729,29 +2876,26 @@ complexity as the measure, made quantitative as a Gibbs
 ensemble over the hypothesis space. It is an illustration: the
 later chapters do not depend on the rest of this section.
 
-\subsubsection{NAND complexity}
-\label{sec:nandcomplexity}
+\subsubsection{AIG complexity}
+\label{sec:aigcomplexity}
 
-There are a number of equivalent, Turing-complete sets of boolean logic gates. 
-But it's hard to argue with a set that consists of one universal element, when ordering circuits 
-by complexity. The choice here for that universal element is NAND.
-Let the complexity $X_j$ of a
-map $\phi_j$ be the fewest number of two-input NAND gates in any feed-forward circuit that
-computes it. For the bookkeeping we count in the equivalent
-\emph{and-inverter} form: two-input AND gates of unit cost, with
-inversion free on every wire (an edge attribute, not a gate). De
-Morgan's laws push inverters along wires and into gates, so an
-and-inverter circuit converts to a NAND-only circuit of the same gate
-count and back; $X_j$ is the standard AIG-size metric of logic
-synthesis \cite{aigrewrite}. Reference values in this convention: 
+A compact circuit description supplies a concrete notion of
+simplicity. We use an \emph{and-inverter graph} (AIG): a feed-forward
+circuit with two-input AND nodes and complemented edges, so inversion
+on any wire is free. Let $X_j$ be the fewest AND nodes in any such
+graph computing $\phi_j$, with constants and input wires available
+at zero cost. This is the standard AIG-size metric of logic
+synthesis~\cite{aigrewrite}. It differs from counting ordinary
+NAND gates, where inversion itself has a cost. Reference values in
+the AIG convention:
 \begin{itemize}
   \item AND, OR, NAND and NOR all cost $1$;
   \item XOR costs $3$;
   \item constants, projections and negations cost $0$.
 \end{itemize}   
 For $m > 1$ outputs, $X_j$ is the size of one \emph{joint} circuit computing all
-output bits together, gates shared, which is practical. It is the true minimum-hardware
-cost, generally smaller than the sum of per-output circuits.
+output bits together, gates shared, which is practical. It is the minimum
+cost in this AIG convention, generally smaller than the sum of per-output circuits.
 
 The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ maps apiece. 
 The tabulation is feasible because $X_j$ is invariant under
@@ -3122,7 +3266,7 @@ vertical scale in bits; one column per prior.
 \subsubsection{Trajectories}\label{sec:gibbstraj}
 
 Figures~\ref{fig:gibbs21}--\ref{fig:gibbs41} show the expected
-cumulative leverage $\langle L_\ell \rangle$ under the three
+cumulative leverage $\mathcal L_\ell$ under the three
 prior hypotheses, for the uniform question-order average and the strategy grid of
 Section~\ref{sec:strategies}. The $\ell$-optimal schedule targets
 the halfway horizon $\ell^* = Q/2$ and is plotted only up to it:
@@ -3136,7 +3280,7 @@ Two consistency checks hold in every panel: all schedules agree at $\ell = 1$, b
 input relabeling acts transitively on the questions and the Gibbs
 energies are relabeling-invariant, so single questions are
 exchangeable; and every full-length curve ends at the same
-$L_{Q} = H(M^{(0)})/H(p)$, since any policy that asks everything
+$\mathcal L_{Q} = H(M^{(0)})/H(p)$, since any policy that asks everything
 receives exactly $H(p)$ on average, and clears the table $M$. The
 same invariance acts on whole sets, so the $\ell$-optimal objective
 is a function of a set's relabeling orbit and not of the set:
@@ -3164,7 +3308,7 @@ minimizers arrive in orbits.
 \begin{tikzpicture}
 \begin{axis}[width=5.05cm, height=4.8cm,
   title={Occam $(1,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, ylabel={$\langle L_\ell \rangle$},
+  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
   xtick={1,2,3,4}, grid=major, grid style={black!12},
   tick label style={font=\scriptsize}, label style={font=\small}]
 \addplot[black!60, densely dashed, mark=*, mark size=1.1]
@@ -3209,7 +3353,7 @@ minimizers arrive in orbits.
   coordinates {(1,2.9261)(2,2.5380)};
 \end{axis}
 \end{tikzpicture}
-\caption{Expected leverage under the Gibbs priors at $(2,1)$,
+\caption{Aggregate leverage under the Gibbs priors at $(2,1)$,
 $\ell^* = 2$. In both complexity-only settings every schedule
 coincides exactly; the Pragmatist's fields finally separate them.}
 \label{fig:gibbs21}
@@ -3220,7 +3364,7 @@ coincides exactly; the Pragmatist's fields finally separate them.}
 \begin{tikzpicture}
 \begin{axis}[width=5.05cm, height=4.8cm,
   title={Occam $(1,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, ylabel={$\langle L_\ell \rangle$},
+  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
   xtick={2,4,6,8}, grid=major, grid style={black!12},
   tick label style={font=\scriptsize}, label style={font=\small}]
 \addplot[black!60, densely dashed, mark=*, mark size=1.1]
@@ -3271,7 +3415,7 @@ coincides exactly; the Pragmatist's fields finally separate them.}
   coordinates {(1,5.6865)(2,4.9176)(3,4.5657)(4,4.3548)};
 \end{axis}
 \end{tikzpicture}
-\caption{Expected leverage under the Gibbs priors at $(3,2)$,
+\caption{Aggregate leverage under the Gibbs priors at $(3,2)$,
 $\ell^* = 4$. Greedy Werner's fixed set is the optimal set under Occam and,
 up to an input negation, under Occamer. For the Pragmatist, the $\ell^*$-optimal has the 
 worst leverage at the horizon, a reminder that we optimize for information received, while
@@ -3284,7 +3428,7 @@ accepting that may cost even more surprisal.}
 \begin{tikzpicture}
 \begin{axis}[width=5.05cm, height=4.8cm,
   title={Occam $(1,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, ylabel={$\langle L_\ell \rangle$},
+  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
   xtick={4,8,12,16}, grid=major, grid style={black!12},
   tick label style={font=\scriptsize}, label style={font=\small}]
 \addplot[black!60, densely dashed, mark=*, mark size=1.1]
@@ -3343,7 +3487,7 @@ accepting that may cost even more surprisal.}
   coordinates {(1,12.2894)(2,10.8208)(3,10.0230)(4,9.5178)(5,9.1604)(6,8.8912)(7,8.6881)(8,8.5439)};
 \end{axis}
 \end{tikzpicture}
-\caption{Expected leverage under the Gibbs priors at $(4,1)$,
+\caption{Aggregate leverage under the Gibbs priors at $(4,1)$,
 $\ell^* = 8$. Occamer's deep correlations $C$ bend even the uniform
 average curve into an interior hump; the Pragmatist releases all its instinct at the start: whether it's constant.}
 \label{fig:gibbs41}
@@ -3386,7 +3530,7 @@ becomes spendable once enough answers are in hand to cash out the
 higher correlations. The optimal eight questions are a parity class
 of the input hypercube in every setting, and as at $(3,2)$ both
 classes minimize exactly; greedy misses the class
-under both complexity-only settings ($\langle L \rangle = 1.249$ against the optimum's
+under both complexity-only settings ($\mathcal L = 1.249$ against the optimum's
 $1.262$ at the Occam $\ell^*$ horizon) but finds it exactly under the
 Pragmatist whose prior, $0.90$ of its mass on the two constants,
 is a two-sided spike in disguise: $H(p) = 0.53$ bits, leverage
@@ -3731,7 +3875,7 @@ extensive in $Q$ as $N=A^Q$ and $P_Q=p$, at fixed $0 < p < 1$. Prior entropy van
 
 The thermodynamic limit keeps the prior mass $0 < p < 1$ and asked fraction $t > 0$ fixed,
 while sending $n \to \infty$. The guiding
-principle is the exact finite law \eqref{eq:Lk-G} for $\langle L \rangle$: the expected
+principle is the exact finite law \eqref{eq:Lk-G} for $\mathcal L$: the aggregate
 leverage is built from three ingredients, 
 
 \begin{enumerate}
@@ -3823,7 +3967,7 @@ paid only by the refuted mass:
 Filling the three limits into \eqref{eq:Lk-G} term by term,
 %
 \[
-  \langle L_\ell\rangle
+  \mathcal L_\ell
   = \frac{\overbrace{H\big(M^{(0)}\big)}^{\textstyle\to\,
       Q\,\eta_0(p,m)}
     \;-\; \overbrace{(Q-\ell)\big(G_{\ell+1}-G_\ell\big)}
@@ -3900,7 +4044,7 @@ set it against the thermodynamic curve in black.
 \begin{tikzpicture}[baseline=(current bounding box.north)]
 \begin{axis}[width=7.0cm, height=5.2cm,
   title={$m = 1$, $p = 0.3$}, title style={font=\small},
-  xlabel={$t = \ell/Q$}, ylabel={$\langle L_{\ell}\rangle$},
+  xlabel={$t = \ell/Q$}, ylabel={$\mathcal L_{\ell}$},
   xmin=0, xmax=1, ymin=1, ymax=5, ytick={1,2,3,4,5},
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12},
@@ -4144,7 +4288,46 @@ conditional entropy of one fresh answer,
   \label{eq:gammank}
 \end{equation}
 %
-We write $\mathbb{E}$ to emphasize the average over the selected $q$ distinct from $\mathcal{S}$. 
+The increments also connect directly to erasure-channel
+\emph{extrinsic information transfer} (EXIT) functions~\cite{kkmpsu}.
+Three terms from coding theory are needed first. A \textbf{code} of
+length $Q$ over $\mathcal A$ is a subset of $\mathcal A^{Q}$, its
+members the \textbf{codewords}; a truth table is a string of exactly
+that length, so any set of maps is a code, and the degree classes of
+Chapter~\ref{sec:shapeprior} are linear ones. Its rate is
+$Q^{-1}\log_A(\text{number of codewords})$, the information one
+codeword carries per symbol. An \textbf{erasure channel} transmits a
+codeword one symbol at a time, each symbol independently either
+delivered unchanged, with probability $v$, or replaced by a marker
+recording only that a symbol was lost. An EXIT function then reports
+how much uncertainty is left in one symbol once every other symbol has
+passed through such a channel, as a function of the erasure
+probability $1-v$; its integral over that probability is the rate,
+which is the area theorem invoked below.
+Choose a fresh question $q$ uniformly and reveal each other question
+independently with probability $v\in[0,1]$. Think of $v$ as the probability that
+the question naturally came up, i.e. $v \approx t$, the macroscopic time. Conditional
+on actually revealing $k$ questions, their set is uniform among the $k$-sets
+not containing $q$. The mean conditional entropy of the fresh answer
+is therefore
+\begin{equation}\label{eq:exit-eta}
+  \eta_n(v):=\sum_{k=0}^{Q-1}\binom{Q-1}{k}
+       v^k(1-v)^{Q-1-k}\,\gamma_{n,k}.
+\end{equation}
+For binary answers this is the average EXIT function expressed in
+reveal probability; the usual erasure probability is $1-v$.
+Thus $\gamma_{n,k}$ is its fixed-cardinality counterpart. Integrating
+the binomial weights gives its area law,
+\[
+  \int_0^1\eta_n(v)\,dv
+  =\frac1Q\sum_{k=0}^{Q-1}\gamma_{n,k}
+  =\frac{H(p^{(n)})}{Q},
+\]
+which is the code rate for a uniform prior on a binary linear code.
+This is the EXIT and area-theorem connection underlying the
+Reed--Muller result used in Chapter~\ref{sec:shapeprior}.
+
+We write $\mathbb{E}$ in \eqref{eq:gammank} to emphasize the average over the selected $q$ distinct from $\mathcal{S}$. 
 The additional average here: the conditional entropy
 averages over answer histories $\phi_j$ under the prior $p_j$ on the random map. 
 Conditioning reduces entropy, so coupling a
@@ -4174,11 +4357,11 @@ for $0 \le \ell < Q$, with zero remaining entropy at $\ell = Q$, and
 equation~\eqref{eq:Lk-G} becomes
 %
 \begin{equation}
-  \langle L_{n,\ell}\rangle
+  \mathcal L_{n,\ell}
   = \frac{Q\,G_{n,1} - (Q-\ell)\,\gamma_{n,\ell}}{G_{n,\ell}}
   \qquad (1 \le \ell < Q),
   \qquad
-  \langle L_{n,Q}\rangle = \frac{Q\,G_{n,1}}{G_{n,Q}} .
+  \mathcal L_{n,Q} = \frac{Q\,G_{n,1}}{G_{n,Q}} .
   \label{eq:finitelev}
 \end{equation}
 
@@ -4368,7 +4551,7 @@ In the next chapter, as well as the appendices, we give examples and explain why
 
 What could the TDL of an explicit simplicity-based prior look like? Unfortunately, but
 not unexpectedly, we also must grapple with no-free-lunch. It is not possible to find 
-general circuit complexities as in Subsection~\ref{sec:nandcomplexity} for large $n$. However, Werner has 
+general circuit complexities as in Subsection~\ref{sec:aigcomplexity} for large $n$. However, Werner has 
 another avenue at his disposal: write the boolean map as a polynomial in the question inputs, 
 and consider the complexity to be the \emph{degree of that polynomial}. He can construct a prior
 of decreasing faith with this degree, which turns out to work elegantly. It is \emph{constructive}: computable from the truth table by a fast
@@ -5326,7 +5509,7 @@ Here $m = 1$, which bounds the increment: $\gamma \in [0,1]$.
 Such a nonincreasing sequence with area $R_{n,d_n}$ and no mass to the
 right of it has no freedom. These characteristics force the shape, so
 along that same sequence of classes the increments converge pointwise
-to a pure step, written with the Heaviside function $\theta$, which
+away from $t=R$ to a pure step, written with the Heaviside function $\theta$, which
 is $1$ when its argument is positive and $0$ otherwise:
 %
 \begin{equation}
@@ -5340,7 +5523,9 @@ is $1$ when its argument is positive and $0$ otherwise:
 \end{equation}
 %
 each class pays one full bit per question until its tank runs out at
-its own rate, and nothing after. 
+its own rate, and nothing after. No pointwise limit is asserted at
+the step discontinuity $t=R$; its assigned value does not affect the
+integral.
 \begin{example}
 Where the step in $\gamma$ comes from. Conditional on the
 latent class $D$, the answers on $\mathcal S$ are
@@ -6975,8 +7160,14 @@ This is the master law \eqref{eq:master} realized with
 \begin{equation}
   \eta_0 = 1;\quad \gamma(t) = 1 - F(t); \quad g(t) = \int_0^t(1-F),
 \end{equation}
-the convergence hypotheses for the TDL hold naturally, $\gamma$ being bounded and nonincreasing by
-construction. The numerator has its own reading: destroyed uncertainty density is
+Here $F$ must be a monotone (non-constant) CDF, so $\gamma$ is bounded and
+decreasing by construction. The sequence of increments, and hence
+the leverage where its denominator is positive, converges at
+continuity points of $F$. Step discontinuities are excluded from
+this pointwise claim; assigning a value at those does not change the
+integral. Degenerate zero-entropy laws and singular endpoint behavior
+require separate treatment. The displayed initial endpoint below assumes
+$F(0)=0$ and a finite right derivative there. The numerator has its own reading: destroyed uncertainty density is
 the asked fraction $t$ plus $F(t)$ per unasked question (column), since an
 unasked answer is deducible exactly for maps whose class died before $t$.
 Asked plus deduced, over received. Zooming in on the endpoints,
@@ -7066,7 +7257,7 @@ the mean rate approaches
 its limit only as $1/\sqrt n$. The left edge is a boundary layer:
 $L_F(0) = 1 + F'(0)$ presumes $1 \ll \ell \ll Q$, while at
 $\ell = 1$ the only exhaustible class is the constants and
-$\langle L_1\rangle = 1 + (Q-1)\,w_0^2/(2\ln 2) + O(w_0^3)$, the
+$\mathcal L_1 = 1 + (Q-1)\,w_0^2/(2\ln 2) + O(w_0^3)$, the
 early deductions being spent on identifying the latent label. The
 finite curves also scallop, most visibly at $n = 8$: each surge is
 one class being learned out near its rate $K_d/Q$, a discreteness the
@@ -7281,16 +7472,20 @@ that disagrees with a candidate kills it outright. Replace the truth by
 a conditional law $\Psi(a \mid q)$ and the update rule
 \eqref{eq:update} becomes genuine Bayes conditioning, reweighting each candidate by
 its likelihood instead of eliminating it. The hypothesis for the single truth space becomes a
-simplex rather than the finite set of $N$ maps. Much of the bookkeeping
-should survive the change: \eqref{eq:telescope} and the two laws that
-follow from it use only the chain rule for the joint law of the
-answers, which does not care whether that law came from a map. An example of what
-breaks is the identification $G_Q = H(p)$. Answers no longer pin down
+simplex rather than the finite set of $N$ maps. The chain rule still
+gives \eqref{eq:telescope} and the received-entropy law for the
+observed answer string $y$. The remaining-entropy law
+\eqref{eq:law-remaining}, however, needs a revised prediction target:
+an already asked question need not have zero entropy for a fresh
+response $a'$. If $M$ predicts fresh responses at all questions,
+the asked columns must still be included; if the target consists
+only of unasked questions, that restriction must be stated.
+Another identification that breaks is $G_Q = H(p)$. Answers no longer pin down
 the truth fully, so a complete run does not end with the belief settled. 
 The profile inherits that: no class is ever finished, so $\gamma$ stays positive
 forever, as faith in individual answers grows asymptotically. The question
-is what becomes of the master law \eqref{eq:master} when its numerator
-can no longer reach zero.
+is what becomes of the master law \eqref{eq:master} when the remaining
+predictive entropy need not reach zero.
 
 The denominator needs reconsidering as well. Under elimination the
 surprisal of an answer is also the relative entropy between prior and
@@ -7322,8 +7517,8 @@ to the KL-divergence could be derived.
 The interesting
 assumption is a prior with full support, so under elimination Werner can't rule out the truth outright, 
 which would leave $M_{a,q} = 0$ at some later
-question: an infinite surprisal and an undefined update. Two questions in particular: does expected leverage
-$\langle L_\ell\rangle$ ever fall below one? If so, is
+question: an infinite surprisal and an undefined update. Two questions in particular: does aggregate leverage
+$\mathcal L_\ell$ ever fall below one? If so, is
 the deficit a divergence, or a sum of per-question KL terms? For the
 denominator alone the answer is already known: the cumulative excess
 surprisal of a wrong model is exactly the relative entropy between the
@@ -7342,35 +7537,41 @@ leverages. Equation \eqref{eq:Lk-G} inverts,
 %
 \begin{equation}
   G_{\ell+1} \;=\; G_\ell
-  \;+\; \frac{Q\,G_1 - \langle L_\ell\rangle\, G_\ell}{Q - \ell},
+  \;+\; \frac{Q\,G_1 - \mathcal L_\ell\, G_\ell}{Q - \ell},
   \label{eq:designrec}
 \end{equation}
 %
 so the demanded curve fixes the whole block-entropy sequence
 recursively from $G_1$. Each $G_{\ell+1}$ in that recursion, with the previously
-fixed correlators, forms a set of conditions on shell $\ell+2$. 
+fixed correlators, forms a set of conditions on shell $\ell+1$. 
 One could then
 try to build the prior a shell at a time: shell $1$ to fix $G_1$, shell
 $2$ to fix $G_2$, and onward, leaving the earlier rounds untouched. 
 One constraint is submodularity on $G$, which forces it to be concave with
 increments in $[0,m]$. What makes this nontrivial is that not every set of correlators $\chi_{\mathcal S}$ is
 admissible. The shells cannot be chosen freely: they must be the
-transform of an actual distribution. The positivity and boundedness of every $p_j$
-is a global constraint that a shell-by-shell construction has no local
-way to respect. The admissible sets form the correlation polytope, and
-deciding membership in it is NP-complete~\cite{pitowsky91}, so no local
-rule can exist to be found. The same language is worth carrying into the limit. To
+transform of an actual distribution. When all correlators are
+specified, the inverse Walsh transform recovers the candidate prior,
+$p=N^{-1}W^{\otimes mQ}\chi$; with $\chi_{\emptyset}=1$,
+admissibility is checked by testing every recovered $p_j\geq0$.
+The challenge in a shell-by-shell construction is completing the
+as-yet unspecified higher correlators while preserving these global
+inequalities. Constraints on the already chosen shells alone need
+not establish that such a completion exists. The geometry of partial
+correlation constraints is discussed in~\cite{pitowsky91}.
+The same language is worth carrying into the limit. To
 second order the block entropy reads
 %
 \begin{equation}
   G_k \;=\; km \;-\; \frac{1}{2\ln 2}
   \sum_{\mathcal V \neq \emptyset}
   \Pr\big[\mathcal V \subseteq \mathcal S\big]\, \chi_{\mathcal V}^2
-  \;+\; O(\chi^4),
+  \;+\; O(\chi^3),
   \label{eq:Gshell}
 \end{equation}
 %
-and the inclusion probability of a correlator touching $r$ questions
+where the remainder begins with cubic products of correlators in
+general. The inclusion probability of a correlator touching $r$ questions
 tends to $t^{\,r}$ at macroscopic time. Each shell enters the
 profile suppressed by its own power of $t$. This codifies the idea of
 storing knowledge in deep correlations that do not surface until late.
@@ -7414,7 +7615,7 @@ Section~\ref{sec:spike}. Appendix~\ref{app:blockpriors} collects the
 block-prior construction and its Bernstein profile language, a
 block-based route to the same family of macroscopic curves.
 Appendix~\ref{app:aig} records how the circuit complexities of
-Subsection~\ref{sec:nandcomplexity} were obtained, the symmetry reduction
+Subsection~\ref{sec:aigcomplexity} were obtained, the symmetry reduction
 and the satisfiability encoding that make a minimum over all circuits
 computable at all. Appendix~\ref{app:symbols} collects every symbol
 used in this work on one page, in the order the argument introduces
@@ -7537,11 +7738,11 @@ surprisal,
   \label{eq:spikebranchlev}
 \end{equation}
 %
-whereas the expected leverage is the ratio of the two expected
+whereas the aggregate leverage is the ratio of the two expected
 totals,
 %
 \begin{equation}
-  \langle L_1\rangle
+  \mathcal L_1
   = \frac{P\big[Q G_1 - (Q-1)H_{\rm c}\big]
     + (A-1)U\big[Q G_1 - (Q-1)m\big]}{G_1}
   = \frac{Q G_1 - (Q-1)(G_2-G_1)}{G_1}. 
@@ -7612,14 +7813,14 @@ $R_1$ measures against the whole dependency stock, leverage against
 the received surprisal, and
 %
 \begin{equation}
-  R_1 = \frac{G_1}{C}\big(\langle L_1\rangle - 1\big),
+  R_1 = \frac{G_1}{C}\big(\mathcal L_1 - 1\big),
   \qquad
-  \langle L_1\rangle = 1 + \frac{C}{G_1}R_1 .
+  \mathcal L_1 = 1 + \frac{C}{G_1}R_1 .
   \label{eq:extractionvslev}
 \end{equation}
 %
 Thus $R_1$ is a stock-extraction fraction while
-$\langle L_1\rangle - 1$ is released dependency information per
+$\mathcal L_1 - 1$ is released dependency information per
 received bit. At $p = 1$ both the numerator of $R_1$ and $C$ vanish;
 expanding \eqref{eq:spikeGk} with $\varepsilon = 1 - p \to 0^+$ gives
 the exact finite-$(n,m)$ ratio limit
@@ -7721,7 +7922,7 @@ cancels the common factor $\varepsilon\log_2(1/\varepsilon)$ and
 leaves, for $1 \le \ell \le Q$,
 %
 \begin{equation}
-  \lim_{p\to1^-}\langle L_\ell\rangle
+  \lim_{p\to1^-}\mathcal L_\ell
   = (1-u)\,\frac{Q - (Q-\ell)u^\ell}{1-u^\ell}
   = \underbrace{Q(1-u)}_{\text{extensive plateau}}
   + \underbrace{(1-u)\frac{\ell\,u^\ell}{1-u^\ell}}_{O(1)\ \text{boundary layer}} .
@@ -7730,10 +7931,10 @@ leaves, for $1 \le \ell \le Q$,
 %
 The second term decays geometrically in $\ell$ and does not depend on
 $Q$ at all. In particular
-$\lim_{p\to1^-}\langle L_1\rangle = Q - (Q-1)2^{-m}$, so
+$\lim_{p\to1^-}\mathcal L_1 = Q - (Q-1)2^{-m}$, so
 %
 \begin{equation}
-  \lim_{n\to\infty}\lim_{p\to1^-}\frac{\langle L_1\rangle}{Q}
+  \lim_{n\to\infty}\lim_{p\to1^-}\frac{\mathcal L_1}{Q}
   \;=\; 1 - 2^{-m}. 
   \label{eq:culling}
 \end{equation}
@@ -7751,7 +7952,7 @@ at every $t > 0$, with the uniform bound
 %
 \begin{equation}
   \sup_{1\le \ell\le Q}
-  \left|\frac1Q\lim_{p\to1^-}\langle L_\ell\rangle - (1-u)\right|
+  \left|\frac1Q\lim_{p\to1^-}\mathcal L_\ell - (1-u)\right|
   = O(Q^{-1}),
   \label{eq:plateaubound}
 \end{equation}
@@ -7764,7 +7965,7 @@ correction to the unnormalized leverage.
 \begin{tikzpicture}[baseline=(current bounding box.north)]
 \begin{axis}[width=5.1cm, height=5.2cm,
   title={culling coefficient}, title style={font=\small},
-  xlabel={$m$}, ylabel={$\langle L_1\rangle/Q$},
+  xlabel={$m$}, ylabel={$\mathcal L_1/Q$},
   xmin=0.5, xmax=10.5, ymin=0, ymax=1.05, xtick={2,4,6,8,10},
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12},
@@ -7829,7 +8030,7 @@ As $p \to 1^-$ the fixed-$p$ coefficient of
 $\big[\eta_0(p,m)-(1-p)m\big]/\big[(1-p)m\big]
 \sim \tfrac{1-2^{-m}}{m}\log_2\tfrac1{1-p}$, which is the
 noncommutation in explicit form. Writing
-$L_{p,n}(t) := \langle L_{\lfloor tQ\rfloor}\rangle$ and comparing
+$L_{p,n}(t) := \mathcal L_{\lfloor tQ\rfloor}$ and comparing
 under the same normalization,
 %
 \begin{equation}
@@ -8222,7 +8423,7 @@ increments $\zeta$ \eqref{eq:zetakappa}, and the hypergeometric average
 binomial limit is the Bernstein profile \eqref{eq:bernsteinprofile}.
 No capacity theorem is needed: blocks are bounded, so elementary
 hypergeometric-to-binomial convergence replaces it. The finite law
-\eqref{eq:finitelev} then gives $\langle L_\ell\rangle$ exactly at
+\eqref{eq:finitelev} then gives $\mathcal L_\ell$ exactly at
 every $n$, and the master law \eqref{eq:master} gives the curve, with
 $\eta_0 = \sum_\kappa w_\kappa \zeta_\kappa(0)$.
 
@@ -8331,7 +8532,7 @@ against their limits:
 \begin{tikzpicture}[baseline=(current bounding box.north)]
 \begin{axis}[width=5.1cm, height=5.2cm,
   title={clique, $r=4$}, title style={font=\small},
-  xlabel={$t = \ell/Q$}, ylabel={$\langle L_\ell\rangle$},
+  xlabel={$t = \ell/Q$}, ylabel={$\mathcal L_\ell$},
   xmin=0, xmax=1, ymin=0.9, ymax=4.6,
   tick label style={font=\scriptsize}, label style={font=\small},
   grid=major, grid style={black!12},
@@ -8394,7 +8595,7 @@ $1.6$.}
 \section{Computing the circuit complexities}\label{app:aig}
 
 We read the footprint and the bias of
-Subsection~\ref{sec:nandcomplexity} off a truth table in one pass. The
+Subsection~\ref{sec:aigcomplexity} off a truth table in one pass. The
 complexity $X_j$ we cannot: it is a minimum over all circuits, and we
 have to compute it. This appendix records how we obtained the
 $65{,}536$ values in each of the $(4,1)$ and $(3,2)$
@@ -8461,7 +8662,7 @@ at random with our own synthesizer, finding no mismatch. At $(3,2)$
 there is no reference table, so we synthesized all $308$ classes from
 scratch with \texttt{run\_synth\_3to2.py} over a process pool. The
 resulting ranges are $X \le 10$ at $(4,1)$ and $X \le 9$ at $(3,2)$,
-and we tabulate the head counts in Subsection~\ref{sec:nandcomplexity}.
+and we tabulate the head counts in Subsection~\ref{sec:aigcomplexity}.
 
 Why we adopt the $(4,1)$ values rather than recompute them: All
 $222$ entries of \cite{krinkin} are proven optimal, the two hardest
@@ -8505,6 +8706,8 @@ $\ell$ & how many have been asked, $|\mathcal S|$ \\
 $y$ & the pattern of answers received on $\mathcal S$ \\
 $s_k$ & surprisal of round $k$, minus the log of the probability that answer had \\
 $L_\ell$ & leverage: table entropy destroyed per bit of surprisal received \\
+$\mathcal L_\ell$ & ratio of expected table-entropy reduction to expected surprisal \\
+$\eta_n(v)$ & fresh-answer entropy at independent reveal probability $v$ \\
 $G_k$ & mean entropy of the answers to $k$ questions, averaged over which $k$ \\
 $\gamma_{n,k}$ & increment $G_{n,k+1} - G_{n,k}$, what one fresh answer is worth \\
 \addlinespace[5pt]
@@ -8562,7 +8765,7 @@ script & what it does \\
   average and the label term $I_{n,\ell}$ of \eqref{eq:Gmix}. \\
 \texttt{rm\_carpet\_fig.py} & Draws the layered increments that
   illustrate \eqref{eq:ungroup} in the limit, from those tables. \\
-\texttt{gibbs\_curves.py} & Expected leverage trajectories under the three
+\texttt{gibbs\_curves.py} & Aggregate leverage trajectories under the three
   Gibbs settings, and the descriptor tables they are read from. \\
 \texttt{gibbs\_stack\_data.py} & The three-layer split of the table entropy
   at every $\ell$, for the panels of Subsection~\ref{sec:gibbsbooks}. \\
@@ -8612,6 +8815,12 @@ C.~E. Shannon,
 T.~M. Cover and J.~A. Thomas,
 \emph{Elements of Information Theory}, 2nd ed.,
 Wiley-Interscience, 2006.
+
+\bibitem{watanabe60}
+S.~Watanabe,
+``Information theoretical analysis of multivariate correlation'',
+\emph{IBM Journal of Research and Development} \textbf{4}(1), 66--82,
+1960.
 
 \bibitem{baldiitti10}
 P.~Baldi and L.~Itti,
