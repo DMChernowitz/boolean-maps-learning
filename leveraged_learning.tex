@@ -213,7 +213,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}[theorem]{Definition}
 
-\title{Leveraged Learning: entropy destroyed per bit received.}
+\title{Leveraged Learning: entropy shed per bit received.}
 \author{Daniel Chernowitz}
 \date{\today}
 
@@ -234,18 +234,18 @@ reviewed is not the right measure of a learner's investment. What
 counts is the information received from asking them. Not all
 questions are created equal: about some, the learner already knows
 something a priori, and their answers count for \emph{less}.
-\item Conversely, with instincts about the world, one can infer \emph{more} than a single bit from a yes--no
-question. One answer settles expectations on any number of yet unseen questions. 
+\item Conversely, with instincts about the world, one can infer \emph{more} than the knowledge of one answer from one question.
+It may settle confusion about any number of yet unseen questions. 
 \item This ability to extrapolate from prior information is codified here as \textbf{leverage}.
 \end{enumerate}
 %
 \begin{equation}
-  \text{Leverage of Yes/No} = \frac{\text{Expected predictive gain}}{\text{Expected surprisal received}}.
+  \text{Leverage of answered question} = \frac{\text{Expected predictive gain}}{\text{Expected surprisal received}}.
 \end{equation}
 
 The expected surprisal of a yes--no answer is its entropy: at most $1$ bit. Its
-expected predictive gain can exceed $1$ bit through deductions about
-other questions. We model successful learning as this ratio being high.
+expected predictive gain (uncertainty shed) is also an entropy, and can exceed $1$ bit through deductions about
+other questions. We model successful learning as a high ratio.
 
 \stdsection*{Summary of results}
 
@@ -755,7 +755,7 @@ entropy of the table is now
 \end{equation}
 a reduction of $2 - h_2(p)$ bits, purchased with a single bit of
 surprisal. Define the \textbf{leverage} after one question as the
-ratio of expected table entropy destroyed to expected surprisal received:
+ratio of expected table entropy shed to expected surprisal received:
 \begin{equation}
   \mathcal L_1 \;:=\; \frac{2 - h_2(p)}{1} \;=\; 2 - h_2(p) \;\in\; [1, 2].
 \end{equation}
@@ -8713,7 +8713,7 @@ $\mathcal V \subseteq \mathcal S$ & subset and set of questions asked so far \\
 $\ell$ & how many have been asked, $|\mathcal S|$ \\
 $y$ & the pattern of answers received on $\mathcal S$ \\
 $s_k$ & surprisal of round $k$. Negative log of the probability of the answer \\
-$L_\ell$ & leverage: table entropy destroyed per bit of surprisal received \\
+$L_\ell$ & leverage: table entropy shed per bit of surprisal received \\
 $\mathcal L_\ell$ & ratio of expected table-entropy reduction to expected surprisal \\
 $\eta_n(v)$ & fresh-answer entropy at independent reveal probability $v$ \\
 $G_k$ & mean entropy of the answers to $k$ questions, averaged over which $k$ \\
