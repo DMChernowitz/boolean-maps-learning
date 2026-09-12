@@ -60,6 +60,9 @@
     \useasboundingbox (0,-0.17) rectangle (1.3,0.17);
     \fill[blue!40] (0,-0.15) rectangle ({#2*1.3*#1},0.15);
   \end{tikzpicture}}
+% the unrestricted-answer marker of the elimination appendix: a full-size
+% asterisk sitting on the baseline, not a raised one
+\newcommand{\wild}{\mathord{\text{\normalsize$\ast$}}}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{svg.path}
@@ -2421,7 +2424,10 @@ one sequence, the \textbf{mean block entropy} at size $k$:
   \sum_{y} P_{\mathcal S,y} \log_2 P_{\mathcal S,y},
 \end{equation}
 the inner sum running over the $A^k$ answer patterns on the block;
-nothing here is specific to $m = 1$. The endpoints are
+nothing here is specific to $m = 1$. Appendix~\ref{app:tensor-marginals}
+arranges the elimination rules as a tensor and reads every $G_k$ off one
+sweep of it, rather than
+rebuilding each block distribution from scratch. The endpoints are
 \begin{equation}\label{eq:Gk-ends}
   G_0 \;=\; 0,
   \qquad
@@ -7617,465 +7623,441 @@ enough to coarse-grain away the microscopic details of boolean maps.
 \section*{Appendices}
 \addcontentsline{toc}{section}{Appendices}
 
-Appendix~\ref{app:spike} continues the spike-prior example of
-Section~\ref{sec:spike}. Appendix~\ref{app:blockpriors} collects the
-block-prior construction and its Bernstein profile language, a
-block-based route to the same family of macroscopic curves.
-Appendix~\ref{app:aig} records how the circuit complexities of
-Subsection~\ref{sec:aigcomplexity} were obtained, the symmetry reduction
-and the satisfiability encoding that make a minimum over all circuits
-computable at all. Appendix~\ref{app:symbols} collects every symbol
-used in this work on one page, in the order the argument introduces
-them. Appendix~\ref{app:scripts} lists the scripts that produce the
-numbers and the curves.
+They follow the order in which the argument first calls on them.
+Appendix~\ref{app:tensor-marginals} arranges the elimination rules as a
+tensor and takes every block entropy $G_k$ off a single sweep of it.
+Appendix~\ref{app:blockpriors} collects the block-prior construction and
+its Bernstein profile language, a block-based route to the same family of
+macroscopic curves. Appendix~\ref{app:aig} records how the circuit
+complexities of Subsection~\ref{sec:aigcomplexity} were obtained, the
+symmetry reduction and the satisfiability encoding that make a minimum
+over all circuits computable at all. Appendix~\ref{app:spike} continues
+the spike-prior example of Section~\ref{sec:spike}. The last two are for
+reference: Appendix~\ref{app:symbols} collects the symbols on one page,
+and Appendix~\ref{app:scripts} lists the scripts that produce the numbers
+and the curves.
 
-\section{More characteristics of the spike prior}\label{app:spike}
+\section{Block entropies by elimination}\label{app:tensor-marginals}
 
-This appendix continues the toy example of Section~\ref{sec:spike}:
-the anatomy of a single question, the fraction of the dependency
-stock it extracts, and the sharp-prior limit with its
-order-of-limits structure.
+A question eliminates maps whose answers disagree with the answer received.
+For any fixed set of questions and answer string, the probability of that
+string is the total prior weight of the maps that survive. Calculating
+$G_k$ of \eqref{eq:Gk} therefore involves three sums: over question sets, over their possible
+answer strings, and over the maps that elimination has not excluded.
+The last sum can reuse many of the same additions. We arrange these
+elimination rules in a tensor, so that all the surviving weights are
+calculated together. The construction requires no symmetry or independence
+of the prior.
 
-\subsection{One question, branch by branch}
+\subsection{Binary answers: which maps survive?}
 
-For a single question abbreviate $P := P_1$ and $U := U_1$, so that
-$P + (A-1)U = 1$: the zero answer has probability $P$, while each
-particular nonzero answer has probability $U$. Here \emph{correct}
-means that the observed answer agrees with the spike map at this
-question; it does not assert that the entire spike map is the truth.
-The surprisals are
-%
+Take $m=1$. For one question, there are three rules we want to represent:
+keep maps answering $0$, keep maps answering $1$, or keep maps answering
+either. We denote the third rule by $\wild$, a wildcard standing for either
+answer. It means that \emph{this question has not excluded the map}.
+The symbol labels an elimination rule, not an additional possible answer.
+In particular, it makes no assertion about whether the answer could be
+deduced from other questions.
+
+The local matrix is
+\begin{equation}\label{eq:Xi-binary}
+  \Xi\;:=\;
+  \begin{array}{c|cc}
+    &a=0&a=1\\ \hline
+    0&1&0\\
+    1&0&1\\
+    \wild&1&1
+  \end{array}.
+\end{equation}
+The column is the map's answer to this question. The row is the rule being
+applied. An entry $1$ says that elimination has not excluded this map;
+an entry $0$ says that it has. Thus the first row keeps only maps answering
+$0$, the second keeps only maps answering $1$, and the third keeps both.
+If the two columns carry total prior weights $p_0,p_1$, multiplication gives
 \begin{equation}
-  s_{\rm correct} = -\log_2 P,
+  \Xi\begin{pmatrix}p_0\\p_1\end{pmatrix}
+  =\begin{pmatrix}p_0\\p_1\\p_0+p_1\end{pmatrix}.
+\end{equation}
+The third component adds the weights of both surviving groups.
+
+A map has $Q$ truth-table digits. In descending question order, we reshape its
+prior weight as
+\begin{equation}
+  p_{a_{Q-1}\cdots a_0}:=p_j,
+  \qquad j=\sum_{q=0}^{Q-1}a_q2^q,
+  \qquad \mathbb R^{2^Q}\cong(\mathbb R^2)^{\otimes Q}.
+\end{equation}
+There is one tensor factor per question. This reshaping does not assume
+that the answers are independent, it is merely a representation of index $j$. Applying the local rule at every
+question gives the full matrix and its output:
+\begin{equation}\label{eq:Xi-transform}
+  \mu=\Xi^{\otimes Q}p,
+  \qquad z\in\{0,1,\wild\}^Q.
+\end{equation}
+A row $z$ chooses one rule at each question. Its entry in column $j$ is
+\begin{equation}\label{eq:Xi-survival}
+  (\Xi^{\otimes Q})_{z,j}
+  =\prod_{q=0}^{Q-1}\Xi_{z_q,\phi_j(q)}.
+\end{equation}
+The product is one precisely when the map survives every rule. A single
+incompatible answer makes it zero. The tensor product includes every
+combination of the local rules.
+
+Let $\mathcal S(z)=\{q:z_q\ne\wild\}$ be the questions on which a
+particular answer is required, and let $y$ be those answers in the inherited
+question order. The resulting component is
+\begin{equation}\label{eq:Xi-components}
+  \mu_z=\sum_{j:\,\phi_j(\mathcal S(z))=y}p_j
+      =P_{\mathcal S(z),y}.
+\end{equation}
+It is the total prior weight that elimination leaves. It is not yet a
+posterior distribution over the surviving maps; that posterior would
+normalize their individual weights by $\mu_z$, when $\mu_z>0$.
+
+\begin{example}[label=ex:xi-q2]
+For $n=1,m=1$, there are two questions, printed in order $(1,0)$, and four
+maps with truth tables $00,01,10,11$. The full matrix is $9\times4$.
+Its row $z=1\wild$ keeps $p_2$ and $p_3$: both maps answer $1$ to
+question $1$, and question $0$ eliminates neither. Thus
+\begin{equation*}
+  \mu_{1\wild}=p_2+p_3.
+\end{equation*}
+The row $10$ additionally requires answer $0$ at question $0$, leaving
+only $p_2$. The row $\wild\wild$ eliminates no maps and gives
+$\sum_jp_j=1$. All nine rules are below.
+
+\begin{center}
+\begingroup
+\definecolor{ink}{RGB}{35,44,54}
+\definecolor{zero}{RGB}{130,137,145}
+\definecolor{one}{RGB}{65,125,194}
+\definecolor{two}{RGB}{27,146,119}
+\resizebox{0.9\linewidth}{!}{%
+\begin{tikzpicture}[text=ink,>=Stealth]
+\node[font=\small] at (-.35,2.65) {$\underbrace{\begin{array}{r|cc} &a=0&a=1\\\hline a=0&1&0\\a=1&0&1\\a=\wild{}&1&1\end{array}}_{\Xi\text{ for question }1}$};
+\node at (1.75,2.65) {$\otimes$};
+\node[font=\small] at (3.85,2.65) {$\underbrace{\begin{array}{r|cc} &a=0&a=1\\\hline a=0&1&0\\a=1&0&1\\a=\wild{}&1&1\end{array}}_{\Xi\text{ for question }0}$};
+\node[anchor=west,font=\small,align=left] at (6.1,2.65) {Keep $0$, keep $1$, or keep either\\independently for each question.\\All $3^2$ combinations appear.};
+\node[font=\small] at (-.95,.65) {Questions $q$};
+\node[font=\small] at (2.7,.9) {Columns: map $j$ / truth table};
+\node at (-1.35,0) {$1$};\node at (-.45,0) {$0$};
+\node[font=\small] at (5.0,0) {$k$};
+\node[font=\scriptsize,text=black!55] at (0.9,.42) {0};
+\node at (0.9,0) {$\mathtt{00}$};
+\node[font=\scriptsize,text=black!55] at (1.9500000000000002,.42) {1};
+\node at (1.9500000000000002,0) {$\mathtt{01}$};
+\node[font=\scriptsize,text=black!55] at (3.0,.42) {2};
+\node at (3.0,0) {$\mathtt{10}$};
+\node[font=\scriptsize,text=black!55] at (4.050000000000001,.42) {3};
+\node at (4.050000000000001,0) {$\mathtt{11}$};
+\fill[two!15] (-1.8,-0.845) rectangle (5.27,-0.355);
+\fill[two!75] (5.19,-0.845) rectangle (5.27,-0.355);
+\node at (-1.35,-0.6) {$0$};
+\node at (-0.45000000000000007,-0.6) {$0$};
+\node[text=ink] at (0.9,-0.6) {1};
+\node[text=black!35] at (1.9500000000000002,-0.6) {0};
+\node[text=black!35] at (3.0,-0.6) {0};
+\node[text=black!35] at (4.050000000000001,-0.6) {0};
+\node[text=two!80!black] at (5.0,-0.6) {2};
+\fill[two!15] (-1.8,-1.395) rectangle (5.27,-0.9049999999999999);
+\fill[two!75] (5.19,-1.395) rectangle (5.27,-0.9049999999999999);
+\node at (-1.35,-1.15) {$0$};
+\node at (-0.45000000000000007,-1.15) {$1$};
+\node[text=black!35] at (0.9,-1.15) {0};
+\node[text=ink] at (1.9500000000000002,-1.15) {1};
+\node[text=black!35] at (3.0,-1.15) {0};
+\node[text=black!35] at (4.050000000000001,-1.15) {0};
+\node[text=two!80!black] at (5.0,-1.15) {2};
+\fill[one!15] (-1.8,-1.9450000000000003) rectangle (5.27,-1.455);
+\fill[one!75] (5.19,-1.9450000000000003) rectangle (5.27,-1.455);
+\node at (-1.35,-1.7000000000000002) {$0$};
+\node at (-0.45000000000000007,-1.7000000000000002) {$\wild{}$};
+\node[text=ink] at (0.9,-1.7000000000000002) {1};
+\node[text=ink] at (1.9500000000000002,-1.7000000000000002) {1};
+\node[text=black!35] at (3.0,-1.7000000000000002) {0};
+\node[text=black!35] at (4.050000000000001,-1.7000000000000002) {0};
+\node[text=one!80!black] at (5.0,-1.7000000000000002) {1};
+\fill[two!15] (-1.8,-2.495) rectangle (5.27,-2.005);
+\fill[two!75] (5.19,-2.495) rectangle (5.27,-2.005);
+\node at (-1.35,-2.25) {$1$};
+\node at (-0.45000000000000007,-2.25) {$0$};
+\node[text=black!35] at (0.9,-2.25) {0};
+\node[text=black!35] at (1.9500000000000002,-2.25) {0};
+\node[text=ink] at (3.0,-2.25) {1};
+\node[text=black!35] at (4.050000000000001,-2.25) {0};
+\node[text=two!80!black] at (5.0,-2.25) {2};
+\fill[two!15] (-1.8,-3.0450000000000004) rectangle (5.27,-2.555);
+\fill[two!75] (5.19,-3.0450000000000004) rectangle (5.27,-2.555);
+\node at (-1.35,-2.8000000000000003) {$1$};
+\node at (-0.45000000000000007,-2.8000000000000003) {$1$};
+\node[text=black!35] at (0.9,-2.8000000000000003) {0};
+\node[text=black!35] at (1.9500000000000002,-2.8000000000000003) {0};
+\node[text=black!35] at (3.0,-2.8000000000000003) {0};
+\node[text=ink] at (4.050000000000001,-2.8000000000000003) {1};
+\node[text=two!80!black] at (5.0,-2.8000000000000003) {2};
+\fill[one!15] (-1.8,-3.595) rectangle (5.27,-3.105);
+\fill[one!75] (5.19,-3.595) rectangle (5.27,-3.105);
+\node at (-1.35,-3.35) {$1$};
+\node at (-0.45000000000000007,-3.35) {$\wild{}$};
+\node[text=black!35] at (0.9,-3.35) {0};
+\node[text=black!35] at (1.9500000000000002,-3.35) {0};
+\node[text=ink] at (3.0,-3.35) {1};
+\node[text=ink] at (4.050000000000001,-3.35) {1};
+\node[text=one!80!black] at (5.0,-3.35) {1};
+\fill[one!15] (-1.8,-4.1450000000000005) rectangle (5.27,-3.6550000000000002);
+\fill[one!75] (5.19,-4.1450000000000005) rectangle (5.27,-3.6550000000000002);
+\node at (-1.35,-3.9000000000000004) {$\wild{}$};
+\node at (-0.45000000000000007,-3.9000000000000004) {$0$};
+\node[text=ink] at (0.9,-3.9000000000000004) {1};
+\node[text=black!35] at (1.9500000000000002,-3.9000000000000004) {0};
+\node[text=ink] at (3.0,-3.9000000000000004) {1};
+\node[text=black!35] at (4.050000000000001,-3.9000000000000004) {0};
+\node[text=one!80!black] at (5.0,-3.9000000000000004) {1};
+\fill[one!15] (-1.8,-4.695) rectangle (5.27,-4.205);
+\fill[one!75] (5.19,-4.695) rectangle (5.27,-4.205);
+\node at (-1.35,-4.45) {$\wild{}$};
+\node at (-0.45000000000000007,-4.45) {$1$};
+\node[text=black!35] at (0.9,-4.45) {0};
+\node[text=ink] at (1.9500000000000002,-4.45) {1};
+\node[text=black!35] at (3.0,-4.45) {0};
+\node[text=ink] at (4.050000000000001,-4.45) {1};
+\node[text=one!80!black] at (5.0,-4.45) {1};
+\fill[zero!15] (-1.8,-5.245) rectangle (5.27,-4.755);
+\fill[zero!75] (5.19,-5.245) rectangle (5.27,-4.755);
+\node at (-1.35,-5.0) {$\wild{}$};
+\node at (-0.45000000000000007,-5.0) {$\wild{}$};
+\node[text=ink] at (0.9,-5.0) {1};
+\node[text=ink] at (1.9500000000000002,-5.0) {1};
+\node[text=ink] at (3.0,-5.0) {1};
+\node[text=ink] at (4.050000000000001,-5.0) {1};
+\node[text=zero!80!black] at (5.0,-5.0) {0};
+
+\draw[black!60] (.47,-.28)--(.32,-.28)--(.32,-5.28)--(.47,-5.28);
+\draw[black!60] (4.47,-.28)--(4.62,-.28)--(4.62,-5.28)--(4.47,-5.28);
+\node[anchor=west,font=\small\bfseries] at (5.7,-.55) {Row colors};
+\fill[zero!25] (5.75,-1.28) rectangle (6.05,-0.9600000000000001);
+\node[anchor=west,font=\small] at (6.2,-1.12) {$k=0$: $1$ row $\to G_0$};
+\fill[one!25] (5.75,-1.8699999999999999) rectangle (6.05,-1.55);
+\node[anchor=west,font=\small] at (6.2,-1.71) {$k=1$: $4$ rows $\to G_1$};
+\fill[two!25] (5.75,-2.46) rectangle (6.05,-2.1399999999999997);
+\node[anchor=west,font=\small] at (6.2,-2.3) {$k=2$: $4$ rows $\to G_2$};
+
+\draw[ink,thick] (-1.8,-3.595) rectangle (5.27,-3.105);
+\draw[->] (5.30,-3.35)--(5.72,-3.35);
+\node[anchor=north west,font=\small,align=left] at (5.75,-3.0) {\textbf{Row $z=1\wild{}$}\\[5pt]Keep maps with $\phi_j(1)=1$;\\question $0$ excludes no maps.\\[5pt]$\mu_{1\wild{}}=p_2+p_3$\\This contributes to $G_1$.};
+
+\end{tikzpicture}%
+}
+\endgroup
+\end{center}
+
+$\wild$ allows either answer: this question excludes no maps. Multiply by $p$, apply $f(u)=-u\log_2u$ elementwise, then collect each color:
+\begin{align*}
+  G_0&=f(\mu_{\wild{}\wild{}})=0,\\
+  G_1&=\dfrac{f(\mu_{0\wild{}})+f(\mu_{1\wild{}})+f(\mu_{\wild{}0})+f(\mu_{\wild{}1})}{2},\\
+  G_2&=\sum_{j=0}^{3}f(p_j)=H(p).
+\end{align*}
+A $1$ keeps the map and a $0$ excludes it. The row colors group the
+surviving weights by the number $k$ of single-answer restrictions.
+\end{example}
+
+In particular, the component $\mu_{\wild\wild\ldots\wild} = 1$ is the normalization
+condition, with no maps excluded.
+
+\begin{example}
+On the guiding space $n=2, m=1$, with question order $(11,10,01,00)$, the same
+rule gives
+\begin{equation}
+  \mu_{1\wild0\wild}
+  =\mu_{100\wild}+\mu_{110\wild}
+  =(p_8+p_9)+(p_{12}+p_{13}).
+\end{equation}
+Only questions $11$ and $01$ restrict the maps. The other two questions
+exclude none. The intermediate sums can also be used by other rows.
+\end{example}
+
+
+Collecting the averages:
+we write $|z|:=|\mathcal S(z)|$ for the number of single-answer restrictions,
+and $f(u):=-u\log_2u$, with $f(0):=0$. Each pair $(\mathcal S,y)$ occurs
+exactly once among the rows: we put $y$ on $\mathcal S$ and $\wild$
+everywhere else. Therefore
+\begin{equation}\label{eq:Xi-Gk}
+  G_k=\binom Qk^{-1}
+       \sum_{\substack{z\in\{0,1,\wild\}^Q\\|z|=k}}f(\mu_z).
+\end{equation}
+There are $\binom Qk$ choices of the restricted questions, each with $2^k$
+answer strings. We sum the entropy contributions over those strings, then
+average the resulting block entropies over question sets. The denominator
+is $\binom Qk$, not $\binom Qk2^k$: the probabilities already supply the
+weights for averaging over answers. For $Q=4,k=2$, this collects $24$
+contributions, grouped into six normalized four-answer distributions,
+and divides by six.
+
+The whole array $\mu$ is not one normalized distribution. Each fixed choice
+of restricted questions gives its own distribution over answer strings:
+\begin{equation}
+  \sum_{|z|=k}\mu_z=\binom Qk,
+  \qquad \sum_z \mu_z=2^Q.
+\end{equation}
+The row colors in Example~\ref{ex:xi-q2} identify which entries
+contribute to each $G_k$.
+
+Equivalently, the operation is linear, then elementwise nonlinear, then
+linear. We define the constant weights
+\begin{equation}
+  (\mathbf c_k)_z:=\frac{\mathbf1_{\{|z|=k\}}}{\binom Qk},
+\end{equation}
+which pick out exactly those rows of the tensor product with $Q-k$ times the symbolic $\wild$ in the margin. Then
+\begin{equation}\label{eq:Xi-linear-nonlinear-linear}
+  G_k=\mathbf c_k^{\mathsf T}f(\Xi^{\otimes Q}p).
+\end{equation}
+Stacking these row vectors, for increasing $k$, into an averaging matrix $\Gamma$ gives
+\begin{equation}\label{eq:Xi-all-G}
+  \begin{pmatrix}G_0\\G_1\\\vdots\\G_Q\end{pmatrix}
+  =\Gamma\,f(\Xi^{\otimes Q}p).
+\end{equation}
+
+\begin{example}[label=ex:gamma-q2]
+Continuing Example~\ref{ex:xi-q2}: at $Q=2$ the vector $f(\Xi^{\otimes2}p)$
+has nine entries, one per elimination rule, so $\Gamma$ is $3\times9$, one
+row per block size $k$. Taking the columns in the row order of that
+example, and with $\binom20=\binom22=1$ and $\binom21=2$,
+\begin{equation*}
+  \Gamma =
+  \begin{array}{c|ccccccccc}
+    \dgc{k}{z}
+      & 00 & 01 & 0\wild & 10 & 11 & 1\wild & \wild0 & \wild1 & \wild\wild \\
+    \hline
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\[2pt]
+    1 & 0 & 0 & \tfrac12 & 0 & 0 & \tfrac12 & \tfrac12 & \tfrac12 & 0 \\[2pt]
+    2 & 1 & 1 & 0 & 1 & 1 & 0 & 0 & 0 & 0
+  \end{array}.
+\end{equation*}
+Each rule $z$ belongs to exactly one block size $|z|$, so every column
+carries a single nonzero entry, and the three row colors of
+Example~\ref{ex:xi-q2} are the three rows of $\Gamma$. Row $k$ sums to
+$2^k$ rather than to one: the $2^k$ answer strings of a block already
+carry their own probabilities, which is why the denominator in
+\eqref{eq:Xi-Gk} is $\binom Qk$ and not $\binom Qk2^k$.
+\end{example}
+
+Both linear maps are independent of $p$; $f$ acts elementwise. In an
+implementation, the first map is a tensor sweep and the last is an
+accumulation by $|z|$. Neither requires constructing a dense matrix.
+
+Sharing the elimination sums:
+at each tensor axis we retain the two answer slices and append their sum.
+After $r$ axes the array has $3^r2^{Q-r}$ entries. The full sweep uses
+\begin{equation}\label{eq:Xi-binary-cost}
+  \sum_{r=1}^Q3^{r-1}2^{Q-r}=3^Q-2^Q
+\end{equation}
+scalar additions. Including the entropy accumulation, the work is order
+$3^Q$. A separate scan of all $2^Q$ prior entries for each of the $2^Q$
+question sets takes order $4^Q$ work. The saving comes from reusing sums
+of surviving weights. The calculation is still exponential in $Q$, but at
+the sizes this work tabulates the reduction is worth having: about a
+hundredfold at $(4,1)$ and fortyfold at $(3,2)$.
+
+\subsection{General answer alphabet}
+
+For $m$ answer bits, let $A=2^m$. Each question now has $A$ possible answers,
+so its tensor factor has $A$ columns. There is one row that keeps each
+particular answer, and a final row that keeps every answer:
+\begin{equation}\label{eq:Xi-alphabet}
+  \Xi=\begin{pmatrix}I_A\\\mathbf1_A^{\mathsf T}\end{pmatrix},
   \qquad
-  s_{\rm wrong} = -\log_2 U,
+  \Xi_{z,a}=\begin{cases}
+    1,&z=a\text{ or }z=\wild,\\
+    0,&\text{otherwise}.
+  \end{cases}
+\end{equation}
+We retain $\wild$ for the rule that this question excludes no maps.
+For a larger alphabet it allows \emph{all} $A$ answers. Its meaning is
+therefore the same elimination rule, even though there are more than two
+answers to keep.
+
+\begin{example}
+For $m=2$, each answer is one of $00,01,10,11$, and the local matrix is
+\begin{equation}\label{eq:Xi-m2}
+  \Xi=
+  \begin{array}{c|cccc}
+    &a=00&a=01&a=10&a=11\\ \hline
+    00&1&0&0&0\\
+    01&0&1&0&0\\
+    10&0&0&1&0\\
+    11&0&0&0&1\\
+    \wild&1&1&1&1
+  \end{array}.
+\end{equation}
+The first row keeps maps answering $00$; the next three keep maps answering
+$01$, $10$, or $11$, respectively. The last row keeps all four groups.
+Each answer is treated as a whole symbol: a question either requires its
+complete answer or excludes no maps. We do not add rows for specifying
+only one bit of an answer.
+
+For $n=1$, the full matrix $\Xi^{\otimes2}$ is consequently $25\times16$.
+There are $1,8,16$ rows contributing to $G_0,G_1,G_2$. Using decimal answer
+symbols $0,1,2,3$ and question order $(1,0)$, we have $j=4a_1+a_0$ and
+\begin{equation*}
+  \mu_{2\wild}=p_8+p_9+p_{10}+p_{11},
+  \qquad \mu_{\wild1}=p_1+p_5+p_9+p_{13}.
+\end{equation*}
+The first rule keeps answer $2$ at question $1$ and every answer at
+question $0$. The second keeps answer $1$ at question $0$ and every answer
+at question $1$. The two four-answer distributions give
+\begin{equation*}
+  G_1=\tfrac12\left[\sum_{a=0}^3f(\mu_{a\wild})
+                         +\sum_{a=0}^3f(\mu_{\wild a})\right].
+\end{equation*}
+\end{example}
+
+In general the full matrix is $(A+1)^Q\times A^Q$, and
+\begin{equation}\label{eq:Xi-Gk-alphabet}
+  \mu=\Xi^{\otimes Q}p,
   \qquad
-  \langle s\rangle = P\,s_{\rm correct} + (A-1)U\,s_{\rm wrong} = G_1 ,
-  \label{eq:spikesurprisal}
+  G_k=\binom Qk^{-1}
+       \sum_{\substack{z\in(\mathcal A\cup\{\wild\})^Q\\|z|=k}}f(\mu_z).
 \end{equation}
-%
-a particular wrong answer having probability $U$, not $1 - P$.
-Before asking, every one of the $Q$ columns carries the same answer
-distribution $(P, U, \ldots, U)$ and hence entropy $G_1$, so
-$H_{\rm before} = H(M^{(0)}) = Q\,G_1$. Conditional on confirmation the
-next unasked answer has probabilities $P_2/P$ for zero and $U_2/P$
-for each nonzero symbol, with entropy
-%
-\begin{equation}
-  H_{\rm c}
-  \;:=\; -\frac{P_2}{P}\log_2\frac{P_2}{P}
-  - (A-1)\frac{U_2}{P}\log_2\frac{U_2}{P},
-  \qquad
-  H_{\rm after, correct} = (Q-1)H_{\rm c},
-  \label{eq:spikeHc}
+There are $\binom Qk A^k$ contributions at size $k$. The averaging matrix
+in \eqref{eq:Xi-all-G} has entries
+$\mathsf C_{k,z}=\mathbf1_{\{|z|=k\}}/\binom Qk$ as before.
+Appending each all-answers component takes $A-1$ additions, giving
+\begin{equation}\label{eq:Xi-alphabet-cost}
+  (A-1)\sum_{r=1}^Q(A+1)^{r-1}A^{Q-r}
+  =(A-1)\big[(A+1)^Q-A^Q\big].
 \end{equation}
-%
-the asked column being fixed while all $Q-1$ unasked columns share
-that conditional marginal. Refutation instead leaves equal posterior
-weights on all compatible maps, so every unasked answer is uniform on
-$A$ symbols and $H_{\rm after, wrong} = (Q-1)m$. Weighting the two
-branches,
-%
-\begin{equation}
-  \big\langle H\big(M^{(1)}\big)\big\rangle
-  = P\,H_{\rm after, correct} + (A-1)U\,H_{\rm after, wrong}
-  = (Q-1)(G_2 - G_1),
-  \label{eq:spikebranchavg}
-\end{equation}
-%
-the first equality ordinary branch averaging, the second the
-$\ell=1$ case of \eqref{eq:law-remaining}.
+For fixed $A$, the complete construction and entropy accumulation take
+order $(A+1)^Q$ work, compared with order $(2A)^Q$ for scanning the prior
+separately for every question set.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.6cm,
-  title={$(n,m) = (4,1)$}, title style={font=\small},
-  xlabel={$p$}, ylabel={bits}, xmin=0, xmax=1, ymin=0, ymax=18,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north,
-    legend columns=4, /tikz/every even column/.append style={column sep=4pt}},
-  legend cell align=left, restrict y to domain=0:20]
-\dataplot{cpre, dotted, very thick}{p}{hbefore}{figures/data/spike_one_4to1.dat}
-\dataplot{cok}{p}{scorrect}{figures/data/spike_one_4to1.dat}
-\dataplot{cbad}{p}{swrong}{figures/data/spike_one_4to1.dat}
-\dataplot{cexp}{p}{sexpected}{figures/data/spike_one_4to1.dat}
-\dataplot{cok, dashed}{p}{hcorrect}{figures/data/spike_one_4to1.dat}
-\dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_4to1.dat}
-\dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_4to1.dat}
-\datalegend{{before}, {$s_{\rm correct}$}, {$s_{\rm wrong}$},
-  {$\langle s\rangle$}, {after (correct)},
-  {after (wrong)}, {$\langle H(M^{(1)})\rangle$}}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.6cm,
-  title={$(n,m) = (3,2)$}, title style={font=\small},
-  xlabel={$p$}, xmin=0, xmax=1, ymin=0, ymax=18,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, restrict y to domain=0:20]
-\dataplot{cpre, dotted, very thick}{p}{hbefore}{figures/data/spike_one_3to2.dat}
-\dataplot{cok}{p}{scorrect}{figures/data/spike_one_3to2.dat}
-\dataplot{cbad}{p}{swrong}{figures/data/spike_one_3to2.dat}
-\dataplot{cexp}{p}{sexpected}{figures/data/spike_one_3to2.dat}
-\dataplot{cok, dashed}{p}{hcorrect}{figures/data/spike_one_3to2.dat}
-\dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_3to2.dat}
-\dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_3to2.dat}
-\end{axis}
-\end{tikzpicture}
-\caption{One-question anatomy of the spike prior against the special
-map's mass $p$: the branch surprisals \eqref{eq:spikesurprisal}
-(solid), the answer-matrix entropy before the question (dotted) and
-on each branch after it \eqref{eq:spikeHc} (dashed). Both panels
-carry $Qm = 16$ bits of table entropy at the uniform point.}
-\label{fig:spikeone}
-\end{figure}
+\subsection{Stopping at $\ell$ and the cost of another $G_k$}
+If only $G_0,\ldots,G_\ell$ are wanted, we retain only branches with
+at most $\ell$ single-answer restrictions among the axes already processed.
+A single-answer restriction at a processed axis never becomes an either-answer row later
+in the sweep, so discarded branches cannot contribute to the
+requested output. That output has
+\begin{equation}
+  \sum_{k=0}^{\ell}\binom Qk A^k
+\end{equation}
+entries. For this pruned sweep the exact addition count is
+\begin{equation}\label{eq:Xi-truncated-cost}
+  (A-1)\sum_{r=1}^Q A^{Q-r}
+    \sum_{s=0}^{\min(\ell,r-1)}\binom{r-1}{s}A^s.
+\end{equation}
+Here $s$ counts single-answer restrictions among the first $r-1$ axes.
+This shares the work for all requested sizes. The output count
+alone is not the construction cost: an arbitrary explicitly
+supplied prior still has $A^Q$ entries to read.
 
-For $p < 1$ the branch leverages divide the vertical distance between
-the pre-question curve and each branch curve by that branch's own
-surprisal,
-%
-\begin{equation}
-  L_{\rm correct}
-  = \frac{Q G_1 - (Q-1)H_{\rm c}}{-\log_2 P},
-  \qquad
-  L_{\rm wrong}
-  = \frac{Q G_1 - (Q-1)m}{-\log_2 U},
-  \label{eq:spikebranchlev}
-\end{equation}
-%
-whereas the aggregate leverage is the ratio of the two expected
-totals,
-%
-\begin{equation}
-  \mathcal L_1
-  = \frac{P\big[Q G_1 - (Q-1)H_{\rm c}\big]
-    + (A-1)U\big[Q G_1 - (Q-1)m\big]}{G_1}
-  = \frac{Q G_1 - (Q-1)(G_2-G_1)}{G_1}. 
-  \label{eq:spikeL1}
-\end{equation}
-%
-The branch formulas use realized surprisals; the expected formula
-divides the expected entropy drop by the expected surprisal $G_1$ and
-is therefore \emph{not} the probability-weighted average of the two
-branch ratios.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={$(n,m) = (4,1)$}, title style={font=\small},
-  xlabel={$p$}, ylabel={$L_1 = \Delta H(M)/s$},
-  xmin=0, xmax=1, ymin=-4, ymax=12,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, restrict y to domain=-6:14,
-  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
-  legend cell align=left]
-\addplot[black, thin, forget plot, domain=0:1] {0};
-\addplot[cpre, dotted, thick, domain=0:1] {1};
-\dataplot{cok, thick}{p}{lcorrect}{figures/data/spike_lev_4to1.dat}
-\dataplot{cbad, thick}{p}{lwrong}{figures/data/spike_lev_4to1.dat}
-\dataplot{cexp, thick}{p}{lexpected}{figures/data/spike_lev_4to1.dat}
-\datalegend{{uniform baseline $L=1$}, {correct}, {wrong}, {expected}}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={$(n,m) = (3,2)$}, title style={font=\small},
-  xlabel={$p$}, xmin=0, xmax=1, ymin=-4, ymax=12,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, restrict y to domain=-6:14]
-\addplot[black, thin, domain=0:1] {0};
-\addplot[cpre, dotted, thick, domain=0:1] {1};
-\dataplot{cok, thick}{p}{lcorrect}{figures/data/spike_lev_3to2.dat}
-\dataplot{cbad, thick}{p}{lwrong}{figures/data/spike_lev_3to2.dat}
-\dataplot{cexp, thick}{p}{lexpected}{figures/data/spike_lev_3to2.dat}
-\end{axis}
-\end{tikzpicture}
-\caption{Branchwise \eqref{eq:spikebranchlev} and expected
-\eqref{eq:spikeL1} leverage of the first question. A refuting answer
-carries so much surprisal that its own ratio falls below the uniform
-baseline and eventually below zero, yet the expectation stays well
-above $1$ because the confirming branch is both likely and cheap.}
-\label{fig:spikelev}
-\end{figure}
-
-\subsection{The extraction ratio}
-
-The total correlation $C := H(M^{(0)}) - G_Q = Q G_1 - G_Q$ is the
-information stored in dependencies among answers rather than visible
-in their separate marginals. Only the part of the expected entropy
-drop beyond the received entropy $G_1$ comes out of that store, so
-when $C > 0$ the share of it freed by a single question is
-%
-\begin{equation}
-  R_1 \;:=\; \frac{\langle \Delta H(M)\rangle - G_1}{C}
-  \;=\; \frac{(Q-1)(2G_1 - G_2)}{Q G_1 - G_Q}. 
-  \label{eq:extraction}
-\end{equation}
-%
-The two ratios differ only in their denominator:
-$R_1$ measures against the whole dependency stock, leverage against
-the received surprisal, and
-%
-\begin{equation}
-  R_1 = \frac{G_1}{C}\big(\mathcal L_1 - 1\big),
-  \qquad
-  \mathcal L_1 = 1 + \frac{C}{G_1}R_1 .
-  \label{eq:extractionvslev}
-\end{equation}
-%
-Thus $R_1$ is a stock-extraction fraction while
-$\mathcal L_1 - 1$ is released dependency information per
-received bit. At $p = 1$ both the numerator of $R_1$ and $C$ vanish;
-expanding \eqref{eq:spikeGk} with $\varepsilon = 1 - p \to 0^+$ gives
-the exact finite-$(n,m)$ ratio limit
-%
-\begin{equation}
-  \lim_{p\to1^-}R_1(p)
-  = \frac{(Q-1)N(1-u)^2}{Q N(1-u) - (N-1)}, 
-  \qquad
-  \frac{(Q-1)(1-u)^2}{Q(1-u)-1}
-  \label{eq:extractionsharp}
-\end{equation}
-%
-the second expression being the additional large-$N$ approximation.
-At $(n,m) = (2,1)$ the exact value is $12/17 \simeq 0.706$ against
-the approximation's $0.75$. Both share the thermodynamic limit
-%
-\begin{equation}
-  \lim_{n\to\infty}\lim_{p\to1^-}R_1(p) \;=\; 1 - u \;=\; 1 - 2^{-m}. 
-  \label{eq:extractiontdl}
-\end{equation}
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={$m = 1$, varying $n$}, title style={font=\small},
-  xlabel={special-map mass $p$},
-  ylabel={$R_1$ (fraction of $C$ extracted)},
-  xmin=0, xmax=1, ymin=0, ymax=1.02,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
-  legend cell align=left]
-\dataplot{cf1, thick}{p}{ratio}{figures/data/extraction_n2.dat}
-\dataplot{cf2, thick}{p}{ratio}{figures/data/extraction_n3.dat}
-\dataplot{cf3, thick}{p}{ratio}{figures/data/extraction_n4.dat}
-\dataplot{cf4, thick}{p}{ratio}{figures/data/extraction_n5.dat}
-\dataplot{cf5, thick}{p}{ratio}{figures/data/extraction_n6.dat}
-\datalegend{{$n=2$}, {$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}}
-\addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.7059};
-\addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.5826};
-\addplot[cf3, dashed, thin, forget plot, domain=0:1] {0.5357};
-\addplot[cf4, dashed, thin, forget plot, domain=0:1] {0.5167};
-\addplot[cf5, dashed, thin, forget plot, domain=0:1] {0.5081};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=7.4cm, height=5.4cm,
-  title={$n = 3$, varying $m$}, title style={font=\small},
-  xlabel={special-map mass $p$},
-  xmin=0, xmax=1, ymin=0, ymax=1.02,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
-  legend cell align=left]
-\dataplot{cf1, thick}{p}{ratio}{figures/data/extraction_m1.dat}
-\dataplot{cf2, thick}{p}{ratio}{figures/data/extraction_m2.dat}
-\dataplot{cf3, thick}{p}{ratio}{figures/data/extraction_m3.dat}
-\dataplot{cf4, thick}{p}{ratio}{figures/data/extraction_m4.dat}
-\datalegend{{$m=1$}, {$m=2$}, {$m=3$}, {$m=4$}}
-\addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.5826};
-\addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.7875};
-\addplot[cf3, dashed, thin, forget plot, domain=0:1] {0.8932};
-\addplot[cf4, dashed, thin, forget plot, domain=0:1] {0.9465};
-\end{axis}
-\end{tikzpicture}
-\caption{The exact one-question extraction ratio \eqref{eq:extraction}
-of the spike prior, plotted only where it is defined
-($1/N < p < 1$). Dashed lines are the exact finite-$N$ limits
-\eqref{eq:extractionsharp} as $p \to 1^-$. Growing $n$ drives them
-down to $1-u = 1/2$; growing $m$ lifts them toward one.}
-\label{fig:extraction}
-\end{figure}
-
-For the spike-plus-uniform family \eqref{eq:extractiontdl} is a
-theorem. Extending it to a broader class of uninformative hedges
-would require a precise definition and a separate extremal argument:
-full support alone is not sufficient.
-
-\subsection{The sharp-prior limit and the order of limits}
-
-The sharp-prior calculation takes $\varepsilon = 1 - p \to 0^+$ with
-$n$ and $m$ fixed. It is a limit toward the delta prior, not
-evaluation at $p = 1$, where leverage is $0/0$. With the entropy
-coefficient $\iota_k := \tfrac{N}{N-1}(1 - u^k)$ we have
-$P_k = 1 - \varepsilon\iota_k$, the other $u^{-k}-1$ outcomes share
-mass $\varepsilon\iota_k$, and
-%
-\begin{equation}
-  G_k = h_2(\varepsilon\iota_k)
-  + \varepsilon\iota_k\log_2(u^{-k}-1)
-  \;\sim\; \varepsilon\,\iota_k\log_2\frac1\varepsilon
-  \qquad (\varepsilon \downarrow 0)
-  \label{eq:sharpGk}
-\end{equation}
-%
-at fixed finite $Q$ and $k$. Substituting into \eqref{eq:Lk-G}
-cancels the common factor $\varepsilon\log_2(1/\varepsilon)$ and
-leaves, for $1 \le \ell \le Q$,
-%
-\begin{equation}
-  \lim_{p\to1^-}\mathcal L_\ell
-  = (1-u)\,\frac{Q - (Q-\ell)u^\ell}{1-u^\ell}
-  = \underbrace{Q(1-u)}_{\text{extensive plateau}}
-  + \underbrace{(1-u)\frac{\ell\,u^\ell}{1-u^\ell}}_{O(1)\ \text{boundary layer}} .
-  \label{eq:sharpLk}
-\end{equation}
-%
-The second term decays geometrically in $\ell$ and does not depend on
-$Q$ at all. In particular
-$\lim_{p\to1^-}\mathcal L_1 = Q - (Q-1)2^{-m}$, so
-%
-\begin{equation}
-  \lim_{n\to\infty}\lim_{p\to1^-}\frac{\mathcal L_1}{Q}
-  \;=\; 1 - 2^{-m}. 
-  \label{eq:culling}
-\end{equation}
-%
-The coefficient $1-2^{-m}$ is the fraction of the hypothesis count
-eliminated by one answer. Its equality with the normalized leverage
-follows from the entropy asymptotics and should not be read as
-literally settling that fraction of every individual column. The
-limiting operation is necessary: at $p = 1$ the learner already
-assigns probability one to the truth, so received and destroyed
-information both vanish and leverage is $0/0$. The finite value is
-the ratio at which the two vanish as $p \to 1^-$. Taking
-$\ell = \lfloor tQ\rfloor$ in \eqref{eq:sharpLk} gives the same constant
-at every $t > 0$, with the uniform bound
-%
-\begin{equation}
-  \sup_{1\le \ell\le Q}
-  \left|\frac1Q\lim_{p\to1^-}\mathcal L_\ell - (1-u)\right|
-  = O(Q^{-1}),
-  \label{eq:plateaubound}
-\end{equation}
-%
-so the microscopic boundary term survives only as an $O(1)$
-correction to the unnormalized leverage.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.1cm, height=5.2cm,
-  title={culling coefficient}, title style={font=\small},
-  xlabel={$m$}, ylabel={$\mathcal L_1/Q$},
-  xmin=0.5, xmax=10.5, ymin=0, ymax=1.05, xtick={2,4,6,8,10},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.97,0.03)}, anchor=south east},
-  legend cell align=left]
-\addplot[cexp, dashed, domain=0.5:10.5] {1};
-\addplot[cpre, thin, forget plot, domain=1:10, samples=80] {1-2^(-x)};
-\addplot[cpre, only marks, mark=*, mark size=1.4]
-  coordinates {(1,0.5)(2,0.75)(3,0.875)(4,0.9375)(5,0.96875)
-    (6,0.984375)(7,0.9921875)(8,0.99609)(9,0.998047)(10,0.999023)};
-\legend{{limit $m$ large}, {$1-2^{-m}$}}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.1cm, height=5.2cm,
-  title={sharp limit, varying $n$}, title style={font=\small},
-  xlabel={$t = \ell/Q$}, xmin=0, xmax=1, ymin=0.45, ymax=0.85,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
-  legend cell align=left]
-\dataplot{cf1}{x}{lev}{figures/data/spikeflow_sharp_n3.dat}
-\dataplot{cf2}{x}{lev}{figures/data/spikeflow_sharp_n4.dat}
-\dataplot{cf3}{x}{lev}{figures/data/spikeflow_sharp_n5.dat}
-\dataplot{cf4}{x}{lev}{figures/data/spikeflow_sharp_n6.dat}
-\dataplot{cf5}{x}{lev}{figures/data/spikeflow_sharp_n8.dat}
-\dataplot{black!55}{x}{lev}{figures/data/spikeflow_sharp_n10.dat}
-\addplot[black, dashed, domain=0:1] {0.5};
-\datalegend{{$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}, {$n=8$}, {$n=10$},
-  {$1-2^{-m}$}}
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.1cm, height=5.2cm,
-  title={approach at $n=6$}, title style={font=\small},
-  xlabel={$t = \ell/Q$}, xmin=0, xmax=1, ymin=0, ymax=0.85,
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12},
-  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
-  legend cell align=left]
-\dataplot{cf1}{x}{e2}{figures/data/spikeflow_eps.dat}
-\dataplot{cf2}{x}{e4}{figures/data/spikeflow_eps.dat}
-\dataplot{cf3}{x}{e8}{figures/data/spikeflow_eps.dat}
-\dataplot{cf4}{x}{e12}{figures/data/spikeflow_eps.dat}
-\dataplot{black, dashed}{x}{sharp}{figures/data/spikeflow_eps.dat}
-\datalegend{{$10^{-2}$}, {$10^{-4}$}, {$10^{-8}$}, {$10^{-12}$},
-  {sharp limit}}
-\end{axis}
-\end{tikzpicture}
-\caption{Left: the culling coefficient \eqref{eq:culling} against the
-answer width. Middle: the sharp-prior curve \eqref{eq:sharpLk}
-normalized by $Q$, whose $O(1)$ boundary layer is squeezed into the
-origin as $n$ grows, leaving the plateau at $1-u$. Right: the
-approach at fixed $n = 6$, $m = 1$, labeled by $1-p$. Tightening the
-prior lifts the curve only logarithmically, so the plateau is
-approached pointwise in $t$ but never uniformly.}
-\label{fig:sharpflow}
-\end{figure}
-
-As $p \to 1^-$ the fixed-$p$ coefficient of
-\eqref{eq:spikehyperbola} diverges,
-$\big[\eta_0(p,m)-(1-p)m\big]/\big[(1-p)m\big]
-\sim \tfrac{1-2^{-m}}{m}\log_2\tfrac1{1-p}$, which is the
-noncommutation in explicit form. Writing
-$L_{p,n}(t) := \mathcal L_{\lfloor tQ\rfloor}$ and comparing
-under the same normalization,
-%
-\begin{equation}
-  \lim_{n\to\infty}\lim_{p\to1^-}\frac{L_{p,n}(t)}{Q} = 1-2^{-m},
-  \qquad
-  \lim_{p\to1^-}\lim_{n\to\infty}\frac{L_{p,n}(t)}{Q} = 0 .
-  \label{eq:noncommute}
-\end{equation}
-%
-Before dividing by $Q$ the first ordering is extensive while the
-second diverges only logarithmically in $1/(1-p)$. The two orders are
-the endpoints of a family of joint scalings. Choose $p_n \to 1$ with
-prescribed exponential sharpness
-%
-\begin{equation}
-  \frac{\log_2\big(1/(1-p_n)\big)}{Q}\longrightarrow
-  \lambda\in(0,\infty),
-  \label{eq:lambdascaling}
-\end{equation}
-%
-so that $\lambda = 0$ recovers the scaling behind the second limit and
-the formal endpoint $\lambda = \infty$ the first. Putting
-$\varepsilon_n = 1-p_n$, the leading entropies for $0 < t < 1$ and
-$\ell = \lfloor tQ\rfloor$ are
-$G_1 \sim (1-u)\varepsilon_n\lambda Q$,
-$G_\ell \sim \varepsilon_n Q(\lambda + mt)$ and
-$G_{\ell+1}-G_\ell \sim \varepsilon_n m$, and substitution into
-\eqref{eq:Lk-G} gives the crossover
-%
-\begin{equation}
-  \frac{L_{p_n,n}(t)}{Q}
-  \longrightarrow (1-u)\,\frac{\lambda}{\lambda + mt}. 
-  \label{eq:crossover}
-\end{equation}
-%
-At $t = 1$ the increment $G_{\ell+1}-G_\ell$ is undefined and the same value
-follows instead from the completion formula. The two familiar orders
-are thus endpoints of a larger family.
+Once the marginals are available, extracting a further $G_k$
+requires $\binom Qk A^k$ evaluations of $f$ and their accumulation,
+with no further marginalization. Better still, we can accumulate one
+entropy sum per $k$ as the final components are produced; then
+all requested $G_k$ are ready at the end. If the sweep was pruned
+at $\ell$, this does not make $G_{\ell+1}$ free: its discarded
+branches must also be computed. Nor do the scalar values
+$G_0,\ldots,G_\ell$ alone generally determine the next one.
 
 \section{Block priors and the Bernstein profile language}\label{app:blockpriors}
 
@@ -8685,6 +8667,454 @@ $(4,1)$ column from the reference dataset and sample it against
 our own synthesizer, while the $(3,2)$ classes, being one input bit
 smaller and so a much smaller formula, we synthesize here from
 scratch.
+
+\section{More characteristics of the spike prior}\label{app:spike}
+
+This appendix continues the toy example of Section~\ref{sec:spike}:
+the anatomy of a single question, the fraction of the dependency
+stock it extracts, and the sharp-prior limit with its
+order-of-limits structure.
+
+\subsection{One question, branch by branch}
+
+For a single question abbreviate $P := P_1$ and $U := U_1$, so that
+$P + (A-1)U = 1$: the zero answer has probability $P$, while each
+particular nonzero answer has probability $U$. Here \emph{correct}
+means that the observed answer agrees with the spike map at this
+question; it does not assert that the entire spike map is the truth.
+The surprisals are
+%
+\begin{equation}
+  s_{\rm correct} = -\log_2 P,
+  \qquad
+  s_{\rm wrong} = -\log_2 U,
+  \qquad
+  \langle s\rangle = P\,s_{\rm correct} + (A-1)U\,s_{\rm wrong} = G_1 ,
+  \label{eq:spikesurprisal}
+\end{equation}
+%
+a particular wrong answer having probability $U$, not $1 - P$.
+Before asking, every one of the $Q$ columns carries the same answer
+distribution $(P, U, \ldots, U)$ and hence entropy $G_1$, so
+$H_{\rm before} = H(M^{(0)}) = Q\,G_1$. Conditional on confirmation the
+next unasked answer has probabilities $P_2/P$ for zero and $U_2/P$
+for each nonzero symbol, with entropy
+%
+\begin{equation}
+  H_{\rm c}
+  \;:=\; -\frac{P_2}{P}\log_2\frac{P_2}{P}
+  - (A-1)\frac{U_2}{P}\log_2\frac{U_2}{P},
+  \qquad
+  H_{\rm after, correct} = (Q-1)H_{\rm c},
+  \label{eq:spikeHc}
+\end{equation}
+%
+the asked column being fixed while all $Q-1$ unasked columns share
+that conditional marginal. Refutation instead leaves equal posterior
+weights on all compatible maps, so every unasked answer is uniform on
+$A$ symbols and $H_{\rm after, wrong} = (Q-1)m$. Weighting the two
+branches,
+%
+\begin{equation}
+  \big\langle H\big(M^{(1)}\big)\big\rangle
+  = P\,H_{\rm after, correct} + (A-1)U\,H_{\rm after, wrong}
+  = (Q-1)(G_2 - G_1),
+  \label{eq:spikebranchavg}
+\end{equation}
+%
+the first equality ordinary branch averaging, the second the
+$\ell=1$ case of \eqref{eq:law-remaining}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.6cm,
+  title={$(n,m) = (4,1)$}, title style={font=\small},
+  xlabel={$p$}, ylabel={bits}, xmin=0, xmax=1, ymin=0, ymax=18,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north,
+    legend columns=4, /tikz/every even column/.append style={column sep=4pt}},
+  legend cell align=left, restrict y to domain=0:20]
+\dataplot{cpre, dotted, very thick}{p}{hbefore}{figures/data/spike_one_4to1.dat}
+\dataplot{cok}{p}{scorrect}{figures/data/spike_one_4to1.dat}
+\dataplot{cbad}{p}{swrong}{figures/data/spike_one_4to1.dat}
+\dataplot{cexp}{p}{sexpected}{figures/data/spike_one_4to1.dat}
+\dataplot{cok, dashed}{p}{hcorrect}{figures/data/spike_one_4to1.dat}
+\dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_4to1.dat}
+\dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_4to1.dat}
+\datalegend{{before}, {$s_{\rm correct}$}, {$s_{\rm wrong}$},
+  {$\langle s\rangle$}, {after (correct)},
+  {after (wrong)}, {$\langle H(M^{(1)})\rangle$}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.6cm,
+  title={$(n,m) = (3,2)$}, title style={font=\small},
+  xlabel={$p$}, xmin=0, xmax=1, ymin=0, ymax=18,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, restrict y to domain=0:20]
+\dataplot{cpre, dotted, very thick}{p}{hbefore}{figures/data/spike_one_3to2.dat}
+\dataplot{cok}{p}{scorrect}{figures/data/spike_one_3to2.dat}
+\dataplot{cbad}{p}{swrong}{figures/data/spike_one_3to2.dat}
+\dataplot{cexp}{p}{sexpected}{figures/data/spike_one_3to2.dat}
+\dataplot{cok, dashed}{p}{hcorrect}{figures/data/spike_one_3to2.dat}
+\dataplot{cbad, dashed}{p}{hwrong}{figures/data/spike_one_3to2.dat}
+\dataplot{cexp, dashed}{p}{hexpected}{figures/data/spike_one_3to2.dat}
+\end{axis}
+\end{tikzpicture}
+\caption{One-question anatomy of the spike prior against the special
+map's mass $p$: the branch surprisals \eqref{eq:spikesurprisal}
+(solid), the answer-matrix entropy before the question (dotted) and
+on each branch after it \eqref{eq:spikeHc} (dashed). Both panels
+carry $Qm = 16$ bits of table entropy at the uniform point.}
+\label{fig:spikeone}
+\end{figure}
+
+For $p < 1$ the branch leverages divide the vertical distance between
+the pre-question curve and each branch curve by that branch's own
+surprisal,
+%
+\begin{equation}
+  L_{\rm correct}
+  = \frac{Q G_1 - (Q-1)H_{\rm c}}{-\log_2 P},
+  \qquad
+  L_{\rm wrong}
+  = \frac{Q G_1 - (Q-1)m}{-\log_2 U},
+  \label{eq:spikebranchlev}
+\end{equation}
+%
+whereas the aggregate leverage is the ratio of the two expected
+totals,
+%
+\begin{equation}
+  \mathcal L_1
+  = \frac{P\big[Q G_1 - (Q-1)H_{\rm c}\big]
+    + (A-1)U\big[Q G_1 - (Q-1)m\big]}{G_1}
+  = \frac{Q G_1 - (Q-1)(G_2-G_1)}{G_1}. 
+  \label{eq:spikeL1}
+\end{equation}
+%
+The branch formulas use realized surprisals; the expected formula
+divides the expected entropy drop by the expected surprisal $G_1$ and
+is therefore \emph{not} the probability-weighted average of the two
+branch ratios.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.4cm,
+  title={$(n,m) = (4,1)$}, title style={font=\small},
+  xlabel={$p$}, ylabel={$L_1 = \Delta H(M)/s$},
+  xmin=0, xmax=1, ymin=-4, ymax=12,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, restrict y to domain=-6:14,
+  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
+  legend cell align=left]
+\addplot[black, thin, forget plot, domain=0:1] {0};
+\addplot[cpre, dotted, thick, domain=0:1] {1};
+\dataplot{cok, thick}{p}{lcorrect}{figures/data/spike_lev_4to1.dat}
+\dataplot{cbad, thick}{p}{lwrong}{figures/data/spike_lev_4to1.dat}
+\dataplot{cexp, thick}{p}{lexpected}{figures/data/spike_lev_4to1.dat}
+\datalegend{{uniform baseline $L=1$}, {correct}, {wrong}, {expected}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.4cm,
+  title={$(n,m) = (3,2)$}, title style={font=\small},
+  xlabel={$p$}, xmin=0, xmax=1, ymin=-4, ymax=12,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, restrict y to domain=-6:14]
+\addplot[black, thin, domain=0:1] {0};
+\addplot[cpre, dotted, thick, domain=0:1] {1};
+\dataplot{cok, thick}{p}{lcorrect}{figures/data/spike_lev_3to2.dat}
+\dataplot{cbad, thick}{p}{lwrong}{figures/data/spike_lev_3to2.dat}
+\dataplot{cexp, thick}{p}{lexpected}{figures/data/spike_lev_3to2.dat}
+\end{axis}
+\end{tikzpicture}
+\caption{Branchwise \eqref{eq:spikebranchlev} and expected
+\eqref{eq:spikeL1} leverage of the first question. A refuting answer
+carries so much surprisal that its own ratio falls below the uniform
+baseline and eventually below zero, yet the expectation stays well
+above $1$ because the confirming branch is both likely and cheap.}
+\label{fig:spikelev}
+\end{figure}
+
+\subsection{The extraction ratio}
+
+The total correlation $C := H(M^{(0)}) - G_Q = Q G_1 - G_Q$ is the
+information stored in dependencies among answers rather than visible
+in their separate marginals. Only the part of the expected entropy
+drop beyond the received entropy $G_1$ comes out of that store, so
+when $C > 0$ the share of it freed by a single question is
+%
+\begin{equation}
+  R_1 \;:=\; \frac{\langle \Delta H(M)\rangle - G_1}{C}
+  \;=\; \frac{(Q-1)(2G_1 - G_2)}{Q G_1 - G_Q}. 
+  \label{eq:extraction}
+\end{equation}
+%
+The two ratios differ only in their denominator:
+$R_1$ measures against the whole dependency stock, leverage against
+the received surprisal, and
+%
+\begin{equation}
+  R_1 = \frac{G_1}{C}\big(\mathcal L_1 - 1\big),
+  \qquad
+  \mathcal L_1 = 1 + \frac{C}{G_1}R_1 .
+  \label{eq:extractionvslev}
+\end{equation}
+%
+Thus $R_1$ is a stock-extraction fraction while
+$\mathcal L_1 - 1$ is released dependency information per
+received bit. At $p = 1$ both the numerator of $R_1$ and $C$ vanish;
+expanding \eqref{eq:spikeGk} with $\varepsilon = 1 - p \to 0^+$ gives
+the exact finite-$(n,m)$ ratio limit
+%
+\begin{equation}
+  \lim_{p\to1^-}R_1(p)
+  = \frac{(Q-1)N(1-u)^2}{Q N(1-u) - (N-1)}, 
+  \qquad
+  \frac{(Q-1)(1-u)^2}{Q(1-u)-1}
+  \label{eq:extractionsharp}
+\end{equation}
+%
+the second expression being the additional large-$N$ approximation.
+At $(n,m) = (2,1)$ the exact value is $12/17 \simeq 0.706$ against
+the approximation's $0.75$. Both share the thermodynamic limit
+%
+\begin{equation}
+  \lim_{n\to\infty}\lim_{p\to1^-}R_1(p) \;=\; 1 - u \;=\; 1 - 2^{-m}. 
+  \label{eq:extractiontdl}
+\end{equation}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.4cm,
+  title={$m = 1$, varying $n$}, title style={font=\small},
+  xlabel={special-map mass $p$},
+  ylabel={$R_1$ (fraction of $C$ extracted)},
+  xmin=0, xmax=1, ymin=0, ymax=1.02,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
+  legend cell align=left]
+\dataplot{cf1, thick}{p}{ratio}{figures/data/extraction_n2.dat}
+\dataplot{cf2, thick}{p}{ratio}{figures/data/extraction_n3.dat}
+\dataplot{cf3, thick}{p}{ratio}{figures/data/extraction_n4.dat}
+\dataplot{cf4, thick}{p}{ratio}{figures/data/extraction_n5.dat}
+\dataplot{cf5, thick}{p}{ratio}{figures/data/extraction_n6.dat}
+\datalegend{{$n=2$}, {$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}}
+\addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.7059};
+\addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.5826};
+\addplot[cf3, dashed, thin, forget plot, domain=0:1] {0.5357};
+\addplot[cf4, dashed, thin, forget plot, domain=0:1] {0.5167};
+\addplot[cf5, dashed, thin, forget plot, domain=0:1] {0.5081};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=7.4cm, height=5.4cm,
+  title={$n = 3$, varying $m$}, title style={font=\small},
+  xlabel={special-map mass $p$},
+  xmin=0, xmax=1, ymin=0, ymax=1.02,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north, legend columns=5},
+  legend cell align=left]
+\dataplot{cf1, thick}{p}{ratio}{figures/data/extraction_m1.dat}
+\dataplot{cf2, thick}{p}{ratio}{figures/data/extraction_m2.dat}
+\dataplot{cf3, thick}{p}{ratio}{figures/data/extraction_m3.dat}
+\dataplot{cf4, thick}{p}{ratio}{figures/data/extraction_m4.dat}
+\datalegend{{$m=1$}, {$m=2$}, {$m=3$}, {$m=4$}}
+\addplot[cf1, dashed, thin, forget plot, domain=0:1] {0.5826};
+\addplot[cf2, dashed, thin, forget plot, domain=0:1] {0.7875};
+\addplot[cf3, dashed, thin, forget plot, domain=0:1] {0.8932};
+\addplot[cf4, dashed, thin, forget plot, domain=0:1] {0.9465};
+\end{axis}
+\end{tikzpicture}
+\caption{The exact one-question extraction ratio \eqref{eq:extraction}
+of the spike prior, plotted only where it is defined
+($1/N < p < 1$). Dashed lines are the exact finite-$N$ limits
+\eqref{eq:extractionsharp} as $p \to 1^-$. Growing $n$ drives them
+down to $1-u = 1/2$; growing $m$ lifts them toward one.}
+\label{fig:extraction}
+\end{figure}
+
+For the spike-plus-uniform family \eqref{eq:extractiontdl} is a
+theorem. Extending it to a broader class of uninformative hedges
+would require a precise definition and a separate extremal argument:
+full support alone is not sufficient.
+
+\subsection{The sharp-prior limit and the order of limits}
+
+The sharp-prior calculation takes $\varepsilon = 1 - p \to 0^+$ with
+$n$ and $m$ fixed. It is a limit toward the delta prior, not
+evaluation at $p = 1$, where leverage is $0/0$. With the entropy
+coefficient $\iota_k := \tfrac{N}{N-1}(1 - u^k)$ we have
+$P_k = 1 - \varepsilon\iota_k$, the other $u^{-k}-1$ outcomes share
+mass $\varepsilon\iota_k$, and
+%
+\begin{equation}
+  G_k = h_2(\varepsilon\iota_k)
+  + \varepsilon\iota_k\log_2(u^{-k}-1)
+  \;\sim\; \varepsilon\,\iota_k\log_2\frac1\varepsilon
+  \qquad (\varepsilon \downarrow 0)
+  \label{eq:sharpGk}
+\end{equation}
+%
+at fixed finite $Q$ and $k$. Substituting into \eqref{eq:Lk-G}
+cancels the common factor $\varepsilon\log_2(1/\varepsilon)$ and
+leaves, for $1 \le \ell \le Q$,
+%
+\begin{equation}
+  \lim_{p\to1^-}\mathcal L_\ell
+  = (1-u)\,\frac{Q - (Q-\ell)u^\ell}{1-u^\ell}
+  = \underbrace{Q(1-u)}_{\text{extensive plateau}}
+  + \underbrace{(1-u)\frac{\ell\,u^\ell}{1-u^\ell}}_{O(1)\ \text{boundary layer}} .
+  \label{eq:sharpLk}
+\end{equation}
+%
+The second term decays geometrically in $\ell$ and does not depend on
+$Q$ at all. In particular
+$\lim_{p\to1^-}\mathcal L_1 = Q - (Q-1)2^{-m}$, so
+%
+\begin{equation}
+  \lim_{n\to\infty}\lim_{p\to1^-}\frac{\mathcal L_1}{Q}
+  \;=\; 1 - 2^{-m}. 
+  \label{eq:culling}
+\end{equation}
+%
+The coefficient $1-2^{-m}$ is the fraction of the hypothesis count
+eliminated by one answer. Its equality with the normalized leverage
+follows from the entropy asymptotics and should not be read as
+literally settling that fraction of every individual column. The
+limiting operation is necessary: at $p = 1$ the learner already
+assigns probability one to the truth, so received and destroyed
+information both vanish and leverage is $0/0$. The finite value is
+the ratio at which the two vanish as $p \to 1^-$. Taking
+$\ell = \lfloor tQ\rfloor$ in \eqref{eq:sharpLk} gives the same constant
+at every $t > 0$, with the uniform bound
+%
+\begin{equation}
+  \sup_{1\le \ell\le Q}
+  \left|\frac1Q\lim_{p\to1^-}\mathcal L_\ell - (1-u)\right|
+  = O(Q^{-1}),
+  \label{eq:plateaubound}
+\end{equation}
+%
+so the microscopic boundary term survives only as an $O(1)$
+correction to the unnormalized leverage.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.1cm, height=5.2cm,
+  title={culling coefficient}, title style={font=\small},
+  xlabel={$m$}, ylabel={$\mathcal L_1/Q$},
+  xmin=0.5, xmax=10.5, ymin=0, ymax=1.05, xtick={2,4,6,8,10},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.97,0.03)}, anchor=south east},
+  legend cell align=left]
+\addplot[cexp, dashed, domain=0.5:10.5] {1};
+\addplot[cpre, thin, forget plot, domain=1:10, samples=80] {1-2^(-x)};
+\addplot[cpre, only marks, mark=*, mark size=1.4]
+  coordinates {(1,0.5)(2,0.75)(3,0.875)(4,0.9375)(5,0.96875)
+    (6,0.984375)(7,0.9921875)(8,0.99609)(9,0.998047)(10,0.999023)};
+\legend{{limit $m$ large}, {$1-2^{-m}$}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.1cm, height=5.2cm,
+  title={sharp limit, varying $n$}, title style={font=\small},
+  xlabel={$t = \ell/Q$}, xmin=0, xmax=1, ymin=0.45, ymax=0.85,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
+  legend cell align=left]
+\dataplot{cf1}{x}{lev}{figures/data/spikeflow_sharp_n3.dat}
+\dataplot{cf2}{x}{lev}{figures/data/spikeflow_sharp_n4.dat}
+\dataplot{cf3}{x}{lev}{figures/data/spikeflow_sharp_n5.dat}
+\dataplot{cf4}{x}{lev}{figures/data/spikeflow_sharp_n6.dat}
+\dataplot{cf5}{x}{lev}{figures/data/spikeflow_sharp_n8.dat}
+\dataplot{black!55}{x}{lev}{figures/data/spikeflow_sharp_n10.dat}
+\addplot[black, dashed, domain=0:1] {0.5};
+\datalegend{{$n=3$}, {$n=4$}, {$n=5$}, {$n=6$}, {$n=8$}, {$n=10$},
+  {$1-2^{-m}$}}
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.1cm, height=5.2cm,
+  title={approach at $n=6$}, title style={font=\small},
+  xlabel={$t = \ell/Q$}, xmin=0, xmax=1, ymin=0, ymax=0.85,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12},
+  legend style={font=\tiny, at={(0.97,0.97)}, anchor=north east},
+  legend cell align=left]
+\dataplot{cf1}{x}{e2}{figures/data/spikeflow_eps.dat}
+\dataplot{cf2}{x}{e4}{figures/data/spikeflow_eps.dat}
+\dataplot{cf3}{x}{e8}{figures/data/spikeflow_eps.dat}
+\dataplot{cf4}{x}{e12}{figures/data/spikeflow_eps.dat}
+\dataplot{black, dashed}{x}{sharp}{figures/data/spikeflow_eps.dat}
+\datalegend{{$10^{-2}$}, {$10^{-4}$}, {$10^{-8}$}, {$10^{-12}$},
+  {sharp limit}}
+\end{axis}
+\end{tikzpicture}
+\caption{Left: the culling coefficient \eqref{eq:culling} against the
+answer width. Middle: the sharp-prior curve \eqref{eq:sharpLk}
+normalized by $Q$, whose $O(1)$ boundary layer is squeezed into the
+origin as $n$ grows, leaving the plateau at $1-u$. Right: the
+approach at fixed $n = 6$, $m = 1$, labeled by $1-p$. Tightening the
+prior lifts the curve only logarithmically, so the plateau is
+approached pointwise in $t$ but never uniformly.}
+\label{fig:sharpflow}
+\end{figure}
+
+As $p \to 1^-$ the fixed-$p$ coefficient of
+\eqref{eq:spikehyperbola} diverges,
+$\big[\eta_0(p,m)-(1-p)m\big]/\big[(1-p)m\big]
+\sim \tfrac{1-2^{-m}}{m}\log_2\tfrac1{1-p}$, which is the
+noncommutation in explicit form. Writing
+$L_{p,n}(t) := \mathcal L_{\lfloor tQ\rfloor}$ and comparing
+under the same normalization,
+%
+\begin{equation}
+  \lim_{n\to\infty}\lim_{p\to1^-}\frac{L_{p,n}(t)}{Q} = 1-2^{-m},
+  \qquad
+  \lim_{p\to1^-}\lim_{n\to\infty}\frac{L_{p,n}(t)}{Q} = 0 .
+  \label{eq:noncommute}
+\end{equation}
+%
+Before dividing by $Q$ the first ordering is extensive while the
+second diverges only logarithmically in $1/(1-p)$. The two orders are
+the endpoints of a family of joint scalings. Choose $p_n \to 1$ with
+prescribed exponential sharpness
+%
+\begin{equation}
+  \frac{\log_2\big(1/(1-p_n)\big)}{Q}\longrightarrow
+  \lambda\in(0,\infty),
+  \label{eq:lambdascaling}
+\end{equation}
+%
+so that $\lambda = 0$ recovers the scaling behind the second limit and
+the formal endpoint $\lambda = \infty$ the first. Putting
+$\varepsilon_n = 1-p_n$, the leading entropies for $0 < t < 1$ and
+$\ell = \lfloor tQ\rfloor$ are
+$G_1 \sim (1-u)\varepsilon_n\lambda Q$,
+$G_\ell \sim \varepsilon_n Q(\lambda + mt)$ and
+$G_{\ell+1}-G_\ell \sim \varepsilon_n m$, and substitution into
+\eqref{eq:Lk-G} gives the crossover
+%
+\begin{equation}
+  \frac{L_{p_n,n}(t)}{Q}
+  \longrightarrow (1-u)\,\frac{\lambda}{\lambda + mt}. 
+  \label{eq:crossover}
+\end{equation}
+%
+At $t = 1$ the increment $G_{\ell+1}-G_\ell$ is undefined and the same value
+follows instead from the completion formula. The two familiar orders
+are thus endpoints of a larger family.
 
 \section{Symbols}\label{app:symbols}
 
