@@ -12,14 +12,14 @@ unnecessary -- averaging the indicator over uniformly random orders is
 already the definition, and at n=4 we take enough orders that the curve
 is smooth to plotting accuracy.
 Usage: python rm_gamma_data.py
-Writes figures/data/rmgamma_n{4,6,8}.dat.
+Writes data/rmgamma_n{4,6,8}.dat.
 """
 import random
 import sys
 from math import comb
 
 random.seed(20260824)
-OUT = r"figures/data"
+from _repo import DATA as OUT   # the .dat files all land in data/
 ORDERS = {6: 60000, 8: 12000, 10: 4000, 12: 1200}
 
 

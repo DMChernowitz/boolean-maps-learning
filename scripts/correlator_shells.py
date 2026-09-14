@@ -1,5 +1,5 @@
 """
-Numerical verification of the identities in learning_agent.md, section
+Numerical verification of the identities in notes/learning_agent.md, section
 "Computing the correlators for general m: a worked recipe at n=3, m=2".
 
 Prior: a deliberately lumpy prior on the N = 4^8 = 65536 hypotheses

@@ -1640,7 +1640,7 @@ function render() {
   document.getElementById("foot").innerHTML =
     `Complexity data: exact minimum AIG sizes — 4→1 from the krinkin/bounds NPN4 dataset; 3→2 (joint,
     shared-gate) and 3→1 (14 NPN classes) from this project’s SAT-based exact synthesis
-    (<span class="mono">output/table_*.csv</span>). Everything is computed
+    (<span class="mono">data/table_*.csv</span>). Everything is computed
     live on each slider move or question: the Gibbs prior conditioned on the answers so far (zero the
     inconsistent maps, renormalize — Bayes with 0/1 likelihoods), a fast Walsh–Hadamard transform of all
     ${N.toLocaleString()} posterior weights (${ds.B} butterfly stages), and every statistic above; the

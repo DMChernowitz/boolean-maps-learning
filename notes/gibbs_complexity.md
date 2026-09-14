@@ -82,11 +82,11 @@ prints AND = 1, OR = 1, XOR = 3, NAND = 1.
 - `(4,1)`: values are adopted from the published `github.com/krinkin/bounds`
   reproducibility dataset (`reference_npn4_opt_aig.csv`, 222 NPN classes).
   `build_table_4to1.py` maps each of the 65,536 truth tables to its class
-  representative and writes `output/table_4to1.csv`.
+  representative and writes `data/table_4to1.csv`.
 - `(3,2)`: no reference table exists, so `run_synth_3to2.py` synthesizes all
   308 classes from scratch over a process pool, caching the result in
   `class_complexity_3to2.json`. `build_table_3to2.py` expands that to
-  `output/table_3to2.csv`.
+  `data/table_3to2.csv`.
 - `(3,1)`: `build_table_3to1.py`, 256 maps, small enough to be direct.
 
 Each CSV carries the truth-table columns plus `circuit_complexity`, `support`,

@@ -21,7 +21,7 @@ C21 = [0, 1, 1, 0, 1, 0, 3, 1, 1, 3, 0, 1, 0, 1, 1, 0]
 def read_table(name):
     """Return the complexity, footprint and bias columns of a table."""
     complexity, footprint, bias = [], [], []
-    with open(os.path.join(REPO, "output", name)) as fh:
+    with open(os.path.join(REPO, "data", name)) as fh:
         for row in csv.DictReader(fh):
             complexity.append(int(row["circuit_complexity"]))
             footprint.append(int(row["footprint"]))

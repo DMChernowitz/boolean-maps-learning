@@ -10,10 +10,11 @@ import json
 import numpy as np
 
 from groups import canonicalize_3to2
+from _repo import data
 
 
 def main():
-    with open("class_complexity_3to2.json") as fh:
+    with open(data("class_complexity_3to2.json")) as fh:
         class_complexity = {int(k): v for k, v in json.load(fh).items()}
 
     canon = canonicalize_3to2()
@@ -22,7 +23,7 @@ def main():
               + ["circuit_complexity", "support", "image_size",
                  "weight_bias", "footprint"])
 
-    with open("output/table_3to2.csv", "w", newline="") as fh:
+    with open(data("table_3to2.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(header)
         for combined_id in range(65536):

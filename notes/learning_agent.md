@@ -3328,7 +3328,7 @@ flattens toward the uniform prior.
 
 Alongside $C_j$, some much more immediately visible map descriptors are
 worth tabulating (all four below are columns of the classification
-tables, `output/table_*.csv`):
+tables, `data/table_*.csv`):
 
 - **Support** $S_j$: the number of input bits the map actually depends
   on — bit $i$ is irrelevant iff the truth table is two identical copies

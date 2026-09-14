@@ -1,8 +1,8 @@
 """Generate pgfplots data tables for the thermodynamic-limit chapter.
 
-Every formula here is implemented directly from thermodynamic_limit.md,
+Every formula here is implemented directly from notes/thermodynamic_limit.md,
 with that document's quoted landmark values used as assertions.  Output
-is written to figures/data/*.dat as whitespace-separated tables with a
+is written to data/*.dat as whitespace-separated tables with a
 header row of column names, consumed by \\addplot table[x=..., y=...].
 
 Analytic limit curves (hyperbolas, clique constants, the culling
@@ -13,7 +13,7 @@ import math
 import os
 
 LOG2 = math.log(2.0)
-OUT = os.path.join("figures", "data")
+from _repo import DATA as OUT   # the .dat files all land in data/
 
 
 def h2(z):

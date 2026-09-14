@@ -11,11 +11,12 @@ import csv
 import numpy as np
 
 from groups import canonicalize_4to1
+from _repo import data
 
 
 def main():
     class_complexity = {}
-    with open("reference_npn4_opt_aig.csv") as fh:
+    with open(data("reference_npn4_opt_aig.csv")) as fh:
         r = csv.DictReader(fh)
         for row in r:
             class_complexity[int(row["npn_rep_dec"])] = int(row["opt_aig"])
@@ -26,7 +27,7 @@ def main():
               + ["circuit_complexity", "support", "image_size",
                  "weight_bias", "footprint"])
 
-    with open("output/table_4to1.csv", "w", newline="") as fh:
+    with open(data("table_4to1.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(header)
         for f in range(65536):

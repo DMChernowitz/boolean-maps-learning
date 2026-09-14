@@ -1,5 +1,5 @@
 """
-Numerical verification and figures for the learning_agent.md section
+Numerical verification and figures for the notes/learning_agent.md section
 "The expected trajectory: a discrete derivative of block entropies".
 
 For arbitrary p, n, m, with the double average (question set uniform
@@ -25,6 +25,7 @@ from itertools import combinations
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from _repo import data
 
 N_INPUT = 3
 NQ = 1 << N_INPUT
@@ -36,7 +37,7 @@ H = lambda v: -sum(x * math.log2(x) for x in v if x > 0)
 
 def load31():
     C, F, W = [], [], []
-    with open("output/table_3to1.csv") as fh:
+    with open(data("table_3to1.csv")) as fh:
         r = csv.reader(fh)
         hd = next(r)
         iC, iF, iW = (hd.index(k) for k in

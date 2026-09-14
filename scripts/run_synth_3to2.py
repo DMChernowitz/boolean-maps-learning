@@ -6,6 +6,7 @@ import numpy as np
 
 from groups import canonicalize_3to2
 from aig_synth import synthesize
+from _repo import data
 
 
 def solve_one(combined_id):
@@ -28,7 +29,7 @@ def main():
             if (i + 1) % 10 == 0 or (i + 1) == len(reps):
                 print(f"  {i+1}/{len(reps)} done, elapsed {time.time()-t0:.1f}s", flush=True)
 
-    with open("class_complexity_3to2.json", "w") as fh:
+    with open(data("class_complexity_3to2.json"), "w") as fh:
         json.dump(results, fh)
     print("done, total time", time.time() - t0)
 

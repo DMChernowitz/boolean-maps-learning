@@ -1,4 +1,4 @@
-"""Finite-n expected leverage of the spike prior, for figures/data.
+"""Finite-n expected leverage of the spike prior, for data/.
 
 All subsets of a given size share one block entropy, so the exact
 finite law needs no simulation:
@@ -11,7 +11,7 @@ against the thermodynamic curve
 
   L_p(t) = (h_spike(p,m) - (1-t)(1-p) m) / (t (1-p) m).
 
-Writes figures/data/spikefin_m{m}p{100p}_n{n}.dat with columns t, lev.
+Writes data/spikefin_m{m}p{100p}_n{n}.dat with columns t, lev.
 """
 import math
 import os
@@ -19,7 +19,7 @@ from fractions import Fraction
 
 CASES = [(1, 0.3), (2, 0.8)]
 ORDERS = (4, 5, 6, 8)
-OUT = "figures/data"
+from _repo import DATA as OUT   # the .dat files all land in data/
 
 
 def h2(x):

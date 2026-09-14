@@ -2,7 +2,7 @@
 
 Prior p_j ~ exp(-(beta X_j + alpha F_j + mu B_j)) with X the AIG
 complexity, F = n I + S the footprint, B the signed weight bias, read
-from the classification tables (output/table_*.csv; the 2,1 values are
+from the classification tables (data/table_*.csv; the 2,1 values are
 small enough to inline).
 
 Strategies (Sec. 5.1 grid + the uniform average):
@@ -23,6 +23,7 @@ import math
 from itertools import combinations
 
 import numpy as np
+from _repo import data
 
 LOG2 = math.log(2)
 
@@ -57,14 +58,14 @@ def load_csv(path):
 
 
 def load_41():
-    X, F, B = load_csv("output/table_4to1.csv")
+    X, F, B = load_csv(data("table_4to1.csv"))
     f = np.arange(65536)
     D = (f[None, :] >> np.arange(16)[:, None]) & 1
     return dict(Q=16, A=2, m=1, D=D, X=X, F=F, B=B, name="41")
 
 
 def load_32():
-    X, F, B = load_csv("output/table_3to2.csv")
+    X, F, B = load_csv(data("table_3to2.csv"))
     c = np.arange(65536)
     f0, f1 = c >> 8, c & 0xFF
     q = np.arange(8)[:, None]
@@ -300,9 +301,9 @@ def main():
                 if k in r:
                     print(f"  {k:18s}",
                           " ".join(f"{v:.4f}" for v in r[k]))
-    with open("output/gibbs_curves.json", "w") as fh:
+    with open(data("gibbs_curves.json"), "w") as fh:
         json.dump(results, fh, indent=1)
-    print("wrote output/gibbs_curves.json")
+    print("wrote data/gibbs_curves.json")
 
     # class-count tables
     for load in (load_21, load_41, load_32):

@@ -16,6 +16,7 @@ import numpy as np
 
 from groups import canonicalize_3to1
 from aig_synth import synthesize
+from _repo import data
 
 
 def main():
@@ -32,7 +33,7 @@ def main():
     header = ([f"in_{format(k, '03b')}" for k in range(8)]
               + ["circuit_complexity", "support", "image_size",
                  "weight_bias", "footprint"])
-    with open("output/table_3to1.csv", "w", newline="") as fh:
+    with open(data("table_3to1.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(header)
         for f in range(256):

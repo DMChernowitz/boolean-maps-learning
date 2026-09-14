@@ -25,7 +25,7 @@ underflows float64 once the ranks pass 1074 -- at n = 12 they reach
 count and the logarithm come back into range.
 
 Usage: python rm_label_data.py [n ...]     (default: 4 8 12)
-Writes figures/data/rmlabel_n{n}.dat with columns t, mix, true.
+Writes data/rmlabel_n{n}.dat with columns t, mix, true.
 """
 import itertools
 import random
@@ -33,7 +33,7 @@ import sys
 from math import comb, log2
 
 random.seed(20260825)
-OUT = r"figures/data"
+from _repo import DATA as OUT   # the .dat files all land in data/
 F = lambda x: 1 - (1 - x) ** 2
 ORDERS = {8: 400, 10: 400, 12: 300}
 BINS = 200                      # target step count above the full-resolution size

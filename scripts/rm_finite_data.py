@@ -8,14 +8,14 @@ P_e = sum_{d>=e} w_d 2^{-r_d}, a function of the rank profile
 (r_0,...,r_n) alone.  n=4: full subset enumeration (exact).
 n=6,8: Monte Carlo over question orders, entropies exact per subset.
 Usage: python rm_finite_data.py [n4|n6|n8|all]
-Writes figures/data/rmfinite_{unif,max,min2}_n{4,6,8}.dat."""
+Writes data/rmfinite_{unif,max,min2}_n{4,6,8}.dat."""
 import itertools
 import random
 import sys
 from math import comb, log2
 
 random.seed(20260819)
-OUT = r"figures/data"
+from _repo import DATA as OUT   # the .dat files all land in data/
 FS = [lambda x: x, lambda x: x * x, lambda x: 1 - (1 - x) ** 2]
 TAGS = ["unif", "max", "min2"]
 PERMS = {6: 8000, 8: 1200}

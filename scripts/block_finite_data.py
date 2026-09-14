@@ -1,9 +1,9 @@
 """Exact finite-n leverage curves for three block priors, via the
 hypergeometric increment formula and the finite leverage law.
-Writes figures/data/blockfinite_*.dat for the appendix figure."""
+Writes data/blockfinite_*.dat for the appendix figure."""
 from math import comb
 
-OUT = r"figures/data"
+from _repo import DATA as OUT   # the .dat files all land in data/
 
 
 def hyper(i, r, Q, ell):

@@ -3,11 +3,12 @@ import random
 
 from groups import canonicalize_4to1
 from aig_synth import synthesize
+from _repo import data
 
 canon = canonicalize_4to1()
 
 rows = []
-with open("reference_npn4_opt_aig.csv") as fh:
+with open(data("reference_npn4_opt_aig.csv")) as fh:
     r = csv.DictReader(fh)
     for row in r:
         rows.append((int(row["npn_rep_dec"]), int(row["opt_aig"]), row["status"]))

@@ -31,9 +31,9 @@ def hexcol(path, nrows=65536):
     return "".join(out)
 
 
-c41 = hexcol(os.path.join(REPO, "output", "table_4to1.csv"))
-c32 = hexcol(os.path.join(REPO, "output", "table_3to2.csv"))
-c31 = hexcol(os.path.join(REPO, "output", "table_3to1.csv"), nrows=256)
+c41 = hexcol(os.path.join(REPO, "data", "table_4to1.csv"))
+c32 = hexcol(os.path.join(REPO, "data", "table_3to2.csv"))
+c31 = hexcol(os.path.join(REPO, "data", "table_3to1.csv"), nrows=256)
 # spot checks against the synthesis validation values
 assert c31[0x96] == "6" and c31[0xe8] == "4" and c31[0x88] == "1"
 

@@ -1,10 +1,10 @@
 """Emit the tikz for the survival-carpet panels of example 39,
 which are pasted into leveraged_learning.tex rather than read at
-compile time.  Needs figures/data/rmlabel_n{n}.dat for the two
+compile time.  Needs data/rmlabel_n{n}.dat for the two
 increment curves; run rm_label_data.py first.
 
 Those three tables (rmlabel_n4, rmlabel_n8, rmlabel_n12) are the only
-files under figures/data that leveraged_learning.tex never opens, so an
+files under data/ that leveraged_learning.tex never opens, so an
 audit of the .tex will report them as unused.  They are not: this script
 reads them and emits tikz that is pasted into the source by hand.  Do not
 delete them.
@@ -19,6 +19,7 @@ points.
 """
 import os
 from math import comb, sqrt
+from _repo import data
 
 F = lambda x: 1 - (1 - x) ** 2
 OUT = []
@@ -147,7 +148,7 @@ def panel(n, xs, ys, curves, xlabels, arrows=False, ylabels=True,
         L.append('  \\foreach \\x in {%s}' % rs)
         L.append('    \\draw[black!70] (\\x,-0.014) -- (\\x,0.014);')
     if curves:
-        dat = 'figures/data/rmlabel_n%d.dat' % n
+        dat = data('rmlabel_n%d.dat' % n)
         up, dn = steps(dat, 'true'), steps(dat, 'mix')
         L.append('  %% what an answer is worth: not knowing D, and knowing it')
         L.append('  \\fill[black!22]')

@@ -1,5 +1,5 @@
 """
-Numerical verification of the identities in learning_agent.md, section
+Numerical verification of the identities in notes/learning_agent.md, section
 "The update rule as a convolution: the correlator basis".
 
 For the running n=2, m=1 example prior:
