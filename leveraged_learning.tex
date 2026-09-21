@@ -1091,7 +1091,10 @@ the survivors, each of them rescaled by the same $1/M_{a,q}$, so the
 relative entropy of the posterior from the prior is $-\log_2 M_{a,q}$.
 Surprisal is the measure of information received.
 
-\subsection{Entropy bookkeeping}
+A more powerful treatment of the update rule, in terms of precomputed \emph{correlators} of questions, 
+is explained in Appendix~\ref{app:correlators}.
+
+\subsection{Entropy bookkeeping}\label{sec:bookkeeping}
 
 The extensive predictive entropy of the table adds the total logarithmic
 prediction risks of its columns, exactly as in equation~\eqref{eq:HM}:
@@ -1139,6 +1142,10 @@ ceiling for every $p$, while its $C = 1 - h_2(p)$ runs the whole way
 from $0$ to $1$ bit. That is why the ceiling on $H(M)$ is reached by
 priors other than the uniform one, while the ceiling on $H(p)$ is not:
 the uniform prior is the single point at which both are maximal.
+Appendix~\ref{app:correlators} opens $C$ up: in the Walsh-Hadamard
+basis it stops being a single number and becomes one coordinate per
+set of questions, with the update rule acting as a two-term
+convolution that moves weight down the ledger.
 
 The same scoring interpretation holds through observation updates. Let
 $\mathcal S$ be the questions already asked and $y=\psi(\mathcal S)$
@@ -1166,11 +1173,11 @@ Their agreement in
 the uniform-prior case is a consequence of independence; correlations
 are what allow one answer to improve several predictions.
 
-\subsection{Playing the guiding example}
+\subsubsection{What a question is worth}\label{sec:forecasts}
 
-Let us watch these ledgers in motion by playing the guiding example
-through all four questions. Werner can compute two forecasts for
-every unasked question, in advance, from his current belief: the expected
+What are these ledgers worth to Werner before he asks anything? He can
+compute two forecasts for every unasked question, in advance, from his
+current belief: the expected
 surprisal $\langle s \rangle$, which by
 equation~\eqref{eq:surprisal-entropy} is the entropy of that
 question's column, and the expected drop
@@ -1226,362 +1233,30 @@ distribution uniform over the table. The surprisal
 forecast needs $M$ alone, but the improvement forecast also needs
 the pairwise joint laws of the asked answer and the other answers.
 Two priors with the same $M$ can therefore give different forecasts
-of improvement. We append both forecasts as extra rows under $M$.
+of improvement.
 
-\begin{example}
+A forecast is not a promise. Playing the guiding example through all
+four questions, worked out in Appendix~\ref{app:playing}, shows the
+gap. Werner opens on $q = 11$, the question carrying the largest
+forecast: he expects it to clear $1.104$ bits from the table, for
+$0.979$ bits of surprisal. The answer that arrives is the less likely
+one, $a = 1$ at probability $0.415$. It costs him $1.269$ bits and
+clears only $0.748$ of table, worse on both counts than the forecast,
+and short of breaking even. Later questions more than repay it.
+Once every question has been asked every column is settled and $H(M)$
+has reached zero, as it always must; so the run ends having cleared
+the whole $2.925$ bits Werner started with, at a cost of $2.231$ bits
+of surprisal.
 
-Werner's belief is the prior of Table~\ref{tab:sixteen} as before. He plays greedily: always asking the question with the largest
-forecast reduction in matrix entropy. The truth is AND ($\psi = \phi_8$).
-
-\textbf{Question 1.} The starting state:
-\[
-  \begin{array}{c|cccc}
-    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
-      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
-    \hline
-    \mathbf{0} & \hm{20} 0.585 & \hm{27} 0.779 & \hm{31} 0.890 & \hm{29} 0.818 \\[2pt]
-    \mathbf{1} & \hm{15} 0.415 & \hm{8} 0.221 & \hm{4} 0.110 & \hm{6} 0.182 \\
-    \hline
-    \langle s \rangle & \hm{30} 0.979 & \hm{21} 0.762 & \hm{10} 0.500 & \hm{18} 0.684 \\[2pt]
-    \langle \Delta H(M) \rangle & \hm{35} 1.104 & \hm{22} 0.800 & \hm{12} 0.544 & \hm{22} 0.801
-  \end{array}
-\]
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1.5cm]
-  \faxis
-  \fslot{0}{30}{0.585}{1.357}{0.748}{1.104}
-  \fslot{2.65}{21}{0.779}{0.869}{0.556}{0.800}
-  \fslot{5.30}{10}{0.890}{0.600}{0.088}{0.544}
-  \fslot{7.95}{18}{0.818}{0.870}{0.491}{0.801}
-  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
-\end{tikzpicture}
-\end{center}
-To see where the forecast entries come from, take $q = 11$: the
-answer $a = 0$ arrives with probability $M_{0,11} = 0.585$ and would
-drop $H(M)$ from $2.925$ to $1.569$; the answer $a = 1$ arrives with
-probability $0.415$ and drops it only to $2.178$, so
-\begin{align*}
-  \langle s \rangle(11)
-  &= 0.585\, (0.773) + 0.415\, (1.269) = 0.979, \\
-  \langle \Delta H(M) \rangle(11)
-  &= 0.585\, (1.357) + 0.415\, (0.748) = 1.104.
-\end{align*}
-\end{example}
-
-\begin{example}
-Both forecast rows point to $q = 11$: it is the closest thing to a
-coin on offer ($\langle s\rangle = 0.979$) and moves the whole
-table most, by a wide margin. Part of $\Delta H(M)$ is just $\langle s \rangle$ itself.
-Werner asks it, and nature answers $a = 1$ (probability $0.415$,
-surprisal $s_1 = 1.269$). Eight maps die:
-%
-\begin{center}
-\begin{tabular}{c c l c c c}
-\toprule
-$j$ & $\phi_j(11)$ & name & $p_j$ & $p'_j$ & \\
-\midrule
-\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.394 & - & \tikzmark{w1ae} \\
-\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.010 & - & \tikzmark{w1be} \\
-\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.010 & - & \tikzmark{w1ce} \\
-\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.010 & - & \tikzmark{w1de} \\
-\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.131 & - & \tikzmark{w1ee} \\
-\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.010 & - & \tikzmark{w1fe} \\
-\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.010 & - & \tikzmark{w1ge} \\
-\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.010 & - & \tikzmark{w1he} \\
-8 & 1 & $b_1 \wedge b_0$ (AND) & 0.213 & 0.513 & \pbar{0.513} \\
-9 & 1 & $b_1 = b_0$ (XNOR) & 0.092 & 0.222 & \pbar{0.222} \\
-10 & 1 & $b_0$ (projection) & 0.040 & 0.096 & \pbar{0.096} \\
-11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.010 & 0.024 & \pbar{0.024} \\
-12 & 1 & $b_1$ (projection) & 0.010 & 0.024 & \pbar{0.024} \\
-13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.030 & 0.072 & \pbar{0.072} \\
-14 & 1 & $b_1 \vee b_0$ (OR) & 0.010 & 0.024 & \pbar{0.024} \\
-15 & 1 & TRUE (constant $1$) & 0.010 & 0.024 & \pbar{0.024} \\
-\bottomrule
-\end{tabular}
-\begin{tikzpicture}[overlay, remember picture]
-  \foreach \s/\e in {w1a/w1ae, w1b/w1be, w1c/w1ce, w1d/w1de,
-                     w1e/w1ee, w1f/w1fe, w1g/w1ge, w1h/w1he}
-    \draw[line width=0.5pt]
-      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
-      ([shift={(2pt,0.55ex)}]pic cs:\e);
-\end{tikzpicture}
-\end{center}
-
-The ledger:
-\[
-  H(M)\colon 2.925 \to 2.178, \qquad
-  H(p)\colon 2.707 \to 2.093, \qquad
-  C\colon 0.218 \to 0.085.
-\]
-Werner received $1.269$ bits but destroyed only $0.748$ bits of table.
-Correlations point the right way only on average, not on every draw. In this case, Werner got the much less informative branch, and paid the premium price for it.
-The destroyed-per-received ratio of this round is $L_1 = 0.589$: well
-below $1$, anti-leverage.
-\end{example}
-
-Question 1 is a reminder that the forecast rows are
-\emph{expectations}: they hold on average over many repetitions of
-the experiment, and only if the world really does draw its truth $\psi$
-from Werner's prior. On any single run the realized numbers are free
-to deviate.
-
-\begin{example}
-\textbf{Question 2.} The state after the collapse, with fresh
-forecasts:
-\[
-  \begin{array}{c|cccc}
-    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
-      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
-    \hline
-    \mathbf{0} & \hm{0} 0 & \hm{30} 0.855 & \hm{29} 0.831 & \hm{23} 0.658 \\[2pt]
-    \mathbf{1} & \hm{35} 1 & \hm{5} 0.145 & \hm{6} 0.169 & \hm{12} 0.342 \\
-    \hline
-    \langle s \rangle & \text{---} & \hm{14} 0.596 & \hm{16} 0.655 & \hm{28} 0.927 \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \hm{17} 0.670 & \hm{17} 0.677 & \hm{30} 0.983
-  \end{array}
-\]
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1.5cm]
-  \faxis
-  \fslot{2.65}{14}{0.855}{0.726}{0.341}{0.670}
-  \fslot{5.30}{16}{0.831}{0.723}{0.451}{0.677}
-  \fslot{7.95}{28}{0.658}{1.113}{0.733}{0.983}
-  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
-\end{tikzpicture}
-\end{center}
-Greedy Werner picks $q = 00$. Nature answers
-$a = 0$, which is the answer Werner favored (probability $0.658$), so the
-surprisal is only $s_2 = 0.604$ bits. Four of the eight die:
-%
-\begin{center}
-\begin{tabular}{c c l c c c}
-\toprule
-$j$ & $\phi_j(00)$ & name & $p_j$ & $p'_j$ & \\
-\midrule
-8 & 0 & $b_1 \wedge b_0$ (AND) & 0.513 & 0.780 & \pbar{0.780} \\
-\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.222 & - & \tikzmark{w2ae} \\
-10 & 0 & $b_0$ (projection) & 0.096 & 0.147 & \pbar{0.147} \\
-\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.024 & - & \tikzmark{w2be} \\
-12 & 0 & $b_1$ (projection) & 0.024 & 0.037 & \pbar{0.037} \\
-\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.072 & - & \tikzmark{w2ce} \\
-14 & 0 & $b_1 \vee b_0$ (OR) & 0.024 & 0.037 & \pbar{0.037} \\
-\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.024 & - & \tikzmark{w2de} \\
-\bottomrule
-\end{tabular}
-\begin{tikzpicture}[overlay, remember picture]
-  \foreach \s/\e in {w2a/w2ae, w2b/w2be, w2c/w2ce, w2d/w2de}
-    \draw[line width=0.5pt]
-      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
-      ([shift={(2pt,0.55ex)}]pic cs:\e);
-\end{tikzpicture}
-\end{center}
-
-The ledger:
-\[
-  H(M)\colon 2.178 \to 1.065, \qquad
-  H(p)\colon 2.093 \to 1.035, \qquad
-  C\colon 0.085 \to 0.030.
-\]
-This time $1.113$ bits are destroyed for $0.604$ received. Where did
-the extra $0.509$ come from? Partly from the favored answer arriving
-- the belief dropped $1.058$ against only $0.604$ paid - and
-partly from the store: $C$ fell by $0.055$.
-Step ratio $1.842$. Cumulatively, however, $1.860$ destroyed per $1.873$
-received gives $L_2 = 0.993$: still a hair
-below $1$. Even a strong second round has not quite repaid the
-expensive shock of question 1.
-\end{example}
-
-Why track $C$, when its step-by-step changes visibly do not match
-the amounts deduced? Because on a single realized run the deduced
-part has \emph{two} sources, and $C$ is the only quantity that
-separates them. Writing $\Delta$ for the realized drops in one step,
-\begin{equation}\label{eq:windfall-tower}
-  \underbrace{\Delta H(M) - s}_{\text{deduced}}
-  \;=\;
-  \underbrace{\big[\Delta H(p) - s\big]}_{\text{windfall}}
-  \;+\;
-  \underbrace{\big[{-}\Delta C\big]}_{\text{tower}},
-\end{equation}
-an identity, since $H(M) = H(p) + C$ at every stage. The windfall is
-luck: the realized surprisal undershooting (or overshooting) the
-realized drop in belief entropy. Windfall is zero in expectation. The tower
-term is structure: a genuine withdrawal from the correlation store,
-and the channel with a global guarantee. Over a complete run its
-withdrawals sum to exactly the initial $C$, while the windfalls
-average away. 
-
-\begin{example}
-\textbf{Question 3.} Two questions remain:
-\[
-  \begin{array}{c|cccc}
-    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
-      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
-    \hline
-    \mathbf{0} & \hm{0} 0 & \hm{32} 0.927 & \hm{29} 0.817 & \hm{35} 1 \\[2pt]
-    \mathbf{1} & \hm{35} 1 & \hm{3} 0.073 & \hm{6} 0.183 & \hm{0} 0 \\
-    \hline
-    \langle s \rangle & \text{---} & \hm{5} 0.378 & \hm{18} 0.687 & \text{---} \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \hm{6} 0.408 & \hm{19} 0.717 & \text{---}
-  \end{array}
-\]
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1.5cm]
-  \faxis
-  \fslot{2.65}{5}{0.927}{0.435}{0.065}{0.408}
-  \fslot{5.30}{18}{0.817}{0.801}{0.343}{0.717}
-  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
-\end{tikzpicture}
-\end{center}
-Greedy Werner picks $q = 01$; nature answers $a = 0$ (probability $0.817$,
-surprisal $s_3 = 0.292$). Two die:
-%
-\begin{center}
-\begin{tabular}{c c l c c c}
-\toprule
-$j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
-\midrule
-8 & 0 & $b_1 \wedge b_0$ (AND) & 0.780 & 0.955 & \pbar{0.955} \\
-\tikzmark{w3a}10 & 1 & $b_0$ (projection) & 0.147 & - & \tikzmark{w3ae} \\
-12 & 0 & $b_1$ (projection) & 0.037 & 0.045 & \pbar{0.045} \\
-\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.037 & - & \tikzmark{w3be} \\
-\bottomrule
-\end{tabular}
-\begin{tikzpicture}[overlay, remember picture]
-  \foreach \s/\e in {w3a/w3ae, w3b/w3be}
-    \draw[line width=0.5pt]
-      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
-      ([shift={(2pt,0.55ex)}]pic cs:\e);
-\end{tikzpicture}
-\end{center}
-
-The ledger:
-\[
-  H(M)\colon 1.065 \to 0.264, \qquad
-  H(p)\colon 1.035 \to 0.264, \qquad
-  C\colon 0.030 \to 0.
-\]
-Again a bargain: $0.801$ destroyed for a mere $0.292$ received, and
-$L_3 = 1.229$ finally climbs above unity. And note that $C$
-has dropped to zero.
-\end{example}
-
-$C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. 
-Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = Q(A-1)$. Expressing $M$ as a linear combination of maps drops knowledge.
-That's not the case once learning has reduced the number of free parameters to one each.
-
-\begin{example}
-\textbf{Question 4.} One question, one heavily loaded coin:
-\[
-  \begin{array}{c|cccc}
-    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
-      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
-    \hline
-    \mathbf{0} & \hm{0} 0 & \hm{33} 0.955 & \hm{35} 1 & \hm{35} 1 \\[2pt]
-    \mathbf{1} & \hm{35} 1 & \hm{2} 0.045 & \hm{0} 0 & \hm{0} 0 \\
-    \hline
-    \langle s \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---} \\[2pt]
-    \langle \Delta H(M) \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---}
-  \end{array}
-\]
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1.5cm]
-  \faxis
-  \fslot{2.65}{0}{0.955}{0.264}{0.264}{0.264}
-  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
-\end{tikzpicture}
-\end{center}
-The two forecasts now coincide: with $C = 0$ there is no transfer
-left to hope for, and the last question can only be observed, not
-leveraged. Nature answers $a = 0$ (probability $0.955$, surprisal
-$s_4 = 0.066$):
-%
-\begin{center}
-\begin{tabular}{c c l c c c}
-\toprule
-$j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
-\midrule
-8 & 0 & $b_1 \wedge b_0$ (AND) & 0.955 & 1.000 & \pbar{1.000} \\
-\tikzmark{w4a}12 & 1 & $b_1$ (projection) & 0.045 & - & \tikzmark{w4ae} \\
-\bottomrule
-\end{tabular}
-\begin{tikzpicture}[overlay, remember picture]
-  \draw[line width=0.5pt]
-    ([shift={(-2pt,0.55ex)}]pic cs:w4a) --
-    ([shift={(2pt,0.55ex)}]pic cs:w4ae);
-\end{tikzpicture}
-\end{center}
-
-The ledger closes:
-\[
-  H(M)\colon 0.264 \to 0, \qquad
-  H(p)\colon 0.264 \to 0, \qquad
-  C\colon 0 \to 0.
-\]
-The truth is AND. The step destroyed $0.264$ for $0.066$ received
-(ratio $3.990$) - not deduction this time, but luck: the destroyed
-amount was fixed in advance (the column's full entropy), while the
-realized surprisal undershot it because the likelier answer arrived.
-In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
-tower $0$.
-\end{example}
-
-\begin{example}[label=ex:run21]
-Cumulatively: $2.925$ bits of table
-destroyed, all of it, for $2.231$ bits of
-surprisal received: $L_4 = 1.311$. Most of that was luck, not
-intelligence. The figure below
-stacks the bits after each question: what uncertainty remains, plus what was
-received. Once it dips below the starting entropy, our prior has done net work. 
-
-\begin{center}
-\begin{tikzpicture}[x=1.35cm, y=1.05cm]
-  % axis
-  \draw[->] (-0.75,0) -- (-0.75,3.9);
-  \node[above, font=\small] at (-0.75,3.9) {bits};
-  \foreach \y in {0,1,2,3}
-    \draw (-0.81,\y) -- (-0.69,\y) node[left, font=\small] {$\y$};
-  % l = 0
-  \fill[blue!55] (-0.32,0) rectangle (0.32,2.925);
-  % l = 1: stack tops at 3.446, well above H(M^{(0)})
-  \fill[blue!55] (0.68,0) rectangle (1.32,2.178);
-  \fill[orange!85] (0.68,2.178) rectangle (1.32,3.446);
-  % l = 2
-  \fill[blue!55] (1.68,0) rectangle (2.32,1.065);
-  \fill[orange!85] (1.68,1.065) rectangle (2.32,2.938);
-  % l = 3
-  \fill[blue!55] (2.68,0) rectangle (3.32,0.264);
-  \fill[orange!85] (2.68,0.264) rectangle (3.32,2.429);
-  % l = 4
-  \fill[orange!85] (3.68,0) rectangle (4.32,2.231);
-  % initial-total line
-  \draw[dashed, gray] (-0.75,2.925) -- (4.6,2.925);
-  \node[right, font=\small, gray] at (4.6,2.925) {$H(M^{(0)})$};
-  % x labels
-  \foreach \l in {0,...,4}
-    \node[below, font=\small] at (\l,0) {$\ell{=}\l$};
-  % legend
-  \fill[blue!55] (5.4,2.15) rectangle (5.7,2.4);
-  \node[right, font=\small] at (5.7,2.27) {remaining $H(M)$};
-  \fill[orange!85] (5.4,1.55) rectangle (5.7,1.8);
-  \node[right, font=\small] at (5.7,1.67) {received $\sum s$};
-\end{tikzpicture}
-\end{center}
-The realized run through the guiding example:
-remaining table entropy plus cumulative surprisal received, after
-each question, against the initial total (dashed). The gap between
-each stack and the line is the cumulative deduced part. At
-$\ell = 1$ the stack tops out $0.521$ bits \emph{above} the
-line - the negative deduction of question 1, plainly visible. At
-$\ell = 2$ the stack still grazes the line from above ($0.013$ bits);
-only from $\ell = 3$ on do the stacks fall short of it, as genuine
-deduction overtakes the early loss.
-\end{example}
+That last pair of numbers is the thing to keep: what a run clears,
+set against what it cost. It deserves a name, and a quantity that
+tracks the ratio round by round.
 
 \subsection{Leverage}
 
 If the prior is good, meaning it actually models reality (the prevalence of maps),
-we expect graphs such as the one in Example~\ref{ex:run21} to drop as questions come in.
+we expect graphs such as the one in Example~\ref{ex:run21} of
+Appendix~\ref{app:playing} to drop as questions come in.
 The ratio of table entropy destroyed per bit of
 surprisal received deserves a name.
 
@@ -1605,771 +1280,6 @@ windfall, as the guiding example showed. The aggregate quantity
 $\mathcal L_\ell$ defined in Chapter~\ref{sec:expectations} removes
 that windfall in expectation: anything above $1$ in this
 $\mathcal L_\ell$ is deduction.
-
-\subsection{Correlators}\label{sec:correlators}
-
-This section can be skipped on a first reading: the later chapters
-do not depend on it.
-
-What kind of operator is the update rule~\eqref{eq:update}? In map
-space it is as simple as an operator gets: multiplication by a
-diagonal $0/1$ mask, then renormalization. But there is a change of
-basis in which the same operation becomes a \emph{convolution} with a
-two-term kernel, and in which the correlation store $C$ stops being a
-single number and becomes visible coordinate by coordinate. The main advantage is 
-that the effect of each update is well tabulated beforehand into a small number of targeted parameters.
-
-This
-section builds that basis for $m = 1$; the final paragraph deals
-with general $m$.
-
-First, re-encode each answer as a spin,
-\begin{equation}\label{eq:spin}
-  \sigma_q(\phi_j) \;:=\; (-1)^{\phi_j(q)} \;\in\; \{+1, -1\},
-\end{equation}
-so answer $0 \mapsto +1$ and $1 \mapsto -1$. A pure relabeling, but
-it buys the one algebraic fact everything below turns on:
-$\sigma_q^2 = 1$.
-
-The \textbf{Walsh--Hadamard transform} is built from a single
-matrix. For one bit,
-\begin{equation}\label{eq:hadamard}
-  W \;=\; \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix},
-  \qquad W_{c,b} \;=\; (-1)^{c\,b}, \quad c, b \in \{0,1\}.
-\end{equation}
-\begin{example}
-Acting on a one-bit distribution,
-\[
-  W \binom{p_0}{p_1}
-  \;=\; \binom{p_0 + p_1}{p_0 - p_1}
-  \;=\; \binom{1}{\langle \sigma \rangle}:
-\]
-row $c = 0$ computes the normalization, row $c = 1$ the spin bias.
-Distribution in, correlators out.
-\end{example}
-
-The normalization riding along is a redundancy. The original distribution also carries one variable more than its degrees of freedom.
-
-\begin{example}
-Tensoring two copies (the $n=1$ case) does the same for two bits at once:
-\begin{equation}\label{eq:HH}
-  W \otimes W \;=\;
-  \begin{pmatrix}
-    W & W \\
-    W & -W
-  \end{pmatrix}
-  \;=\;
-  \begin{pmatrix}
-    1 & 1 & 1 & 1 \\
-    1 & -1 & 1 & -1 \\
-    1 & 1 & -1 & -1 \\
-    1 & -1 & -1 & 1
-  \end{pmatrix}
-  \quad
-  \begin{array}{l}
-    \leftarrow c = 00\colon\ \text{sums to } 1 \\
-    \leftarrow c = 01\colon\ \langle \sigma_0 \rangle \\
-    \leftarrow c = 10\colon\ \langle \sigma_1 \rangle \\
-    \leftarrow c = 11\colon\ \langle \sigma_1 \sigma_0 \rangle
-  \end{array}
-\end{equation}
-\end{example}
-
-The Kronecker product multiplies signs, so for any number $l$ of
-tensor factors the entry at row $c$, column $j$ is
-\begin{equation}\label{eq:kron}
-  \big(W^{\otimes l}\big)_{c,j}
-  \;=\; \prod_{i=0}^{l-1} (-1)^{c_i\, j_i}
-  \;=\; (-1)^{\sum_i c_i\, j_i},
-\end{equation}
-with $c_i$, $j_i$ the $i$-th bits of the row and column indices;
-every further tensor factor appends one more bit.
-
-For $m = 1$ a map \emph{is} its truth table of $Q$ bits (the
-numeral $j$) so Werner's belief is a vector of length
-$N = 2^{Q}$, and one transform computes every correlator at once:
-\begin{equation}\label{eq:wht}
-  \chi \;=\; W^{\otimes Q} p,
-  \qquad
-  \chi_{\mathcal S} \;=\; \Big\langle \prod_{q \in \mathcal S} \sigma_q \Big\rangle
-  \;=\; \sum_{j=0}^{N-1} (-1)^{\sum_{q \in \mathcal S} \phi_j(q)}\, p_j.
-\end{equation}
-Each row computes the \textbf{correlator} of one subset
-$\mathcal S \subseteq \mathcal Q$ of questions. In the subscript we may encode the set as
-its \textbf{mask}: written in the same descending question order as everywhere else, bit $q$ of the subscript
-records whether $q \in \mathcal S$. The row index of the matrix, read as a
-numeral, is the mask. 
-
-\begin{example}
-For $n = 2$,
-the question order is $(11, 10, 01, 00)$ so $\chi_{0110}$ is the correlator of
-$\mathcal S = \{10, 01\}$.
-
-the sixteen rows of $W^{\otimes 4}$ probe the sixteen
-subsets of $Q = \{11, 10, 01, 00\}$. A few entries of the
-dictionary:
-\begin{center}
-\begin{tabular}{c c l}
-\toprule
-mask & set $\mathcal S$ & correlator \\
-\midrule
-$0000$ & $\emptyset$ & $\chi_{0000} = 1$ (normalization) \\
-$0001$ & $\{00\}$ & $\chi_{0001} = \langle \sigma_{00} \rangle$ \\
-$1000$ & $\{11\}$ & $\chi_{1000} = \langle \sigma_{11} \rangle$ \\
-$0110$ & $\{10, 01\}$ & $\chi_{0110} = \langle \sigma_{10}\, \sigma_{01} \rangle$ \\
-$1111$ & $\{11, 10, 01, 00\}$ & $\chi_{1111} = \langle \sigma_{11}\, \sigma_{10}\, \sigma_{01}\, \sigma_{00} \rangle$, the full parity \\
-\bottomrule
-\end{tabular}
-\end{center}
-\end{example}
-
-Sort the $N$ correlators by $|\mathcal S|$, the number
-of questions probed, into \textbf{shells}. Shell $0$ is the normalization, $\chi_\emptyset = 1$, riding along
-as a correlator. Shell $1$ is $M$ in different clothes:
-\begin{equation}\label{eq:shell1}
-  \chi_{\{q\}} \;=\; M_{0,q} - M_{1,q},
-  \qquad
-  M_{a,q} \;=\; \tfrac12\big(1 + (-1)^a\, \chi_{\{q\}}\big),
-\end{equation}
-the bias of column $q$. For $m=1$, we see that, elegantly, the first shell correlators are the distance from fair coins. 
-A prior invariant under negating every answer simultaneously sends
-$\chi_{\mathcal S} \mapsto (-1)^{|\mathcal S|}\chi_{\mathcal S}$, so all
-its odd shells vanish identically, shell $1$ among them: such a
-prior has an agnostic matrix $M$.
-
-Shell $2$ holds the agreement biases of
-pairs of questions, knowledge $M$ cannot see: two priors can
-share every column of $M$ and differ here. Higher shells store
-subtler and subtler parity knowledge. Nothing is lost in the
-sorting: $W^2 = 2I$, so $(W^{\otimes Q})^2 = N I$. The
-transform is its own inverse up to a factor $N$, and knowing every
-correlator is knowing the belief. The ledger also gives $C$ a
-signature: a product prior ($C = 0$) factorizes every correlator,
-$\chi_{\mathcal S} = \prod_{q \in \mathcal S} \chi_{\{q\}}$, so its upper shells
-repeat what shell $1$ already said; correlated knowledge is
-precisely \emph{non-factorizing} correlators.
-
-\begin{example}
-The prior of Table~\ref{tab:sixteen} transforms to the ledger
-\begin{center}
-\begin{tabular}{c l}
-\toprule
-shell & correlators \\
-\midrule
-0 & $\chi_{0000} = 1$ \\[2pt]
-1 & $\chi_{1000} = +0.170$,\ \ $\chi_{0100} = +0.558$,\ \
-    $\chi_{0010} = +0.780$,\ \ $\chi_{0001} = +0.636$ \\[2pt]
-2 & $\chi_{1100} = -0.032$,\ \ $\chi_{1010} = +0.230$,\ \
-    $\chi_{1001} = +0.374$, \\
-  & $\chi_{0110} = +0.498$,\ \ $\chi_{0101} = +0.434$,\ \
-    $\chi_{0011} = +0.576$ \\[2pt]
-3 & $\chi_{1110} = +0.028$,\ \ $\chi_{1101} = +0.092$,\ \
-    $\chi_{1011} = +0.434$,\ \ $\chi_{0111} = +0.374$ \\[2pt]
-4 & $\chi_{1111} = +0.152$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-\ledgerbars{0/1/0000/blue!45,
-  0.80/0.170/1000/blue!45, 1.35/0.558/0100/blue!45,
-  1.90/0.780/0010/blue!45, 2.45/0.636/0001/blue!45,
-  3.25/-0.032/1100/orange!80, 3.80/0.230/1010/blue!45,
-  4.35/0.374/1001/blue!45, 4.90/0.498/0110/blue!45,
-  5.45/0.434/0101/blue!45, 6.00/0.576/0011/blue!45,
-  6.80/0.028/1110/blue!45, 7.35/0.092/1101/blue!45,
-  7.90/0.434/1011/blue!45, 8.45/0.374/0111/blue!45,
-  9.25/0.152/1111/blue!45}
-Shell $1$ reproduces the columns of equation~\eqref{eq:M16}:
-$(1 + 0.170)/2 = 0.585 = M_{0,11}$, and likewise $0.779$, $0.890$,
-$0.818$. The negative entry $\chi_{1100}$ says questions $11$
-and $10$ disagree slightly more often than they agree; every other
-pair leans toward agreement. This is a reflection of the strong coherent $0$-preference encoded in the prior. A prior leaning toward $1$ would give a negative shell $1$.
-\end{example}
-
-Now look at the \emph{rows} of $W^{\otimes Q}$ as functions of
-$j$. They are \textbf{block waves}. The observation mask is built of the same material:
-\begin{equation}\label{eq:mask}
-  \delta\big(\phi_j(q), a\big)
-  \;=\; \frac12\left(1 + (-1)^{a+\phi_j(q)}\right),
-\end{equation}
-a $0/1$ block wave: one constant plus one Hadamard row. And
-multiplication and convolution swap under this transform exactly as
-under Fourier: multiplying two functions of $j$ pointwise convolves
-their ledgers. And the observation mask's ledger has only two
-nonzero entries - at $\emptyset$ and at $\{q\}$ - so this
-convolution is no great sum: it combines each correlator with
-exactly one other.
-
-The update rule, carried out entirely in the ledger, is therefore
-that two-term combination, followed by renormalization by the new
-shell $0$. In index notation, learning $a = \psi(q)$ sends every
-set $\mathcal S$ to
-\begin{equation}\label{eq:corr-update}
-  \chi'_{\mathcal S} \;=\;
-  \frac{\chi_{\mathcal S} + (-1)^a\, \chi_{\mathcal S \triangle \{q\}}}
-       {1 + (-1)^a\, \chi_{\{q\}}},
-\end{equation}
-where $\mathcal S \triangle \{q\}$ is $\mathcal S$ with the membership of $q$
-toggled: $q$ is added if absent, removed if present (on masks, bit
-$q$ is flipped). The numerator is the monomial
-algebra of $\sigma_q^2 = 1$: multiplying
-$\prod_{r \in \mathcal S} \sigma_r$ by
-$\sigma_q$ toggles $q$'s membership of the product, so every correlator
-is averaged with its \textbf{partner}: the correlator differing
-by $q$, signed by the answer. The denominator is the
-$\mathcal S = \emptyset$ instance of the numerator, and by
-equation~\eqref{eq:shell1} it equals $2 M_{a,q}$: the same number
-that priced the answer in equation~\eqref{eq:update} renormalizes
-the ledger. 
-\begin{example}
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1cm,
-  lnode/.style={draw=black!60, rounded corners=1pt,
-                inner sep=2.5pt, font=\tiny, align=center},
-  pair/.style={<->, blue!55!black, line width=0.8pt},
-  denom/.style={->, gray!60, line width=0.35pt}]
-  % alternating shell bands, odd shells darker
-  \fill[gray!28] (-0.3,0.55) rectangle (9.3,1.45);
-  \fill[gray!10] (-0.3,1.55) rectangle (9.3,2.45);
-  \fill[gray!28] (-0.3,2.55) rectangle (9.3,3.45);
-  \fill[gray!10] (-0.3,3.55) rectangle (9.3,4.45);
-  \fill[gray!10] (-0.3,-0.45) rectangle (9.3,0.45);
-  % nodes: fill hue = sign, intensity = |chi| of the prior ledger
-  % shell 4
-  \node[lnode, fill=blue!14] (n1111) at (4.3,4) {1111};
-  % shell 3
-  \node[lnode, fill=blue!9]  (n1110) at (2.5,3) {1110};
-  \node[lnode, fill=blue!11] (n1101) at (4.1,3) {1101};
-  \node[lnode, fill=blue!24] (n1011) at (5.7,3) {1011};
-  \node[lnode, fill=blue!22] (n0111) at (7.3,3) {0111};
-  % shell 2
-  \node[lnode, fill=orange!9] (n1100) at (0.7,2) {1100};
-  \node[lnode, fill=blue!17]  (n1010) at (2.3,2) {1010};
-  \node[lnode, fill=blue!22]  (n1001) at (3.9,2) {1001};
-  \node[lnode, fill=blue!26]  (n0110) at (5.5,2) {0110};
-  \node[lnode, fill=blue!24]  (n0101) at (7.1,2) {0101};
-  \node[lnode, fill=blue!29]  (n0011) at (8.7,2) {0011};
-  % shell 1
-  \node[lnode, fill=blue!14, draw=orange!85!black, line width=1pt]
-    (n1000) at (1.5,1) {1000};
-  \node[lnode, fill=blue!29] (n0100) at (3.7,1) {0100};
-  \node[lnode, fill=blue!37] (n0010) at (5.3,1) {0010};
-  \node[lnode, fill=blue!32] (n0001) at (6.9,1) {0001};
-  % shell 0
-  \node[lnode, fill=blue!45] (n0000) at (4.5,0) {0000};
-  % the asked bias renormalizes every update: a fan from 1000
-  \draw[denom] (n1000) to (n1100);
-  \draw[denom] (n1000) to (n1010);
-  \draw[denom] (n1000) to (n1001);
-  \draw[denom] (n1000) to (n0110);
-  \draw[denom] (n1000) to (n0101);
-  \draw[denom] (n1000) to (n0011);
-  \draw[denom] (n1000) to (n1110);
-  \draw[denom] (n1000) to (n1101);
-  \draw[denom, bend left=8] (n1000) to (n1011);
-  \draw[denom, bend right=8] (n1000) to (n0111);
-  \draw[denom, bend left=18] (n1000) to (n1111);
-  \draw[denom, bend right=28] (n1000) to (n0100);
-  \draw[denom, bend right=28] (n1000) to (n0010);
-  \draw[denom, bend right=28] (n1000) to (n0001);
-  % the eight partner pairs under toggling of 11
-  \draw[pair] (n1000) -- (n0000);
-  \draw[pair] (n1100) -- (n0100);
-  \draw[pair] (n1010) -- (n0010);
-  \draw[pair] (n1001) -- (n0001);
-  \draw[pair] (n1110) -- (n0110);
-  \draw[pair] (n1101) -- (n0101);
-  \draw[pair] (n1011) -- (n0011);
-  \draw[pair] (n1111) -- (n0111);
-  % descent annotation
-  \draw[->, gray] (9.8,3.4) -- (9.8,0.6);
-  \node[rotate=90, gray, font=\scriptsize] at (10.1,2)
-    {structure descends};
-\end{tikzpicture}
-\end{center}
-The update rule in the ledger, drawn for the
-guiding example's first question ($q = 11$). Every set is paired
-with the partner whose membership of $11$ is toggled (arrows);
-each pair is averaged with the answer's sign and renormalized,
-per equation~\eqref{eq:corr-update}. The pair
-$\emptyset \leftrightarrow \{11\}$ at the orange-bordered asked
-set fixes the normalization and
-saturates the asked bias; each blue double arrow averages a pair
-into both of its members, and the net flow of structure is one
-shell down, toward $M$. The thin gray arrows from the
-asked $q$ to every other pill are a reminder that this sets the
-renormalization. The fill encodes each prior value to
-scale: darker is larger, orange is negative.
-\end{example}
-
-Read formula~\eqref{eq:corr-update} by cases:
-\begin{itemize}
-  \item $\mathcal S = \emptyset$: partner $\{q\}$, giving
-    $(1 + (-1)^a \chi_{\{q\}})/(1 + (-1)^a \chi_{\{q\}}) = 1$.
-    Normalization is preserved.
-  \item $\mathcal S = \{q\}$, the asked question: partner $\emptyset$, giving
-    $(\chi_{\{q\}} + (-1)^a)/(1 + (-1)^a \chi_{\{q\}}) = (-1)^a$.
-    The bias saturates to certainty - the one-hot collapse of
-    column $q$, derived rather than decreed.
-  \item $\mathcal S = \{q'\}$, an unasked question: the partner is the pair
-    $\{q', q\}$, and one line of algebra puts the
-    shift in terms of the \emph{connected} correlator:
-    \begin{equation}\label{eq:cov-shift}
-      \chi'_{\{q'\}} - \chi_{\{q'\}}
-      \;=\; \frac{(-1)^a \big(\chi_{\{q',q\}}
-        - \chi_{\{q'\}}\, \chi_{\{q\}}\big)}{2 M_{a,q}}
-      \;=\; \frac{(-1)^a\, \mathrm{Cov}\big(\sigma_{q'}, \sigma_q\big)}
-        {2 M_{a,q}}.
-    \end{equation}
-    Unasked columns move in proportion to their covariance with the
-    asked question: knowledge stored one shell up descends into the
-    predictions. A product prior has zero covariance everywhere, so
-    its unasked columns are frozen - the ``$C = 0$ means no
-    transfer'' fact, now a one-line consequence.
-  \item Higher shells: the same cascade. Each update marries
-    shell-$k$ sets containing $q$ to shell-$(k{-}1)$ sets without
-    it; whatever structure was stored jointly with $q$ moves one
-    shell down, toward $M$.
-\end{itemize}
-
-\begin{example}
-Question 1 of the walkthrough asked $q = 11$ and received $a = 1$:
-sign $(-1)^a = -1$, toggled set $\{11\}$, mask $1000$.
-Equation~\eqref{eq:corr-update}
-maps the ledger of the previous box to
-\begin{center}
-\begin{tabular}{c l}
-\toprule
-shell & updated correlators \\
-\midrule
-0 & $\chi'_{0000} = 1$ \\[2pt]
-1 & $\chi'_{1000} = \mathbf{-1}$,\ \ $\chi'_{0100} = +0.711$,\ \
-    $\chi'_{0010} = +0.663$,\ \ $\chi'_{0001} = +0.316$ \\[2pt]
-2 & $\chi'_{1100} = -0.711$,\ \ $\chi'_{1010} = -0.663$,\ \
-    $\chi'_{1001} = -0.316$, \\
-  & $\chi'_{0110} = +0.566$,\ \ $\chi'_{0101} = +0.412$,\ \
-    $\chi'_{0011} = +0.171$ \\[2pt]
-3 & $\chi'_{1110} = -0.566$,\ \ $\chi'_{1101} = -0.412$,\ \
-    $\chi'_{1011} = -0.171$,\ \ $\chi'_{0111} = +0.267$ \\[2pt]
-4 & $\chi'_{1111} = -0.267$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-\ledgerbars{0/1/0000/blue!45,
-  0.80/-1/1000/orange!80, 1.35/0.711/0100/blue!45,
-  1.90/0.663/0010/blue!45, 2.45/0.316/0001/blue!45,
-  3.25/-0.711/1100/orange!80, 3.80/-0.663/1010/orange!80,
-  4.35/-0.316/1001/orange!80, 4.90/0.566/0110/blue!45,
-  5.45/0.412/0101/blue!45, 6.00/0.171/0011/blue!45,
-  6.80/-0.566/1110/orange!80, 7.35/-0.412/1101/orange!80,
-  7.90/-0.171/1011/orange!80, 8.45/0.267/0111/blue!45,
-  9.25/-0.267/1111/orange!80}
-The asked bias saturates:
-$\chi'_{1000} = (0.170 - 1)/(1 - 0.170) = -1$. The other
-singletons move by equation~\eqref{eq:cov-shift}: for $q' = 10$ the
-covariance is $-0.032 - (0.558)(0.170) = -0.127$, so the shift is
-$(-1)(-0.127)/(2 \times 0.415) = +0.153$, landing on $+0.711$ ---
-and indeed $(1 + 0.711)/2 = 0.855$, the column $M_{0,10}$ of the
-Question 2 box. Note also that every mask containing the asked bit
-is now just $(-1)^a$ times its partner
-($\chi'_{1010} = -\chi'_{0010}$,
-etc.): with $\sigma_{11}$ pinned, no correlator involving
-question $11$ carries independent knowledge anymore.
-\end{example}
-
-\begin{example}
-\begin{center}
-\begin{tikzpicture}[x=8cm, y=1.5cm]
-  % the update rule (eq:corr-update), drawn: per set, the numerator
-  % chi_S with the twin's signed contribution beside it (waterfall)
-  % at x = 2M_{a,q}, rescaled to x = 1 by the ray through the origin
-  \draw[dotted, gray!60] (0.830,0.38) -- (0.830,-4.35);
-  \draw[dotted, gray!60] (1,0.38) -- (1,-4.35);
-  % \node[font=\small\itshape] at (0.5,0.85)
-  %   {update $\chi$ after $\psi(11) = 1$};
-  \node[font=\tiny, gray, anchor=east] at (0.92,0.50)
-    {stack at $2M_{a,q}$};
-  \node[font=\tiny, gray, anchor=west] at (0.955,0.50)
-    {read at $1$};
-  % the set being updated, left of each row
-  \node[font=\scriptsize, anchor=east] at (-0.04,0)
-    {$\mathcal S = \{11\}$};
-  \node[font=\scriptsize, anchor=east] at (-0.04,-2.1)
-    {$\mathcal S = \{10\}$};
-  \node[font=\scriptsize, anchor=east] at (-0.04,-2.63)
-    {$\mathcal S = \{11, 01\}$};
-  \node[font=\scriptsize, anchor=east] at (-0.04,-4.24)
-    {$\mathcal S = \{01, 00\}$};
-  % ---------- set = 1000 (the asked set) ----------
-  \fill[gray!12] (0,0) -- (1,0) -- (1,-1) -- cycle;
-  \draw[->] (-0.02,0) -- (1.12,0);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.809,0) rectangle (0.829,0.170);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.831,0.170) rectangle (0.851,-0.830);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.978,0) rectangle (1.022,-1);
-  \draw[blue!55!black, line width=0.6pt] (0,0) -- (1,-1);
-  \fill[black] (0.830,-0.830) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
-    align=center] at (0.795,0.085) {$\chi_{1000}$\\$+0.170$};
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
-    align=center] at (0.865,-0.33) {$-\chi_{0000}$\\$-1$};
-  \node[font=\tiny, anchor=west, align=center] at (1.035,-1)
-    {$\chi'_{1000} = -1$};
-  % ---------- set = 0100 (an unasked question) ----------
-  \fill[gray!12] (0,-2.1) -- (1,-2.1) -- (1,-1.389) -- cycle;
-  \draw[->] (-0.02,-2.1) -- (1.12,-2.1);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.809,-2.1) rectangle (0.829,-1.542);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.831,-1.542) rectangle (0.851,-1.510);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.978,-2.1) rectangle (1.022,-1.389);
-  \draw[blue!55!black, line width=0.6pt] (0,-2.1) -- (1,-1.389);
-  \fill[black] (0.830,-1.510) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
-    align=center] at (0.795,-1.821) {$\chi_{0100}$\\$+0.558$};
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
-    align=center] at (0.865,-1.526) {$-\chi_{1100}$\\$+0.032$};
-  \node[font=\tiny, anchor=west, align=center] at (1.035,-1.389)
-    {$\chi'_{0100} = +0.711$};
-  % ---------- set = 1010 (contains the asked bit) ----------
-  \fill[gray!12] (0,-2.63) -- (1,-2.63) -- (1,-3.293) -- cycle;
-  \draw[->] (-0.02,-2.63) -- (1.12,-2.63);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.809,-2.63) rectangle (0.829,-2.40);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.831,-2.40) rectangle (0.851,-3.18);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.978,-2.63) rectangle (1.022,-3.293);
-  \draw[blue!55!black, line width=0.6pt] (0,-2.63) -- (1,-3.293);
-  \fill[black] (0.830,-3.18) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
-    align=center] at (0.795,-2.515) {$\chi_{1010}$\\$+0.230$};
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
-    align=center] at (0.865,-2.83) {$-\chi_{0010}$\\$-0.780$};
-  \node[font=\tiny, anchor=west, align=center] at (1.035,-3.293)
-    {$\chi'_{1010} = -0.663$};
-  % ---------- set = 0011 (a higher shell) ----------
-  \fill[gray!12] (0,-4.24) -- (1,-4.24) -- (1,-4.069) -- cycle;
-  \draw[->] (-0.02,-4.24) -- (1.12,-4.24);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.809,-4.24) rectangle (0.829,-3.664);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.831,-3.664) rectangle (0.851,-4.098);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.978,-4.24) rectangle (1.022,-4.069);
-  \draw[blue!55!black, line width=0.6pt] (0,-4.24) -- (1,-4.069);
-  \fill[black] (0.830,-4.098) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
-    align=center] at (0.795,-3.952) {$\chi_{0011}$\\$+0.576$};
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
-    align=center] at (0.865,-3.881) {$-\chi_{1011}$\\$-0.434$};
-  \node[font=\tiny, anchor=west, align=center] at (1.035,-4.069)
-    {$\chi'_{0011} = +0.171$};
-  % shared x labels on the bottom panel
-  \draw (0.830,-4.26) -- (0.830,-4.22);
-  \draw (1,-4.26) -- (1,-4.22);
-  \node[font=\tiny, below] at (0.830,-4.28) {$0.830$};
-  \node[font=\tiny, below] at (1,-4.28) {$1$};
-\end{tikzpicture}
-\end{center}
-The update rule of
-equation~\eqref{eq:corr-update}, drawn for the guiding example's
-first update ($q = 11$, $a = 1$, so $(-1)^a = -1$ and toggled bit
-$1000$). One row per set $\mathcal S$. At $x = 2M_{a,q} = 1 + (-1)^a
-\chi_{1000} = 0.830$ stands the numerator as a waterfall: the bar
-of $\chi_{\mathcal S}$ (blue), and beside it the partner's signed
-contribution $(-1)^a \chi_{\mathcal S \triangle \{q\}}$ (orange), hanging
-from the level where the first bar ends. The two subscripts
-differ by the flipped bit. The ray from the origin through the
-waterfall's endpoint rescales it, by similar triangles, to
-$x = 1$, where its height is the updated correlator $\chi'_{\mathcal S}$.
-\end{example}
-
-As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
-The 2-shell answers questions such as ``if $\psi(10) = 0$, then $\psi(01) = 1$''. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
-
-\begin{example}
-The remaining
-questions of the run ($00$, $01$, $10$, all answered $0$, so with
-sign $+1$) each saturate their own bit the same way, and since
-XOR toggles commute, the order does not matter - the
-commutativity of updating, seen again. After all four, the ledger
-is pure signs, $\chi_{\mathcal S} = (-1)^{|\mathcal S \cap \{11\}|}$, which is $-1$ on every
-set containing $11$, $+1$ on the rest: the transform
-of the point mass on $\psi = \phi_8$:
-\begin{center}
-\begin{tabular}{c l}
-\toprule
-shell & final correlators \\
-\midrule
-0 & $\chi_{0000} = 1$ \\[2pt]
-1 & $\chi_{1000} = -1$,\ \ $\chi_{0100} = +1$,\ \
-    $\chi_{0010} = +1$,\ \ $\chi_{0001} = +1$ \\[2pt]
-2 & $\chi_{1100} = -1$,\ \ $\chi_{1010} = -1$,\ \
-    $\chi_{1001} = -1$, \\
-  & $\chi_{0110} = +1$,\ \ $\chi_{0101} = +1$,\ \
-    $\chi_{0011} = +1$ \\[2pt]
-3 & $\chi_{1110} = -1$,\ \ $\chi_{1101} = -1$,\ \
-    $\chi_{1011} = -1$,\ \ $\chi_{0111} = +1$ \\[2pt]
-4 & $\chi_{1111} = -1$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-\ledgerbars{0/1/0000/blue!45,
-  0.80/-1/1000/orange!80, 1.35/1/0100/blue!45,
-  1.90/1/0010/blue!45, 2.45/1/0001/blue!45,
-  3.25/-1/1100/orange!80, 3.80/-1/1010/orange!80,
-  4.35/-1/1001/orange!80, 4.90/1/0110/blue!45,
-  5.45/1/0101/blue!45, 6.00/1/0011/blue!45,
-  6.80/-1/1110/orange!80, 7.35/-1/1101/orange!80,
-  7.90/-1/1011/orange!80, 8.45/1/0111/blue!45,
-  9.25/-1/1111/orange!80}
-\end{example}
-
-\subsubsection{General $m$}\label{sec:generalm}
-
-It turns out that taking $m > 1$ is more
-general but not much more instructive. With multiple output bits it
-is as if we have $m$ a priori independent maps per question; they
-just happen always to be asked and answered simultaneously, in
-unison. Therefore we do not have to think about what one of them
-teaches us about another. It would mean we have more than $2$
-options every question, and therefore the factor by which every
-update thins the hypotheses is not $2$ but $A$. The guiding
-example helps because the maps are represented as binary numbers,
-which are more familiar.
-
-For completeness, the main formulas. The truth table is now
-$mQ$ bits: one \textbf{site} $(q, i)$ per bit $i$ of each
-answer, each carrying a spin
-$\sigma_{q,i}(\phi_j) := (-1)^{\phi_j(q)_i}$, where $\phi_j(q)_i$
-is the $i$-th bit of the answer. Correlators are indexed by sets
-$\mathcal S$ of sites: masks of $mQ$ bits under the same numeral
-convention, $m$ of them per question:
-\begin{equation}\label{eq:wht-m}
-  \chi_{\mathcal S} \;=\; \Big\langle \prod_{(q,i) \in \mathcal S} \sigma_{q,i}
-  \Big\rangle
-  \;=\; \sum_{j=0}^{N-1} (-1)^{\sum_{(q,i) \in \mathcal S} \phi_j(q)_i}\,
-  p_j.
-\end{equation}
-
-\begin{example}
-For $n = 3$, $m = 2$ the sites form a $2 \times 8$ grid: one column
-per question, one row per bit of the answer. A set $\mathcal S$ is a pattern
-of hot cells in this grid, and $\chi_{\mathcal S}$ multiplies the
-corresponding spins:
-\begin{center}
-\begin{tikzpicture}[x=0.40cm, y=0.40cm]
-  % column headers
-  \node[font=\tiny, anchor=east] at (-0.4,0.8) {$q =$};
-  \foreach \c/\q in {0/111, 1/110, 2/101, 3/100,
-                     4/011, 5/010, 6/001, 7/000}
-    \node[font=\tiny, rotate=90, anchor=west] at ({\c+0.5},0.3)
-      {$\q$};
-  % row labels, all grids
-  \foreach \g in {0, 1, 2, 3, 4} {
-    \node[font=\tiny, anchor=east] at (-0.4,{-3.4*\g - 0.5})
-      {bit $1$};
-    \node[font=\tiny, anchor=east] at (-0.4,{-3.4*\g - 1.5})
-      {bit $0$};
-  }
-  % the five grids: cold cells
-  \foreach \g in {0, 1, 2, 3, 4}
-    \foreach \c in {0,...,7}
-      \foreach \r in {0, 1}
-        \draw[black!40, line width=0.3pt, fill=gray!12]
-          (\c,{-3.4*\g - 2 + \r}) rectangle
-          ({\c+1},{-3.4*\g - 1 + \r});
-  % hot cells: {grid/column/row}, row 1 = bit 1 (top)
-  \foreach \g/\c/\r in {1/2/1, 2/1/0, 2/1/1, 3/3/0, 3/4/1,
-                        4/0/1, 4/2/0, 4/5/0, 4/5/1, 4/7/0}
-    \draw[black!40, line width=0.3pt, fill=orange!70]
-      (\c,{-3.4*\g - 2 + \r}) rectangle
-      ({\c+1},{-3.4*\g - 1 + \r});
-  % what each pattern computes
-  \node[font=\scriptsize, anchor=west] at (8.8,-1)
-    {$\chi_\emptyset = 1$: the normalization};
-  \node[font=\scriptsize, anchor=west] at (8.8,-4.4)
-    {$\langle \sigma_{101,1} \rangle$: the bias of one answer bit};
-  \node[font=\scriptsize, anchor=west, align=left] at (8.8,-7.8)
-    {$\langle \sigma_{110,1}\, \sigma_{110,0} \rangle$: the parity
-     of one answer ---\\with the two biases, the block of
-     $M_{\cdot,110}$};
-  \node[font=\scriptsize, anchor=west] at (8.8,-11.2)
-    {$\langle \sigma_{100,0}\, \sigma_{011,1} \rangle$: agreement
-     across two questions};
-  \node[font=\scriptsize, anchor=west, align=left] at (8.8,-14.6)
-    {$\langle \sigma_{111,1}\, \sigma_{101,0}\, \sigma_{010,1}\,
-      \sigma_{010,0}\, \sigma_{000,0} \rangle$:\\a five-site
-      parity, deep in the shells};
-\end{tikzpicture}
-\end{center}
-Any of the $2^{16} = 65536$ hot/cold patterns is a correlator, and
-sorting by the number of hot cells gives the shells. The mask of
-$\mathcal S$ is the grid read as a $16$-bit numeral.
-\end{example}
-
-Write $\mathcal B_q$ for the block of $q$'s $m$ sites, and
-$a \cdot \mathcal T := \sum_{i \in \mathcal T} a_i$ for the parity of the answer $a$
-on a subset $\mathcal T \subseteq \mathcal B_q$. The answer matrix is read off the
-correlators supported on one block. There are $A$ of them per column:
-\begin{equation}\label{eq:M-m}
-  M_{a,q} \;=\; \frac{1}{A} \sum_{\mathcal T \subseteq \mathcal B_q}
-  (-1)^{a \cdot \mathcal T}\, \chi_{\mathcal T}.
-\end{equation}
-The observation mask at $(q, a)$ is a function of the $m$ bits of
-one block, so its ledger has $A$ nonzero entries, and hearing
-$a = \psi(q)$ combines every correlator with its $A$ partners ---
-one per toggle $\mathcal T$ within the asked block:
-\begin{equation}\label{eq:corr-update-m}
-  \chi'_{\mathcal S} \;=\; \frac{\sum_{\mathcal T \subseteq \mathcal B_q} (-1)^{a \cdot \mathcal T}\,
-    \chi_{\mathcal S \triangle \mathcal T}}{A\, M_{a,q}},
-\end{equation}
-the denominator once more the $\mathcal S = \emptyset$ instance of the
-numerator. For $m = 1$ the three
-formulas collapse to
-equations~\eqref{eq:wht}, \eqref{eq:shell1}
-and~\eqref{eq:corr-update}.
-
-\begin{example}
-To draw the update, take a sparse prior at $n = 3$, $m = 2$: four
-maps, $\phi(q) = q \bmod 4$ (weight $0.45$), constant $00$
-($0.35$), ``$11$ iff $q \geq 4$'' ($0.12$), constant $11$
-($0.08$). Werner asks $q = 110$ and hears $a = 11$: toggle signs
-$(+, -, -, +)$ on $(\emptyset, 110_0, 110_1, \text{both})$, where
-$q_i$ denotes site $(q, i)$, and denominator
-$A M_{11,110} = 0.8$. The pairs of the $m = 1$ figure become
-\emph{quartets}:
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1cm,
-  lnode/.style={draw=black!60, rounded corners=1pt,
-                inner sep=2.5pt, font=\tiny, align=center},
-  pair/.style={<->, blue!55!black, line width=0.7pt}]
-  % shell bands, odd darker
-  \fill[gray!10] (-0.3,-0.45) rectangle (8.3,0.45);
-  \fill[gray!28] (-0.3,0.55) rectangle (8.3,1.45);
-  \fill[gray!10] (-0.3,1.55) rectangle (8.3,2.45);
-  \fill[gray!28] (-0.3,2.55) rectangle (8.3,3.45);
-  % the on-block quartet of the asked question 110
-  \node[lnode, fill=blue!45]  (qa0) at (2,0)   {$\emptyset$};
-  \node[lnode, fill=blue!30]  (qa1) at (1.1,1) {$110_0$};
-  \node[lnode, fill=orange!19] (qa2) at (2.9,1) {$110_1$};
-  \node[lnode, fill=blue!12]  (qa3) at (2,2)   {$110_1 110_0$};
-  \draw[pair] (qa0) -- (qa1); \draw[pair] (qa0) -- (qa2);
-  \draw[pair] (qa0) -- (qa3); \draw[pair] (qa1) -- (qa2);
-  \draw[pair] (qa1) -- (qa3); \draw[pair] (qa2) -- (qa3);
-  % a generic quartet, seeded by the foreign site 011_0
-  \node[lnode, fill=orange!10] (qb0) at (6,1)   {$011_0$};
-  \node[lnode, fill=orange!13] (qb1) at (5.1,2) {$011_0 110_0$};
-  \node[lnode, fill=blue!36]   (qb2) at (6.9,2) {$011_0 110_1$};
-  \node[lnode, fill=blue!39]   (qb3) at (6,3)   {$011_0 110_1 110_0$};
-  \draw[pair] (qb0) -- (qb1); \draw[pair] (qb0) -- (qb2);
-  \draw[pair] (qb0) -- (qb3); \draw[pair] (qb1) -- (qb2);
-  \draw[pair] (qb1) -- (qb3); \draw[pair] (qb2) -- (qb3);
-  % the asked block's quartet renormalizes every other
-  \draw[dashed, orange!85!black] (2,1) ellipse (1.75 and 1.6);
-  \draw[dashed, gray!70] (6,2) ellipse (1.75 and 1.6);
-  \draw[->, gray!60, line width=0.5pt] (3.65,1.55) -- (4.35,1.8);
-  \node[font=\tiny, gray, below, rotate=20] at (4.0,1.62)
-    {renormalizes};
-\end{tikzpicture}
-\end{center}
-For $m = 2$, toggling any subset of the asked
-block's two sites ties four correlators into a clique that
-averages jointly, per equation~\eqref{eq:corr-update-m}. The
-on-block quartet (orange hull) contains the normalization and the
-entire block of $M_{\cdot,110}$; its signed sum is the denominator
-that renormalizes every other quartet. Fills to scale for the
-sparse prior, as before.
-
-\begin{center}
-
-\begin{tikzpicture}[x=8cm, y=1.2cm]
-  % \node[font=\small\itshape] at (0.5,0.55)
-  %   {update $\chi$ after $\psi(110) = 11$};
-  \draw[dotted, gray!60] (0.8,0.3) -- (0.8,-3.95);
-  \draw[dotted, gray!60] (1,0.3) -- (1,-3.95);
-  % ---------- set = {110_1} ----------
-  \fill[gray!12] (0,0) -- (1,0) -- (1,-1) -- cycle;
-  \draw[->] (-0.02,0) -- (1.12,0);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.768,0) rectangle (0.784,-0.300);
-  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
-    (0.784,-0.300) rectangle (0.800,-0.400);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.800,-0.400) rectangle (0.816,-1.400);
-  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
-    (0.816,-1.400) rectangle (0.832,-0.800);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.98,0) rectangle (1.02,-1);
-  \draw[blue!55!black, line width=0.6pt] (0,0) -- (1,-1);
-  \fill[black] (0.8,-0.8) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
-    at (0.745,-0.15) {$\chi_{\mathcal S} = -0.300$};
-  \node[font=\tiny, anchor=west] at (1.035,-1)
-    {$\chi'_{\{110_1\}} = -1$};
-  \node[font=\scriptsize, anchor=east] at (-0.05,0)
-    {$\mathcal S = \{110_1\}$};
-  % ---------- set = {011_0} ----------
-  \fill[gray!12] (0,-1.95) -- (1,-1.95) -- (1,-1.75) -- cycle;
-  \draw[->] (-0.02,-1.95) -- (1.12,-1.95);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.768,-1.95) rectangle (0.784,-2.010);
-  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
-    (0.784,-2.010) rectangle (0.800,-1.870);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.800,-1.870) rectangle (0.816,-2.630);
-  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
-    (0.816,-2.630) rectangle (0.832,-1.790);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.98,-1.95) rectangle (1.02,-1.75);
-  \draw[blue!55!black, line width=0.6pt] (0,-1.95) -- (1,-1.75);
-  \fill[black] (0.8,-1.79) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
-    at (0.745,-2.01) {$\chi_{\mathcal S} = -0.060$};
-  \node[font=\tiny, anchor=west] at (1.035,-1.75)
-    {$\chi'_{\{011_0\}} = +0.200$};
-  \node[font=\scriptsize, anchor=east] at (-0.05,-1.95)
-    {$\mathcal S = \{011_0\}$};
-  % ---------- set = {011_0, 110_1} ----------
-  \fill[gray!12] (0,-3.67) -- (1,-3.67) -- (1,-3.87) -- cycle;
-  \draw[->] (-0.02,-3.67) -- (1.12,-3.67);
-  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
-    (0.768,-3.67) rectangle (0.784,-2.910);
-  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
-    (0.784,-2.910) rectangle (0.800,-3.750);
-  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
-    (0.800,-3.750) rectangle (0.816,-3.690);
-  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
-    (0.816,-3.690) rectangle (0.832,-3.830);
-  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
-    (0.98,-3.67) rectangle (1.02,-3.87);
-  \draw[blue!55!black, line width=0.6pt] (0,-3.67) -- (1,-3.87);
-  \fill[black] (0.8,-3.83) circle (0.5pt);
-  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
-    at (0.745,-3.29) {$\chi_{\mathcal S} = +0.760$};
-  \node[font=\tiny, anchor=west] at (1.035,-3.87)
-    {$\chi'_{\{011_0, 110_1\}} = -0.200$};
-  \node[font=\scriptsize, anchor=east] at (-0.05,-3.67)
-    {$\mathcal S = \{011_0, 110_1\}$};
-  % shared x labels
-  \draw (0.8,-3.89) -- (0.8,-3.85);
-  \draw (1,-3.89) -- (1,-3.85);
-  \node[font=\tiny, below] at (0.8,-3.91) {$0.8$};
-  \node[font=\tiny, below] at (1,-3.91) {$1$};
-\end{tikzpicture}
-\end{center}
-The $m = 2$ update, three sets from the sparse
-prior. The waterfall now has four segments: $\chi_{\mathcal S}$ (blue) and
-its three signed quartet partners, in toggle order $110_0$,
-$110_1$, both (light to dark orange). The ray from the origin
-rescales the endpoint from $x = A M_{a,q} = 0.8$ to $x = 1$.
-The asked site saturates to $-1$; the foreign site $011_0$ flips
-sign, $-0.060 \to +0.200$; and $\{011_0, 110_1\}$ lands on
-$-0.200$, the renormalized value $-\chi'_{\{011_0\}}$.
-\end{example}
 
 \section{Expectations}\label{sec:expectations}
 
@@ -2508,6 +1418,8 @@ P_{\mathcal S,y} = 1.723$ bits: Werner's joint uncertainty about
 the two answers before either is asked. It is one of the six
 size-two terms averaged into $G_2$ in the next example.
 \end{example}
+
+\subsection{Two exact laws}\label{sec:twolaws}
 
 Two exact laws follow. The first is
 equation~\eqref{eq:telescope} averaged:
@@ -2714,7 +1626,7 @@ Section~\ref{sec:intelligent}. It is the clique block law of
 Appendix~\ref{app:blockpriors} taken at full size, $r = Q$.
 
 Recall \eqref{eq:M-m} from the discussion on correlators,
-Section~\ref{sec:correlators}. The joint law of the answers to any set
+Appendix~\ref{app:correlators}. The joint law of the answers to any set
 $\mathcal S$ of questions is an inverse transform over the correlators
 with support contained inside $\mathcal S$'s blocks. The mean block
 entropy $G_{|\mathcal S|}$ does not depend on higher correlators
@@ -2873,14 +1785,10 @@ later.
 
 Both $\ell$-optimal protocols produced the same trajectory in the
 examples tested above, but this is not a law. Adaptive questioning can
-strictly improve on every fixed set of the same size, as Subsection~\ref{sec:adaptive-example} demonstrates.
-
-\subsubsection{When the first answer chooses the next question}
-\label{sec:adaptive-example}
-
+strictly improve on every fixed set of the same size, as Example~\ref{ex:adaptive} demonstrates.
 The distinction is that an answer can tell Werner which question
 will be useful next.
-\begin{example}
+\begin{example}[label=ex:adaptive]
 Take $n=2$, $m=1$, and put equal prior weight $1/4$ on the four
 maps below, with zero weight on the others. The columns retain the
 descending question order used throughout.
@@ -2910,677 +1818,6 @@ the three best fixed pairs. Pairs containing the constant question
 $11$ leave at least $1$ bit. The optimal fixed remainder is therefore
 $1/2$ bit, strictly above the adaptive remainder of zero.
 \end{example}
-
-\subsection{The Gibbs complexity prior}\label{sec:gibbs}
-
-Every prior so far was an arbitrary set of instructively chosen $\{p_j\}$. 
-This section builds the prior the other way around, from a
-single philosophical principle: \emph{simple explanations are likelier}. 
-How do we define simplicity? With circuit
-complexity as the measure, made quantitative as a Gibbs
-ensemble over the hypothesis space. It is an illustration: the
-later chapters do not depend on the rest of this section.
-
-\subsubsection{AIG complexity}
-\label{sec:aigcomplexity}
-
-A compact circuit description supplies a concrete notion of
-simplicity. We use an \emph{and-inverter graph} (AIG): a feed-forward
-circuit with two-input AND nodes and complemented edges, so inversion
-on any wire is free. Let $X_j$ be the fewest AND nodes in any such
-graph computing $\phi_j$, with constants and input wires available
-at zero cost. This is the standard AIG-size metric of logic
-synthesis~\cite{aigrewrite}. It differs from counting ordinary
-NAND gates, where inversion itself has a cost. Reference values in
-the AIG convention:
-\begin{itemize}
-  \item AND, OR, NAND and NOR all cost $1$;
-  \item XOR costs $3$;
-  \item constants, projections and negations cost $0$.
-\end{itemize}   
-For $m > 1$ outputs, $X_j$ is the size of one \emph{joint} circuit computing all
-output bits together, gates shared, which is practical. It is the minimum
-cost in this AIG convention, generally smaller than the sum of per-output circuits.
-
-The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ maps apiece. 
-The tabulation is feasible because $X_j$ is invariant under
-relabeling: permuting or negating inputs, negating or (for $m \ge 2$)
-swapping outputs are all free operations, so the $65{,}536$ maps collapse to $222$ and $308$
-equivalence classes respectively. The $(4,1)$ class values are the published
-optimal AIG sizes of \cite{krinkin}, cross-checked against our own
-SAT-based synthesizer on random classes with zero mismatches; the $(3,2)$
-values come from that synthesizer: circuit sizes $X = 0, 1, 2,
-\ldots$ are encoded as satisfiability instances, and the first
-satisfiable $X$ is provably minimal, every smaller size having been
-refuted. Appendix~\ref{app:aig} gives the encoding, the symmetry
-reduction that makes it tractable, and the provenance of every value.
-
-Alongside the interior cost $X_j$, which takes a SAT solver to see,
-two descriptors are visible in one pass over the truth table:
-%
-\begin{itemize}
-\item the \textbf{footprint} $F_j = n \cdot \text{[Image]} + \text{[Support]}$, where the support
- counts the input bits the map actually depends on and the
-  image size counts the distinct answers it attains (from $1$
-  for constants up to $A$). The combination is bijective to the pair, as Support $\le n$.
-  Compare to base-$n$ digits, quotient Image, remainder Support. The footprint can be viewed as the
-  map's \emph{interface}: does it react to all its inputs, does it
-  use all its values?
-\item the \textbf{bias} $B_j$: the number of $1$s minus the number of
-  $0$s among the $mQ$ truth-table bits. This is the
-  symmetry breaker: $X_j$ and $F_j$ are even under negating all
-  outputs, $B_j$ is odd: an energy term coupling to it acts like a
-  magnetic field, favoring 0s or 1s off the bat. In the language of Section~\ref{sec:correlators}: 
-  switching on the odd correlator shells that a pure
-  complexity prior forbids.
-\end{itemize}
-
-\begin{example}
-Take again the $(n,m)=(2,1)$ space. Each map's data is listed for illustration.
-We graph two of the Gibbs priors built from these inputs, defined in Subsection~\ref{sec:gibbsensemble}. 
-Occam in blue growing left, the Pragmatist in orange growing
-right. The Pragmatist bars are logarithmic, five decades to the full
-width, since a linear scale on the same axis as Occam's would show
-nothing but the two constants.
-
-\begin{center}
-\begin{tabular}{clccccc r@{\hspace{2pt}}|@{\hspace{2pt}}l}
-\toprule
-$j$ & map & $X_j$ & Support & Image & $F_j$ & $B_j$
-  & \multicolumn{2}{c}{prior mass} \\
- & & & & & & & {\scriptsize\color{blue!55!black} Occam}
-  & {\scriptsize\color{orange!85!black} Pragmatist} \\
-\midrule
-0  & FALSE                          & 0 & 0 & 1 & 2 & $-4$ & \pbarO[3]{0.1106} & \pbarP{0.2799} \\
-1  & $\lnot(b_1 \vee b_0)$ (NOR)    & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
-2  & $\lnot b_1 \wedge b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
-3  & $\lnot b_1$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
-4  & $b_1 \wedge \lnot b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
-5  & $\lnot b_0$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
-6  & $b_1 \oplus b_0$ (XOR)         & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP{0.0001} \\
-7  & $\lnot(b_1 \wedge b_0)$ (NAND) & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
-8  & $b_1 \wedge b_0$ (AND)         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
-9  & $b_1 = b_0$ (XNOR)             & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP{0.0001} \\
-10 & $b_0$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
-11 & $b_1 \to b_0$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
-12 & $b_1$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
-13 & $b_0 \to b_1$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
-14 & $b_1 \vee b_0$ (OR)            & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
-% the TRUE bar is drawn at half its value so it stays inside the column
-15 & TRUE                           & 0 & 0 & 1 & 2 & $+4$ & \pbarO[3]{0.1106} & \pbarP{0.3114} \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-Occam spreads its belief mostly across the six gate-free maps ($0.1106$
-apiece) and thins gradually with cost; the Pragmatist, punishing
-footprint and rewarding bits with value 1, piles $0.90$ of its mass onto the two
-constants ($0.62$ on TRUE against $0.28$ on FALSE), the bias
-breaking the tie. It all but abandons the interior of the table. If the map turns out non-constant, renormalization scales that interior up, and it becomes relevant.
-Grouped by the full tuple $(X, F, B)$, the sixteen maps fall into
-six energy classes:
-%
-\begin{center}
-\begin{tabular}{cc@{\hskip 2em}cc}
-\toprule
-$(X, F, B)$ & members & $(X, F, B)$ & members \\
-\midrule
-$(0, 2, -4)$ & 1 & $(1, 6, -2)$ & 4 \\
-$(0, 2, +4)$ & 1 & $(1, 6, +2)$ & 4 \\
-$(0, 5, 0)$  & 4 & $(3, 6, 0)$  & 2 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-Note the table skips $X = 2$ entirely: with two inputs,
-nothing a two-gate circuit computes is out of reach of one or
-zero gates.
-\end{example}
-
-At the larger sizes the tuple $(X, F, B)$ breakdown runs to hundreds of rows
-($102$ distinct tuples at $(n,m)=(4,1)$, $196$ at $(3,2)$). It is still interesting to tabulate
-the complexity $X$ shells alone, with each shell's \emph{aggregate} prior
-mass under the Occam setting alongside its head count:
-
-\begin{example}
-These tables illustrate the compromise between exponentially suppressed weight per map, and combinatorics
-putting most maps at middling complexity.
-\begin{center}
-\begin{tabular}{crr@{\hspace{4pt}}l}
-\toprule
-\multicolumn{4}{c}{$(4,1)$} \\
-$X$ & maps & \multicolumn{2}{c}{Occam mass} \\
-\midrule
-0  & 10       & 0.041 & \pbarB[2]{0.0407} \\
-1  & 48       & 0.072 & \pbarB[2]{0.0718} \\
-2  & 256      & 0.141 & \pbarB[2]{0.1408} \\
-3  & 940      & 0.190 & \pbarB[2]{0.1903} \\
-4  & 2{,}336  & 0.174 & \pbarB[2]{0.1739} \\
-5  & 6{,}464  & 0.177 & \pbarB[2]{0.1771} \\
-6  & 10{,}616 & 0.107 & \pbarB[2]{0.1070} \\
-7  & 18{,}984 & 0.070 & \pbarB[2]{0.0704} \\
-8  & 17{,}680 & 0.024 & \pbarB[2]{0.0241} \\
-9  & 7{,}882  & 0.004 & \pbarB[2]{0.0040} \\
-10 & 320      & 0.000 & \pbarB[2]{0.0001} \\
-\midrule
-total & 65{,}536 & 1 & \\
-\bottomrule
-\end{tabular}
-\hspace{1.6em}
-\begin{tabular}{crr@{\hspace{4pt}}l}
-\toprule
-\multicolumn{4}{c}{$(3,2)$} \\
-$X$ & maps & \multicolumn{2}{c}{Occam mass} \\
-\midrule
-0  & 64       & 0.058 & \pbarB[2]{0.0579} \\
-1  & 432      & 0.144 & \pbarB[2]{0.1438} \\
-2  & 2{,}064  & 0.253 & \pbarB[2]{0.2528} \\
-3  & 4{,}860  & 0.219 & \pbarB[2]{0.2190} \\
-4  & 10{,}832 & 0.180 & \pbarB[2]{0.1795} \\
-5  & 16{,}208 & 0.099 & \pbarB[2]{0.0988} \\
-6  & 17{,}060 & 0.038 & \pbarB[2]{0.0383} \\
-7  & 10{,}672 & 0.009 & \pbarB[2]{0.0088} \\
-8  & 3{,}312  & 0.001 & \pbarB[2]{0.0010} \\
-9  & 32       & 0.000 & \pbarB[2]{0.0000} \\
-\midrule
-total & 65{,}536 & 1 & \\
-\bottomrule
-\end{tabular}
-\end{center}
-\end{example}
-
-The head counts are thin at both ends: ten gate-free maps at $(4,1)$
-(two constants, eight literals) against only $320$ at the ceiling
-$X = 10$. The aggregate mass shows the thermodynamic compromise this
-forces on Occam: the count grows faster than $e^{-X}$ decays until
-$X = 3$ at $(4,1)$ ($X = 2$ at $(3,2)$), so even under a pure
-simplicity prior Werner has most faith that the map has $X_j \in \{2,3\}$.
-Shell degeneracy beats shell energy for the simplest maps.
-
-\subsubsection{The ensemble}\label{sec:gibbsensemble}
-
-Take the energy linear in the three descriptors and the prior as its
-Boltzmann weight,
-%
-\begin{equation}
-E_j = \beta\, X_j + \alpha\, F_j + \mu\, B_j,
-\qquad
-p_j = \frac{e^{-E_j}}{\sum_k e^{-E_k}},
-\label{eq:gibbs}
-\end{equation}
-%
-with no overall temperature: it's absorbed in the coupling fields. Positive
-$\beta$ suppresses complex maps, positive $\alpha$ suppresses large
-footprints, and $\mu$ couples to the signed bias like a magnet. $\mu < 0$ tilts
-toward $1$-heavy tables and thereby breaks the output-negation
-symmetry. We explore three settings below, chosen out of principle, as well as to exhibit
-interesting learning behavior.
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{lccc}
-\toprule
- & $\beta$ & $\alpha$ & $\mu$ \\
-\midrule
-Occam      & $1$   & $0$ & $0$    \\
-Occamer    & $2$   & $0$ & $0$    \\
-Pragmatist & $1.5$ & $1$ & $-0.1$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-\caption{The three Gibbs settings of \eqref{eq:gibbs}, as couplings to complexity, footprint and bias.}
-\label{tab:gibbssettings}
-\end{table}
-
-\textbf{Occam} suppresses circuit complexity and nothing else.
-\textbf{Occamer} doubles the same field: an even stronger simplicity
-bias stores more knowledge in the prior, and stores it deeper in the
-correlation shells, where only the later questions of a run can
-release it. The \textbf{Pragmatist} judges by the obvious heuristics
-instead: a footprint reads the visible interface rather
-than the interior circuit, a moderate complexity field seconds it,
-and the tilt $\mu = -0.1$ leans toward $1$-heavy tables, breaking
-the output-negation symmetry that the other two settings keep. This last choice is to illustrate
-that Werner isn't bound to start with a uniform distribution $M$ before the first question.
-
-\subsubsection{The layered entropy books}\label{sec:gibbsbooks}
-
-Let us visualize the uniform question-order average for the three ensembles,
-at each system size. The following graphs illustrate the flow of bits. 
-The three quantities of \eqref{eq:Lk-avg} partition
-the starting table entropy at every $\ell$: what is still in the table,
-what was paid for in surprisal, and what was inferred. The third has no
-standing name, so give it one,
-%
-\begin{equation}
-  \big\langle\!\big\langle \text{deduced}_\ell \big\rangle\!\big\rangle
-  \;:=\; C_0 - \langle\!\langle C_\ell\rangle\!\rangle
-  \;=\; H\big(M^{(0)}\big)
-        - \big\langle\!\big\langle H\big(M^{(\ell)}\big)\big\rangle\!\big\rangle
-        - G_\ell ,
-  \label{eq:deduced}
-\end{equation}
-%
-the expected withdrawal from the correlation store. The second equality
-is \eqref{eq:C} at both ends together with $\langle\!\langle \Delta H(p)\rangle\!\rangle =
-G_\ell$. In expectation, the belief entropy falls by exactly the
-surprisal received, so whatever else the table lost came out of $C$.
-The three therefore sum to $H(M^{(0)})$ at every $\ell$, and each
-panel below is a full-height bar whose composition shifts from all
-remaining uncertainty to received plus deduced. One row per system size, sharing a
-vertical scale in bits; one column per prior.
-\begin{center}
-\begin{tikzpicture}[y=0.32cm]
-  \fill[blue!55] (0,0) rectangle (0.32,0.24);
-  \node[right, font=\small] at (0.40,0.12)
-    {remaining $\langle\!\langle H(M^{(\ell)})\rangle\!\rangle$};
-  \fill[orange!85] (4.6,0) rectangle (4.92,0.24);
-  \node[right, font=\small] at (5.0,0.12) {received $G_\ell$};
-  \fill[green!55!black!60] (8.0,0) rectangle (8.32,0.24);
-  \node[right, font=\small] at (8.4,0.12)
-    {deduced $C_0 - \langle\!\langle C_\ell\rangle\!\rangle$};
-\end{tikzpicture}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
-  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
-  title={(2,1), Occam}, title style={font=\scriptsize},
-  xlabel={$\ell$}, ylabel={bits},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,4.00000) (1,2.90370) (2,1.83001) (3,0.81104) (4,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,-0.00000) (1,1.00000) (2,1.96790) (3,2.88290) (4,3.69394)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.09630) (2,0.20209) (3,0.30606) (4,0.30606)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
-  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
-  title={(2,1), Occamer}, title style={font=\scriptsize},
-  xlabel={$\ell$},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,4.00000) (1,2.82620) (2,1.63686) (3,0.51162) (4,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.94207) (3,2.76050) (4,3.27212)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.17380) (2,0.42107) (3,0.72788) (4,0.72788)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
-  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
-  title={(2,1), Pragmatist}, title style={font=\scriptsize},
-  xlabel={$\ell$},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,3.65070) (1,0.98017) (2,0.45071) (3,0.06902) (4,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,0.91268) (2,1.23940) (3,1.46475) (4,1.53378)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,1.75786) (2,1.96059) (3,2.11692) (4,2.11692)};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
-  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
-  title={(3,2), Occam}, title style={font=\scriptsize},
-  xlabel={$\ell$}, ylabel={bits},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,13.66381) (2,11.38982) (3,9.18077) (4,7.05614) (5,5.04253) (6,3.16734) (7,1.46045) (8,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,2.00000) (2,3.95197) (3,5.85028) (4,7.68643) (5,9.45046) (6,11.13131) (7,12.71498) (8,14.17543)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.33619) (2,0.65821) (3,0.96896) (4,1.25743) (5,1.50700) (6,1.70136) (7,1.82457) (8,1.82457)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
-  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
-  title={(3,2), Occamer}, title style={font=\scriptsize},
-  xlabel={$\ell$},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,13.09000) (2,10.16649) (3,7.29628) (4,4.84181) (5,2.96269) (6,1.56885) (7,0.54633) (8,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,2.00000) (2,3.87000) (3,5.56442) (4,7.02367) (5,8.23412) (6,9.22169) (7,10.00612) (8,10.55244)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.91000) (2,1.96351) (3,3.13930) (4,4.13452) (5,4.80318) (6,5.20946) (7,5.44756) (8,5.44756)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
-  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
-  title={(3,2), Pragmatist}, title style={font=\scriptsize},
-  xlabel={$\ell$},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,11.43030) (1,3.30547) (2,1.95822) (3,1.05175) (4,0.51932) (5,0.25230) (6,0.11491) (7,0.02763) (8,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.42879) (2,1.90100) (3,2.22737) (4,2.43772) (5,2.56755) (6,2.65165) (7,2.70911) (8,2.73673)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,6.69605) (2,7.57109) (3,8.15118) (4,8.47326) (5,8.61046) (6,8.66374) (7,8.69357) (8,8.69357)};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
-  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
-  title={(4,1), Occam}, title style={font=\scriptsize},
-  xlabel={$\ell$}, ylabel={bits},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,14.74710) (2,13.52461) (3,12.32975) (4,11.16169) (5,10.02089) (6,8.90878) (7,7.82738) (8,6.77913) (9,5.76681) (10,4.79345) (11,3.86229) (12,2.97690) (13,2.14140) (14,1.36113) (15,0.64341) (16,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.98314) (3,2.94918) (4,3.89763) (5,4.82777) (6,5.73876) (7,6.62963) (8,7.49934) (9,8.34673) (10,9.17056) (11,9.96947) (12,10.74193) (13,11.48616) (14,12.19996) (15,12.88052) (16,13.52393)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.25290) (2,0.49225) (3,0.72106) (4,0.94069) (5,1.15134) (6,1.35246) (7,1.54299) (8,1.72153) (9,1.88646) (10,2.03599) (11,2.16823) (12,2.28117) (13,2.37244) (14,2.43891) (15,2.47607) (16,2.47607)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
-  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
-  title={(4,1), Occamer}, title style={font=\scriptsize},
-  xlabel={$\ell$},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,14.02313) (2,12.05565) (3,10.07789) (4,8.24016) (5,6.64167) (6,5.29847) (7,4.18012) (8,3.24929) (9,2.47724) (10,1.84273) (11,1.32708) (12,0.91199) (13,0.58080) (14,0.32107) (15,0.12665) (16,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.93488) (3,2.79599) (4,3.57122) (5,4.25790) (6,4.86168) (7,5.39153) (8,5.85599) (9,6.26215) (10,6.61604) (11,6.92316) (12,7.18858) (13,7.41658) (14,7.61018) (15,7.77071) (16,7.89736)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,-0.00000) (1,0.97687) (2,2.00947) (3,3.12612) (4,4.18863) (5,5.10044) (6,5.83985) (7,6.42835) (8,6.89472) (9,7.26062) (10,7.54123) (11,7.74976) (12,7.89943) (13,8.00262) (14,8.06875) (15,8.10264) (16,8.10264)};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[width=5.5cm, height=4.1cm,
-  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
-  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
-  title={(4,1), Pragmatist}, title style={font=\scriptsize},
-  xlabel={$\ell$},
-  tick label style={font=\scriptsize}, label style={font=\small},
-  grid=major, grid style={black!12}, axis on top]
-  \addplot[fill=blue!55, draw=none] coordinates {(0,4.40913) (1,1.02252) (2,0.66648) (3,0.44062) (4,0.29637) (5,0.20423) (6,0.14404) (7,0.10281) (8,0.07319) (9,0.05137) (10,0.03532) (11,0.02367) (12,0.01528) (13,0.00922) (14,0.00480) (15,0.00170) (16,0.00000)};
-  \addplot[fill=orange!85, draw=none] coordinates {(0,-0.00000) (1,0.27557) (2,0.34374) (3,0.39134) (4,0.42524) (5,0.44994) (6,0.46850) (7,0.48291) (8,0.49433) (9,0.50348) (10,0.51082) (11,0.51670) (12,0.52144) (13,0.52526) (14,0.52833) (15,0.53073) (16,0.53243)};
-  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,3.11104) (2,3.39891) (3,3.57716) (4,3.68752) (5,3.75497) (6,3.79659) (7,3.82341) (8,3.84161) (9,3.85428) (10,3.86299) (11,3.86876) (12,3.87241) (13,3.87466) (14,3.87600) (15,3.87670) (16,3.87670)};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\subsubsection{Trajectories}\label{sec:gibbstraj}
-
-Figures~\ref{fig:gibbs21}--\ref{fig:gibbs41} show the expected
-cumulative leverage $\mathcal L_\ell$ under the three
-prior hypotheses, for the uniform question-order average and the strategy grid of
-Section~\ref{sec:strategies}. The $\ell$-optimal schedule targets
-the halfway horizon $\ell^* = Q/2$ and is plotted only up to it:
-past its own horizon the optimizer's continuation is not defined.
-Inside the optimal set the questions are asked in random
-order (the graph averages that order). 
-We omit its contingent twin everywhere: wherever we can
-afford to compute it, it reproduces the fixed optimum's curve to
-machine precision, and one for which no symmetry argument yet is known. 
-Two consistency checks hold in every panel: all schedules agree at $\ell = 1$, because
-input relabeling acts transitively on the questions and the Gibbs
-energies are relabeling-invariant, so single questions are
-exchangeable; and every full-length curve ends at the same
-$\mathcal L_{Q} = H(M^{(0)})/H(p)$, since any policy that asks everything
-receives exactly $H(p)$ on average, and clears the table $M$. The
-same invariance acts on whole sets, so the $\ell$-optimal objective
-is a function of a set's relabeling orbit and not of the set:
-minimizers arrive in orbits.
-
-\begin{center}
-\begin{tikzpicture}[font=\footnotesize]
-  \draw[black!60, densely dashed] (0,0) -- (0.55,0)
-    plot[mark=*, mark size=1.1] coordinates {(0.275,0)};
-  \node[anchor=west, inner sep=1.5pt] at (0.58,0) {average};
-  \draw[blue!45] (2.55,0) -- (3.10,0)
-    plot[mark=square*, mark size=1.3] coordinates {(2.825,0)};
-  \node[anchor=west, inner sep=1.5pt] at (3.13,0) {greedy fixed};
-  \draw[blue!75!black] (5.85,0) -- (6.40,0)
-    plot[mark=triangle*, mark size=1.4] coordinates {(6.125,0)};
-  \node[anchor=west, inner sep=1.5pt] at (6.43,0) {greedy contingent};
-  \draw[orange!85!black] (9.95,0) -- (10.50,0)
-    plot[mark=diamond*, mark size=1.6] coordinates {(10.225,0)};
-  \node[anchor=west, inner sep=1.5pt] at (10.53,0) {$\ell^*$-optimal};
-\end{tikzpicture}
-\end{center}
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Occam $(1,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
-  xtick={1,2,3,4}, grid=major, grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,1.0963)(2,1.1027)};
-\end{axis}
-\end{tikzpicture}\hspace{1mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Occamer $(2,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, xtick={1,2,3,4}, grid=major,
-  grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,1.1738)(2,1.2168)(3,1.2637)(4,1.2224)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,1.1738)(2,1.2168)(3,1.2637)(4,1.2224)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,1.1738)(2,1.2168)(3,1.2637)(4,1.2224)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,1.1738)(2,1.2168)};
-\end{axis}
-\end{tikzpicture}\hspace{1mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Pragmatist $(1.5,1,-0.1)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, xtick={1,2,3,4}, grid=major,
-  grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,2.9261)(2,2.5819)(3,2.4452)(4,2.3802)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,2.9261)(2,2.5380)(3,2.4452)(4,2.3802)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,2.9261)(2,2.5380)(3,2.4452)(4,2.3802)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,2.9261)(2,2.5380)};
-\end{axis}
-\end{tikzpicture}
-\caption{Aggregate leverage under the Gibbs priors at $(2,1)$,
-$\ell^* = 2$. In both complexity-only settings every schedule
-coincides exactly; the Pragmatist's fields finally separate them.}
-\label{fig:gibbs21}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Occam $(1,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
-  xtick={2,4,6,8}, grid=major, grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,1.1681)(2,1.1666)(3,1.1656)(4,1.1636)(5,1.1595)
-    (6,1.1528)(7,1.1435)(8,1.1287)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)(5,1.1724)
-    (6,1.1573)(7,1.1435)(8,1.1287)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)(5,1.1710)
-    (6,1.1563)(7,1.1407)(8,1.1287)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)};
-\end{axis}
-\end{tikzpicture}\hspace{1mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Occamer $(2,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, xtick={2,4,6,8}, grid=major,
-  grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,1.4550)(2,1.5074)(3,1.5642)(4,1.5887)(5,1.5833)
-    (6,1.5649)(7,1.5444)(8,1.5162)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,1.4550)(2,1.5079)(3,1.6016)(4,1.6394)(5,1.6012)
-    (6,1.5712)(7,1.5444)(8,1.5162)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,1.4550)(2,1.5079)(3,1.6157)(4,1.6205)(5,1.5910)
-    (6,1.5605)(7,1.5309)(8,1.5162)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,1.4550)(2,1.5079)(3,1.6016)(4,1.6394)};
-\end{axis}
-\end{tikzpicture}\hspace{1mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Pragmatist $(1.5,1,-0.1)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, xtick={2,4,6,8}, grid=major,
-  grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,5.6865)(2,4.9827)(3,4.6596)(4,4.4759)(5,4.3536)(6,4.2673)(7,4.2090)(8,4.1766)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,5.6865)(2,4.8751)(3,4.6281)(4,4.4450)(5,4.2984)(6,4.2497)(7,4.2090)(8,4.1766)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,5.6865)(2,4.8751)(3,4.6236)(4,4.4275)(5,4.2877)(6,4.2325)(7,4.1966)(8,4.1766)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,5.6865)(2,4.9176)(3,4.5657)(4,4.3548)};
-\end{axis}
-\end{tikzpicture}
-\caption{Aggregate leverage under the Gibbs priors at $(3,2)$,
-$\ell^* = 4$. Greedy Werner's fixed set is the optimal set under Occam and,
-up to an input negation, under Occamer. For the Pragmatist, the $\ell^*$-optimal has the 
-worst leverage at the horizon, a reminder that we optimize for information received, while
-accepting that may cost even more surprisal.}
-\label{fig:gibbs32}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Occam $(1,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
-  xtick={4,8,12,16}, grid=major, grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,1.2529)(2,1.2482)(3,1.2445)(4,1.2413)(5,1.2385)
-    (6,1.2357)(7,1.2327)(8,1.2296)(9,1.2260)(10,1.2220)(11,1.2175)
-    (12,1.2124)(13,1.2065)(14,1.1999)(15,1.1922)(16,1.1831)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,1.2529)(2,1.2549)(3,1.2586)(4,1.2626)(5,1.2635)
-    (6,1.2542)(7,1.2501)(8,1.2493)(9,1.2506)(10,1.2403)(11,1.2295)
-    (12,1.2197)(13,1.2104)(14,1.2018)(15,1.1922)(16,1.1831)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,1.2529)(2,1.2549)(3,1.2614)(4,1.2679)(5,1.2601)
-    (6,1.2555)(7,1.2511)(8,1.2464)(9,1.2417)(10,1.2341)(11,1.2227)
-    (12,1.2121)(13,1.2029)(14,1.1946)(15,1.1882)(16,1.1831)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,1.2529)(2,1.2534)(3,1.2546)(4,1.2561)(5,1.2576)
-    (6,1.2592)(7,1.2606)(8,1.2619)};
-\end{axis}
-\end{tikzpicture}\hspace{1mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Occamer $(2,0,0)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, xtick={4,8,12,16}, grid=major,
-  grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,1.9769)(2,2.0386)(3,2.1181)(4,2.1729)(5,2.1979)
-    (6,2.2012)(7,2.1923)(8,2.1774)(9,2.1594)(10,2.1398)(11,2.1194)
-    (12,2.0989)(13,2.0790)(14,2.0603)(15,2.0427)(16,2.0260)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,1.9769)(2,2.0473)(3,2.1420)(4,2.2575)(5,2.3133)
-    (6,2.2577)(7,2.2187)(8,2.1906)(9,2.1644)(10,2.1398)(11,2.1179)
-    (12,2.0968)(13,2.0781)(14,2.0600)(15,2.0427)(16,2.0260)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,1.9769)(2,2.0473)(3,2.1889)(4,2.2703)(5,2.2588)
-    (6,2.2566)(7,2.2134)(8,2.1650)(9,2.1312)(10,2.1005)(11,2.0730)
-    (12,2.0539)(13,2.0398)(14,2.0330)(15,2.0290)(16,2.0260)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,1.9769)(2,2.0302)(3,2.1300)(4,2.2035)(5,2.2324)
-    (6,2.2301)(7,2.2183)(8,2.1896)};
-\end{axis}
-\end{tikzpicture}\hspace{1mm}%
-\begin{tikzpicture}
-\begin{axis}[width=5.05cm, height=4.8cm,
-  title={Pragmatist $(1.5,1,-0.1)$}, title style={font=\footnotesize},
-  xlabel={$\ell$}, xtick={4,8,12,16}, grid=major,
-  grid style={black!12},
-  tick label style={font=\scriptsize}, label style={font=\small}]
-\addplot[black!60, densely dashed, mark=*, mark size=1.1]
-  coordinates {(1,12.2894)(2,10.8881)(3,10.1407)(4,9.6717)(5,9.3456)(6,9.1037)(7,8.9175)(8,8.7714)(9,8.6553)(10,8.5624)(11,8.4874)(12,8.4264)(13,8.3767)(14,8.3363)(15,8.3045)(16,8.2812)};
-\addplot[blue!45, mark=square*, mark size=1.3]
-  coordinates {(1,12.2894)(2,10.6106)(3,9.9628)(4,9.5034)(5,9.1348)(6,8.8509)(7,8.6881)(8,8.5439)(9,8.5015)(10,8.4603)(11,8.4241)(12,8.3888)(13,8.3582)(14,8.3282)(15,8.3045)(16,8.2812)};
-\addplot[blue!75!black, mark=triangle*, mark size=1.4]
-  coordinates {(1,12.2894)(2,10.6106)(3,9.9628)(4,9.4586)(5,9.0926)(6,8.8324)(7,8.6717)(8,8.5393)(9,8.4604)(10,8.4089)(11,8.3691)(12,8.3367)(13,8.3137)(14,8.2962)(15,8.2873)(16,8.2812)};
-\addplot[orange!85!black, mark=diamond*, mark size=1.6]
-  coordinates {(1,12.2894)(2,10.8208)(3,10.0230)(4,9.5178)(5,9.1604)(6,8.8912)(7,8.6881)(8,8.5439)};
-\end{axis}
-\end{tikzpicture}
-\caption{Aggregate leverage under the Gibbs priors at $(4,1)$,
-$\ell^* = 8$. Occamer's deep correlations $C$ bend even the uniform
-average curve into an interior hump; the Pragmatist releases all its instinct at the start: whether it's constant.}
-\label{fig:gibbs41}
-\end{figure}
-
-Three discussions, one per system size.
-
-At $(2,1)$, Occam and Occamer don't have enough structure to tell
-subsets apart, and all subsets of equal size share a single joint
-entropy.
-Occamer shows what doubling the field buys within those constraints.
-The whole curve lifts (endpoint $1.2224$ against Occam's
-$1.0829$, store $C_0 = 0.728$ against $0.306$ bits) without creating
-a single strategic choice to make. The Pragmatist's fields split the
-pair orbits at last, and the strategy yields
-a \emph{lower} leverage: greedy's pair $\{00, 11\}$ knows more at
-$\ell = 2$ than the random order but pays so much more surprisal that it is less leveraged
-($2.538$ against $2.582$).
-
-At $(3,2)$ there are exactly two optimal quadruples under \emph{all
-three} settings: the even-weight inputs $\{000, 011, 101, 110\}$, the
-maximally spread design, pairwise at Hamming distance two, and its
-odd-weight image under negating one input bit. Relabeling makes them
-exactly degenerate. Under the Pragmatist greedy
-finally falls short: its set $\{000, 011, 101, 111\}$ leaves twice the
-ignorance of the optimal four ($0.405$ against $0.198$ bits
-remaining) while receiving $0.099$ bits less and it posts the
-\emph{higher} leverage, $4.445$ against $4.355$, with the
-strategyless average higher still at $4.476$. The $\ell$-optimal
-schedule maximizes knowledge, not leverage, and a ratio is buoyed by 
-cheaper ignorance.
-
-$(4,1)$ is the richest, with the most questions, the choice becomes
-impactful. Doubling $\beta$
-triples the store ($C_0 = 8.10$ bits against Occam's $2.48$) and
-bends even the average curve into an interior hump, rising to
-$2.20$ at $\ell = 6$ before decaying. This is the deep-shell signature
-promised in Subsection~\ref{sec:gibbsensemble}, knowledge that only
-becomes spendable once enough answers are in hand to cash out the
-higher correlations. The optimal eight questions are a parity class
-of the input hypercube in every setting, and as at $(3,2)$ both
-classes minimize exactly; greedy misses the class
-under both complexity-only settings ($\mathcal L = 1.249$ against the optimum's
-$1.262$ at the Occam $\ell^*$ horizon) but finds it exactly under the
-Pragmatist whose prior, $0.90$ of its mass on the two constants,
-is a two-sided spike in disguise: $H(p) = 0.53$ bits, leverage
-running from $12.29$ down to $8.28$, a great deal of inference
-about a game that is mostly over after two questions.
 
 \section{The thermodynamic limit}\label{sec:tdl}
 
@@ -4605,7 +2842,9 @@ In the next chapter, as well as the appendices, we give examples and explain why
 
 What could the TDL of an explicit simplicity-based prior look like? Unfortunately, but
 not unexpectedly, we also must grapple with no-free-lunch. It is not possible to find 
-general circuit complexities as in Subsection~\ref{sec:aigcomplexity} for large $n$. However, Werner has 
+general circuit complexities for large $n$: Appendix~\ref{app:gibbs} builds
+a complexity prior that way, weighting each map by the size of the
+smallest circuit computing it, and that measure runs out of road. However, Werner has 
 another avenue at his disposal: write the boolean map as a polynomial in the question inputs, 
 and consider the complexity to be the \emph{degree of that polynomial}. He can construct a prior
 of decreasing faith with this degree, which turns out to work elegantly. It is \emph{constructive}: computable from the truth table by a fast
@@ -4874,7 +3113,7 @@ $\mathrm{NAND} = b_1 b_0 \oplus 1$, of degree $2$: the top monomial is
 present, NAND is not affine, and its truth table knows it.
 \end{example}
 
-For readers of Section~\ref{sec:correlators}: $Z$ is the triangular
+For readers of Appendix~\ref{app:correlators}: $Z$ is the triangular
 half of the Walsh--Hadamard kernel \eqref{eq:hadamard}, since in the
 same $1,0$ ordering
 %
@@ -5674,6 +3913,17 @@ This caps the construction: the mean conditional entropy
 of a fresh answer is the probability that the true class is not yet
 exhausted. The survival function of the statistic is not a postulate;
 it is the increment term of the finite law.
+
+The relative contribution of the label to $\gamma_{n,\ell}$ vanishes with $n$ as
+$\log_2(n+1)/Q$. As $n$ grows, the sliver of $I_{n,\ell}$ scales away.
+
+Initially, as we increase $n$, steps emerge. This is because at a given time a class has
+either been settled, and contributes no uncertainty, or is still running, and
+contributes its full bit (scaled by the probability of that class: the step height) at every question, until the next class
+boundary is reached. The number of questions in which $K_d$ rank (total information) is reached inside a class, statistically, is $o(Q)$, 
+which rounds the step edges. At low $n$, they bleed together, but at high $n$, the steps become distinct.
+
+The steps hug $1 - F$ more tightly, as $n \to \infty$, by construction of the sampling protocol \eqref{eq:shapepj}. These effects are illustrated in the following example.
 
 \begin{example}
 This example is meant to illustrate how equation~\eqref{eq:ungroup} behaves in the TDL.
@@ -7185,17 +5435,6 @@ the coarseness of the rate grid.
 Pretending the steps are smooth is \eqref{eq:gF}. Ignoring the gray is \eqref{eq:Gmix}.
 \end{example}
 
-The relative value of the label vanishes with $n$ as
-$\log_2(n+1)/Q$. As $n$ grows, the sliver of $I_{n,\ell}$ scales away.
-
-The steps emerge because at a given time a class has
-either been settled, and contributes no uncertainty, or is still running, and
-contributes its full bit (scaled by the probability of that class: the step height) at every question, until the next class
-boundary is reached. The number of questions in which $K_d$ rank (total information) is reached inside a class, statistically, is $o(Q)$, 
-which rounds the step edges. At low $n$, they bleed together, but at high $n$, the steps become distinct.
-
-The steps hug $1 - F$ as $n \to \infty$, by construction of the sampling protocol \eqref{eq:shapepj}.
-
 \subsection{The macroscopic curve}
 
 Substitute \eqref{eq:shapeT1}, \eqref{eq:gF} and \eqref{eq:gammaF}
@@ -7664,18 +5903,1153 @@ enough to coarse-grain away the microscopic details of boolean maps.
 \addcontentsline{toc}{section}{Appendices}
 
 They follow the order in which the argument first calls on them.
+Appendix~\ref{app:correlators} changes basis so that the correlation
+store $C$ becomes one coordinate per set of questions, and the update
+rule a two-term convolution. Appendix~\ref{app:playing} plays the
+guiding example through all four questions, one round at a time.
 Appendix~\ref{app:tensor-marginals} arranges the elimination rules as a
 tensor and takes every block entropy $G_k$ off a single sweep of it.
 Appendix~\ref{app:blockpriors} collects the block-prior construction and
 its Bernstein profile language, a block-based route to the same family of
-macroscopic curves. Appendix~\ref{app:aig} records how the circuit
-complexities of Subsection~\ref{sec:aigcomplexity} were obtained, the
-symmetry reduction and the satisfiability encoding that make a minimum
-over all circuits computable at all. Appendix~\ref{app:spike} continues
-the spike-prior example of Section~\ref{sec:spike}. The last two are for
-reference: Appendix~\ref{app:symbols} collects the symbols on one page,
+macroscopic curves. Appendix~\ref{app:spike} continues the spike-prior
+example of Section~\ref{sec:spike}. Appendix~\ref{app:gibbs} builds a
+prior from circuit complexity as a Gibbs ensemble, and
+Appendix~\ref{app:aig} follows it because it records how those circuit
+complexities were obtained, the symmetry reduction and the
+satisfiability encoding that make a minimum over all circuits
+computable at all. The last two are for reference:
+Appendix~\ref{app:symbols} collects the symbols on one page,
 and Appendix~\ref{app:scripts} lists the scripts that produce the numbers
 and the curves.
+
+\section{Correlators}\label{app:correlators}
+
+The body refers to this appendix in a few asides, but does not
+depend on it.
+
+What kind of operator is the update rule~\eqref{eq:update}? In map
+space it is as simple as an operator gets: multiplication by a
+diagonal $0/1$ mask, then renormalization. But there is a change of
+basis in which the same operation becomes a \emph{convolution} with a
+two-term kernel, and in which the correlation store $C$ stops being a
+single number and becomes visible coordinate by coordinate. The main advantage is 
+that the effect of each update is well tabulated beforehand into a small number of targeted parameters.
+
+This
+appendix builds that basis for $m = 1$; its last section deals
+with general $m$.
+
+First, re-encode each answer as a spin,
+\begin{equation}\label{eq:spin}
+  \sigma_q(\phi_j) \;:=\; (-1)^{\phi_j(q)} \;\in\; \{+1, -1\},
+\end{equation}
+so answer $0 \mapsto +1$ and $1 \mapsto -1$. A pure relabeling, but
+it buys the one algebraic fact everything below turns on:
+$\sigma_q^2 = 1$.
+
+The \textbf{Walsh--Hadamard transform} is built from a single
+matrix. For one bit,
+\begin{equation}\label{eq:hadamard}
+  W \;=\; \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix},
+  \qquad W_{c,b} \;=\; (-1)^{c\,b}, \quad c, b \in \{0,1\}.
+\end{equation}
+\begin{example}
+Acting on a one-bit distribution,
+\[
+  W \binom{p_0}{p_1}
+  \;=\; \binom{p_0 + p_1}{p_0 - p_1}
+  \;=\; \binom{1}{\langle \sigma \rangle}:
+\]
+row $c = 0$ computes the normalization, row $c = 1$ the spin bias.
+Distribution in, correlators out.
+\end{example}
+
+The normalization riding along is a redundancy. The original distribution also carries one variable more than its degrees of freedom.
+
+\begin{example}
+Tensoring two copies (the $n=1$ case) does the same for two bits at once:
+\begin{equation}\label{eq:HH}
+  W \otimes W \;=\;
+  \begin{pmatrix}
+    W & W \\
+    W & -W
+  \end{pmatrix}
+  \;=\;
+  \begin{pmatrix}
+    1 & 1 & 1 & 1 \\
+    1 & -1 & 1 & -1 \\
+    1 & 1 & -1 & -1 \\
+    1 & -1 & -1 & 1
+  \end{pmatrix}
+  \quad
+  \begin{array}{l}
+    \leftarrow c = 00\colon\ \text{sums to } 1 \\
+    \leftarrow c = 01\colon\ \langle \sigma_0 \rangle \\
+    \leftarrow c = 10\colon\ \langle \sigma_1 \rangle \\
+    \leftarrow c = 11\colon\ \langle \sigma_1 \sigma_0 \rangle
+  \end{array}
+\end{equation}
+\end{example}
+
+The Kronecker product multiplies signs, so for any number $l$ of
+tensor factors the entry at row $c$, column $j$ is
+\begin{equation}\label{eq:kron}
+  \big(W^{\otimes l}\big)_{c,j}
+  \;=\; \prod_{i=0}^{l-1} (-1)^{c_i\, j_i}
+  \;=\; (-1)^{\sum_i c_i\, j_i},
+\end{equation}
+with $c_i$, $j_i$ the $i$-th bits of the row and column indices;
+every further tensor factor appends one more bit.
+
+For $m = 1$ a map \emph{is} its truth table of $Q$ bits (the
+numeral $j$) so Werner's belief is a vector of length
+$N = 2^{Q}$, and one transform computes every correlator at once:
+\begin{equation}\label{eq:wht}
+  \chi \;=\; W^{\otimes Q} p,
+  \qquad
+  \chi_{\mathcal S} \;=\; \Big\langle \prod_{q \in \mathcal S} \sigma_q \Big\rangle
+  \;=\; \sum_{j=0}^{N-1} (-1)^{\sum_{q \in \mathcal S} \phi_j(q)}\, p_j.
+\end{equation}
+Each row computes the \textbf{correlator} of one subset
+$\mathcal S \subseteq \mathcal Q$ of questions. In the subscript we may encode the set as
+its \textbf{mask}: written in the same descending question order as everywhere else, bit $q$ of the subscript
+records whether $q \in \mathcal S$. The row index of the matrix, read as a
+numeral, is the mask. 
+
+\begin{example}
+For $n = 2$,
+the question order is $(11, 10, 01, 00)$ so $\chi_{0110}$ is the correlator of
+$\mathcal S = \{10, 01\}$.
+
+the sixteen rows of $W^{\otimes 4}$ probe the sixteen
+subsets of $Q = \{11, 10, 01, 00\}$. A few entries of the
+dictionary:
+\begin{center}
+\begin{tabular}{c c l}
+\toprule
+mask & set $\mathcal S$ & correlator \\
+\midrule
+$0000$ & $\emptyset$ & $\chi_{0000} = 1$ (normalization) \\
+$0001$ & $\{00\}$ & $\chi_{0001} = \langle \sigma_{00} \rangle$ \\
+$1000$ & $\{11\}$ & $\chi_{1000} = \langle \sigma_{11} \rangle$ \\
+$0110$ & $\{10, 01\}$ & $\chi_{0110} = \langle \sigma_{10}\, \sigma_{01} \rangle$ \\
+$1111$ & $\{11, 10, 01, 00\}$ & $\chi_{1111} = \langle \sigma_{11}\, \sigma_{10}\, \sigma_{01}\, \sigma_{00} \rangle$, the full parity \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{example}
+
+Sort the $N$ correlators by $|\mathcal S|$, the number
+of questions probed, into \textbf{shells}. Shell $0$ is the normalization, $\chi_\emptyset = 1$, riding along
+as a correlator. Shell $1$ is $M$ in different clothes:
+\begin{equation}\label{eq:shell1}
+  \chi_{\{q\}} \;=\; M_{0,q} - M_{1,q},
+  \qquad
+  M_{a,q} \;=\; \tfrac12\big(1 + (-1)^a\, \chi_{\{q\}}\big),
+\end{equation}
+the bias of column $q$. For $m=1$, we see that, elegantly, the first shell correlators are the distance from fair coins. 
+A prior invariant under negating every answer simultaneously sends
+$\chi_{\mathcal S} \mapsto (-1)^{|\mathcal S|}\chi_{\mathcal S}$, so all
+its odd shells vanish identically, shell $1$ among them: such a
+prior has an agnostic matrix $M$.
+
+Shell $2$ holds the agreement biases of
+pairs of questions, knowledge $M$ cannot see: two priors can
+share every column of $M$ and differ here. Higher shells store
+subtler and subtler parity knowledge. Nothing is lost in the
+sorting: $W^2 = 2I$, so $(W^{\otimes Q})^2 = N I$. The
+transform is its own inverse up to a factor $N$, and knowing every
+correlator is knowing the belief. The ledger also gives $C$ a
+signature: a product prior ($C = 0$) factorizes every correlator,
+$\chi_{\mathcal S} = \prod_{q \in \mathcal S} \chi_{\{q\}}$, so its upper shells
+repeat what shell $1$ already said; correlated knowledge is
+precisely \emph{non-factorizing} correlators.
+
+\begin{example}
+The prior of Table~\ref{tab:sixteen} transforms to the ledger
+\begin{center}
+\begin{tabular}{c l}
+\toprule
+shell & correlators \\
+\midrule
+0 & $\chi_{0000} = 1$ \\[2pt]
+1 & $\chi_{1000} = +0.170$,\ \ $\chi_{0100} = +0.558$,\ \
+    $\chi_{0010} = +0.780$,\ \ $\chi_{0001} = +0.636$ \\[2pt]
+2 & $\chi_{1100} = -0.032$,\ \ $\chi_{1010} = +0.230$,\ \
+    $\chi_{1001} = +0.374$, \\
+  & $\chi_{0110} = +0.498$,\ \ $\chi_{0101} = +0.434$,\ \
+    $\chi_{0011} = +0.576$ \\[2pt]
+3 & $\chi_{1110} = +0.028$,\ \ $\chi_{1101} = +0.092$,\ \
+    $\chi_{1011} = +0.434$,\ \ $\chi_{0111} = +0.374$ \\[2pt]
+4 & $\chi_{1111} = +0.152$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\ledgerbars{0/1/0000/blue!45,
+  0.80/0.170/1000/blue!45, 1.35/0.558/0100/blue!45,
+  1.90/0.780/0010/blue!45, 2.45/0.636/0001/blue!45,
+  3.25/-0.032/1100/orange!80, 3.80/0.230/1010/blue!45,
+  4.35/0.374/1001/blue!45, 4.90/0.498/0110/blue!45,
+  5.45/0.434/0101/blue!45, 6.00/0.576/0011/blue!45,
+  6.80/0.028/1110/blue!45, 7.35/0.092/1101/blue!45,
+  7.90/0.434/1011/blue!45, 8.45/0.374/0111/blue!45,
+  9.25/0.152/1111/blue!45}
+Shell $1$ reproduces the columns of equation~\eqref{eq:M16}:
+$(1 + 0.170)/2 = 0.585 = M_{0,11}$, and likewise $0.779$, $0.890$,
+$0.818$. The negative entry $\chi_{1100}$ says questions $11$
+and $10$ disagree slightly more often than they agree; every other
+pair leans toward agreement. This is a reflection of the strong coherent $0$-preference encoded in the prior. A prior leaning toward $1$ would give a negative shell $1$.
+\end{example}
+
+Now look at the \emph{rows} of $W^{\otimes Q}$ as functions of
+$j$. They are \textbf{block waves}. The observation mask is built of the same material:
+\begin{equation}\label{eq:mask}
+  \delta\big(\phi_j(q), a\big)
+  \;=\; \frac12\left(1 + (-1)^{a+\phi_j(q)}\right),
+\end{equation}
+a $0/1$ block wave: one constant plus one Hadamard row. And
+multiplication and convolution swap under this transform exactly as
+under Fourier: multiplying two functions of $j$ pointwise convolves
+their ledgers. And the observation mask's ledger has only two
+nonzero entries - at $\emptyset$ and at $\{q\}$ - so this
+convolution is no great sum: it combines each correlator with
+exactly one other.
+
+The update rule, carried out entirely in the ledger, is therefore
+that two-term combination, followed by renormalization by the new
+shell $0$. In index notation, learning $a = \psi(q)$ sends every
+set $\mathcal S$ to
+\begin{equation}\label{eq:corr-update}
+  \chi'_{\mathcal S} \;=\;
+  \frac{\chi_{\mathcal S} + (-1)^a\, \chi_{\mathcal S \triangle \{q\}}}
+       {1 + (-1)^a\, \chi_{\{q\}}},
+\end{equation}
+where $\mathcal S \triangle \{q\}$ is $\mathcal S$ with the membership of $q$
+toggled: $q$ is added if absent, removed if present (on masks, bit
+$q$ is flipped). The numerator is the monomial
+algebra of $\sigma_q^2 = 1$: multiplying
+$\prod_{r \in \mathcal S} \sigma_r$ by
+$\sigma_q$ toggles $q$'s membership of the product, so every correlator
+is averaged with its \textbf{partner}: the correlator differing
+by $q$, signed by the answer. The denominator is the
+$\mathcal S = \emptyset$ instance of the numerator, and by
+equation~\eqref{eq:shell1} it equals $2 M_{a,q}$: the same number
+that priced the answer in equation~\eqref{eq:update} renormalizes
+the ledger. 
+\begin{example}
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm,
+  lnode/.style={draw=black!60, rounded corners=1pt,
+                inner sep=2.5pt, font=\tiny, align=center},
+  pair/.style={<->, blue!55!black, line width=0.8pt},
+  denom/.style={->, gray!60, line width=0.35pt}]
+  % alternating shell bands, odd shells darker
+  \fill[gray!28] (-0.3,0.55) rectangle (9.3,1.45);
+  \fill[gray!10] (-0.3,1.55) rectangle (9.3,2.45);
+  \fill[gray!28] (-0.3,2.55) rectangle (9.3,3.45);
+  \fill[gray!10] (-0.3,3.55) rectangle (9.3,4.45);
+  \fill[gray!10] (-0.3,-0.45) rectangle (9.3,0.45);
+  % nodes: fill hue = sign, intensity = |chi| of the prior ledger
+  % shell 4
+  \node[lnode, fill=blue!14] (n1111) at (4.3,4) {1111};
+  % shell 3
+  \node[lnode, fill=blue!9]  (n1110) at (2.5,3) {1110};
+  \node[lnode, fill=blue!11] (n1101) at (4.1,3) {1101};
+  \node[lnode, fill=blue!24] (n1011) at (5.7,3) {1011};
+  \node[lnode, fill=blue!22] (n0111) at (7.3,3) {0111};
+  % shell 2
+  \node[lnode, fill=orange!9] (n1100) at (0.7,2) {1100};
+  \node[lnode, fill=blue!17]  (n1010) at (2.3,2) {1010};
+  \node[lnode, fill=blue!22]  (n1001) at (3.9,2) {1001};
+  \node[lnode, fill=blue!26]  (n0110) at (5.5,2) {0110};
+  \node[lnode, fill=blue!24]  (n0101) at (7.1,2) {0101};
+  \node[lnode, fill=blue!29]  (n0011) at (8.7,2) {0011};
+  % shell 1
+  \node[lnode, fill=blue!14, draw=orange!85!black, line width=1pt]
+    (n1000) at (1.5,1) {1000};
+  \node[lnode, fill=blue!29] (n0100) at (3.7,1) {0100};
+  \node[lnode, fill=blue!37] (n0010) at (5.3,1) {0010};
+  \node[lnode, fill=blue!32] (n0001) at (6.9,1) {0001};
+  % shell 0
+  \node[lnode, fill=blue!45] (n0000) at (4.5,0) {0000};
+  % the asked bias renormalizes every update: a fan from 1000
+  \draw[denom] (n1000) to (n1100);
+  \draw[denom] (n1000) to (n1010);
+  \draw[denom] (n1000) to (n1001);
+  \draw[denom] (n1000) to (n0110);
+  \draw[denom] (n1000) to (n0101);
+  \draw[denom] (n1000) to (n0011);
+  \draw[denom] (n1000) to (n1110);
+  \draw[denom] (n1000) to (n1101);
+  \draw[denom, bend left=8] (n1000) to (n1011);
+  \draw[denom, bend right=8] (n1000) to (n0111);
+  \draw[denom, bend left=18] (n1000) to (n1111);
+  \draw[denom, bend right=28] (n1000) to (n0100);
+  \draw[denom, bend right=28] (n1000) to (n0010);
+  \draw[denom, bend right=28] (n1000) to (n0001);
+  % the eight partner pairs under toggling of 11
+  \draw[pair] (n1000) -- (n0000);
+  \draw[pair] (n1100) -- (n0100);
+  \draw[pair] (n1010) -- (n0010);
+  \draw[pair] (n1001) -- (n0001);
+  \draw[pair] (n1110) -- (n0110);
+  \draw[pair] (n1101) -- (n0101);
+  \draw[pair] (n1011) -- (n0011);
+  \draw[pair] (n1111) -- (n0111);
+  % descent annotation
+  \draw[->, gray] (9.8,3.4) -- (9.8,0.6);
+  \node[rotate=90, gray, font=\scriptsize] at (10.1,2)
+    {structure descends};
+\end{tikzpicture}
+\end{center}
+The update rule in the ledger, drawn for the
+guiding example's first question ($q = 11$). Every set is paired
+with the partner whose membership of $11$ is toggled (arrows);
+each pair is averaged with the answer's sign and renormalized,
+per equation~\eqref{eq:corr-update}. The pair
+$\emptyset \leftrightarrow \{11\}$ at the orange-bordered asked
+set fixes the normalization and
+saturates the asked bias; each blue double arrow averages a pair
+into both of its members, and the net flow of structure is one
+shell down, toward $M$. The thin gray arrows from the
+asked $q$ to every other pill are a reminder that this sets the
+renormalization. The fill encodes each prior value to
+scale: darker is larger, orange is negative.
+\end{example}
+
+Read formula~\eqref{eq:corr-update} by cases:
+\begin{itemize}
+  \item $\mathcal S = \emptyset$: partner $\{q\}$, giving
+    $(1 + (-1)^a \chi_{\{q\}})/(1 + (-1)^a \chi_{\{q\}}) = 1$.
+    Normalization is preserved.
+  \item $\mathcal S = \{q\}$, the asked question: partner $\emptyset$, giving
+    $(\chi_{\{q\}} + (-1)^a)/(1 + (-1)^a \chi_{\{q\}}) = (-1)^a$.
+    The bias saturates to certainty - the one-hot collapse of
+    column $q$, derived rather than decreed.
+  \item $\mathcal S = \{q'\}$, an unasked question: the partner is the pair
+    $\{q', q\}$, and one line of algebra puts the
+    shift in terms of the \emph{connected} correlator:
+    \begin{equation}\label{eq:cov-shift}
+      \chi'_{\{q'\}} - \chi_{\{q'\}}
+      \;=\; \frac{(-1)^a \big(\chi_{\{q',q\}}
+        - \chi_{\{q'\}}\, \chi_{\{q\}}\big)}{2 M_{a,q}}
+      \;=\; \frac{(-1)^a\, \mathrm{Cov}\big(\sigma_{q'}, \sigma_q\big)}
+        {2 M_{a,q}}.
+    \end{equation}
+    Unasked columns move in proportion to their covariance with the
+    asked question: knowledge stored one shell up descends into the
+    predictions. A product prior has zero covariance everywhere, so
+    its unasked columns are frozen - the ``$C = 0$ means no
+    transfer'' fact, now a one-line consequence.
+  \item Higher shells: the same cascade. Each update marries
+    shell-$k$ sets containing $q$ to shell-$(k{-}1)$ sets without
+    it; whatever structure was stored jointly with $q$ moves one
+    shell down, toward $M$.
+\end{itemize}
+
+\begin{example}
+Question 1 of the walkthrough asked $q = 11$ and received $a = 1$:
+sign $(-1)^a = -1$, toggled set $\{11\}$, mask $1000$.
+Equation~\eqref{eq:corr-update}
+maps the ledger of the previous box to
+\begin{center}
+\begin{tabular}{c l}
+\toprule
+shell & updated correlators \\
+\midrule
+0 & $\chi'_{0000} = 1$ \\[2pt]
+1 & $\chi'_{1000} = \mathbf{-1}$,\ \ $\chi'_{0100} = +0.711$,\ \
+    $\chi'_{0010} = +0.663$,\ \ $\chi'_{0001} = +0.316$ \\[2pt]
+2 & $\chi'_{1100} = -0.711$,\ \ $\chi'_{1010} = -0.663$,\ \
+    $\chi'_{1001} = -0.316$, \\
+  & $\chi'_{0110} = +0.566$,\ \ $\chi'_{0101} = +0.412$,\ \
+    $\chi'_{0011} = +0.171$ \\[2pt]
+3 & $\chi'_{1110} = -0.566$,\ \ $\chi'_{1101} = -0.412$,\ \
+    $\chi'_{1011} = -0.171$,\ \ $\chi'_{0111} = +0.267$ \\[2pt]
+4 & $\chi'_{1111} = -0.267$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\ledgerbars{0/1/0000/blue!45,
+  0.80/-1/1000/orange!80, 1.35/0.711/0100/blue!45,
+  1.90/0.663/0010/blue!45, 2.45/0.316/0001/blue!45,
+  3.25/-0.711/1100/orange!80, 3.80/-0.663/1010/orange!80,
+  4.35/-0.316/1001/orange!80, 4.90/0.566/0110/blue!45,
+  5.45/0.412/0101/blue!45, 6.00/0.171/0011/blue!45,
+  6.80/-0.566/1110/orange!80, 7.35/-0.412/1101/orange!80,
+  7.90/-0.171/1011/orange!80, 8.45/0.267/0111/blue!45,
+  9.25/-0.267/1111/orange!80}
+The asked bias saturates:
+$\chi'_{1000} = (0.170 - 1)/(1 - 0.170) = -1$. The other
+singletons move by equation~\eqref{eq:cov-shift}: for $q' = 10$ the
+covariance is $-0.032 - (0.558)(0.170) = -0.127$, so the shift is
+$(-1)(-0.127)/(2 \times 0.415) = +0.153$, landing on $+0.711$ ---
+and indeed $(1 + 0.711)/2 = 0.855$, the column $M_{0,10}$ of the
+Question 2 box. Note also that every mask containing the asked bit
+is now just $(-1)^a$ times its partner
+($\chi'_{1010} = -\chi'_{0010}$,
+etc.): with $\sigma_{11}$ pinned, no correlator involving
+question $11$ carries independent knowledge anymore.
+\end{example}
+
+\begin{example}
+\begin{center}
+\begin{tikzpicture}[x=8cm, y=1.5cm]
+  % the update rule (eq:corr-update), drawn: per set, the numerator
+  % chi_S with the twin's signed contribution beside it (waterfall)
+  % at x = 2M_{a,q}, rescaled to x = 1 by the ray through the origin
+  \draw[dotted, gray!60] (0.830,0.38) -- (0.830,-4.35);
+  \draw[dotted, gray!60] (1,0.38) -- (1,-4.35);
+  % \node[font=\small\itshape] at (0.5,0.85)
+  %   {update $\chi$ after $\psi(11) = 1$};
+  \node[font=\tiny, gray, anchor=east] at (0.92,0.50)
+    {stack at $2M_{a,q}$};
+  \node[font=\tiny, gray, anchor=west] at (0.955,0.50)
+    {read at $1$};
+  % the set being updated, left of each row
+  \node[font=\scriptsize, anchor=east] at (-0.04,0)
+    {$\mathcal S = \{11\}$};
+  \node[font=\scriptsize, anchor=east] at (-0.04,-2.1)
+    {$\mathcal S = \{10\}$};
+  \node[font=\scriptsize, anchor=east] at (-0.04,-2.63)
+    {$\mathcal S = \{11, 01\}$};
+  \node[font=\scriptsize, anchor=east] at (-0.04,-4.24)
+    {$\mathcal S = \{01, 00\}$};
+  % ---------- set = 1000 (the asked set) ----------
+  \fill[gray!12] (0,0) -- (1,0) -- (1,-1) -- cycle;
+  \draw[->] (-0.02,0) -- (1.12,0);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,0) rectangle (0.829,0.170);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,0.170) rectangle (0.851,-0.830);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,0) rectangle (1.022,-1);
+  \draw[blue!55!black, line width=0.6pt] (0,0) -- (1,-1);
+  \fill[black] (0.830,-0.830) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,0.085) {$\chi_{1000}$\\$+0.170$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-0.33) {$-\chi_{0000}$\\$-1$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-1)
+    {$\chi'_{1000} = -1$};
+  % ---------- set = 0100 (an unasked question) ----------
+  \fill[gray!12] (0,-2.1) -- (1,-2.1) -- (1,-1.389) -- cycle;
+  \draw[->] (-0.02,-2.1) -- (1.12,-2.1);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,-2.1) rectangle (0.829,-1.542);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,-1.542) rectangle (0.851,-1.510);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,-2.1) rectangle (1.022,-1.389);
+  \draw[blue!55!black, line width=0.6pt] (0,-2.1) -- (1,-1.389);
+  \fill[black] (0.830,-1.510) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,-1.821) {$\chi_{0100}$\\$+0.558$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-1.526) {$-\chi_{1100}$\\$+0.032$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-1.389)
+    {$\chi'_{0100} = +0.711$};
+  % ---------- set = 1010 (contains the asked bit) ----------
+  \fill[gray!12] (0,-2.63) -- (1,-2.63) -- (1,-3.293) -- cycle;
+  \draw[->] (-0.02,-2.63) -- (1.12,-2.63);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,-2.63) rectangle (0.829,-2.40);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,-2.40) rectangle (0.851,-3.18);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,-2.63) rectangle (1.022,-3.293);
+  \draw[blue!55!black, line width=0.6pt] (0,-2.63) -- (1,-3.293);
+  \fill[black] (0.830,-3.18) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,-2.515) {$\chi_{1010}$\\$+0.230$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-2.83) {$-\chi_{0010}$\\$-0.780$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-3.293)
+    {$\chi'_{1010} = -0.663$};
+  % ---------- set = 0011 (a higher shell) ----------
+  \fill[gray!12] (0,-4.24) -- (1,-4.24) -- (1,-4.069) -- cycle;
+  \draw[->] (-0.02,-4.24) -- (1.12,-4.24);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.809,-4.24) rectangle (0.829,-3.664);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.831,-3.664) rectangle (0.851,-4.098);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.978,-4.24) rectangle (1.022,-4.069);
+  \draw[blue!55!black, line width=0.6pt] (0,-4.24) -- (1,-4.069);
+  \fill[black] (0.830,-4.098) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east,
+    align=center] at (0.795,-3.952) {$\chi_{0011}$\\$+0.576$};
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=west,
+    align=center] at (0.865,-3.881) {$-\chi_{1011}$\\$-0.434$};
+  \node[font=\tiny, anchor=west, align=center] at (1.035,-4.069)
+    {$\chi'_{0011} = +0.171$};
+  % shared x labels on the bottom panel
+  \draw (0.830,-4.26) -- (0.830,-4.22);
+  \draw (1,-4.26) -- (1,-4.22);
+  \node[font=\tiny, below] at (0.830,-4.28) {$0.830$};
+  \node[font=\tiny, below] at (1,-4.28) {$1$};
+\end{tikzpicture}
+\end{center}
+The update rule of
+equation~\eqref{eq:corr-update}, drawn for the guiding example's
+first update ($q = 11$, $a = 1$, so $(-1)^a = -1$ and toggled bit
+$1000$). One row per set $\mathcal S$. At $x = 2M_{a,q} = 1 + (-1)^a
+\chi_{1000} = 0.830$ stands the numerator as a waterfall: the bar
+of $\chi_{\mathcal S}$ (blue), and beside it the partner's signed
+contribution $(-1)^a \chi_{\mathcal S \triangle \{q\}}$ (orange), hanging
+from the level where the first bar ends. The two subscripts
+differ by the flipped bit. The ray from the origin through the
+waterfall's endpoint rescales it, by similar triangles, to
+$x = 1$, where its height is the updated correlator $\chi'_{\mathcal S}$.
+\end{example}
+
+As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
+The 2-shell answers questions such as ``if $\psi(10) = 0$, then $\psi(01) = 1$''. And the higher orders are even more conditional, measuring belief about such statements, in the case of certain answers, etc. As we learn more, the conditions become satisfied or not, and the information becomes less nested. 
+
+\begin{example}
+The remaining
+questions of the run ($00$, $01$, $10$, all answered $0$, so with
+sign $+1$) each saturate their own bit the same way, and since
+XOR toggles commute, the order does not matter - the
+commutativity of updating, seen again. After all four, the ledger
+is pure signs, $\chi_{\mathcal S} = (-1)^{|\mathcal S \cap \{11\}|}$, which is $-1$ on every
+set containing $11$, $+1$ on the rest: the transform
+of the point mass on $\psi = \phi_8$:
+\begin{center}
+\begin{tabular}{c l}
+\toprule
+shell & final correlators \\
+\midrule
+0 & $\chi_{0000} = 1$ \\[2pt]
+1 & $\chi_{1000} = -1$,\ \ $\chi_{0100} = +1$,\ \
+    $\chi_{0010} = +1$,\ \ $\chi_{0001} = +1$ \\[2pt]
+2 & $\chi_{1100} = -1$,\ \ $\chi_{1010} = -1$,\ \
+    $\chi_{1001} = -1$, \\
+  & $\chi_{0110} = +1$,\ \ $\chi_{0101} = +1$,\ \
+    $\chi_{0011} = +1$ \\[2pt]
+3 & $\chi_{1110} = -1$,\ \ $\chi_{1101} = -1$,\ \
+    $\chi_{1011} = -1$,\ \ $\chi_{0111} = +1$ \\[2pt]
+4 & $\chi_{1111} = -1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\ledgerbars{0/1/0000/blue!45,
+  0.80/-1/1000/orange!80, 1.35/1/0100/blue!45,
+  1.90/1/0010/blue!45, 2.45/1/0001/blue!45,
+  3.25/-1/1100/orange!80, 3.80/-1/1010/orange!80,
+  4.35/-1/1001/orange!80, 4.90/1/0110/blue!45,
+  5.45/1/0101/blue!45, 6.00/1/0011/blue!45,
+  6.80/-1/1110/orange!80, 7.35/-1/1101/orange!80,
+  7.90/-1/1011/orange!80, 8.45/1/0111/blue!45,
+  9.25/-1/1111/orange!80}
+\end{example}
+
+\subsection{General $m$}\label{sec:generalm}
+
+It turns out that taking $m > 1$ is more
+general but not much more instructive. With multiple output bits it
+is as if we have $m$ a priori independent maps per question; they
+just happen always to be asked and answered simultaneously, in
+unison. Therefore we do not have to think about what one of them
+teaches us about another. It would mean we have more than $2$
+options every question, and therefore the factor by which every
+update thins the hypotheses is not $2$ but $A$. The guiding
+example helps because the maps are represented as binary numbers,
+which are more familiar.
+
+For completeness, the main formulas. The truth table is now
+$mQ$ bits: one \textbf{site} $(q, i)$ per bit $i$ of each
+answer, each carrying a spin
+$\sigma_{q,i}(\phi_j) := (-1)^{\phi_j(q)_i}$, where $\phi_j(q)_i$
+is the $i$-th bit of the answer. Correlators are indexed by sets
+$\mathcal S$ of sites: masks of $mQ$ bits under the same numeral
+convention, $m$ of them per question:
+\begin{equation}\label{eq:wht-m}
+  \chi_{\mathcal S} \;=\; \Big\langle \prod_{(q,i) \in \mathcal S} \sigma_{q,i}
+  \Big\rangle
+  \;=\; \sum_{j=0}^{N-1} (-1)^{\sum_{(q,i) \in \mathcal S} \phi_j(q)_i}\,
+  p_j.
+\end{equation}
+
+\begin{example}
+For $n = 3$, $m = 2$ the sites form a $2 \times 8$ grid: one column
+per question, one row per bit of the answer. A set $\mathcal S$ is a pattern
+of hot cells in this grid, and $\chi_{\mathcal S}$ multiplies the
+corresponding spins:
+\begin{center}
+\begin{tikzpicture}[x=0.40cm, y=0.40cm]
+  % column headers
+  \node[font=\tiny, anchor=east] at (-0.4,0.8) {$q =$};
+  \foreach \c/\q in {0/111, 1/110, 2/101, 3/100,
+                     4/011, 5/010, 6/001, 7/000}
+    \node[font=\tiny, rotate=90, anchor=west] at ({\c+0.5},0.3)
+      {$\q$};
+  % row labels, all grids
+  \foreach \g in {0, 1, 2, 3, 4} {
+    \node[font=\tiny, anchor=east] at (-0.4,{-3.4*\g - 0.5})
+      {bit $1$};
+    \node[font=\tiny, anchor=east] at (-0.4,{-3.4*\g - 1.5})
+      {bit $0$};
+  }
+  % the five grids: cold cells
+  \foreach \g in {0, 1, 2, 3, 4}
+    \foreach \c in {0,...,7}
+      \foreach \r in {0, 1}
+        \draw[black!40, line width=0.3pt, fill=gray!12]
+          (\c,{-3.4*\g - 2 + \r}) rectangle
+          ({\c+1},{-3.4*\g - 1 + \r});
+  % hot cells: {grid/column/row}, row 1 = bit 1 (top)
+  \foreach \g/\c/\r in {1/2/1, 2/1/0, 2/1/1, 3/3/0, 3/4/1,
+                        4/0/1, 4/2/0, 4/5/0, 4/5/1, 4/7/0}
+    \draw[black!40, line width=0.3pt, fill=orange!70]
+      (\c,{-3.4*\g - 2 + \r}) rectangle
+      ({\c+1},{-3.4*\g - 1 + \r});
+  % what each pattern computes
+  \node[font=\scriptsize, anchor=west] at (8.8,-1)
+    {$\chi_\emptyset = 1$: the normalization};
+  \node[font=\scriptsize, anchor=west] at (8.8,-4.4)
+    {$\langle \sigma_{101,1} \rangle$: the bias of one answer bit};
+  \node[font=\scriptsize, anchor=west, align=left] at (8.8,-7.8)
+    {$\langle \sigma_{110,1}\, \sigma_{110,0} \rangle$: the parity
+     of one answer ---\\with the two biases, the block of
+     $M_{\cdot,110}$};
+  \node[font=\scriptsize, anchor=west] at (8.8,-11.2)
+    {$\langle \sigma_{100,0}\, \sigma_{011,1} \rangle$: agreement
+     across two questions};
+  \node[font=\scriptsize, anchor=west, align=left] at (8.8,-14.6)
+    {$\langle \sigma_{111,1}\, \sigma_{101,0}\, \sigma_{010,1}\,
+      \sigma_{010,0}\, \sigma_{000,0} \rangle$:\\a five-site
+      parity, deep in the shells};
+\end{tikzpicture}
+\end{center}
+Any of the $2^{16} = 65536$ hot/cold patterns is a correlator, and
+sorting by the number of hot cells gives the shells. The mask of
+$\mathcal S$ is the grid read as a $16$-bit numeral.
+\end{example}
+
+Write $\mathcal B_q$ for the block of $q$'s $m$ sites, and
+$a \cdot \mathcal T := \sum_{i \in \mathcal T} a_i$ for the parity of the answer $a$
+on a subset $\mathcal T \subseteq \mathcal B_q$. The answer matrix is read off the
+correlators supported on one block. There are $A$ of them per column:
+\begin{equation}\label{eq:M-m}
+  M_{a,q} \;=\; \frac{1}{A} \sum_{\mathcal T \subseteq \mathcal B_q}
+  (-1)^{a \cdot \mathcal T}\, \chi_{\mathcal T}.
+\end{equation}
+The observation mask at $(q, a)$ is a function of the $m$ bits of
+one block, so its ledger has $A$ nonzero entries, and hearing
+$a = \psi(q)$ combines every correlator with its $A$ partners ---
+one per toggle $\mathcal T$ within the asked block:
+\begin{equation}\label{eq:corr-update-m}
+  \chi'_{\mathcal S} \;=\; \frac{\sum_{\mathcal T \subseteq \mathcal B_q} (-1)^{a \cdot \mathcal T}\,
+    \chi_{\mathcal S \triangle \mathcal T}}{A\, M_{a,q}},
+\end{equation}
+the denominator once more the $\mathcal S = \emptyset$ instance of the
+numerator. For $m = 1$ the three
+formulas collapse to
+equations~\eqref{eq:wht}, \eqref{eq:shell1}
+and~\eqref{eq:corr-update}.
+
+\begin{example}
+To draw the update, take a sparse prior at $n = 3$, $m = 2$: four
+maps, $\phi(q) = q \bmod 4$ (weight $0.45$), constant $00$
+($0.35$), ``$11$ iff $q \geq 4$'' ($0.12$), constant $11$
+($0.08$). Werner asks $q = 110$ and hears $a = 11$: toggle signs
+$(+, -, -, +)$ on $(\emptyset, 110_0, 110_1, \text{both})$, where
+$q_i$ denotes site $(q, i)$, and denominator
+$A M_{11,110} = 0.8$. The pairs of the $m = 1$ figure become
+\emph{quartets}:
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm,
+  lnode/.style={draw=black!60, rounded corners=1pt,
+                inner sep=2.5pt, font=\tiny, align=center},
+  pair/.style={<->, blue!55!black, line width=0.7pt}]
+  % shell bands, odd darker
+  \fill[gray!10] (-0.3,-0.45) rectangle (8.3,0.45);
+  \fill[gray!28] (-0.3,0.55) rectangle (8.3,1.45);
+  \fill[gray!10] (-0.3,1.55) rectangle (8.3,2.45);
+  \fill[gray!28] (-0.3,2.55) rectangle (8.3,3.45);
+  % the on-block quartet of the asked question 110
+  \node[lnode, fill=blue!45]  (qa0) at (2,0)   {$\emptyset$};
+  \node[lnode, fill=blue!30]  (qa1) at (1.1,1) {$110_0$};
+  \node[lnode, fill=orange!19] (qa2) at (2.9,1) {$110_1$};
+  \node[lnode, fill=blue!12]  (qa3) at (2,2)   {$110_1 110_0$};
+  \draw[pair] (qa0) -- (qa1); \draw[pair] (qa0) -- (qa2);
+  \draw[pair] (qa0) -- (qa3); \draw[pair] (qa1) -- (qa2);
+  \draw[pair] (qa1) -- (qa3); \draw[pair] (qa2) -- (qa3);
+  % a generic quartet, seeded by the foreign site 011_0
+  \node[lnode, fill=orange!10] (qb0) at (6,1)   {$011_0$};
+  \node[lnode, fill=orange!13] (qb1) at (5.1,2) {$011_0 110_0$};
+  \node[lnode, fill=blue!36]   (qb2) at (6.9,2) {$011_0 110_1$};
+  \node[lnode, fill=blue!39]   (qb3) at (6,3)   {$011_0 110_1 110_0$};
+  \draw[pair] (qb0) -- (qb1); \draw[pair] (qb0) -- (qb2);
+  \draw[pair] (qb0) -- (qb3); \draw[pair] (qb1) -- (qb2);
+  \draw[pair] (qb1) -- (qb3); \draw[pair] (qb2) -- (qb3);
+  % the asked block's quartet renormalizes every other
+  \draw[dashed, orange!85!black] (2,1) ellipse (1.75 and 1.6);
+  \draw[dashed, gray!70] (6,2) ellipse (1.75 and 1.6);
+  \draw[->, gray!60, line width=0.5pt] (3.65,1.55) -- (4.35,1.8);
+  \node[font=\tiny, gray, below, rotate=20] at (4.0,1.62)
+    {renormalizes};
+\end{tikzpicture}
+\end{center}
+For $m = 2$, toggling any subset of the asked
+block's two sites ties four correlators into a clique that
+averages jointly, per equation~\eqref{eq:corr-update-m}. The
+on-block quartet (orange hull) contains the normalization and the
+entire block of $M_{\cdot,110}$; its signed sum is the denominator
+that renormalizes every other quartet. Fills to scale for the
+sparse prior, as before.
+
+\begin{center}
+
+\begin{tikzpicture}[x=8cm, y=1.2cm]
+  % \node[font=\small\itshape] at (0.5,0.55)
+  %   {update $\chi$ after $\psi(110) = 11$};
+  \draw[dotted, gray!60] (0.8,0.3) -- (0.8,-3.95);
+  \draw[dotted, gray!60] (1,0.3) -- (1,-3.95);
+  % ---------- set = {110_1} ----------
+  \fill[gray!12] (0,0) -- (1,0) -- (1,-1) -- cycle;
+  \draw[->] (-0.02,0) -- (1.12,0);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.768,0) rectangle (0.784,-0.300);
+  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
+    (0.784,-0.300) rectangle (0.800,-0.400);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.800,-0.400) rectangle (0.816,-1.400);
+  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
+    (0.816,-1.400) rectangle (0.832,-0.800);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.98,0) rectangle (1.02,-1);
+  \draw[blue!55!black, line width=0.6pt] (0,0) -- (1,-1);
+  \fill[black] (0.8,-0.8) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
+    at (0.745,-0.15) {$\chi_{\mathcal S} = -0.300$};
+  \node[font=\tiny, anchor=west] at (1.035,-1)
+    {$\chi'_{\{110_1\}} = -1$};
+  \node[font=\scriptsize, anchor=east] at (-0.05,0)
+    {$\mathcal S = \{110_1\}$};
+  % ---------- set = {011_0} ----------
+  \fill[gray!12] (0,-1.95) -- (1,-1.95) -- (1,-1.75) -- cycle;
+  \draw[->] (-0.02,-1.95) -- (1.12,-1.95);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.768,-1.95) rectangle (0.784,-2.010);
+  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
+    (0.784,-2.010) rectangle (0.800,-1.870);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.800,-1.870) rectangle (0.816,-2.630);
+  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
+    (0.816,-2.630) rectangle (0.832,-1.790);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.98,-1.95) rectangle (1.02,-1.75);
+  \draw[blue!55!black, line width=0.6pt] (0,-1.95) -- (1,-1.75);
+  \fill[black] (0.8,-1.79) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
+    at (0.745,-2.01) {$\chi_{\mathcal S} = -0.060$};
+  \node[font=\tiny, anchor=west] at (1.035,-1.75)
+    {$\chi'_{\{011_0\}} = +0.200$};
+  \node[font=\scriptsize, anchor=east] at (-0.05,-1.95)
+    {$\mathcal S = \{011_0\}$};
+  % ---------- set = {011_0, 110_1} ----------
+  \fill[gray!12] (0,-3.67) -- (1,-3.67) -- (1,-3.87) -- cycle;
+  \draw[->] (-0.02,-3.67) -- (1.12,-3.67);
+  \draw[fill=blue!45, draw=black!60, line width=0.3pt]
+    (0.768,-3.67) rectangle (0.784,-2.910);
+  \draw[fill=orange!50, draw=black!60, line width=0.3pt]
+    (0.784,-2.910) rectangle (0.800,-3.750);
+  \draw[fill=orange!70, draw=black!60, line width=0.3pt]
+    (0.800,-3.750) rectangle (0.816,-3.690);
+  \draw[fill=orange!90, draw=black!60, line width=0.3pt]
+    (0.816,-3.690) rectangle (0.832,-3.830);
+  \draw[fill=blue!70, draw=black!60, line width=0.3pt]
+    (0.98,-3.67) rectangle (1.02,-3.87);
+  \draw[blue!55!black, line width=0.6pt] (0,-3.67) -- (1,-3.87);
+  \fill[black] (0.8,-3.83) circle (0.5pt);
+  \node[font=\tiny, fill=white, inner sep=1pt, anchor=east]
+    at (0.745,-3.29) {$\chi_{\mathcal S} = +0.760$};
+  \node[font=\tiny, anchor=west] at (1.035,-3.87)
+    {$\chi'_{\{011_0, 110_1\}} = -0.200$};
+  \node[font=\scriptsize, anchor=east] at (-0.05,-3.67)
+    {$\mathcal S = \{011_0, 110_1\}$};
+  % shared x labels
+  \draw (0.8,-3.89) -- (0.8,-3.85);
+  \draw (1,-3.89) -- (1,-3.85);
+  \node[font=\tiny, below] at (0.8,-3.91) {$0.8$};
+  \node[font=\tiny, below] at (1,-3.91) {$1$};
+\end{tikzpicture}
+\end{center}
+The $m = 2$ update, three sets from the sparse
+prior. The waterfall now has four segments: $\chi_{\mathcal S}$ (blue) and
+its three signed quartet partners, in toggle order $110_0$,
+$110_1$, both (light to dark orange). The ray from the origin
+rescales the endpoint from $x = A M_{a,q} = 0.8$ to $x = 1$.
+The asked site saturates to $-1$; the foreign site $011_0$ flips
+sign, $-0.060 \to +0.200$; and $\{011_0, 110_1\}$ lands on
+$-0.200$, the renormalized value $-\chi'_{\{011_0\}}$.
+\end{example}
+
+
+\section{Playing the guiding example}\label{app:playing}
+
+This appendix plays the guiding example of Table~\ref{tab:sixteen}
+through all four questions, one round per example, so that the ledgers
+of Subsection~\ref{sec:bookkeeping} can be watched in motion. Before
+each round Werner computes, for every question still unasked, the two
+forecasts of Subsection~\ref{sec:forecasts}: the expected surprisal
+$\langle s \rangle(q)$, which is the entropy of that question's
+column, and the expected drop $\langle \Delta H(M) \rangle(q)$ of the
+whole table. We append both forecasts as extra rows under $M$, so every
+table below carries beneath it what Werner expected before he asked.
+
+\begin{example}
+
+Werner's belief is the prior of Table~\ref{tab:sixteen} as before. He plays greedily: always asking the question with the largest
+forecast reduction in matrix entropy. The truth is AND ($\psi = \phi_8$).
+
+\textbf{Question 1.} The starting state:
+\[
+  \begin{array}{c|cccc}
+    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
+      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & \hm{20} 0.585 & \hm{27} 0.779 & \hm{31} 0.890 & \hm{29} 0.818 \\[2pt]
+    \mathbf{1} & \hm{15} 0.415 & \hm{8} 0.221 & \hm{4} 0.110 & \hm{6} 0.182 \\
+    \hline
+    \langle s \rangle & \hm{30} 0.979 & \hm{21} 0.762 & \hm{10} 0.500 & \hm{18} 0.684 \\[2pt]
+    \langle \Delta H(M) \rangle & \hm{35} 1.104 & \hm{22} 0.800 & \hm{12} 0.544 & \hm{22} 0.801
+  \end{array}
+\]
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{0}{30}{0.585}{1.357}{0.748}{1.104}
+  \fslot{2.65}{21}{0.779}{0.869}{0.556}{0.800}
+  \fslot{5.30}{10}{0.890}{0.600}{0.088}{0.544}
+  \fslot{7.95}{18}{0.818}{0.870}{0.491}{0.801}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
+To see where the forecast entries come from, take $q = 11$: the
+answer $a = 0$ arrives with probability $M_{0,11} = 0.585$ and would
+drop $H(M)$ from $2.925$ to $1.569$; the answer $a = 1$ arrives with
+probability $0.415$ and drops it only to $2.178$, so
+\begin{align*}
+  \langle s \rangle(11)
+  &= 0.585\, (0.773) + 0.415\, (1.269) = 0.979, \\
+  \langle \Delta H(M) \rangle(11)
+  &= 0.585\, (1.357) + 0.415\, (0.748) = 1.104.
+\end{align*}
+\end{example}
+
+\begin{example}
+Both forecast rows point to $q = 11$: it is the closest thing to a
+coin on offer ($\langle s\rangle = 0.979$) and moves the whole
+table most, by a wide margin. Part of $\Delta H(M)$ is just $\langle s \rangle$ itself.
+Werner asks it, and nature answers $a = 1$ (probability $0.415$,
+surprisal $s_1 = 1.269$). Eight maps die:
+%
+\begin{center}
+\begin{tabular}{c c l c c c}
+\toprule
+$j$ & $\phi_j(11)$ & name & $p_j$ & $p'_j$ & \\
+\midrule
+\tikzmark{w1a}0 & 0 & FALSE (constant $0$) & 0.394 & - & \tikzmark{w1ae} \\
+\tikzmark{w1b}1 & 0 & $\lnot(b_1 \vee b_0)$ (NOR) & 0.010 & - & \tikzmark{w1be} \\
+\tikzmark{w1c}2 & 0 & $\lnot b_1 \wedge b_0$ & 0.010 & - & \tikzmark{w1ce} \\
+\tikzmark{w1d}3 & 0 & $\lnot b_1$ & 0.010 & - & \tikzmark{w1de} \\
+\tikzmark{w1e}4 & 0 & $b_1 \wedge \lnot b_0$ & 0.131 & - & \tikzmark{w1ee} \\
+\tikzmark{w1f}5 & 0 & $\lnot b_0$ & 0.010 & - & \tikzmark{w1fe} \\
+\tikzmark{w1g}6 & 0 & $b_1 \oplus b_0$ (XOR) & 0.010 & - & \tikzmark{w1ge} \\
+\tikzmark{w1h}7 & 0 & $\lnot(b_1 \wedge b_0)$ (NAND) & 0.010 & - & \tikzmark{w1he} \\
+8 & 1 & $b_1 \wedge b_0$ (AND) & 0.213 & 0.513 & \pbar{0.513} \\
+9 & 1 & $b_1 = b_0$ (XNOR) & 0.092 & 0.222 & \pbar{0.222} \\
+10 & 1 & $b_0$ (projection) & 0.040 & 0.096 & \pbar{0.096} \\
+11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.010 & 0.024 & \pbar{0.024} \\
+12 & 1 & $b_1$ (projection) & 0.010 & 0.024 & \pbar{0.024} \\
+13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.030 & 0.072 & \pbar{0.072} \\
+14 & 1 & $b_1 \vee b_0$ (OR) & 0.010 & 0.024 & \pbar{0.024} \\
+15 & 1 & TRUE (constant $1$) & 0.010 & 0.024 & \pbar{0.024} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \foreach \s/\e in {w1a/w1ae, w1b/w1be, w1c/w1ce, w1d/w1de,
+                     w1e/w1ee, w1f/w1fe, w1g/w1ge, w1h/w1he}
+    \draw[line width=0.5pt]
+      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
+      ([shift={(2pt,0.55ex)}]pic cs:\e);
+\end{tikzpicture}
+\end{center}
+
+The ledger:
+\[
+  H(M)\colon 2.925 \to 2.178, \qquad
+  H(p)\colon 2.707 \to 2.093, \qquad
+  C\colon 0.218 \to 0.085.
+\]
+Werner received $1.269$ bits but destroyed only $0.748$ bits of table.
+Correlations point the right way only on average, not on every draw. In this case, Werner got the much less informative branch, and paid the premium price for it.
+The destroyed-per-received ratio of this round is $L_1 = 0.589$: well
+below $1$, anti-leverage.
+\end{example}
+
+Question 1 is a reminder that the forecast rows are
+\emph{expectations}: they hold on average over many repetitions of
+the experiment, and only if the world really does draw its truth $\psi$
+from Werner's prior. On any single run the realized numbers are free
+to deviate.
+
+\begin{example}
+\textbf{Question 2.} The state after the collapse, with fresh
+forecasts:
+\[
+  \begin{array}{c|cccc}
+    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
+      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & \hm{0} 0 & \hm{30} 0.855 & \hm{29} 0.831 & \hm{23} 0.658 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{5} 0.145 & \hm{6} 0.169 & \hm{12} 0.342 \\
+    \hline
+    \langle s \rangle & \text{---} & \hm{14} 0.596 & \hm{16} 0.655 & \hm{28} 0.927 \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{17} 0.670 & \hm{17} 0.677 & \hm{30} 0.983
+  \end{array}
+\]
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{2.65}{14}{0.855}{0.726}{0.341}{0.670}
+  \fslot{5.30}{16}{0.831}{0.723}{0.451}{0.677}
+  \fslot{7.95}{28}{0.658}{1.113}{0.733}{0.983}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
+Greedy Werner picks $q = 00$. Nature answers
+$a = 0$, which is the answer Werner favored (probability $0.658$), so the
+surprisal is only $s_2 = 0.604$ bits. Four of the eight die:
+%
+\begin{center}
+\begin{tabular}{c c l c c c}
+\toprule
+$j$ & $\phi_j(00)$ & name & $p_j$ & $p'_j$ & \\
+\midrule
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.513 & 0.780 & \pbar{0.780} \\
+\tikzmark{w2a}9 & 1 & $b_1 = b_0$ (XNOR) & 0.222 & - & \tikzmark{w2ae} \\
+10 & 0 & $b_0$ (projection) & 0.096 & 0.147 & \pbar{0.147} \\
+\tikzmark{w2b}11 & 1 & $b_1 \to b_0$ (IF THEN) & 0.024 & - & \tikzmark{w2be} \\
+12 & 0 & $b_1$ (projection) & 0.024 & 0.037 & \pbar{0.037} \\
+\tikzmark{w2c}13 & 1 & $b_0 \to b_1$ (IF THEN) & 0.072 & - & \tikzmark{w2ce} \\
+14 & 0 & $b_1 \vee b_0$ (OR) & 0.024 & 0.037 & \pbar{0.037} \\
+\tikzmark{w2d}15 & 1 & TRUE (constant $1$) & 0.024 & - & \tikzmark{w2de} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \foreach \s/\e in {w2a/w2ae, w2b/w2be, w2c/w2ce, w2d/w2de}
+    \draw[line width=0.5pt]
+      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
+      ([shift={(2pt,0.55ex)}]pic cs:\e);
+\end{tikzpicture}
+\end{center}
+
+The ledger:
+\[
+  H(M)\colon 2.178 \to 1.065, \qquad
+  H(p)\colon 2.093 \to 1.035, \qquad
+  C\colon 0.085 \to 0.030.
+\]
+This time $1.113$ bits are destroyed for $0.604$ received. Where did
+the extra $0.509$ come from? Partly from the favored answer arriving
+- the belief dropped $1.058$ against only $0.604$ paid - and
+partly from the store: $C$ fell by $0.055$.
+Step ratio $1.842$. Cumulatively, however, $1.860$ destroyed per $1.873$
+received gives $L_2 = 0.993$: still a hair
+below $1$. Even a strong second round has not quite repaid the
+expensive shock of question 1.
+\end{example}
+
+Why track $C$, when its step-by-step changes visibly do not match
+the amounts deduced? Because on a single realized run the deduced
+part has \emph{two} sources, and $C$ is the only quantity that
+separates them. Writing $\Delta$ for the realized drops in one step,
+\begin{equation}\label{eq:windfall-tower}
+  \underbrace{\Delta H(M) - s}_{\text{deduced}}
+  \;=\;
+  \underbrace{\big[\Delta H(p) - s\big]}_{\text{windfall}}
+  \;+\;
+  \underbrace{\big[{-}\Delta C\big]}_{\text{tower}},
+\end{equation}
+an identity, since $H(M) = H(p) + C$ at every stage. The windfall is
+luck: the realized surprisal undershooting (or overshooting) the
+realized drop in belief entropy. Windfall is zero in expectation. The tower
+term is structure: a genuine withdrawal from the correlation store,
+and the channel with a global guarantee. Over a complete run its
+withdrawals sum to exactly the initial $C$, while the windfalls
+average away. 
+
+\begin{example}
+\textbf{Question 3.} Two questions remain:
+\[
+  \begin{array}{c|cccc}
+    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
+      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & \hm{0} 0 & \hm{32} 0.927 & \hm{29} 0.817 & \hm{35} 1 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{3} 0.073 & \hm{6} 0.183 & \hm{0} 0 \\
+    \hline
+    \langle s \rangle & \text{---} & \hm{5} 0.378 & \hm{18} 0.687 & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{6} 0.408 & \hm{19} 0.717 & \text{---}
+  \end{array}
+\]
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{2.65}{5}{0.927}{0.435}{0.065}{0.408}
+  \fslot{5.30}{18}{0.817}{0.801}{0.343}{0.717}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
+Greedy Werner picks $q = 01$; nature answers $a = 0$ (probability $0.817$,
+surprisal $s_3 = 0.292$). Two die:
+%
+\begin{center}
+\begin{tabular}{c c l c c c}
+\toprule
+$j$ & $\phi_j(01)$ & name & $p_j$ & $p'_j$ & \\
+\midrule
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.780 & 0.955 & \pbar{0.955} \\
+\tikzmark{w3a}10 & 1 & $b_0$ (projection) & 0.147 & - & \tikzmark{w3ae} \\
+12 & 0 & $b_1$ (projection) & 0.037 & 0.045 & \pbar{0.045} \\
+\tikzmark{w3b}14 & 1 & $b_1 \vee b_0$ (OR) & 0.037 & - & \tikzmark{w3be} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \foreach \s/\e in {w3a/w3ae, w3b/w3be}
+    \draw[line width=0.5pt]
+      ([shift={(-2pt,0.55ex)}]pic cs:\s) --
+      ([shift={(2pt,0.55ex)}]pic cs:\e);
+\end{tikzpicture}
+\end{center}
+
+The ledger:
+\[
+  H(M)\colon 1.065 \to 0.264, \qquad
+  H(p)\colon 1.035 \to 0.264, \qquad
+  C\colon 0.030 \to 0.
+\]
+Again a bargain: $0.801$ destroyed for a mere $0.292$ received, and
+$L_3 = 1.229$ finally climbs above unity. And note that $C$
+has dropped to zero.
+\end{example}
+
+$C$ measures correlations that are not visible from $M$. If there's only one unknown column, there's nothing to infer. 
+Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = Q(A-1)$. Expressing $M$ as a linear combination of maps drops knowledge.
+That's not the case once learning has reduced the number of free parameters to one each.
+
+\begin{example}
+\textbf{Question 4.} One question, one heavily loaded coin:
+\[
+  \begin{array}{c|cccc}
+    \dgc[\langle \Delta H(M) \rangle]{\mathbf a}{\mathbf q}
+      & \mathbf{11} & \mathbf{10} & \mathbf{01} & \mathbf{00} \\
+    \hline
+    \mathbf{0} & \hm{0} 0 & \hm{33} 0.955 & \hm{35} 1 & \hm{35} 1 \\[2pt]
+    \mathbf{1} & \hm{35} 1 & \hm{2} 0.045 & \hm{0} 0 & \hm{0} 0 \\
+    \hline
+    \langle s \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---} \\[2pt]
+    \langle \Delta H(M) \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---}
+  \end{array}
+\]
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1.5cm]
+  \faxis
+  \fslot{2.65}{0}{0.955}{0.264}{0.264}{0.264}
+  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
+\end{tikzpicture}
+\end{center}
+The two forecasts now coincide: with $C = 0$ there is no transfer
+left to hope for, and the last question can only be observed, not
+leveraged. Nature answers $a = 0$ (probability $0.955$, surprisal
+$s_4 = 0.066$):
+%
+\begin{center}
+\begin{tabular}{c c l c c c}
+\toprule
+$j$ & $\phi_j(10)$ & name & $p_j$ & $p'_j$ & \\
+\midrule
+8 & 0 & $b_1 \wedge b_0$ (AND) & 0.955 & 1.000 & \pbar{1.000} \\
+\tikzmark{w4a}12 & 1 & $b_1$ (projection) & 0.045 & - & \tikzmark{w4ae} \\
+\bottomrule
+\end{tabular}
+\begin{tikzpicture}[overlay, remember picture]
+  \draw[line width=0.5pt]
+    ([shift={(-2pt,0.55ex)}]pic cs:w4a) --
+    ([shift={(2pt,0.55ex)}]pic cs:w4ae);
+\end{tikzpicture}
+\end{center}
+
+The ledger closes:
+\[
+  H(M)\colon 0.264 \to 0, \qquad
+  H(p)\colon 0.264 \to 0, \qquad
+  C\colon 0 \to 0.
+\]
+The truth is AND. The step destroyed $0.264$ for $0.066$ received
+(ratio $3.990$) - not deduction this time, but luck: the destroyed
+amount was fixed in advance (the column's full entropy), while the
+realized surprisal undershot it because the likelier answer arrived.
+In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
+tower $0$.
+\end{example}
+
+\begin{example}[label=ex:run21]
+Cumulatively: $2.925$ bits of table
+destroyed, all of it, for $2.231$ bits of
+surprisal received: $L_4 = 1.311$. Most of that was luck, not
+intelligence. The figure below
+stacks the bits after each question: what uncertainty remains, plus what was
+received. Once it dips below the starting entropy, our prior has done net work. 
+
+\begin{center}
+\begin{tikzpicture}[x=1.35cm, y=1.05cm]
+  % axis
+  \draw[->] (-0.75,0) -- (-0.75,3.9);
+  \node[above, font=\small] at (-0.75,3.9) {bits};
+  \foreach \y in {0,1,2,3}
+    \draw (-0.81,\y) -- (-0.69,\y) node[left, font=\small] {$\y$};
+  % l = 0
+  \fill[blue!55] (-0.32,0) rectangle (0.32,2.925);
+  % l = 1: stack tops at 3.446, well above H(M^{(0)})
+  \fill[blue!55] (0.68,0) rectangle (1.32,2.178);
+  \fill[orange!85] (0.68,2.178) rectangle (1.32,3.446);
+  % l = 2
+  \fill[blue!55] (1.68,0) rectangle (2.32,1.065);
+  \fill[orange!85] (1.68,1.065) rectangle (2.32,2.938);
+  % l = 3
+  \fill[blue!55] (2.68,0) rectangle (3.32,0.264);
+  \fill[orange!85] (2.68,0.264) rectangle (3.32,2.429);
+  % l = 4
+  \fill[orange!85] (3.68,0) rectangle (4.32,2.231);
+  % initial-total line
+  \draw[dashed, gray] (-0.75,2.925) -- (4.6,2.925);
+  \node[right, font=\small, gray] at (4.6,2.925) {$H(M^{(0)})$};
+  % x labels
+  \foreach \l in {0,...,4}
+    \node[below, font=\small] at (\l,0) {$\ell{=}\l$};
+  % legend
+  \fill[blue!55] (5.4,2.15) rectangle (5.7,2.4);
+  \node[right, font=\small] at (5.7,2.27) {remaining $H(M)$};
+  \fill[orange!85] (5.4,1.55) rectangle (5.7,1.8);
+  \node[right, font=\small] at (5.7,1.67) {received $\sum s$};
+\end{tikzpicture}
+\end{center}
+The realized run through the guiding example:
+remaining table entropy plus cumulative surprisal received, after
+each question, against the initial total (dashed). The gap between
+each stack and the line is the cumulative deduced part. At
+$\ell = 1$ the stack tops out $0.521$ bits \emph{above} the
+line - the negative deduction of question 1, plainly visible. At
+$\ell = 2$ the stack still grazes the line from above ($0.013$ bits);
+only from $\ell = 3$ on do the stacks fall short of it, as genuine
+deduction overtakes the early loss.
+\end{example}
+
 
 \section{Block entropies by elimination}\label{app:tensor-marginals}
 
@@ -8623,93 +7997,6 @@ $1.6$.}
 \label{fig:blockfinite}
 \end{figure}
 
-\section{Computing the circuit complexities}\label{app:aig}
-
-We read the footprint and the bias of
-Subsection~\ref{sec:aigcomplexity} off a truth table in one pass. The
-complexity $X_j$ we cannot: it is a minimum over all circuits, and we
-have to compute it. This appendix records how we obtained the
-$65{,}536$ values in each of the $(4,1)$ and $(3,2)$
-tables. We describe the pipeline in
-\texttt{gibbs\_complexity.md}, and implement it in
-\texttt{aig\_synth.py}, \texttt{groups.py},
-\texttt{run\_synth\_3to2.py} and the
-\texttt{build\_table} drivers.
-
-Reduction by symmetry: Relabeling wires is free in an
-and-inverter circuit: permuting inputs is rewiring, negating an input
-or an output is an edge attribute, and for $m = 2$ swapping the two
-outputs renames which wire is which. So $X_j$ is constant on the orbits
-of the relabeling groups
-%
-\begin{equation}
-  |G_{4,1}| = 4!\cdot 2^4\cdot 2 = 768,
-  \qquad
-  |G_{3,2}| = 3!\cdot 2^3\cdot 2^2\cdot 2 = 384,
-\end{equation}
-%
-the first being the standard NPN group of logic synthesis \cite{knuth4a}.
-In \texttt{groups.py} we apply every group element to every truth table
-and keep the numerically smallest image as the class representative,
-which collapses $65{,}536$ maps to $222$ classes at $(4,1)$ and $308$ at
-$(3,2)$. We then run exact synthesis a few hundred times instead of
-$65{,}536$.
-
-Exact synthesis as satisfiability: For a fixed gate budget $r$, in
-\texttt{aig\_synth.py} we build a formula that is satisfiable exactly when
-some $r$-gate and-inverter circuit computes the target. Three families
-of variables carry it. First $t_{s,\rho}$, the bit that signal $s$
-holds on truth-table row $\rho$, with signal $0$ the constant and
-signals $1,\ldots,n$ the inputs, all pinned by unit clauses. Then a
-one-hot selector $\sigma_{g,a,b,\iota_a,\iota_b}$ saying that gate $g$
-draws its two fanins from \emph{earlier} signals $a \le b$, inverted
-according to $\iota$; restricting to earlier signals is what makes the
-circuit acyclic by construction, so we need no ordering constraints.
-Last a one-hot selector $o_{k,s,\iota}$ naming which signal, at which
-polarity, carries output $k$. The AND semantics costs three clauses per
-gate, candidate and row, and the output constraint pins the chosen
-signal to the target column on every row. We add two structural clauses
-that tighten the search without excluding any minimum circuit: every
-gate must feed a later gate or an output, and no two gates may carry
-identical truth tables. Then
-%
-\begin{equation}
-  X_j \;=\; \min\{\, r \ge 0 \;:\; \text{the $r$-gate formula is
-  satisfiable} \,\},
-  \label{eq:aigmin}
-\end{equation}
-%
-which we search by trying $r = 0, 1, 2, \ldots$ upward. We get a proven
-minimum rather than a best effort: the solver refuted every smaller
-budget, and did not merely fail to find one. We run CaDiCaL \cite{cadical}
-as the back end, through PySAT \cite{pysat}. Run as a script, the synthesizer
-reproduces the textbook two-input values, AND, OR and NAND at $1$ and
-XOR at $3$.
-
-Provenance: At $(4,1)$ we adopt the class values from the
-published reproducibility dataset \cite{krinkin} of the $222$ NPN
-classes, and in \texttt{crosscheck.py} we re-derive ten of them
-at random with our own synthesizer, finding no mismatch. At $(3,2)$
-there is no reference table, so we synthesized all $308$ classes from
-scratch with \texttt{run\_synth\_3to2.py} over a process pool. The
-resulting ranges are $X \le 10$ at $(4,1)$ and $X \le 9$ at $(3,2)$,
-and we tabulate the head counts in Subsection~\ref{sec:aigcomplexity}.
-
-Why we adopt the $(4,1)$ values rather than recompute them: All
-$222$ entries of \cite{krinkin} are proven optimal, the two hardest
-classes included: $\mathtt{0x1669}$ and $\mathtt{0x166b}$, at $10$
-gates each, which is the ceiling of the range. Our own synthesizer
-agrees wherever it can reach, but it cannot reach that far. For
-$\mathtt{0x1669}$ it refutes $r = 5$ in under a second and $r = 7$ in
-half a minute, and does not settle $r = 9$ within fifteen: the instance
-grows steeply with the budget, since the selector family for gate $g$
-already carries $O\big((n+g)^2\big)$ candidates and its at-most-one
-encoding is quadratic in that. Hence our division of labour. We take the
-$(4,1)$ column from the reference dataset and sample it against
-our own synthesizer, while the $(3,2)$ classes, being one input bit
-smaller and so a much smaller formula, we synthesize here from
-scratch.
-
 \section{More characteristics of the spike prior}\label{app:spike}
 
 This appendix continues the toy example of Section~\ref{sec:spike}:
@@ -9158,6 +8445,765 @@ At $t = 1$ the increment $G_{\ell+1}-G_\ell$ is undefined and the same value
 follows instead from the completion formula. The two familiar orders
 are thus endpoints of a larger family.
 
+\section{The Gibbs complexity prior}\label{app:gibbs}
+
+Every prior so far was an arbitrary set of instructively chosen $\{p_j\}$. 
+This appendix builds the prior the other way around, from a
+single philosophical principle: \emph{simple explanations are likelier}. 
+How do we define simplicity? With circuit
+complexity as the measure, made quantitative as a Gibbs
+ensemble over the hypothesis space. It is an illustration; the body
+does not depend on it.
+
+\subsection{AIG complexity}
+\label{sec:aigcomplexity}
+
+A compact circuit description supplies a concrete notion of
+simplicity. We use an \emph{and-inverter graph} (AIG): a feed-forward
+circuit with two-input AND nodes and complemented edges, so inversion
+on any wire is free. Let $X_j$ be the fewest AND nodes in any such
+graph computing $\phi_j$, with constants and input wires available
+at zero cost. This is the standard AIG-size metric of logic
+synthesis~\cite{aigrewrite}. It differs from counting ordinary
+NAND gates, where inversion itself has a cost. Reference values in
+the AIG convention:
+\begin{itemize}
+  \item AND, OR, NAND and NOR all cost $1$;
+  \item XOR costs $3$;
+  \item constants, projections and negations cost $0$.
+\end{itemize}   
+For $m > 1$ outputs, $X_j$ is the size of one \emph{joint} circuit computing all
+output bits together, gates shared, which is practical. It is the minimum
+cost in this AIG convention, generally smaller than the sum of per-output circuits.
+
+The $(n,m) = (4,1)$ and $(3,2)$ are the largest tractable setups, at $65{,}536$ maps apiece. 
+The tabulation is feasible because $X_j$ is invariant under
+relabeling: permuting or negating inputs, negating or (for $m \ge 2$)
+swapping outputs are all free operations, so the $65{,}536$ maps collapse to $222$ and $308$
+equivalence classes respectively. The $(4,1)$ class values are the published
+optimal AIG sizes of \cite{krinkin}, cross-checked against our own
+SAT-based synthesizer on random classes with zero mismatches; the $(3,2)$
+values come from that synthesizer: circuit sizes $X = 0, 1, 2,
+\ldots$ are encoded as satisfiability instances, and the first
+satisfiable $X$ is provably minimal, every smaller size having been
+refuted. Appendix~\ref{app:aig} gives the encoding, the symmetry
+reduction that makes it tractable, and the provenance of every value.
+
+Alongside the interior cost $X_j$, which takes a SAT solver to see,
+two descriptors are visible in one pass over the truth table:
+%
+\begin{itemize}
+\item the \textbf{footprint} $F_j = n \cdot \text{[Image]} + \text{[Support]}$, where the support
+ counts the input bits the map actually depends on and the
+  image size counts the distinct answers it attains (from $1$
+  for constants up to $A$). The combination is bijective to the pair, as Support $\le n$.
+  Compare to base-$n$ digits, quotient Image, remainder Support. The footprint can be viewed as the
+  map's \emph{interface}: does it react to all its inputs, does it
+  use all its values?
+\item the \textbf{bias} $B_j$: the number of $1$s minus the number of
+  $0$s among the $mQ$ truth-table bits. This is the
+  symmetry breaker: $X_j$ and $F_j$ are even under negating all
+  outputs, $B_j$ is odd: an energy term coupling to it acts like a
+  magnetic field, favoring 0s or 1s off the bat. In the language of Appendix~\ref{app:correlators}: 
+  switching on the odd correlator shells that a pure
+  complexity prior forbids.
+\end{itemize}
+
+\begin{example}
+Take again the $(n,m)=(2,1)$ space. Each map's data is listed for illustration.
+We graph two of the Gibbs priors built from these inputs, defined in Section~\ref{sec:gibbsensemble}. 
+Occam in blue growing left, the Pragmatist in orange growing
+right. The Pragmatist bars are logarithmic, five decades to the full
+width, since a linear scale on the same axis as Occam's would show
+nothing but the two constants.
+
+\begin{center}
+\begin{tabular}{clccccc r@{\hspace{2pt}}|@{\hspace{2pt}}l}
+\toprule
+$j$ & map & $X_j$ & Support & Image & $F_j$ & $B_j$
+  & \multicolumn{2}{c}{prior mass} \\
+ & & & & & & & {\scriptsize\color{blue!55!black} Occam}
+  & {\scriptsize\color{orange!85!black} Pragmatist} \\
+\midrule
+0  & FALSE                          & 0 & 0 & 1 & 2 & $-4$ & \pbarO[3]{0.1106} & \pbarP{0.2799} \\
+1  & $\lnot(b_1 \vee b_0)$ (NOR)    & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+2  & $\lnot b_1 \wedge b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+3  & $\lnot b_1$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+4  & $b_1 \wedge \lnot b_0$         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+5  & $\lnot b_0$                    & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+6  & $b_1 \oplus b_0$ (XOR)         & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP{0.0001} \\
+7  & $\lnot(b_1 \wedge b_0)$ (NAND) & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+8  & $b_1 \wedge b_0$ (AND)         & 1 & 2 & 2 & 6 & $-2$ & \pbarO[3]{0.0407} & \pbarP{0.0014} \\
+9  & $b_1 = b_0$ (XNOR)             & 3 & 2 & 2 & 6 & $0$  & \pbarO[3]{0.0055} & \pbarP{0.0001} \\
+10 & $b_0$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+11 & $b_1 \to b_0$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+12 & $b_1$ (projection)             & 0 & 1 & 2 & 5 & $0$  & \pbarO[3]{0.1106} & \pbarP{0.0208} \\
+13 & $b_0 \to b_1$                  & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+14 & $b_1 \vee b_0$ (OR)            & 1 & 2 & 2 & 6 & $+2$ & \pbarO[3]{0.0407} & \pbarP{0.0021} \\
+% the TRUE bar is drawn at half its value so it stays inside the column
+15 & TRUE                           & 0 & 0 & 1 & 2 & $+4$ & \pbarO[3]{0.1106} & \pbarP{0.3114} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Occam spreads its belief mostly across the six gate-free maps ($0.1106$
+apiece) and thins gradually with cost; the Pragmatist, punishing
+footprint and rewarding bits with value 1, piles $0.90$ of its mass onto the two
+constants ($0.62$ on TRUE against $0.28$ on FALSE), the bias
+breaking the tie. It all but abandons the interior of the table. If the map turns out non-constant, renormalization scales that interior up, and it becomes relevant.
+Grouped by the full tuple $(X, F, B)$, the sixteen maps fall into
+six energy classes:
+%
+\begin{center}
+\begin{tabular}{cc@{\hskip 2em}cc}
+\toprule
+$(X, F, B)$ & members & $(X, F, B)$ & members \\
+\midrule
+$(0, 2, -4)$ & 1 & $(1, 6, -2)$ & 4 \\
+$(0, 2, +4)$ & 1 & $(1, 6, +2)$ & 4 \\
+$(0, 5, 0)$  & 4 & $(3, 6, 0)$  & 2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Note the table skips $X = 2$ entirely: with two inputs,
+nothing a two-gate circuit computes is out of reach of one or
+zero gates.
+\end{example}
+
+At the larger sizes the tuple $(X, F, B)$ breakdown runs to hundreds of rows
+($102$ distinct tuples at $(n,m)=(4,1)$, $196$ at $(3,2)$). It is still interesting to tabulate
+the complexity $X$ shells alone, with each shell's \emph{aggregate} prior
+mass under the Occam setting alongside its head count:
+
+\begin{example}
+These tables illustrate the compromise between exponentially suppressed weight per map, and combinatorics
+putting most maps at middling complexity.
+\begin{center}
+\begin{tabular}{crr@{\hspace{4pt}}l}
+\toprule
+\multicolumn{4}{c}{$(4,1)$} \\
+$X$ & maps & \multicolumn{2}{c}{Occam mass} \\
+\midrule
+0  & 10       & 0.041 & \pbarB[2]{0.0407} \\
+1  & 48       & 0.072 & \pbarB[2]{0.0718} \\
+2  & 256      & 0.141 & \pbarB[2]{0.1408} \\
+3  & 940      & 0.190 & \pbarB[2]{0.1903} \\
+4  & 2{,}336  & 0.174 & \pbarB[2]{0.1739} \\
+5  & 6{,}464  & 0.177 & \pbarB[2]{0.1771} \\
+6  & 10{,}616 & 0.107 & \pbarB[2]{0.1070} \\
+7  & 18{,}984 & 0.070 & \pbarB[2]{0.0704} \\
+8  & 17{,}680 & 0.024 & \pbarB[2]{0.0241} \\
+9  & 7{,}882  & 0.004 & \pbarB[2]{0.0040} \\
+10 & 320      & 0.000 & \pbarB[2]{0.0001} \\
+\midrule
+total & 65{,}536 & 1 & \\
+\bottomrule
+\end{tabular}
+\hspace{1.6em}
+\begin{tabular}{crr@{\hspace{4pt}}l}
+\toprule
+\multicolumn{4}{c}{$(3,2)$} \\
+$X$ & maps & \multicolumn{2}{c}{Occam mass} \\
+\midrule
+0  & 64       & 0.058 & \pbarB[2]{0.0579} \\
+1  & 432      & 0.144 & \pbarB[2]{0.1438} \\
+2  & 2{,}064  & 0.253 & \pbarB[2]{0.2528} \\
+3  & 4{,}860  & 0.219 & \pbarB[2]{0.2190} \\
+4  & 10{,}832 & 0.180 & \pbarB[2]{0.1795} \\
+5  & 16{,}208 & 0.099 & \pbarB[2]{0.0988} \\
+6  & 17{,}060 & 0.038 & \pbarB[2]{0.0383} \\
+7  & 10{,}672 & 0.009 & \pbarB[2]{0.0088} \\
+8  & 3{,}312  & 0.001 & \pbarB[2]{0.0010} \\
+9  & 32       & 0.000 & \pbarB[2]{0.0000} \\
+\midrule
+total & 65{,}536 & 1 & \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{example}
+
+The head counts are thin at both ends: ten gate-free maps at $(4,1)$
+(two constants, eight literals) against only $320$ at the ceiling
+$X = 10$. The aggregate mass shows the thermodynamic compromise this
+forces on Occam: the count grows faster than $e^{-X}$ decays until
+$X = 3$ at $(4,1)$ ($X = 2$ at $(3,2)$), so even under a pure
+simplicity prior Werner has most faith that the map has $X_j \in \{2,3\}$.
+Shell degeneracy beats shell energy for the simplest maps.
+
+\subsection{The ensemble}\label{sec:gibbsensemble}
+
+Take the energy linear in the three descriptors and the prior as its
+Boltzmann weight,
+%
+\begin{equation}
+E_j = \beta\, X_j + \alpha\, F_j + \mu\, B_j,
+\qquad
+p_j = \frac{e^{-E_j}}{\sum_k e^{-E_k}},
+\label{eq:gibbs}
+\end{equation}
+%
+with no overall temperature: it's absorbed in the coupling fields. Positive
+$\beta$ suppresses complex maps, positive $\alpha$ suppresses large
+footprints, and $\mu$ couples to the signed bias like a magnet. $\mu < 0$ tilts
+toward $1$-heavy tables and thereby breaks the output-negation
+symmetry. We explore three settings below, chosen out of principle, as well as to exhibit
+interesting learning behavior.
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & $\beta$ & $\alpha$ & $\mu$ \\
+\midrule
+Occam      & $1$   & $0$ & $0$    \\
+Occamer    & $2$   & $0$ & $0$    \\
+Pragmatist & $1.5$ & $1$ & $-0.1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption{The three Gibbs settings of \eqref{eq:gibbs}, as couplings to complexity, footprint and bias.}
+\label{tab:gibbssettings}
+\end{table}
+
+\textbf{Occam} suppresses circuit complexity and nothing else.
+\textbf{Occamer} doubles the same field: an even stronger simplicity
+bias stores more knowledge in the prior, and stores it deeper in the
+correlation shells, where only the later questions of a run can
+release it. The \textbf{Pragmatist} judges by the obvious heuristics
+instead: a footprint reads the visible interface rather
+than the interior circuit, a moderate complexity field seconds it,
+and the tilt $\mu = -0.1$ leans toward $1$-heavy tables, breaking
+the output-negation symmetry that the other two settings keep. This last choice is to illustrate
+that Werner isn't bound to start with a uniform distribution $M$ before the first question.
+
+\subsection{The layered entropy books}\label{sec:gibbsbooks}
+
+Let us visualize the uniform question-order average for the three ensembles,
+at each system size. The following graphs illustrate the flow of bits. 
+The three quantities of \eqref{eq:Lk-avg} partition
+the starting table entropy at every $\ell$: what is still in the table,
+what was paid for in surprisal, and what was inferred. The third has no
+standing name, so give it one,
+%
+\begin{equation}
+  \big\langle\!\big\langle \text{deduced}_\ell \big\rangle\!\big\rangle
+  \;:=\; C_0 - \langle\!\langle C_\ell\rangle\!\rangle
+  \;=\; H\big(M^{(0)}\big)
+        - \big\langle\!\big\langle H\big(M^{(\ell)}\big)\big\rangle\!\big\rangle
+        - G_\ell ,
+  \label{eq:deduced}
+\end{equation}
+%
+the expected withdrawal from the correlation store. The second equality
+is \eqref{eq:C} at both ends together with $\langle\!\langle \Delta H(p)\rangle\!\rangle =
+G_\ell$. In expectation, the belief entropy falls by exactly the
+surprisal received, so whatever else the table lost came out of $C$.
+The three therefore sum to $H(M^{(0)})$ at every $\ell$, and each
+panel below is a full-height bar whose composition shifts from all
+remaining uncertainty to received plus deduced. One row per system size, sharing a
+vertical scale in bits; one column per prior.
+\begin{center}
+\begin{tikzpicture}[y=0.32cm]
+  \fill[blue!55] (0,0) rectangle (0.32,0.24);
+  \node[right, font=\small] at (0.40,0.12)
+    {remaining $\langle\!\langle H(M^{(\ell)})\rangle\!\rangle$};
+  \fill[orange!85] (4.6,0) rectangle (4.92,0.24);
+  \node[right, font=\small] at (5.0,0.12) {received $G_\ell$};
+  \fill[green!55!black!60] (8.0,0) rectangle (8.32,0.24);
+  \node[right, font=\small] at (8.4,0.12)
+    {deduced $C_0 - \langle\!\langle C_\ell\rangle\!\rangle$};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
+  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
+  title={(2,1), Occam}, title style={font=\scriptsize},
+  xlabel={$\ell$}, ylabel={bits},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,4.00000) (1,2.90370) (2,1.83001) (3,0.81104) (4,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,-0.00000) (1,1.00000) (2,1.96790) (3,2.88290) (4,3.69394)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.09630) (2,0.20209) (3,0.30606) (4,0.30606)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
+  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
+  title={(2,1), Occamer}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,4.00000) (1,2.82620) (2,1.63686) (3,0.51162) (4,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.94207) (3,2.76050) (4,3.27212)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.17380) (2,0.42107) (3,0.72788) (4,0.72788)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=15pt, xmin=-0.55, xmax=4.55,
+  ymin=0, ymax=4.4, ytick={0,1,2,3,4}, xtick={0,1,2,3,4},
+  title={(2,1), Pragmatist}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,3.65070) (1,0.98017) (2,0.45071) (3,0.06902) (4,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,0.91268) (2,1.23940) (3,1.46475) (4,1.53378)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,1.75786) (2,1.96059) (3,2.11692) (4,2.11692)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
+  title={(3,2), Occam}, title style={font=\scriptsize},
+  xlabel={$\ell$}, ylabel={bits},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,13.66381) (2,11.38982) (3,9.18077) (4,7.05614) (5,5.04253) (6,3.16734) (7,1.46045) (8,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,2.00000) (2,3.95197) (3,5.85028) (4,7.68643) (5,9.45046) (6,11.13131) (7,12.71498) (8,14.17543)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.33619) (2,0.65821) (3,0.96896) (4,1.25743) (5,1.50700) (6,1.70136) (7,1.82457) (8,1.82457)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
+  title={(3,2), Occamer}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,13.09000) (2,10.16649) (3,7.29628) (4,4.84181) (5,2.96269) (6,1.56885) (7,0.54633) (8,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,2.00000) (2,3.87000) (3,5.56442) (4,7.02367) (5,8.23412) (6,9.22169) (7,10.00612) (8,10.55244)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.91000) (2,1.96351) (3,3.13930) (4,4.13452) (5,4.80318) (6,5.20946) (7,5.44756) (8,5.44756)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=6.5pt, xmin=-0.62, xmax=8.62,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,2,4,6,8},
+  title={(3,2), Pragmatist}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,11.43030) (1,3.30547) (2,1.95822) (3,1.05175) (4,0.51932) (5,0.25230) (6,0.11491) (7,0.02763) (8,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.42879) (2,1.90100) (3,2.22737) (4,2.43772) (5,2.56755) (6,2.65165) (7,2.70911) (8,2.73673)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,6.69605) (2,7.57109) (3,8.15118) (4,8.47326) (5,8.61046) (6,8.66374) (7,8.69357) (8,8.69357)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
+  title={(4,1), Occam}, title style={font=\scriptsize},
+  xlabel={$\ell$}, ylabel={bits},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,14.74710) (2,13.52461) (3,12.32975) (4,11.16169) (5,10.02089) (6,8.90878) (7,7.82738) (8,6.77913) (9,5.76681) (10,4.79345) (11,3.86229) (12,2.97690) (13,2.14140) (14,1.36113) (15,0.64341) (16,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.98314) (3,2.94918) (4,3.89763) (5,4.82777) (6,5.73876) (7,6.62963) (8,7.49934) (9,8.34673) (10,9.17056) (11,9.96947) (12,10.74193) (13,11.48616) (14,12.19996) (15,12.88052) (16,13.52393)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,0.25290) (2,0.49225) (3,0.72106) (4,0.94069) (5,1.15134) (6,1.35246) (7,1.54299) (8,1.72153) (9,1.88646) (10,2.03599) (11,2.16823) (12,2.28117) (13,2.37244) (14,2.43891) (15,2.47607) (16,2.47607)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
+  title={(4,1), Occamer}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,16.00000) (1,14.02313) (2,12.05565) (3,10.07789) (4,8.24016) (5,6.64167) (6,5.29847) (7,4.18012) (8,3.24929) (9,2.47724) (10,1.84273) (11,1.32708) (12,0.91199) (13,0.58080) (14,0.32107) (15,0.12665) (16,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,0.00000) (1,1.00000) (2,1.93488) (3,2.79599) (4,3.57122) (5,4.25790) (6,4.86168) (7,5.39153) (8,5.85599) (9,6.26215) (10,6.61604) (11,6.92316) (12,7.18858) (13,7.41658) (14,7.61018) (15,7.77071) (16,7.89736)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,-0.00000) (1,0.97687) (2,2.00947) (3,3.12612) (4,4.18863) (5,5.10044) (6,5.83985) (7,6.42835) (8,6.89472) (9,7.26062) (10,7.54123) (11,7.74976) (12,7.89943) (13,8.00262) (14,8.06875) (15,8.10264) (16,8.10264)};
+\end{axis}
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[width=5.5cm, height=4.1cm,
+  ybar stacked, bar width=2.6pt, xmin=-0.70, xmax=16.70,
+  ymin=0, ymax=17.5, ytick={0,4,8,12,16}, xtick={0,4,8,12,16},
+  title={(4,1), Pragmatist}, title style={font=\scriptsize},
+  xlabel={$\ell$},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  grid=major, grid style={black!12}, axis on top]
+  \addplot[fill=blue!55, draw=none] coordinates {(0,4.40913) (1,1.02252) (2,0.66648) (3,0.44062) (4,0.29637) (5,0.20423) (6,0.14404) (7,0.10281) (8,0.07319) (9,0.05137) (10,0.03532) (11,0.02367) (12,0.01528) (13,0.00922) (14,0.00480) (15,0.00170) (16,0.00000)};
+  \addplot[fill=orange!85, draw=none] coordinates {(0,-0.00000) (1,0.27557) (2,0.34374) (3,0.39134) (4,0.42524) (5,0.44994) (6,0.46850) (7,0.48291) (8,0.49433) (9,0.50348) (10,0.51082) (11,0.51670) (12,0.52144) (13,0.52526) (14,0.52833) (15,0.53073) (16,0.53243)};
+  \addplot[fill=green!55!black!60, draw=none] coordinates {(0,0.00000) (1,3.11104) (2,3.39891) (3,3.57716) (4,3.68752) (5,3.75497) (6,3.79659) (7,3.82341) (8,3.84161) (9,3.85428) (10,3.86299) (11,3.86876) (12,3.87241) (13,3.87466) (14,3.87600) (15,3.87670) (16,3.87670)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\subsection{Trajectories}\label{sec:gibbstraj}
+
+Figures~\ref{fig:gibbs21}--\ref{fig:gibbs41} show the expected
+cumulative leverage $\mathcal L_\ell$ under the three
+prior hypotheses, for the uniform question-order average and the strategy grid of
+Section~\ref{sec:strategies}. The $\ell$-optimal schedule targets
+the halfway horizon $\ell^* = Q/2$ and is plotted only up to it:
+past its own horizon the optimizer's continuation is not defined.
+Inside the optimal set the questions are asked in random
+order (the graph averages that order). 
+We omit its contingent twin everywhere: wherever we can
+afford to compute it, it reproduces the fixed optimum's curve to
+machine precision, and one for which no symmetry argument yet is known. 
+Two consistency checks hold in every panel: all schedules agree at $\ell = 1$, because
+input relabeling acts transitively on the questions and the Gibbs
+energies are relabeling-invariant, so single questions are
+exchangeable; and every full-length curve ends at the same
+$\mathcal L_{Q} = H(M^{(0)})/H(p)$, since any policy that asks everything
+receives exactly $H(p)$ on average, and clears the table $M$. The
+same invariance acts on whole sets, so the $\ell$-optimal objective
+is a function of a set's relabeling orbit and not of the set:
+minimizers arrive in orbits.
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize]
+  \draw[black!60, densely dashed] (0,0) -- (0.55,0)
+    plot[mark=*, mark size=1.1] coordinates {(0.275,0)};
+  \node[anchor=west, inner sep=1.5pt] at (0.58,0) {average};
+  \draw[blue!45] (2.55,0) -- (3.10,0)
+    plot[mark=square*, mark size=1.3] coordinates {(2.825,0)};
+  \node[anchor=west, inner sep=1.5pt] at (3.13,0) {greedy fixed};
+  \draw[blue!75!black] (5.85,0) -- (6.40,0)
+    plot[mark=triangle*, mark size=1.4] coordinates {(6.125,0)};
+  \node[anchor=west, inner sep=1.5pt] at (6.43,0) {greedy contingent};
+  \draw[orange!85!black] (9.95,0) -- (10.50,0)
+    plot[mark=diamond*, mark size=1.6] coordinates {(10.225,0)};
+  \node[anchor=west, inner sep=1.5pt] at (10.53,0) {$\ell^*$-optimal};
+\end{tikzpicture}
+\end{center}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Occam $(1,0,0)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
+  xtick={1,2,3,4}, grid=major, grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,1.0963)(2,1.1027)(3,1.1062)(4,1.0829)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,1.0963)(2,1.1027)};
+\end{axis}
+\end{tikzpicture}\hspace{1mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Occamer $(2,0,0)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, xtick={1,2,3,4}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,1.1738)(2,1.2168)(3,1.2637)(4,1.2224)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,1.1738)(2,1.2168)(3,1.2637)(4,1.2224)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,1.1738)(2,1.2168)(3,1.2637)(4,1.2224)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,1.1738)(2,1.2168)};
+\end{axis}
+\end{tikzpicture}\hspace{1mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Pragmatist $(1.5,1,-0.1)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, xtick={1,2,3,4}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,2.9261)(2,2.5819)(3,2.4452)(4,2.3802)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,2.9261)(2,2.5380)(3,2.4452)(4,2.3802)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,2.9261)(2,2.5380)(3,2.4452)(4,2.3802)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,2.9261)(2,2.5380)};
+\end{axis}
+\end{tikzpicture}
+\caption{Aggregate leverage under the Gibbs priors at $(2,1)$,
+$\ell^* = 2$. In both complexity-only settings every schedule
+coincides exactly; the Pragmatist's fields finally separate them.}
+\label{fig:gibbs21}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Occam $(1,0,0)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
+  xtick={2,4,6,8}, grid=major, grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,1.1681)(2,1.1666)(3,1.1656)(4,1.1636)(5,1.1595)
+    (6,1.1528)(7,1.1435)(8,1.1287)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)(5,1.1724)
+    (6,1.1573)(7,1.1435)(8,1.1287)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)(5,1.1710)
+    (6,1.1563)(7,1.1407)(8,1.1287)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,1.1681)(2,1.1744)(3,1.1817)(4,1.1903)};
+\end{axis}
+\end{tikzpicture}\hspace{1mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Occamer $(2,0,0)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, xtick={2,4,6,8}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,1.4550)(2,1.5074)(3,1.5642)(4,1.5887)(5,1.5833)
+    (6,1.5649)(7,1.5444)(8,1.5162)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,1.4550)(2,1.5079)(3,1.6016)(4,1.6394)(5,1.6012)
+    (6,1.5712)(7,1.5444)(8,1.5162)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,1.4550)(2,1.5079)(3,1.6157)(4,1.6205)(5,1.5910)
+    (6,1.5605)(7,1.5309)(8,1.5162)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,1.4550)(2,1.5079)(3,1.6016)(4,1.6394)};
+\end{axis}
+\end{tikzpicture}\hspace{1mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Pragmatist $(1.5,1,-0.1)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, xtick={2,4,6,8}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,5.6865)(2,4.9827)(3,4.6596)(4,4.4759)(5,4.3536)(6,4.2673)(7,4.2090)(8,4.1766)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,5.6865)(2,4.8751)(3,4.6281)(4,4.4450)(5,4.2984)(6,4.2497)(7,4.2090)(8,4.1766)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,5.6865)(2,4.8751)(3,4.6236)(4,4.4275)(5,4.2877)(6,4.2325)(7,4.1966)(8,4.1766)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,5.6865)(2,4.9176)(3,4.5657)(4,4.3548)};
+\end{axis}
+\end{tikzpicture}
+\caption{Aggregate leverage under the Gibbs priors at $(3,2)$,
+$\ell^* = 4$. Greedy Werner's fixed set is the optimal set under Occam and,
+up to an input negation, under Occamer. For the Pragmatist, the $\ell^*$-optimal has the 
+worst leverage at the horizon, a reminder that we optimize for information received, while
+accepting that may cost even more surprisal.}
+\label{fig:gibbs32}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Occam $(1,0,0)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, ylabel={$\mathcal L_\ell$},
+  xtick={4,8,12,16}, grid=major, grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,1.2529)(2,1.2482)(3,1.2445)(4,1.2413)(5,1.2385)
+    (6,1.2357)(7,1.2327)(8,1.2296)(9,1.2260)(10,1.2220)(11,1.2175)
+    (12,1.2124)(13,1.2065)(14,1.1999)(15,1.1922)(16,1.1831)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,1.2529)(2,1.2549)(3,1.2586)(4,1.2626)(5,1.2635)
+    (6,1.2542)(7,1.2501)(8,1.2493)(9,1.2506)(10,1.2403)(11,1.2295)
+    (12,1.2197)(13,1.2104)(14,1.2018)(15,1.1922)(16,1.1831)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,1.2529)(2,1.2549)(3,1.2614)(4,1.2679)(5,1.2601)
+    (6,1.2555)(7,1.2511)(8,1.2464)(9,1.2417)(10,1.2341)(11,1.2227)
+    (12,1.2121)(13,1.2029)(14,1.1946)(15,1.1882)(16,1.1831)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,1.2529)(2,1.2534)(3,1.2546)(4,1.2561)(5,1.2576)
+    (6,1.2592)(7,1.2606)(8,1.2619)};
+\end{axis}
+\end{tikzpicture}\hspace{1mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Occamer $(2,0,0)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, xtick={4,8,12,16}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,1.9769)(2,2.0386)(3,2.1181)(4,2.1729)(5,2.1979)
+    (6,2.2012)(7,2.1923)(8,2.1774)(9,2.1594)(10,2.1398)(11,2.1194)
+    (12,2.0989)(13,2.0790)(14,2.0603)(15,2.0427)(16,2.0260)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,1.9769)(2,2.0473)(3,2.1420)(4,2.2575)(5,2.3133)
+    (6,2.2577)(7,2.2187)(8,2.1906)(9,2.1644)(10,2.1398)(11,2.1179)
+    (12,2.0968)(13,2.0781)(14,2.0600)(15,2.0427)(16,2.0260)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,1.9769)(2,2.0473)(3,2.1889)(4,2.2703)(5,2.2588)
+    (6,2.2566)(7,2.2134)(8,2.1650)(9,2.1312)(10,2.1005)(11,2.0730)
+    (12,2.0539)(13,2.0398)(14,2.0330)(15,2.0290)(16,2.0260)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,1.9769)(2,2.0302)(3,2.1300)(4,2.2035)(5,2.2324)
+    (6,2.2301)(7,2.2183)(8,2.1896)};
+\end{axis}
+\end{tikzpicture}\hspace{1mm}%
+\begin{tikzpicture}
+\begin{axis}[width=5.05cm, height=4.8cm,
+  title={Pragmatist $(1.5,1,-0.1)$}, title style={font=\footnotesize},
+  xlabel={$\ell$}, xtick={4,8,12,16}, grid=major,
+  grid style={black!12},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[black!60, densely dashed, mark=*, mark size=1.1]
+  coordinates {(1,12.2894)(2,10.8881)(3,10.1407)(4,9.6717)(5,9.3456)(6,9.1037)(7,8.9175)(8,8.7714)(9,8.6553)(10,8.5624)(11,8.4874)(12,8.4264)(13,8.3767)(14,8.3363)(15,8.3045)(16,8.2812)};
+\addplot[blue!45, mark=square*, mark size=1.3]
+  coordinates {(1,12.2894)(2,10.6106)(3,9.9628)(4,9.5034)(5,9.1348)(6,8.8509)(7,8.6881)(8,8.5439)(9,8.5015)(10,8.4603)(11,8.4241)(12,8.3888)(13,8.3582)(14,8.3282)(15,8.3045)(16,8.2812)};
+\addplot[blue!75!black, mark=triangle*, mark size=1.4]
+  coordinates {(1,12.2894)(2,10.6106)(3,9.9628)(4,9.4586)(5,9.0926)(6,8.8324)(7,8.6717)(8,8.5393)(9,8.4604)(10,8.4089)(11,8.3691)(12,8.3367)(13,8.3137)(14,8.2962)(15,8.2873)(16,8.2812)};
+\addplot[orange!85!black, mark=diamond*, mark size=1.6]
+  coordinates {(1,12.2894)(2,10.8208)(3,10.0230)(4,9.5178)(5,9.1604)(6,8.8912)(7,8.6881)(8,8.5439)};
+\end{axis}
+\end{tikzpicture}
+\caption{Aggregate leverage under the Gibbs priors at $(4,1)$,
+$\ell^* = 8$. Occamer's deep correlations $C$ bend even the uniform
+average curve into an interior hump; the Pragmatist releases all its instinct at the start: whether it's constant.}
+\label{fig:gibbs41}
+\end{figure}
+
+Three discussions, one per system size.
+
+At $(2,1)$, Occam and Occamer don't have enough structure to tell
+subsets apart, and all subsets of equal size share a single joint
+entropy.
+Occamer shows what doubling the field buys within those constraints.
+The whole curve lifts (endpoint $1.2224$ against Occam's
+$1.0829$, store $C_0 = 0.728$ against $0.306$ bits) without creating
+a single strategic choice to make. The Pragmatist's fields split the
+pair orbits at last, and the strategy yields
+a \emph{lower} leverage: greedy's pair $\{00, 11\}$ knows more at
+$\ell = 2$ than the random order but pays so much more surprisal that it is less leveraged
+($2.538$ against $2.582$).
+
+At $(3,2)$ there are exactly two optimal quadruples under \emph{all
+three} settings: the even-weight inputs $\{000, 011, 101, 110\}$, the
+maximally spread design, pairwise at Hamming distance two, and its
+odd-weight image under negating one input bit. Relabeling makes them
+exactly degenerate. Under the Pragmatist greedy
+finally falls short: its set $\{000, 011, 101, 111\}$ leaves twice the
+ignorance of the optimal four ($0.405$ against $0.198$ bits
+remaining) while receiving $0.099$ bits less and it posts the
+\emph{higher} leverage, $4.445$ against $4.355$, with the
+strategyless average higher still at $4.476$. The $\ell$-optimal
+schedule maximizes knowledge, not leverage, and a ratio is buoyed by 
+cheaper ignorance.
+
+$(4,1)$ is the richest, with the most questions, the choice becomes
+impactful. Doubling $\beta$
+triples the store ($C_0 = 8.10$ bits against Occam's $2.48$) and
+bends even the average curve into an interior hump, rising to
+$2.20$ at $\ell = 6$ before decaying. This is the deep-shell signature
+promised in Section~\ref{sec:gibbsensemble}, knowledge that only
+becomes spendable once enough answers are in hand to cash out the
+higher correlations. The optimal eight questions are a parity class
+of the input hypercube in every setting, and as at $(3,2)$ both
+classes minimize exactly; greedy misses the class
+under both complexity-only settings ($\mathcal L = 1.249$ against the optimum's
+$1.262$ at the Occam $\ell^*$ horizon) but finds it exactly under the
+Pragmatist whose prior, $0.90$ of its mass on the two constants,
+is a two-sided spike in disguise: $H(p) = 0.53$ bits, leverage
+running from $12.29$ down to $8.28$, a great deal of inference
+about a game that is mostly over after two questions.
+
+
+\section{Computing the circuit complexities}\label{app:aig}
+
+We read the footprint and the bias of
+Section~\ref{sec:aigcomplexity} off a truth table in one pass. The
+complexity $X_j$ we cannot: it is a minimum over all circuits, and we
+have to compute it. This appendix records how we obtained the
+$65{,}536$ values in each of the $(4,1)$ and $(3,2)$
+tables. We describe the pipeline in
+\texttt{gibbs\_complexity.md}, and implement it in
+\texttt{aig\_synth.py}, \texttt{groups.py},
+\texttt{run\_synth\_3to2.py} and the
+\texttt{build\_table} drivers.
+
+Reduction by symmetry: Relabeling wires is free in an
+and-inverter circuit: permuting inputs is rewiring, negating an input
+or an output is an edge attribute, and for $m = 2$ swapping the two
+outputs renames which wire is which. So $X_j$ is constant on the orbits
+of the relabeling groups
+%
+\begin{equation}
+  |G_{4,1}| = 4!\cdot 2^4\cdot 2 = 768,
+  \qquad
+  |G_{3,2}| = 3!\cdot 2^3\cdot 2^2\cdot 2 = 384,
+\end{equation}
+%
+the first being the standard NPN group of logic synthesis \cite{knuth4a}.
+In \texttt{groups.py} we apply every group element to every truth table
+and keep the numerically smallest image as the class representative,
+which collapses $65{,}536$ maps to $222$ classes at $(4,1)$ and $308$ at
+$(3,2)$. We then run exact synthesis a few hundred times instead of
+$65{,}536$.
+
+Exact synthesis as satisfiability: For a fixed gate budget $r$, in
+\texttt{aig\_synth.py} we build a formula that is satisfiable exactly when
+some $r$-gate and-inverter circuit computes the target. Three families
+of variables carry it. First $t_{s,\rho}$, the bit that signal $s$
+holds on truth-table row $\rho$, with signal $0$ the constant and
+signals $1,\ldots,n$ the inputs, all pinned by unit clauses. Then a
+one-hot selector $\sigma_{g,a,b,\iota_a,\iota_b}$ saying that gate $g$
+draws its two fanins from \emph{earlier} signals $a \le b$, inverted
+according to $\iota$; restricting to earlier signals is what makes the
+circuit acyclic by construction, so we need no ordering constraints.
+Last a one-hot selector $o_{k,s,\iota}$ naming which signal, at which
+polarity, carries output $k$. The AND semantics costs three clauses per
+gate, candidate and row, and the output constraint pins the chosen
+signal to the target column on every row. We add two structural clauses
+that tighten the search without excluding any minimum circuit: every
+gate must feed a later gate or an output, and no two gates may carry
+identical truth tables. Then
+%
+\begin{equation}
+  X_j \;=\; \min\{\, r \ge 0 \;:\; \text{the $r$-gate formula is
+  satisfiable} \,\},
+  \label{eq:aigmin}
+\end{equation}
+%
+which we search by trying $r = 0, 1, 2, \ldots$ upward. We get a proven
+minimum rather than a best effort: the solver refuted every smaller
+budget, and did not merely fail to find one. We run CaDiCaL \cite{cadical}
+as the back end, through PySAT \cite{pysat}. Run as a script, the synthesizer
+reproduces the textbook two-input values, AND, OR and NAND at $1$ and
+XOR at $3$.
+
+Provenance: At $(4,1)$ we adopt the class values from the
+published reproducibility dataset \cite{krinkin} of the $222$ NPN
+classes, and in \texttt{crosscheck.py} we re-derive ten of them
+at random with our own synthesizer, finding no mismatch. At $(3,2)$
+there is no reference table, so we synthesized all $308$ classes from
+scratch with \texttt{run\_synth\_3to2.py} over a process pool. The
+resulting ranges are $X \le 10$ at $(4,1)$ and $X \le 9$ at $(3,2)$,
+and we tabulate the head counts in Section~\ref{sec:aigcomplexity}.
+
+Why we adopt the $(4,1)$ values rather than recompute them: All
+$222$ entries of \cite{krinkin} are proven optimal, the two hardest
+classes included: $\mathtt{0x1669}$ and $\mathtt{0x166b}$, at $10$
+gates each, which is the ceiling of the range. Our own synthesizer
+agrees wherever it can reach, but it cannot reach that far. For
+$\mathtt{0x1669}$ it refutes $r = 5$ in under a second and $r = 7$ in
+half a minute, and does not settle $r = 9$ within fifteen: the instance
+grows steeply with the budget, since the selector family for gate $g$
+already carries $O\big((n+g)^2\big)$ candidates and its at-most-one
+encoding is quadratic in that. Hence our division of labour. We take the
+$(4,1)$ column from the reference dataset and sample it against
+our own synthesizer, while the $(3,2)$ classes, being one input bit
+smaller and so a much smaller formula, we synthesize here from
+scratch.
+
 \section{Symbols}\label{app:symbols}
 
 \begin{table}[H]
@@ -9252,7 +9298,7 @@ script & what it does \\
 \texttt{gibbs\_curves.py} & Aggregate leverage trajectories under the three
   Gibbs settings, and the descriptor tables they are read from. \\
 \texttt{gibbs\_stack\_data.py} & The three-layer split of the table entropy
-  at every $\ell$, for the panels of Subsection~\ref{sec:gibbsbooks}. \\
+  at every $\ell$, for the panels of Section~\ref{sec:gibbsbooks}. \\
 \addlinespace[5pt]
 \texttt{aig\_synth.py} & Exact minimum-size and-inverter synthesis as
   satisfiability, one formula per gate budget. \\
