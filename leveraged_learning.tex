@@ -689,7 +689,11 @@ One observation can improve many separate predictions at once.
 whole map is a different task, whose uncertainty is its joint entropy. 
 This may never happen. There is a practical argument to measuring the full uncertainty as it stands.
 In the present example, both columns are fair coins carrying $1$ bit each, so the table
-starts at its maximum: $H(M) = 2$ bits.
+starts at its maximum: $H(M) = 2$ bits. It stays there for every $p$:
+the parameter tilts the belief over the four maps without moving a
+single column of $M$. Whatever $p$ buys Werner, then, it is not a
+sharper forecast of either answer on its own; it can only be a link
+between the two.
 
 Now let us ask a question. Again we could use $q = 0$; by the
 symmetry of the prior it actually does not matter for this argument.
@@ -1111,7 +1115,8 @@ the table a name:
 \end{equation}
 $H(p)$, Werner's uncertainty about the \emph{identity} of the truth,
 obeys the same ceiling: a distribution over $N$ maps has entropy at
-most $\log_2 N = mQ$, attained again by the uniform prior. The information in the
+most $\log_2 N = mQ$, attained again by the uniform prior, and this time
+by it alone. The information in the
 prior is not directly useful for prediction, but it is good to track. 
 
 Why is $C>0$? The answers jointly determine the map, so $H(p)$ is the
@@ -1121,6 +1126,19 @@ sum of its marginals. Hence $H(p) \leq H(M)$, and the gap $C$, the
 \textbf{total correlation} of the answers~\cite{watanabe60}, is nonnegative: knowledge
 stored in correlations \emph{between} answers, invisible to every
 single column of $M$.
+
+Two independent things have now been named, and it is worth keeping
+them apart. The first is how \textbf{unbiased} the table is: how close
+each column of $M$ sits to an even spread over the answers, with
+$H(M) = mQ$ when every column is flat. The second is how
+\textbf{correlated} the answers are: the gap $C$, which vanishes exactly
+when the prior is a product over the questions, so that no answer can
+teach another. Neither pins the other down. The one-parameter world of
+Subsection~\ref{sec:oneparam} keeps every column a fair coin at its
+ceiling for every $p$, while its $C = 1 - h_2(p)$ runs the whole way
+from $0$ to $1$ bit. That is why the ceiling on $H(M)$ is reached by
+priors other than the uniform one, while the ceiling on $H(p)$ is not:
+the uniform prior is the single point at which both are maximal.
 
 The same scoring interpretation holds through observation updates. Let
 $\mathcal S$ be the questions already asked and $y=\psi(\mathcal S)$
@@ -1157,7 +1175,12 @@ surprisal $\langle s \rangle$, which by
 equation~\eqref{eq:surprisal-entropy} is the entropy of that
 question's column, and the expected drop
 $\langle \Delta H(M) \rangle$ of the \emph{whole} table if that
-question is asked next. This is the average over possible $a$, weighted by their probability (according to $M$):
+question is asked next. That second forecast is the numerator of the
+leverage. It is what the active-learning literature calls the
+\emph{expected predictive information gain}, or EPIG
+\cite{bickfordsmith23}: what an answer is expected to reveal about the
+answers to other questions, rather than about which map is true. Both forecasts are averages over the
+possible $a$, weighted by their probability (according to $M$):
 \begin{equation}
   \langle s \rangle(q)
   \;=\; \sum_{a} M_{a,q}\,\big({-}\log_2 M_{a,q}\big) = H(M_{\cdot,q}),
@@ -1193,7 +1216,13 @@ The asked column loses its whole entropy, so summing gives
 \end{equation}
 The first term is the expected surprisal received; each term in the
 sum is the expected improvement on another question. Their sum is
-the expected withdrawal from the correlation store. The surprisal
+the expected withdrawal from the correlation store. This form also
+makes the EPIG correspondence exact: since
+$I\big(\psi(q);\psi(q) \mid \psi(\mathcal S) = y\big) = H(M_{\cdot,q})$,
+the right-hand side of \eqref{eq:mutual-gain} is
+$\sum_{q'} I\big(\psi(q');\psi(q) \mid \psi(\mathcal S) = y\big)$ over all
+$Q$ questions, which is $Q$ times the EPIG of $q$ under a target
+distribution uniform over the table. The surprisal
 forecast needs $M$ alone, but the improvement forecast also needs
 the pairwise joint laws of the asked answer and the other answers.
 Two priors with the same $M$ can therefore give different forecasts
@@ -2348,18 +2377,29 @@ While the games of the previous chapters may be entertaining, they don't readily
 many more robust quantities appear. This is a stepping stone to our terminus: the thermodynamic limit, where we expect questions to flow in and learning to happen on a continuum, where such ensemble-average statements are
 physically instructive and often quite descriptive of nature.
 
-Let $\langle \ldots\rangle$ denote expectation over both
+Until now $\langle\,\cdot\,\rangle$ has averaged over the truth alone,
+for a question we had named. From here we average over which questions
+were asked as well, and we double the brackets to say so.
+So $\langle\!\langle\,\cdot\,\rangle\!\rangle$ denotes expectation over both
 
 \begin{itemize}
   \item the truth $\psi \sim \{p_j\}$,
-  \item uniformly over the question order $\{q_k\}$.
+  \item uniformly over the $\binom Q\ell$ sets $\mathcal S$ of $\ell$ questions
+    that could have been asked.
 \end{itemize}
+The size $\ell$ is left implicit: it is always the number of questions asked at
+the point where the brackets stand. As this is usually clear from the object being averaged,
+there is no confusion, and we can think of the $\langle\!\langle\,\cdot\,\rangle\!\rangle$ as a uniform average over the question order,
+at some point where $\ell$ total questions have been answered.
+
+Single brackets keep their earlier
+meaning wherever they still appear, as in the correlators $\chi_{\mathcal S}$.
 We take the ratio of
 the expected entropy cleared from the table $M$ to the expected surprisal received:
 \begin{equation}\label{eq:Lk-avg}
   \mathcal L_\ell \;:=\;
-  \frac{H\big(M^{(0)}\big) - \big\langle  H\big(M^{(\ell)}\big) \big\rangle}
-       {\big\langle \sum_{k=1}^{\ell} s_k \big\rangle}\;.
+  \frac{H\big(M^{(0)}\big) - \big\langle\!\big\langle  H\big(M^{(\ell)}\big) \big\rangle\!\big\rangle}
+       {\big\langle\!\big\langle \sum_{k=1}^{\ell} s_k \big\rangle\!\big\rangle}\;.
 \end{equation}
 %
 The calligraphic $\mathcal L_\ell$ denotes this ratio of expectations,
@@ -2472,7 +2512,7 @@ size-two terms averaged into $G_2$ in the next example.
 Two exact laws follow. The first is
 equation~\eqref{eq:telescope} averaged:
 \begin{equation}\label{eq:law-received}
-  \Big\langle \sum_{k=1}^{\ell} s_k \Big\rangle \;=\; G_\ell.
+  \Big\langle\!\Big\langle \sum_{k=1}^{\ell} s_k \Big\rangle\!\Big\rangle \;=\; G_\ell.
 \end{equation}
 The second law describes the total column entropy of $M^{(\ell)}$, which is the answer matrix after $\ell = |\mathcal S|$ questions have been settled. 
 Fix $\mathcal S$ and average the posterior table over the
@@ -2486,7 +2526,7 @@ unasked columns, then average over which $\ell$ questions were asked:
 %
 \begin{equation}
 \begin{aligned}
-  \big\langle H\big(M^{(\ell)}\big) \big\rangle
+  \big\langle\!\big\langle H\big(M^{(\ell)}\big) \big\rangle\!\big\rangle
   &\;=\; \binom{Q}{\ell}^{-1} \sum_{|\mathcal S| = \ell}\;
      \sum_{q' \notin \mathcal S}
      \Big[ H\big(\psi(\mathcal S \cup \{q'\})\big)
@@ -2505,7 +2545,7 @@ the $Q-\ell$ unasked $q'$, and we invoke the definition of $G_k$. Substituting
 $(\ell{+}1)\binom{Q}{\ell+1} = (Q{-}\ell)\binom{Q}{\ell}$ cancels the
 prefactor and leaves
 \begin{equation}\label{eq:law-remaining}
-  \big\langle H\big(M^{(\ell)}\big) \big\rangle
+  \big\langle\!\big\langle H\big(M^{(\ell)}\big) \big\rangle\!\big\rangle
   \;=\; (Q - \ell)\,\big(G_{\ell+1} - G_\ell\big).
 \end{equation}
 The whole expected learning curve is the discrete derivative of
@@ -2591,7 +2631,7 @@ entropies of the posterior table. The
 remaining table entropy of an asked set is the total marginal weight of the
 up-edges leaving its node. There are $Q - \ell$ of them, drawn in
 blue above for $\mathcal S = \{11\}$; summed and averaged over the
-rank, they are exactly equation~\eqref{eq:law-remaining}'s $\big\langle H\big(M^{(\ell)}\big)\big\rangle$, a component of
+rank, they are exactly equation~\eqref{eq:law-remaining}'s $\big\langle\!\big\langle H\big(M^{(\ell)}\big)\big\rangle\!\big\rangle$, a component of
 the leverage.
 \end{example}
 
@@ -2608,16 +2648,16 @@ ratio is an empty $0/0$.
 Some observations.
 \begin{itemize}
   \item Expectation kills the windfall. Each step has
-    $\langle \Delta H(p) - s \rangle = 0$, so the expected deduced
+    $\langle\!\langle \Delta H(p) - s \rangle\!\rangle = 0$, so the expected deduced
     part is a pure tower withdrawal:
-    $H(M^{(0)}) - \langle H(M^{(\ell)}) \rangle - G_\ell
-    = C_0 - \langle C_\ell \rangle$, with
-    $\langle C_\ell \rangle =
-    \langle H(M^{(\ell)}) \rangle - \big(H(p) - G_\ell\big)$. It
+    $H(M^{(0)}) - \langle\!\langle H(M^{(\ell)}) \rangle\!\rangle - G_\ell
+    = C_0 - \langle\!\langle C_\ell \rangle\!\rangle$, with
+    $\langle\!\langle C_\ell \rangle\!\rangle =
+    \langle\!\langle H(M^{(\ell)}) \rangle\!\rangle - \big(H(p) - G_\ell\big)$. It
     is nonnegative: anti-leverage is only ever bad luck.
   \item Deduction saturates one round early: substituting
     $G_{Q} = H(p)$ at $\ell = Q - 1$ already gives
-    $\langle C_{Q - 1} \rangle = 0$. The store is empty before
+    $\langle\!\langle C_{Q - 1} \rangle\!\rangle = 0$. The store is empty before
     the last question, which can only be observed, never
     leveraged.
   \item $\mathcal L_\ell \geq 1$ always, but it need not be
@@ -2702,15 +2742,15 @@ answers get cheaper as evidence accumulates. This only holds on uniformly random
 
 \begin{example}
 For the guiding prior of Table~\ref{tab:sixteen}, recall the block-entropy sequence is
-$G_k = \big\langle \sum_{i=1}^{k} s_i \big\rangle$, and the laws unfold
+$G_k = \big\langle\!\big\langle \sum_{i=1}^{k} s_i \big\rangle\!\big\rangle$, and the laws unfold
 it into the expected run:
 \begin{center}
 \begin{tabular}{c c c c c}
 \toprule
  & received & remaining & store & leverage \\
 $\ell$ & $G_\ell$
-  & $\big\langle H\big(M^{(\ell)}\big) \big\rangle$
-  & $\langle C_\ell \rangle$
+  & $\big\langle\!\big\langle H\big(M^{(\ell)}\big) \big\rangle\!\big\rangle$
+  & $\langle\!\langle C_\ell \rangle\!\rangle$
   & $\mathcal L_\ell$ \\
 \midrule
 1 & 0.731 & 2.113 & 0.137 & 1.110 \\
@@ -2760,12 +2800,12 @@ bits.
   % legend
   \fill[blue!55] (5.4,2.15) rectangle (5.7,2.4);
   \node[right, font=\small] at (5.7,2.27)
-    {remaining $\langle H(M) \rangle$};
+    {remaining $\langle\!\langle H(M) \rangle\!\rangle$};
   \fill[orange!85] (5.4,1.55) rectangle (5.7,1.8);
   \node[right, font=\small] at (5.7,1.67) {received $G_\ell$};
   \fill[green!55!black!60] (5.4,0.95) rectangle (5.7,1.2);
   \node[right, font=\small] at (5.7,1.07)
-    {deduced $C_0 - \langle C_\ell \rangle$};
+    {deduced $C_0 - \langle\!\langle C_\ell \rangle\!\rangle$};
 \end{tikzpicture}
 \captionsetup{skip=8pt}
 \end{center}
@@ -2773,7 +2813,7 @@ Conservation is now exact at every $\ell$: remaining plus received
 plus deduced reaches $H(M^{(0)})$, so the cake always tops out on the
 dashed line, and no overshoot is possible. The top layer is the
 expected withdrawal from the correlation store,
-$C_0 - \langle C_\ell \rangle$; it saturates at $C_0 = 0.218$
+$C_0 - \langle\!\langle C_\ell \rangle\!\rangle$; it saturates at $C_0 = 0.218$
 already at $\ell = 3$.
 \end{example}
 
@@ -3113,16 +3153,16 @@ what was paid for in surprisal, and what was inferred. The third has no
 standing name, so give it one,
 %
 \begin{equation}
-  \big\langle \text{deduced} \big\rangle_\ell
-  \;:=\; C_0 - \langle C_\ell\rangle
+  \big\langle\!\big\langle \text{deduced}_\ell \big\rangle\!\big\rangle
+  \;:=\; C_0 - \langle\!\langle C_\ell\rangle\!\rangle
   \;=\; H\big(M^{(0)}\big)
-        - \big\langle H\big(M^{(\ell)}\big)\big\rangle
+        - \big\langle\!\big\langle H\big(M^{(\ell)}\big)\big\rangle\!\big\rangle
         - G_\ell ,
   \label{eq:deduced}
 \end{equation}
 %
 the expected withdrawal from the correlation store. The second equality
-is \eqref{eq:C} at both ends together with $\langle \Delta H(p)\rangle =
+is \eqref{eq:C} at both ends together with $\langle\!\langle \Delta H(p)\rangle\!\rangle =
 G_\ell$. In expectation, the belief entropy falls by exactly the
 surprisal received, so whatever else the table lost came out of $C$.
 The three therefore sum to $H(M^{(0)})$ at every $\ell$, and each
@@ -3133,12 +3173,12 @@ vertical scale in bits; one column per prior.
 \begin{tikzpicture}[y=0.32cm]
   \fill[blue!55] (0,0) rectangle (0.32,0.24);
   \node[right, font=\small] at (0.40,0.12)
-    {remaining $\langle H(M^{(\ell)})\rangle$};
+    {remaining $\langle\!\langle H(M^{(\ell)})\rangle\!\rangle$};
   \fill[orange!85] (4.6,0) rectangle (4.92,0.24);
   \node[right, font=\small] at (5.0,0.12) {received $G_\ell$};
   \fill[green!55!black!60] (8.0,0) rectangle (8.32,0.24);
   \node[right, font=\small] at (8.4,0.12)
-    {deduced $C_0 - \langle C_\ell\rangle$};
+    {deduced $C_0 - \langle\!\langle C_\ell\rangle\!\rangle$};
 \end{tikzpicture}
 \end{center}
 
@@ -4360,9 +4400,9 @@ result. The two laws \eqref{eq:law-received} and
 \eqref{eq:law-remaining} then read
 %
 \begin{equation}
-  \Big\langle \sum_{k=1}^{\ell} s_k \Big\rangle = G_{n,\ell},
+  \Big\langle\!\Big\langle \sum_{k=1}^{\ell} s_k \Big\rangle\!\Big\rangle = G_{n,\ell},
   \qquad
-  \big\langle H\big(M^{(\ell)}\big) \big\rangle
+  \big\langle\!\big\langle H\big(M^{(\ell)}\big) \big\rangle\!\big\rangle
   = (Q-\ell)\,\gamma_{n,\ell},
   \label{eq:finitelaws}
 \end{equation}
@@ -7723,32 +7763,35 @@ question $1$, and question $0$ eliminates neither. Thus
 \end{equation*}
 The row $10$ additionally requires answer $0$ at question $0$, leaving
 only $p_2$. The row $\wild\wild$ eliminates no maps and gives
-$\sum_jp_j=1$. All nine rules are below.
+$\sum_jp_j=1$. 
+
+Keep $0$, keep $1$, or keep either, independently for each question. All $3^2$ combinations appear. 
 
 \begin{center}
 \begingroup
-\definecolor{ink}{RGB}{35,44,54}
-\definecolor{zero}{RGB}{130,137,145}
-\definecolor{one}{RGB}{65,125,194}
-\definecolor{two}{RGB}{27,146,119}
+% the row groups take the document's three-way set, as in the
+% layered-entropy panels; body text is plain black
+\colorlet{ink}{black}
+\colorlet{zero}{cok}
+\colorlet{one}{cpre}
+\colorlet{two}{clim}
 \resizebox{0.9\linewidth}{!}{%
 \begin{tikzpicture}[text=ink,>=Stealth]
 \node[font=\small] at (-.35,2.65) {$\underbrace{\begin{array}{r|cc} &a=0&a=1\\\hline a=0&1&0\\a=1&0&1\\a=\wild{}&1&1\end{array}}_{\Xi\text{ for question }1}$};
 \node at (1.75,2.65) {$\otimes$};
 \node[font=\small] at (3.85,2.65) {$\underbrace{\begin{array}{r|cc} &a=0&a=1\\\hline a=0&1&0\\a=1&0&1\\a=\wild{}&1&1\end{array}}_{\Xi\text{ for question }0}$};
-\node[anchor=west,font=\small,align=left] at (6.1,2.65) {Keep $0$, keep $1$, or keep either\\independently for each question.\\All $3^2$ combinations appear.};
 \node[font=\small] at (-.95,.65) {Questions $q$};
 \node[font=\small] at (2.7,.9) {Columns: map $j$ / truth table};
 \node at (-1.35,0) {$1$};\node at (-.45,0) {$0$};
 \node[font=\small] at (5.0,0) {$k$};
 \node[font=\scriptsize,text=black!55] at (0.9,.42) {0};
-\node at (0.9,0) {$\mathtt{00}$};
+\node at (0.9,0) {$00$};
 \node[font=\scriptsize,text=black!55] at (1.9500000000000002,.42) {1};
-\node at (1.9500000000000002,0) {$\mathtt{01}$};
+\node at (1.9500000000000002,0) {$01$};
 \node[font=\scriptsize,text=black!55] at (3.0,.42) {2};
-\node at (3.0,0) {$\mathtt{10}$};
+\node at (3.0,0) {$10$};
 \node[font=\scriptsize,text=black!55] at (4.050000000000001,.42) {3};
-\node at (4.050000000000001,0) {$\mathtt{11}$};
+\node at (4.050000000000001,0) {$11$};
 \fill[two!15] (-1.8,-0.845) rectangle (5.27,-0.355);
 \fill[two!75] (5.19,-0.845) rectangle (5.27,-0.355);
 \node at (-1.35,-0.6) {$0$};
@@ -7833,7 +7876,7 @@ $\sum_jp_j=1$. All nine rules are below.
 
 \draw[black!60] (.47,-.28)--(.32,-.28)--(.32,-5.28)--(.47,-5.28);
 \draw[black!60] (4.47,-.28)--(4.62,-.28)--(4.62,-5.28)--(4.47,-5.28);
-\node[anchor=west,font=\small\bfseries] at (5.7,-.55) {Row colors};
+\node[anchor=west,font=\small] at (5.7,-.55) {Row colors};
 \fill[zero!25] (5.75,-1.28) rectangle (6.05,-0.9600000000000001);
 \node[anchor=west,font=\small] at (6.2,-1.12) {$k=0$: $1$ row $\to G_0$};
 \fill[one!25] (5.75,-1.8699999999999999) rectangle (6.05,-1.55);
@@ -7843,7 +7886,7 @@ $\sum_jp_j=1$. All nine rules are below.
 
 \draw[ink,thick] (-1.8,-3.595) rectangle (5.27,-3.105);
 \draw[->] (5.30,-3.35)--(5.72,-3.35);
-\node[anchor=north west,font=\small,align=left] at (5.75,-3.0) {\textbf{Row $z=1\wild{}$}\\[5pt]Keep maps with $\phi_j(1)=1$;\\question $0$ excludes no maps.\\[5pt]$\mu_{1\wild{}}=p_2+p_3$\\This contributes to $G_1$.};
+\node[anchor=north west,font=\small,align=left] at (5.75,-3.0) {Row $z=1\wild{}$\\[5pt]Keep maps with $\phi_j(1)=1$;\\question $0$ excludes no maps.\\[5pt]$\mu_{1\wild{}}=p_2+p_3$\\This contributes to $G_1$.};
 
 \end{tikzpicture}%
 }
@@ -7853,8 +7896,8 @@ $\sum_jp_j=1$. All nine rules are below.
 $\wild$ allows either answer: this question excludes no maps. Multiply by $p$, apply $f(u)=-u\log_2u$ elementwise, then collect each color:
 \begin{align*}
   G_0&=f(\mu_{\wild{}\wild{}})=0,\\
-  G_1&=\dfrac{f(\mu_{0\wild{}})+f(\mu_{1\wild{}})+f(\mu_{\wild{}0})+f(\mu_{\wild{}1})}{2},\\
-  G_2&=\sum_{j=0}^{3}f(p_j)=H(p).
+  G_1&=\tfrac12\big[f(\mu_{0\wild{}})+f(\mu_{1\wild{}})+f(\mu_{\wild{}0})+f(\mu_{\wild{}1})\big],\\
+  G_2&=f(p_0)+f(p_1)+f(p_2)+f(p_3)=H(p).
 \end{align*}
 A $1$ keeps the map and a $0$ excludes it. The row colors group the
 surviving weights by the number $k$ of single-answer restrictions.
@@ -8688,7 +8731,7 @@ The surprisals are
   \qquad
   s_{\rm wrong} = -\log_2 U,
   \qquad
-  \langle s\rangle = P\,s_{\rm correct} + (A-1)U\,s_{\rm wrong} = G_1 ,
+  \langle\!\langle s\rangle\!\rangle = P\,s_{\rm correct} + (A-1)U\,s_{\rm wrong} = G_1 ,
   \label{eq:spikesurprisal}
 \end{equation}
 %
@@ -8715,7 +8758,7 @@ $A$ symbols and $H_{\rm after, wrong} = (Q-1)m$. Weighting the two
 branches,
 %
 \begin{equation}
-  \big\langle H\big(M^{(1)}\big)\big\rangle
+  \big\langle\!\big\langle H\big(M^{(1)}\big)\big\rangle\!\big\rangle
   = P\,H_{\rm after, correct} + (A-1)U\,H_{\rm after, wrong}
   = (Q-1)(G_2 - G_1),
   \label{eq:spikebranchavg}
@@ -8743,8 +8786,8 @@ $\ell=1$ case of \eqref{eq:law-remaining}.
 \dataplot{cbad, dashed}{p}{hwrong}{data/spike_one_4to1.dat}
 \dataplot{cexp, dashed}{p}{hexpected}{data/spike_one_4to1.dat}
 \datalegend{{before}, {$s_{\rm correct}$}, {$s_{\rm wrong}$},
-  {$\langle s\rangle$}, {after (correct)},
-  {after (wrong)}, {$\langle H(M^{(1)})\rangle$}}
+  {$\langle\!\langle s\rangle\!\rangle$}, {after (correct)},
+  {after (wrong)}, {$\langle\!\langle H(M^{(1)})\rangle\!\rangle$}}
 \end{axis}
 \end{tikzpicture}\hfill
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -8848,7 +8891,7 @@ drop beyond the received entropy $G_1$ comes out of that store, so
 when $C > 0$ the share of it freed by a single question is
 %
 \begin{equation}
-  R_1 \;:=\; \frac{\langle \Delta H(M)\rangle - G_1}{C}
+  R_1 \;:=\; \frac{\langle\!\langle \Delta H(M)\rangle\!\rangle - G_1}{C}
   \;=\; \frac{(Q-1)(2G_1 - G_2)}{Q G_1 - G_Q}. 
   \label{eq:extraction}
 \end{equation}
@@ -9142,6 +9185,8 @@ $\mathcal V \subseteq \mathcal S$ & subset and set of questions asked so far \\
 $\ell$ & how many have been asked, $|\mathcal S|$ \\
 $y$ & the pattern of answers received on $\mathcal S$ \\
 $s_k$ & surprisal of round $k$. Negative log of the probability of the answer \\
+$\langle\,\cdot\,\rangle$ & average over the truth $\psi \sim p_j$, at a question we have named \\
+$\langle\!\langle\,\cdot\,\rangle\!\rangle$ & the same, averaged over every set of $\ell$ questions as well \\
 $L_\ell$ & leverage: table entropy cleared per bit of surprisal received \\
 $\mathcal L_\ell$ & ratio of expected table-entropy reduction to expected surprisal \\
 $\eta_n(v)$ & fresh-answer entropy at independent reveal probability $v$ \\
@@ -9260,6 +9305,13 @@ S.~Watanabe,
 ``Information theoretical analysis of multivariate correlation'',
 \emph{IBM Journal of Research and Development} \textbf{4}(1), 66--82,
 1960.
+
+\bibitem{bickfordsmith23}
+F.~Bickford Smith, A.~Kirsch, S.~Farquhar, Y.~Gal, A.~Foster and
+T.~Rainforth,
+``Prediction-oriented Bayesian active learning'',
+\emph{Proceedings of the 26th International Conference on Artificial
+Intelligence and Statistics}, PMLR \textbf{206}, 7331--7348, 2023.
 
 \bibitem{baldiitti10}
 P.~Baldi and L.~Itti,
