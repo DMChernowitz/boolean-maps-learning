@@ -5,6 +5,7 @@
 \usepackage{booktabs}
 \usepackage[normalem]{ulem}
 \usepackage{float}
+\usepackage{multicol}
 \usepackage{caption}
 \usepackage[most]{tcolorbox}
 
@@ -405,6 +406,8 @@ Let us start with a small thought experiment, by introducing
 
 In this work, we model learning as the increased ability to give the
 correct answer to questions, as more of the ground truth is revealed.
+Learning a hidden function by asking for its values is the query model
+of learning theory \cite{angluin88}.
 It is Werner's job to learn a pattern. The most basic shape of a
 pattern is a \textbf{binary map}, and the most basic binary map is a map
 from one bit to one bit.
@@ -508,6 +511,8 @@ Moreover, Werner can use a process of elimination (an extreme form
 of Bayes' rule) to update his prior into a posterior. Semantically:
 every candidate map that would have answered the question wrongly is
 now \emph{ruled out}, not merely disfavored. They are inconsistent with what's been learned.
+The survivors are what concept learning calls the \emph{version space}
+\cite{mitchell82}.
 
 \begin{example}
 The truth $\psi$ answered $1$ at $q = 0$, and a map with
@@ -586,7 +591,8 @@ correctly from now on.
 \subsection{Intelligent priors}\label{sec:intelligent}
 
 Now, let us assume that Werner knows \emph{something} about the world
-before he starts.
+before he starts. Eliminating hypotheses under a prior that favors some
+of them over others is Bayesian concept learning \cite{tenenbaum01}.
 
 \begin{example}
 Let's restart, with a different $\psi$. Moreover, let Werner know the map is not constant. His belief then
@@ -1183,10 +1189,13 @@ equation~\eqref{eq:surprisal-entropy} is the entropy of that
 question's column, and the expected drop
 $\langle \Delta H(M) \rangle$ of the \emph{whole} table if that
 question is asked next. That second forecast is the numerator of the
-leverage. It is what the active-learning literature calls the
-\emph{expected predictive information gain}, or EPIG
-\cite{bickfordsmith23}: what an answer is expected to reveal about the
-answers to other questions, rather than about which map is true. Both forecasts are averages over the
+leverage. It is an expected information gain in Lindley's sense
+\cite{lindley56}, the kind of objective that information-based active
+learning has used to choose its data \cite{mackay92}. What that
+literature calls the \emph{expected predictive information gain}, or EPIG
+\cite{bickfordsmith23}, is exactly this form: what an answer is expected
+to reveal about the answers to other questions, rather than about which
+map is true. Both forecasts are averages over the
 possible $a$, weighted by their probability (according to $M$):
 \begin{equation}
   \langle s \rangle(q)
@@ -1638,7 +1647,7 @@ are indistinguishable through round $\ell$. Deeper shells are
 invisible.
 
 There is also a monotonicity property hiding in $G$. Entropy is
-\emph{submodular} \cite{covthomas}: a fresh answer is worth at most in a larger
+\emph{submodular} \cite{fujishige78,covthomas}: a fresh answer is worth at most in a larger
 context $\mathcal{S}$ what it was worth in a smaller one $\mathcal{V}$,
 %
 \begin{equation}
@@ -1651,6 +1660,9 @@ Coupling a random $\ell$-set to a random $(\ell{+}1)$-set and
 averaging, the increments $G_\ell - G_{\ell-1}$, which are the
 expected surprisals of the $\ell$-th answer, decrease with $\ell$:
 answers get cheaper as evidence accumulates. This only holds on uniformly random question order.
+The $k$-subset average is also the setting of Han's inequality
+\cite{han78}, that $G_k/k$ is nonincreasing; the concavity here implies
+it.
 
 \begin{example}
 For the guiding prior of Table~\ref{tab:sixteen}, recall the block-entropy sequence is
@@ -1731,8 +1743,9 @@ already at $\ell = 3$.
 
 \subsection{Choosing the questions}\label{sec:strategies}
 
-The uniform distribution on question order was a symmetry choice, not a strategy. Werner
-can do better along two independent axes: how far he looks ahead,
+The uniform distribution on question order was a symmetry choice, not a strategy.
+Choosing the next question is Bayesian experimental design
+\cite{chalonerverdinelli95}, and Werner can do better along two independent axes: how far he looks ahead,
 and whether he commits to an order beforehand or pivots contingent on the answers so far. A \textbf{Greedy} Werner asks, at
 every step, the single question with the largest expected drop of
 $H(M)$: one step of lookahead. \textbf{$\ell$-optimal} maximizes the
@@ -1773,7 +1786,9 @@ Expected knowledge is non-decreasing left to right and top to bottom. The
 dynamic program in the last cell is exact but grows quickly: its
 states are the reachable posteriors, one per pair of asked set and
 answer pattern, $(1 + A)^{Q}$ in all. That is $81$ for the
-guiding example and astronomical beyond. Its policy is also
+guiding example and astronomical beyond; the underlying problem, an
+optimal decision tree over the answers, is NP-complete in general
+\cite{hyafilrivest76}. Its policy is also
 horizon-dependent, since the best first question for $\ell = k$
 need not open the best plan for $\ell = k+1$. For
 the guiding prior of Table~\ref{tab:sixteen}, contingent greedy outperforms the uniform order, 
@@ -1824,7 +1839,11 @@ $1/2$ bit, strictly above the adaptive remainder of zero.
 The earlier chapters describe learning on a finite question set. This
 chapter is arguably the real-world payoff. Here we can draw conclusions about 
 general learning, not just boolean maps. This chapter asks what remains when the number of input bits tends to
-infinity. The hope is to find traces of universality: that character of learning where the microscopic details are coarse-grained out. 
+infinity. Sending a learning problem to a thermodynamic limit and reading
+off its learning curve is an established program
+\cite{seung92,watkin93,haussler94}; this chapter offers it a new
+entry, one that keeps time by the fraction of the whole question table
+already asked rather than by examples per parameter. The hope is to find traces of universality: that character of learning where the microscopic details are coarse-grained out. 
 
 Recall definition~\ref{eq:sizes} where $Q = |\mathcal Q| = 2^n$, the limit $n \to \infty$ is
 one of an exponentially growing table of possible questions. Let the measure of time be the
@@ -2425,7 +2444,8 @@ The theorem needs the sequence to extend to an infinite one, or
 equivalently the family of finite laws to be consistent as $Q$ grows;
 a finite exchangeable law taken in isolation need not be a mixture of
 independent draws of $\nu$. Sampling without replacement is the standard
-counterexample. In the infinite set limit, sampling with and without replacement is 
+counterexample, and how far a finite exchangeable law can sit from every
+mixture is quantified in \cite{diaconisfreedman80}. In the infinite set limit, sampling with and without replacement is 
 equivalent.
 
 In general $\Lambda$ may spread over any collection of answer laws
@@ -2580,7 +2600,7 @@ conditional entropy of one fresh answer,
 \end{equation}
 %
 The increments also connect directly to erasure-channel
-\emph{extrinsic information transfer} (EXIT) functions~\cite{kkmpsu}.
+\emph{extrinsic information transfer} (EXIT) functions~\cite{ashikhmin04,richardsonurbanke08}.
 Three terms from coding theory are needed first. A \textbf{code} of
 length $Q$ over $\mathcal A$ is a subset of $\mathcal A^{Q}$, its
 members the \textbf{codewords}; a truth table is a string of exactly
@@ -2594,7 +2614,7 @@ recording only that a symbol was lost. An EXIT function then reports
 how much uncertainty is left in one symbol once every other symbol has
 passed through such a channel, as a function of the erasure
 probability $1-v$; its integral over that probability is the rate,
-which is the area theorem invoked below.
+which is the area theorem of \cite{ashikhmin04} invoked below.
 Choose a fresh question $q$ uniformly and reveal each other question
 independently with probability $v\in[0,1]$. Think of $v$ as the probability that
 the question naturally came up, i.e. $v \approx t$, the macroscopic time. Conditional
@@ -2841,8 +2861,8 @@ In the next chapter, as well as the appendices, we give examples and explain why
 \section{Polynomial degree as complexity prior}\label{sec:shapeprior}
 
 What could the TDL of an explicit simplicity-based prior look like? Unfortunately, but
-not unexpectedly, we also must grapple with no-free-lunch. It is not possible to find 
-general circuit complexities for large $n$: Appendix~\ref{app:gibbs} builds
+not unexpectedly, we also must grapple with no-free-lunch \cite{wolpert96}. It is not possible to find 
+general circuit complexities for large $n$ \cite{kabanetscai00}: Appendix~\ref{app:gibbs} builds
 a complexity prior that way, weighting each map by the size of the
 smallest circuit computing it, and that measure runs out of road. However, Werner has 
 another avenue at his disposal: write the boolean map as a polynomial in the question inputs, 
@@ -5874,7 +5894,8 @@ correlators themselves, which would be an interesting exercise in its own right.
 
 The protocol of Chapter~\ref{sec:general} is an experiment, not only a
 calculation, and a language model is a convenient Werner:
-its answer matrix is directly observable, the token probabilities in response to a prompt being the column $M_{\cdot,q}$ itself. 
+its answer matrix is directly observable, the token probabilities in response to a prompt being the column $M_{\cdot,q}$ itself, and its in-context learning has
+itself been read as implicit Bayesian inference \cite{xie22}. 
 Fix a finite
 universe of questions with a latent rule, ask them one at a time,
 record the surprisal of each answer and the drop in total predictive
@@ -5947,7 +5968,8 @@ so answer $0 \mapsto +1$ and $1 \mapsto -1$. A pure relabeling, but
 it buys the one algebraic fact everything below turns on:
 $\sigma_q^2 = 1$.
 
-The \textbf{Walsh--Hadamard transform} is built from a single
+The \textbf{Walsh--Hadamard transform}, the Fourier transform of
+Boolean-function analysis \cite{odonnell14}, is built from a single
 matrix. For one bit,
 \begin{equation}\label{eq:hadamard}
   W \;=\; \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix},
@@ -6040,7 +6062,9 @@ $1111$ & $\{11, 10, 01, 00\}$ & $\chi_{1111} = \langle \sigma_{11}\, \sigma_{10}
 \end{example}
 
 Sort the $N$ correlators by $|\mathcal S|$, the number
-of questions probed, into \textbf{shells}. Shell $0$ is the normalization, $\chi_\emptyset = 1$, riding along
+of questions probed, into \textbf{shells}. Sorting a Boolean function's
+Fourier weight by degree in the same way is the basis of Fourier-analytic
+learning \cite{linial93}. Shell $0$ is the normalization, $\chi_\emptyset = 1$, riding along
 as a correlator. Shell $1$ is $M$ in different clothes:
 \begin{equation}\label{eq:shell1}
   \chi_{\{q\}} \;=\; M_{0,q} - M_{1,q},
@@ -8450,7 +8474,10 @@ are thus endpoints of a larger family.
 
 Every prior so far was an arbitrary set of instructively chosen $\{p_j\}$. 
 This appendix builds the prior the other way around, from a
-single philosophical principle: \emph{simple explanations are likelier}. 
+single philosophical principle: \emph{simple explanations are likelier}.
+The principle has formal standing, as Solomonoff's universal prior
+\cite{solomonoff64,livitanyi08} and as a learning guarantee for hypotheses
+with short descriptions \cite{blumer87}. 
 How do we define simplicity? With circuit
 complexity as the measure, made quantitative as a Gibbs
 ensemble over the hypothesis space. It is an illustration; the body
@@ -9336,7 +9363,14 @@ pipeline of Appendix~\ref{app:aig}, and the checks.}
 
 \clearpage
 \phantomsection
+\stdsection*{\refname}
 \addcontentsline{toc}{section}{\refname}
+\begingroup
+% thebibliography sets its own heading, and with it the chapter page
+% break; the heading is already above, so swallow the internal one
+\renewcommand{\section}[2]{}
+\small
+\begin{multicols}{2}
 \begin{thebibliography}{99}
 
 \bibitem{shannon48}
@@ -9344,6 +9378,27 @@ C.~E. Shannon,
 ``A mathematical theory of communication'',
 \emph{Bell System Technical Journal} \textbf{27}, 379--423 and
 623--656, 1948.
+
+\bibitem{angluin88}
+D.~Angluin,
+``Queries and concept learning'',
+\emph{Machine Learning} \textbf{2}(4), 319--342, 1988.
+
+\bibitem{baldiitti10}
+P.~Baldi and L.~Itti,
+``Of bits and wows: a Bayesian theory of surprise with applications to
+attention'',
+\emph{Neural Networks} \textbf{23}(5), 649--666, 2010.
+
+\bibitem{mitchell82}
+T.~M. Mitchell,
+``Generalization as search'',
+\emph{Artificial Intelligence} \textbf{18}(2), 203--226, 1982.
+
+\bibitem{tenenbaum01}
+J.~B. Tenenbaum and T.~L. Griffiths,
+``Generalization, similarity, and Bayesian inference'',
+\emph{Behavioral and Brain Sciences} \textbf{24}(4), 629--640, 2001.
 
 \bibitem{covthomas}
 T.~M. Cover and J.~A. Thomas,
@@ -9356,6 +9411,16 @@ S.~Watanabe,
 \emph{IBM Journal of Research and Development} \textbf{4}(1), 66--82,
 1960.
 
+\bibitem{lindley56}
+D.~V. Lindley,
+``On a measure of the information provided by an experiment'',
+\emph{Annals of Mathematical Statistics} \textbf{27}(4), 986--1005, 1956.
+
+\bibitem{mackay92}
+D.~J.~C. MacKay,
+``Information-based objective functions for active data selection'',
+\emph{Neural Computation} \textbf{4}(4), 590--604, 1992.
+
 \bibitem{bickfordsmith23}
 F.~Bickford Smith, A.~Kirsch, S.~Farquhar, Y.~Gal, A.~Foster and
 T.~Rainforth,
@@ -9363,27 +9428,41 @@ T.~Rainforth,
 \emph{Proceedings of the 26th International Conference on Artificial
 Intelligence and Statistics}, PMLR \textbf{206}, 7331--7348, 2023.
 
-\bibitem{baldiitti10}
-P.~Baldi and L.~Itti,
-``Of bits and wows: a Bayesian theory of surprise with applications to
-attention'',
-\emph{Neural Networks} \textbf{23}(5), 649--666, 2010.
+\bibitem{fujishige78}
+S.~Fujishige,
+``Polymatroidal dependence structure of a set of random variables'',
+\emph{Information and Control} \textbf{39}(1), 55--72, 1978.
 
-\bibitem{merhav98}
-N.~Merhav and M.~Feder,
-``Universal prediction'',
-\emph{IEEE Transactions on Information Theory} \textbf{44}(6),
-2124--2147, 1998.
+\bibitem{han78}
+T.~S. Han,
+``Nonnegative entropy measures of multivariate symmetric correlations'',
+\emph{Information and Control} \textbf{36}(2), 133--156, 1978.
 
-\bibitem{bnt01}
-W.~Bialek, I.~Nemenman and N.~Tishby,
-``Predictability, complexity, and learning'',
-\emph{Neural Computation} \textbf{13}(11), 2409--2463, 2001.
+\bibitem{chalonerverdinelli95}
+K.~Chaloner and I.~Verdinelli,
+``Bayesian experimental design: a review'',
+\emph{Statistical Science} \textbf{10}(3), 273--304, 1995.
 
-\bibitem{rudin}
-W.~Rudin,
-\emph{Principles of Mathematical Analysis}, 3rd ed.,
-McGraw-Hill, 1976.
+\bibitem{hyafilrivest76}
+L.~Hyafil and R.~L. Rivest,
+``Constructing optimal binary decision trees is NP-complete'',
+\emph{Information Processing Letters} \textbf{5}(1), 15--17, 1976.
+
+\bibitem{seung92}
+H.~S. Seung, H.~Sompolinsky and N.~Tishby,
+``Statistical mechanics of learning from examples'',
+\emph{Physical Review A} \textbf{45}(8), 6056--6091, 1992.
+
+\bibitem{watkin93}
+T.~L.~H. Watkin, A.~Rau and M.~Biehl,
+``The statistical mechanics of learning a rule'',
+\emph{Reviews of Modern Physics} \textbf{65}(2), 499--556, 1993.
+
+\bibitem{haussler94}
+D.~Haussler, M.~Kearns and R.~E. Schapire,
+``Bounds on the sample complexity of Bayesian learning using information
+theory and the VC dimension'',
+\emph{Machine Learning} \textbf{14}(1), 83--113, 1994.
 
 \bibitem{definetti37}
 B.~de Finetti,
@@ -9396,10 +9475,38 @@ E.~Hewitt and L.~J. Savage,
 \emph{Transactions of the American Mathematical Society} \textbf{80},
 470--501, 1955.
 
-\bibitem{lorentz}
-G.~G. Lorentz,
-\emph{Bernstein Polynomials}, 2nd ed.,
-AMS Chelsea Publishing, 1986.
+\bibitem{diaconisfreedman80}
+P.~Diaconis and D.~Freedman,
+``Finite exchangeable sequences'',
+\emph{Annals of Probability} \textbf{8}(4), 745--764, 1980.
+
+\bibitem{ashikhmin04}
+A.~Ashikhmin, G.~Kramer and S.~ten Brink,
+``Extrinsic information transfer functions: model and erasure channel
+properties'',
+\emph{IEEE Transactions on Information Theory} \textbf{50}(11),
+2657--2673, 2004.
+
+\bibitem{richardsonurbanke08}
+T.~Richardson and R.~Urbanke,
+\emph{Modern Coding Theory},
+Cambridge University Press, 2008.
+
+\bibitem{rudin}
+W.~Rudin,
+\emph{Principles of Mathematical Analysis}, 3rd ed.,
+McGraw-Hill, 1976.
+
+\bibitem{wolpert96}
+D.~H. Wolpert,
+``The lack of a priori distinctions between learning algorithms'',
+\emph{Neural Computation} \textbf{8}(7), 1341--1390, 1996.
+
+\bibitem{kabanetscai00}
+V.~Kabanets and J.-Y. Cai,
+``Circuit minimization problem'',
+\emph{Proceedings of the 32nd ACM Symposium on Theory of Computing},
+73--79, 2000.
 
 \bibitem{macwilliams}
 F.~J. MacWilliams and N.~J.~A. Sloane,
@@ -9413,16 +9520,56 @@ and R.~L. Urbanke,
 \emph{IEEE Transactions on Information Theory} \textbf{63}(7),
 4298--4316, 2017.
 
+\bibitem{merhav98}
+N.~Merhav and M.~Feder,
+``Universal prediction'',
+\emph{IEEE Transactions on Information Theory} \textbf{44}(6),
+2124--2147, 1998.
+
 \bibitem{pitowsky91}
 I.~Pitowsky,
 ``Correlation polytopes: their geometry and complexity'',
 \emph{Mathematical Programming} \textbf{50}, 395--414, 1991.
 
-\bibitem{knuth4a}
-D.~E. Knuth,
-\emph{The Art of Computer Programming, Volume 4A: Combinatorial
-Algorithms, Part 1},
-Addison-Wesley, 2011.
+\bibitem{xie22}
+S.~M. Xie, A.~Raghunathan, P.~Liang and T.~Ma,
+``An explanation of in-context learning as implicit Bayesian inference'',
+\emph{International Conference on Learning Representations}, 2022.
+
+\bibitem{bnt01}
+W.~Bialek, I.~Nemenman and N.~Tishby,
+``Predictability, complexity, and learning'',
+\emph{Neural Computation} \textbf{13}(11), 2409--2463, 2001.
+
+\bibitem{odonnell14}
+R.~O'Donnell,
+\emph{Analysis of Boolean Functions},
+Cambridge University Press, 2014.
+
+\bibitem{linial93}
+N.~Linial, Y.~Mansour and N.~Nisan,
+``Constant depth circuits, Fourier transform, and learnability'',
+\emph{Journal of the ACM} \textbf{40}(3), 607--620, 1993.
+
+\bibitem{lorentz}
+G.~G. Lorentz,
+\emph{Bernstein Polynomials}, 2nd ed.,
+AMS Chelsea Publishing, 1986.
+
+\bibitem{solomonoff64}
+R.~J. Solomonoff,
+``A formal theory of inductive inference, parts I and II'',
+\emph{Information and Control} \textbf{7}, 1--22 and 224--254, 1964.
+
+\bibitem{livitanyi08}
+M.~Li and P.~Vit\'anyi,
+\emph{An Introduction to Kolmogorov Complexity and Its Applications},
+3rd ed., Springer, 2008.
+
+\bibitem{blumer87}
+A.~Blumer, A.~Ehrenfeucht, D.~Haussler and M.~K. Warmuth,
+``Occam's razor'',
+\emph{Information Processing Letters} \textbf{24}(6), 377--380, 1987.
 
 \bibitem{aigrewrite}
 A.~Mishchenko, S.~Chatterjee and R.~K. Brayton,
@@ -9431,11 +9578,18 @@ synthesis'',
 \emph{Proceedings of the 43rd Design Automation Conference}, 532--535,
 2006.
 
-\bibitem{pysat}
-A.~Ignatiev, A.~Morgado and J.~Marques-Silva,
-``PySAT: a Python toolkit for prototyping with SAT oracles'',
-\emph{Theory and Applications of Satisfiability Testing (SAT 2018)},
-LNCS \textbf{10929}, 428--437, 2018.
+\bibitem{krinkin}
+\texttt{krinkin},
+\emph{bounds}: a reproducibility package giving proven optimal AIG
+sizes for all $222$ four-variable NPN classes, with witness circuits
+and verification scripts.
+\url{https://github.com/krinkin/bounds}
+
+\bibitem{knuth4a}
+D.~E. Knuth,
+\emph{The Art of Computer Programming, Volume 4A: Combinatorial
+Algorithms, Part 1},
+Addison-Wesley, 2011.
 
 \bibitem{cadical}
 A.~Biere, K.~Fazekas, M.~Fleury and M.~Heisinger,
@@ -9445,13 +9599,14 @@ SAT Competition 2020'',
 Descriptions}, Department of Computer Science Report Series B,
 vol.\ B-2020-1, University of Helsinki, 50--53, 2020.
 
-\bibitem{krinkin}
-\texttt{krinkin},
-\emph{bounds}: a reproducibility package giving proven optimal AIG
-sizes for all $222$ four-variable NPN classes, with witness circuits
-and verification scripts.
-\url{https://github.com/krinkin/bounds}
+\bibitem{pysat}
+A.~Ignatiev, A.~Morgado and J.~Marques-Silva,
+``PySAT: a Python toolkit for prototyping with SAT oracles'',
+\emph{Theory and Applications of Satisfiability Testing (SAT 2018)},
+LNCS \textbf{10929}, 428--437, 2018.
 
 \end{thebibliography}
+\end{multicols}
+\endgroup
 
 \end{document}
