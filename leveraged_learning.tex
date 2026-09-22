@@ -7127,6 +7127,49 @@ It is the total prior weight that elimination leaves. It is not yet a
 posterior distribution over the surviving maps; that posterior would
 normalize their individual weights by $\mu_z$, when $\mu_z>0$.
 
+
+In particular, the component $\mu_{\wild\wild\ldots\wild} = 1$ is the normalization
+condition, with no maps excluded.
+
+\begin{example}
+On the guiding space $n=2, m=1$, with question order $(11,10,01,00)$, the same
+rule gives
+\begin{equation}
+  \mu_{1\wild0\wild}
+  =\mu_{100\wild}+\mu_{110\wild}
+  =(p_8+p_9)+(p_{12}+p_{13}).
+\end{equation}
+Only questions $11$ and $01$ restrict the maps. The other two questions
+exclude none. The intermediate sums can also be used by other rows.
+\end{example}
+
+
+Collecting the averages:
+we write $|z|:=|\mathcal S(z)|$ for the number of single-answer restrictions,
+and $f(u):=-u\log_2u$, with $f(0):=0$. Each pair $(\mathcal S,y)$ occurs
+exactly once among the rows: we put $y$ on $\mathcal S$ and $\wild$
+everywhere else. Therefore
+\begin{equation}\label{eq:Xi-Gk}
+  G_k=\binom Qk^{-1}
+       \sum_{\substack{z\in\{0,1,\wild\}^Q\\|z|=k}}f(\mu_z).
+\end{equation}
+There are $\binom Qk$ choices of the restricted questions, each with $2^k$
+answer strings. We sum the entropy contributions over those strings, then
+average the resulting block entropies over question sets. The denominator
+is $\binom Qk$, not $\binom Qk2^k$: the probabilities already supply the
+weights for averaging over answers. For $Q=4,k=2$, this collects $24$
+contributions, grouped into six normalized four-answer distributions,
+and divides by six.
+
+The whole array $\mu$ is not one normalized distribution. Each fixed choice
+of restricted questions gives its own distribution over answer strings:
+\begin{equation}
+  \sum_{|z|=k}\mu_z=\binom Qk,
+  \qquad \sum_z \mu_z=2^Q.
+\end{equation}
+The row colors in Example~\ref{ex:xi-q2} identify which entries
+contribute to each $G_k$.
+
 \begin{example}[label=ex:xi-q2]
 For $n=1,m=1$, there are two questions, printed in order $(1,0)$, and four
 maps with truth tables $00,01,10,11$. The full matrix is $9\times4$.
@@ -7277,49 +7320,7 @@ A $1$ keeps the map and a $0$ excludes it. The row colors group the
 surviving weights by the number $k$ of single-answer restrictions.
 \end{example}
 
-In particular, the component $\mu_{\wild\wild\ldots\wild} = 1$ is the normalization
-condition, with no maps excluded.
-
-\begin{example}
-On the guiding space $n=2, m=1$, with question order $(11,10,01,00)$, the same
-rule gives
-\begin{equation}
-  \mu_{1\wild0\wild}
-  =\mu_{100\wild}+\mu_{110\wild}
-  =(p_8+p_9)+(p_{12}+p_{13}).
-\end{equation}
-Only questions $11$ and $01$ restrict the maps. The other two questions
-exclude none. The intermediate sums can also be used by other rows.
-\end{example}
-
-
-Collecting the averages:
-we write $|z|:=|\mathcal S(z)|$ for the number of single-answer restrictions,
-and $f(u):=-u\log_2u$, with $f(0):=0$. Each pair $(\mathcal S,y)$ occurs
-exactly once among the rows: we put $y$ on $\mathcal S$ and $\wild$
-everywhere else. Therefore
-\begin{equation}\label{eq:Xi-Gk}
-  G_k=\binom Qk^{-1}
-       \sum_{\substack{z\in\{0,1,\wild\}^Q\\|z|=k}}f(\mu_z).
-\end{equation}
-There are $\binom Qk$ choices of the restricted questions, each with $2^k$
-answer strings. We sum the entropy contributions over those strings, then
-average the resulting block entropies over question sets. The denominator
-is $\binom Qk$, not $\binom Qk2^k$: the probabilities already supply the
-weights for averaging over answers. For $Q=4,k=2$, this collects $24$
-contributions, grouped into six normalized four-answer distributions,
-and divides by six.
-
-The whole array $\mu$ is not one normalized distribution. Each fixed choice
-of restricted questions gives its own distribution over answer strings:
-\begin{equation}
-  \sum_{|z|=k}\mu_z=\binom Qk,
-  \qquad \sum_z \mu_z=2^Q.
-\end{equation}
-The row colors in Example~\ref{ex:xi-q2} identify which entries
-contribute to each $G_k$.
-
-Equivalently, the operation is linear, then elementwise nonlinear, then
+Equivalently, the operation of calculating $G_k$ is linear, then elementwise nonlinear, then
 linear. We define the constant weights
 \begin{equation}
   (\mathbf c_k)_z:=\frac{\mathbf1_{\{|z|=k\}}}{\binom Qk},
@@ -9333,6 +9334,9 @@ pipeline of Appendix~\ref{app:aig}, and the checks.}
 \end{table}
 
 
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{\refname}
 \begin{thebibliography}{99}
 
 \bibitem{shannon48}
