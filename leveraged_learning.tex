@@ -1296,6 +1296,8 @@ While the games of the previous chapters may be entertaining, they don't readily
 many more robust quantities appear. This is a stepping stone to our terminus: the thermodynamic limit, where we expect questions to flow in and learning to happen on a continuum, where such ensemble-average statements are
 physically instructive and often quite descriptive of nature.
 
+\subsection{Two exact laws}\label{sec:twolaws}
+
 Until now $\langle\,\cdot\,\rangle$ has averaged over the truth alone,
 for a question we had named. From here we average over which questions
 were asked as well, and we double the brackets to say so.
@@ -1330,7 +1332,9 @@ Subsection~\ref{sec:oneparam}. There, the problem was actually symmetric in $q_0
 
 As stated above, in order to progress, we will be interested in such averages. Both
 are natural. The question order is uniform, without replacement:
-Without control of the questions, Werner has no reason to expect one to arrive before another. And the truth is drawn from the prior
+Without control of the questions, Werner has no reason to expect one to arrive
+before another (Appendix~\ref{app:strategies} expounds strategies when
+he does control which to ask). The truth is drawn from the prior
 itself: Werner scores his future against his own beliefs, which is the best he can do.
 
 The bookkeeping, especially for questions asked, simplifies at once. Updating commutes, so after
@@ -1428,9 +1432,7 @@ the two answers before either is asked. It is one of the six
 size-two terms averaged into $G_2$ in the next example.
 \end{example}
 
-\subsection{Two exact laws}\label{sec:twolaws}
-
-Two exact laws follow. The first is
+Two exact laws now follow. The first is
 equation~\eqref{eq:telescope} averaged:
 \begin{equation}\label{eq:law-received}
   \Big\langle\!\Big\langle \sum_{k=1}^{\ell} s_k \Big\rangle\!\Big\rangle \;=\; G_\ell.
@@ -1471,6 +1473,48 @@ prefactor and leaves
 \end{equation}
 The whole expected learning curve is the discrete derivative of
 one monotone sequence.
+
+Putting together \eqref{eq:HM0}, \eqref{eq:law-received}, and \eqref{eq:law-remaining}, equation~\eqref{eq:Lk-avg} becomes
+\begin{equation}\label{eq:Lk-G}
+  \mathcal L_\ell \;=\;
+  \frac{Q\,G_1 - (Q - \ell)\big(G_{\ell+1} - G_\ell\big)}
+       {G_\ell}\;,
+  \qquad 1 \le \ell \le Q,
+\end{equation}
+the vanishing factor $Q - \ell$ retiring the undefined increment at
+$\ell = Q$; at $\ell = 0$ nothing has been asked or paid and the
+ratio is an empty $0/0$.
+Some observations.
+\begin{itemize}
+  \item Expectation kills the windfall. Each step has
+    $\langle\!\langle \Delta H(p) - s \rangle\!\rangle = 0$, so the expected deduced
+    part is a pure tower withdrawal:
+    $H(M^{(0)}) - \langle\!\langle H(M^{(\ell)}) \rangle\!\rangle - G_\ell
+    = C_0 - \langle\!\langle C_\ell \rangle\!\rangle$, with
+    $\langle\!\langle C_\ell \rangle\!\rangle =
+    \langle\!\langle H(M^{(\ell)}) \rangle\!\rangle - \big(H(p) - G_\ell\big)$. It
+    is nonnegative: anti-leverage is only ever bad luck.
+  \item Deduction saturates one round early: substituting
+    $G_{Q} = H(p)$ at $\ell = Q - 1$ already gives
+    $\langle\!\langle C_{Q - 1} \rangle\!\rangle = 0$. The store is empty before
+    the last question, which can only be observed, never
+    leveraged.
+  \item $\mathcal L_\ell \geq 1$ always, but it need not be
+    monotone. The endpoint is forced:
+    $\mathcal L_{Q} = H(M^{(0)}) / H(p) = 1 + C_0/H(p)$, the
+    aggregate completion ratio.
+\end{itemize}
+
+There is a broader baseline than uniformity: any product prior over
+the answers gives $\mathcal L_\ell=1$, whenever the denominator is
+positive. Its columns may be biased, but observing one cannot improve
+another, so expected predictive gain equals expected surprisal.
+
+More generally, the finite aggregate leverage satisfies the sharp bounds
+\begin{equation}\label{eq:leverage-bounds}
+  1\leq\mathcal L_\ell\leq Q,\qquad G_\ell>0.
+\end{equation}
+
 
 \begin{example}
 This example illustrates equation~\eqref{eq:law-remaining}: the
@@ -1556,46 +1600,8 @@ rank, they are exactly equation~\eqref{eq:law-remaining}'s $\big\langle\!\big\la
 the leverage.
 \end{example}
 
-Putting together \eqref{eq:HM0}, \eqref{eq:law-received}, and \eqref{eq:law-remaining}, equation~\eqref{eq:Lk-avg} becomes
-\begin{equation}\label{eq:Lk-G}
-  \mathcal L_\ell \;=\;
-  \frac{Q\,G_1 - (Q - \ell)\big(G_{\ell+1} - G_\ell\big)}
-       {G_\ell}\;,
-  \qquad 1 \le \ell \le Q,
-\end{equation}
-the vanishing factor $Q - \ell$ retiring the undefined increment at
-$\ell = Q$; at $\ell = 0$ nothing has been asked or paid and the
-ratio is an empty $0/0$.
-Some observations.
-\begin{itemize}
-  \item Expectation kills the windfall. Each step has
-    $\langle\!\langle \Delta H(p) - s \rangle\!\rangle = 0$, so the expected deduced
-    part is a pure tower withdrawal:
-    $H(M^{(0)}) - \langle\!\langle H(M^{(\ell)}) \rangle\!\rangle - G_\ell
-    = C_0 - \langle\!\langle C_\ell \rangle\!\rangle$, with
-    $\langle\!\langle C_\ell \rangle\!\rangle =
-    \langle\!\langle H(M^{(\ell)}) \rangle\!\rangle - \big(H(p) - G_\ell\big)$. It
-    is nonnegative: anti-leverage is only ever bad luck.
-  \item Deduction saturates one round early: substituting
-    $G_{Q} = H(p)$ at $\ell = Q - 1$ already gives
-    $\langle\!\langle C_{Q - 1} \rangle\!\rangle = 0$. The store is empty before
-    the last question, which can only be observed, never
-    leveraged.
-  \item $\mathcal L_\ell \geq 1$ always, but it need not be
-    monotone. The endpoint is forced:
-    $\mathcal L_{Q} = H(M^{(0)}) / H(p) = 1 + C_0/H(p)$, the
-    aggregate completion ratio.
-\end{itemize}
+\subsection{The total predictive gain}\label{sec:predgain}
 
-There is a broader baseline than uniformity: any product prior over
-the answers gives $\mathcal L_\ell=1$, whenever the denominator is
-positive. Its columns may be biased, but observing one cannot improve
-another, so expected predictive gain equals expected surprisal.
-
-More generally, the finite aggregate leverage satisfies the sharp bounds
-\begin{equation}\label{eq:leverage-bounds}
-  1\leq\mathcal L_\ell\leq Q,\qquad G_\ell>0.
-\end{equation}
 For a fixed asked set $\mathcal S$, averaging over its answer string
 $y$ gives the total predictive gain
 \[
@@ -1739,99 +1745,6 @@ dashed line, and no overshoot is possible. The top layer is the
 expected withdrawal from the correlation store,
 $C_0 - \langle\!\langle C_\ell \rangle\!\rangle$; it saturates at $C_0 = 0.218$
 already at $\ell = 3$.
-\end{example}
-
-\subsection{Choosing the questions}\label{sec:strategies}
-
-The uniform distribution on question order was a symmetry choice, not a strategy.
-Choosing the next question is Bayesian experimental design
-\cite{chalonerverdinelli95}, and Werner can do better along two independent axes: how far he looks ahead,
-and whether he commits to an order beforehand or pivots contingent on the answers so far. A \textbf{Greedy} Werner asks, at
-every step, the single question with the largest expected drop of
-$H(M)$: one step of lookahead. \textbf{$\ell$-optimal} maximizes the
-expected knowledge after exactly $\ell$ questions, looking the
-whole horizon ahead. All four combinations are straightforward
-with the machinery at hand. $1$-optimal coincides with Greedy at the start.
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{|c|>{\raggedright\arraybackslash}m{5.35cm}|>{\raggedright\arraybackslash}m{5.35cm}|}
-\hline
- & \textbf{order fixed beforehand} & \textbf{contingent on answers} \\
-\hline
-\rotatebox{90}{~\textbf{greedy}~} &
-Add planned questions to the docket, each maximizing the immediate
-expected drop of $H(M)$, averaged over the still-unseen answers.
-All of this before any answer is seen, so the plan cannot react to luck. &
-Recompute the forecasts after every
-answer and ask the current argmax. Question order is a branching tree, each branch
-contingent on last answer. \\
-\hline
-\rotatebox{90}{~\textbf{$\ell$-optimal}~} &
-Updating commutes, so a fixed plan is just a set $|\mathcal{S}|=\ell$: search the
-$\binom{Q}{\ell}$ subsets for the smallest expected remainder
-$\sum_{q' \notin \mathcal S} H(\psi(q') \mid \psi(\mathcal S))$. The best non-adaptive
-knowledge; sees correlations that the one-step view misses. &
-Backward induction over posteriors. The
-Bayes-optimal policy: recompute optimal further set for remainder at $\ell$, after 
-every answer. \\
-\hline
-\end{tabular}
-\end{center}
-\caption{The four strategies open to Werner: one step of lookahead or $\ell$, with the question order fixed in advance or chosen contingent on the answers already heard.}
-\label{tab:strategies}
-\end{table}
-
-Expected knowledge is non-decreasing left to right and top to bottom. The
-dynamic program in the last cell is exact but grows quickly: its
-states are the reachable posteriors, one per pair of asked set and
-answer pattern, $(1 + A)^{Q}$ in all. That is $81$ for the
-guiding example and astronomical beyond; the underlying problem, an
-optimal decision tree over the answers, is NP-complete in general
-\cite{hyafilrivest76}. Its policy is also
-horizon-dependent, since the best first question for $\ell = k$
-need not open the best plan for $\ell = k+1$. For
-the guiding prior of Table~\ref{tab:sixteen}, contingent greedy outperforms the uniform order, 
-and already attains the contingent $\ell$-optimum at every horizon. 
-That is a quirk of this prior, not a law: a prior that
-stores its knowledge in deep shells can defeat Greedy in either
-column: a question worth little now may unlock a cascade
-later.
-
-Both $\ell$-optimal protocols produced the same trajectory in the
-examples tested above, but this is not a law. Adaptive questioning can
-strictly improve on every fixed set of the same size, as Example~\ref{ex:adaptive} demonstrates.
-The distinction is that an answer can tell Werner which question
-will be useful next.
-\begin{example}[label=ex:adaptive]
-Take $n=2$, $m=1$, and put equal prior weight $1/4$ on the four
-maps below, with zero weight on the others. The columns retain the
-descending question order used throughout.
-\begin{center}
-\begin{tabular}{@{}c cccc c@{}}
-\toprule
-$j$ & $\phi_j(11)$ & $\phi_j(10)$ & $\phi_j(01)$ & $\phi_j(00)$ & $p_j$\\
-\midrule
-0 & 0 & 0 & 0 & 0 & $1/4$\\
-2 & 0 & 0 & 1 & 0 & $1/4$\\
-1 & 0 & 0 & 0 & 1 & $1/4$\\
-5 & 0 & 1 & 0 & 1 & $1/4$\\
-\bottomrule
-\end{tabular}
-\end{center}
-Ask $q=00$ first. If $a=\psi(00)=0$, the survivors are maps
-$0$ and $2$, distinguished by asking $q'=01$. If $a=1$, they are
-maps $1$ and $5$, distinguished by asking $q'=10$. Thus two
-adaptive questions identify the map completely and leave $H(M)=0$.
-
-No fixed pair does so. The pairs $\{00,01\}$ and $\{00,10\}$ each
-leave one fair unknown answer with probability $1/2$, hence an
-expected remainder of $1/2$ bit. The pair $\{01,10\}$ leaves maps
-$0$ and $1$ indistinguishable when both answers are zero, again an
-event of probability $1/2$ with one fair unknown answer. These are
-the three best fixed pairs. Pairs containing the constant question
-$11$ leave at least $1$ bit. The optimal fixed remainder is therefore
-$1/2$ bit, strictly above the adaptive remainder of zero.
 \end{example}
 
 \section{The thermodynamic limit}\label{sec:tdl}
@@ -3817,6 +3730,7 @@ determines a fresh answer with probability tending to one:
 \end{equation}
 %
 So if the class rate tends to the statistic $R$, the support of the entropy rate tends to below $R$.
+For the approach to this limit, see Example~\ref{ex:rmstep}.
 Here $m = 1$, which bounds the increment: $\gamma \in [0,1]$.
 Such a nonincreasing sequence with area $R_{n,d_n}$ and no mass to the
 right of it has no freedom. These characteristics force the shape, so
@@ -3838,7 +3752,36 @@ each class pays one full bit per question until its tank runs out at
 its own rate, and nothing after. No pointwise limit is asserted at
 the step discontinuity $t=R$; its assigned value does not affect the
 integral.
-\begin{example}
+
+So, for a given sampled $R$, class $D$ is pinned, and it is exactly a
+sequence of the kind \eqref{eq:heavistep} asks for: $R_{n,D}$ is $R$
+rounded up to the top of its gap, and by \eqref{eq:rategap} that gap is
+at most $\sqrt{2/\pi n}$ wide, so $R_{n,D} \to R$ and
+$G^{(D)}_{n,\lfloor tQ\rfloor}/Q \to \min(t,R)$. All that is left is to
+integrate over $R$ to get the true prior average.
+
+Since $\min(t,\cdot)$ is $1$-Lipschitz the same gap bound controls the
+expectation, and the class
+average converges to an average over the statistic,
+%
+\begin{equation}
+  \frac{G_{n,\lfloor tQ\rfloor}}{Q}
+  \;\longrightarrow\;
+  \mathbb E_F\big[\min(t, R)\big]
+  \;=\; \int_0^t \big(1 - F(x)\big)\, dx \;=:\; g(t).
+  \label{eq:gF}
+\end{equation}
+%
+The last step is achieved through integration by parts. Pointwise
+%
+\begin{equation}
+  \min(t,R) = \int_0^t \theta(R - x)\,dx;\quad \mathbb E\,\theta(R - x) = 1 - F(x),
+\end{equation}
+by the defining sampling process $R \sim F'$.
+Received information per question is a mean of the rates per class, weighted by the expected contribution of those classes. 
+The correction from the mutual information term from equation \eqref{eq:ungroup} vanishes in the TDL.
+
+\begin{example}[label=ex:rmstep]
 Where the step in $\gamma$ comes from. Conditional on the
 latent class $D$, the answers on $\mathcal S$ are
 $\xi^{\mathsf T}\Omega^{(d)}_{\cdot,\mathcal S}$, so their entropy is the rank
@@ -3887,34 +3830,6 @@ telescope to the dimension, $\sum_{\ell<Q}\gamma^{(d)}_{n,\ell} = K_d$,
 at every $n$ and with no approximation.
 \end{example}
 
-So, for a given sampled $R$, class $D$ is pinned, and it is exactly a
-sequence of the kind \eqref{eq:heavistep} asks for: $R_{n,D}$ is $R$
-rounded up to the top of its gap, and by \eqref{eq:rategap} that gap is
-at most $\sqrt{2/\pi n}$ wide, so $R_{n,D} \to R$ and
-$G^{(D)}_{n,\lfloor tQ\rfloor}/Q \to \min(t,R)$. All that is left is to
-integrate over $R$ to get the true prior average.
-
-Since $\min(t,\cdot)$ is $1$-Lipschitz the same gap bound controls the
-expectation, and the class
-average converges to an average over the statistic,
-%
-\begin{equation}
-  \frac{G_{n,\lfloor tQ\rfloor}}{Q}
-  \;\longrightarrow\;
-  \mathbb E_F\big[\min(t, R)\big]
-  \;=\; \int_0^t \big(1 - F(x)\big)\, dx \;=:\; g(t).
-  \label{eq:gF}
-\end{equation}
-%
-The last step is achieved through integration by parts. Pointwise
-%
-\begin{equation}
-  \min(t,R) = \int_0^t \theta(R - x)\,dx;\quad \mathbb E\,\theta(R - x) = 1 - F(x),
-\end{equation}
-by the defining sampling process $R \sim F'$.
-Received information per question is a mean of the rates per class, weighted by the expected contribution of those classes. 
-The correction from the mutual information term from equation \eqref{eq:ungroup} vanishes in the TDL.
-
 \subsubsection{The increment}
 
 This one now follows for free. The sequence $\ell \mapsto G_{n,\ell}$ is
@@ -3933,7 +3848,6 @@ This caps the construction: the mean conditional entropy
 of a fresh answer is the probability that the true class is not yet
 exhausted. The survival function of the statistic is not a postulate;
 it is the increment term of the finite law.
-
 The relative contribution of the label to $\gamma_{n,\ell}$ vanishes with $n$ as
 $\log_2(n+1)/Q$. As $n$ grows, the sliver of $I_{n,\ell}$ scales away.
 
@@ -3942,8 +3856,7 @@ either been settled, and contributes no uncertainty, or is still running, and
 contributes its full bit (scaled by the probability of that class: the step height) at every question, until the next class
 boundary is reached. The number of questions in which $K_d$ rank (total information) is reached inside a class, statistically, is $o(Q)$, 
 which rounds the step edges. At low $n$, they bleed together, but at high $n$, the steps become distinct.
-
-The steps hug $1 - F$ more tightly, as $n \to \infty$, by construction of the sampling protocol \eqref{eq:shapepj}. These effects are illustrated in the following example.
+The steps hug $1 - F$ more tightly, as $n \to \infty$, by construction of the sampling protocol \eqref{eq:shapepj}.
 
 \begin{example}
 This example is meant to illustrate how equation~\eqref{eq:ungroup} behaves in the TDL.
@@ -5553,27 +5466,25 @@ modeling a learner, it is collected in Appendix~\ref{app:blockpriors}.
 \end{axis}
 \end{tikzpicture}
 \caption{The two families of \eqref{eq:Lmin} and \eqref{eq:Lmax} at
-$r = 2$, meeting at $r = 1$; their profiles are in
+$r = 2$, agree at $r = 1$; their profiles are in
 Figure~\ref{fig:Fprofiles}. The larger of two draws
 ($F^+_2(x) = x^2$, orange) delays its deductions and climbs from the
 baseline to $L^+_2(1) = \tfrac32$; the smaller of two draws
 ($F^-_2(x) = 1-(1-x)^2$, green) holds the constant $L^-_2 \equiv 3$;
-between them lies the single uniform draw ($F_1(x) = x$, blue), the
-one statistic the families share, at $L \equiv 2$. Dots are
+between them lies the single uniform draw ($F_1(x) = x$, blue), in both families, at $L \equiv 2$. Dots are
 finite-$n$ leverage: filled $n = 4$ (all $2^{16}$ question sets
 enumerated, exact), circles $n = 6$ and triangles $n = 8$ (Monte
-Carlo over question orders, subset entropies exact via the nested
-rank profile, latent-label information included). Convergence is slow
-from below: the label costs $O(\log n)$ of the $Q$ available bits, and
+Carlo over question orders). Convergence is slow
+from below: the label costs $O(\log n)$ of the $Q$ available bits, so
 the mean rate approaches
-its limit only as $1/\sqrt n$. The left edge is a boundary layer:
+its limit only as $1/\sqrt n$. The left becomes a boundary layer:
 $L_F(0) = 1 + F'(0)$ presumes $1 \ll \ell \ll Q$, while at
-$\ell = 1$ the only exhaustible class is the constants and
-$\mathcal L_1 = 1 + (Q-1)\,w_0^2/(2\ln 2) + O(w_0^3)$, the
+$\ell = 1$ the only veritable exhaustible class is the constants.
+Then $\mathcal L_1 = 1 + (Q-1)\,w_0^2/(2\ln 2) + O(w_0^3)$, the
 early deductions being spent on identifying the latent label. The
-finite curves also scallop, most visibly at $n = 8$: each surge is
+finite curves scallop, most visibly at $n = 8$: each surge is
 one class being learned out near its rate $K_d/Q$, a discreteness the
-limit scrunches away as the rate grid refines.}
+limit scrunches leftward as the rate grid refines.}
 \label{fig:Fexamples}
 \end{figure}
 
@@ -5923,7 +5834,8 @@ enough to coarse-grain away the microscopic details of boolean maps.
 \section*{Appendices}
 \addcontentsline{toc}{section}{Appendices}
 
-They follow the order in which the argument first calls on them.
+They follow the order in which the argument first calls on them, except
+where one appendix serves another and is placed beside it.
 Appendix~\ref{app:correlators} changes basis so that the correlation
 store $C$ becomes one coordinate per set of questions, and the update
 rule a two-term convolution. Appendix~\ref{app:playing} plays the
@@ -5933,12 +5845,14 @@ tensor and takes every block entropy $G_k$ off a single sweep of it.
 Appendix~\ref{app:blockpriors} collects the block-prior construction and
 its Bernstein profile language, a block-based route to the same family of
 macroscopic curves. Appendix~\ref{app:spike} continues the spike-prior
-example of Section~\ref{sec:spike}. Appendix~\ref{app:gibbs} builds a
-prior from circuit complexity as a Gibbs ensemble, and
-Appendix~\ref{app:aig} follows it because it records how those circuit
-complexities were obtained, the symmetry reduction and the
-satisfiability encoding that make a minimum over all circuits
-computable at all. The last two are for reference:
+example of Section~\ref{sec:spike}. The next three go together:
+Appendix~\ref{app:strategies} asks what Werner can do when he chooses the
+questions rather than taking them as they come,
+Appendix~\ref{app:gibbs} builds a prior from circuit complexity as a Gibbs
+ensemble and puts those strategies to work on it, and
+Appendix~\ref{app:aig} records how the circuit complexities themselves were
+obtained, the symmetry reduction and the satisfiability encoding that make
+a minimum over all circuits computable at all. The last two are for reference:
 Appendix~\ref{app:symbols} collects the symbols on one page,
 and Appendix~\ref{app:scripts} lists the scripts that produce the numbers
 and the curves.
@@ -8470,6 +8384,100 @@ At $t = 1$ the increment $G_{\ell+1}-G_\ell$ is undefined and the same value
 follows instead from the completion formula. The two familiar orders
 are thus endpoints of a larger family.
 
+\section{Choosing the questions}\label{app:strategies}
+
+The uniform question order of Chapter~\ref{sec:expectations} was a symmetry
+choice, not a strategy.
+Choosing the next question is Bayesian experimental design
+\cite{chalonerverdinelli95}, and Werner can do better along two independent axes: how far he looks ahead,
+and whether he commits to an order beforehand or pivots contingent on the answers so far. A \textbf{Greedy} Werner asks, at
+every step, the single question with the largest expected drop of
+$H(M)$: one step of lookahead. \textbf{$\ell$-optimal} maximizes the
+expected knowledge after exactly $\ell$ questions, looking the
+whole horizon ahead. All four combinations are straightforward
+with the machinery at hand. $1$-optimal coincides with Greedy at the start.
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{|c|>{\raggedright\arraybackslash}m{5.35cm}|>{\raggedright\arraybackslash}m{5.35cm}|}
+\hline
+ & \textbf{order fixed beforehand} & \textbf{contingent on answers} \\
+\hline
+\rotatebox{90}{~\textbf{greedy}~} &
+Add planned questions to the docket, each maximizing the immediate
+expected drop of $H(M)$, averaged over the still-unseen answers.
+All of this before any answer is seen, so the plan cannot react to luck. &
+Recompute the forecasts after every
+answer and ask the current argmax. Question order is a branching tree, each branch
+contingent on last answer. \\
+\hline
+\rotatebox{90}{~\textbf{$\ell$-optimal}~} &
+Updating commutes, so a fixed plan is just a set $|\mathcal{S}|=\ell$: search the
+$\binom{Q}{\ell}$ subsets for the smallest expected remainder
+$\sum_{q' \notin \mathcal S} H(\psi(q') \mid \psi(\mathcal S))$. The best non-adaptive
+knowledge; sees correlations that the one-step view misses. &
+Backward induction over posteriors. The
+Bayes-optimal policy: recompute optimal further set for remainder at $\ell$, after 
+every answer. \\
+\hline
+\end{tabular}
+\end{center}
+\caption{The four strategies open to Werner: one step of lookahead or $\ell$, with the question order fixed in advance or chosen contingent on the answers already heard.}
+\label{tab:strategies}
+\end{table}
+
+Expected knowledge is non-decreasing left to right and top to bottom. The
+dynamic program in the last cell is exact but grows quickly: its
+states are the reachable posteriors, one per pair of asked set and
+answer pattern, $(1 + A)^{Q}$ in all. That is $81$ for the
+guiding example and astronomical beyond; the underlying problem, an
+optimal decision tree over the answers, is NP-complete in general
+\cite{hyafilrivest76}. Its policy is also
+horizon-dependent, since the best first question for $\ell = k$
+need not open the best plan for $\ell = k+1$. For
+the guiding prior of Table~\ref{tab:sixteen}, contingent greedy outperforms the uniform order, 
+and already attains the contingent $\ell$-optimum at every horizon. 
+That is a quirk of this prior, not a law: a prior that
+stores its knowledge in deep shells can defeat Greedy in either
+column: a question worth little now may unlock a cascade
+later.
+
+Both $\ell$-optimal protocols produced the same trajectory in the
+examples tested above, but this is not a law. Adaptive questioning can
+strictly improve on every fixed set of the same size, as Example~\ref{ex:adaptive} demonstrates.
+The distinction is that an answer can tell Werner which question
+will be useful next.
+\begin{example}[label=ex:adaptive]
+Take $n=2$, $m=1$, and put equal prior weight $1/4$ on the four
+maps below, with zero weight on the others. The columns retain the
+descending question order used throughout.
+\begin{center}
+\begin{tabular}{@{}c cccc c@{}}
+\toprule
+$j$ & $\phi_j(11)$ & $\phi_j(10)$ & $\phi_j(01)$ & $\phi_j(00)$ & $p_j$\\
+\midrule
+0 & 0 & 0 & 0 & 0 & $1/4$\\
+2 & 0 & 0 & 1 & 0 & $1/4$\\
+1 & 0 & 0 & 0 & 1 & $1/4$\\
+5 & 0 & 1 & 0 & 1 & $1/4$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Ask $q=00$ first. If $a=\psi(00)=0$, the survivors are maps
+$0$ and $2$, distinguished by asking $q'=01$. If $a=1$, they are
+maps $1$ and $5$, distinguished by asking $q'=10$. Thus two
+adaptive questions identify the map completely and leave $H(M)=0$.
+
+No fixed pair does so. The pairs $\{00,01\}$ and $\{00,10\}$ each
+leave one fair unknown answer with probability $1/2$, hence an
+expected remainder of $1/2$ bit. The pair $\{01,10\}$ leaves maps
+$0$ and $1$ indistinguishable when both answers are zero, again an
+event of probability $1/2$ with one fair unknown answer. These are
+the three best fixed pairs. Pairs containing the constant question
+$11$ leave at least $1$ bit. The optimal fixed remainder is therefore
+$1/2$ bit, strictly above the adaptive remainder of zero.
+\end{example}
+
 \section{The Gibbs complexity prior}\label{app:gibbs}
 
 Every prior so far was an arbitrary set of instructively chosen $\{p_j\}$. 
@@ -8875,7 +8883,7 @@ vertical scale in bits; one column per prior.
 Figures~\ref{fig:gibbs21}--\ref{fig:gibbs41} show the expected
 cumulative leverage $\mathcal L_\ell$ under the three
 prior hypotheses, for the uniform question-order average and the strategy grid of
-Section~\ref{sec:strategies}. The $\ell$-optimal schedule targets
+Section~\ref{app:strategies}. The $\ell$-optimal schedule targets
 the halfway horizon $\ell^* = Q/2$ and is plotted only up to it:
 past its own horizon the optimizer's continuation is not defined.
 Inside the optimal set the questions are asked in random
