@@ -6218,19 +6218,16 @@ shell & updated correlators \\
   7.90/-0.171/1011/orange!80, 8.45/0.267/0111/blue!45,
   9.25/-0.267/1111/orange!80}
 The asked bias saturates:
-$\chi'_{1000} = (0.170 - 1)/(1 - 0.170) = -1$. The other
-singletons move by equation~\eqref{eq:cov-shift}: for $q' = 10$ the
+$\chi'_{1000} = -1$, directly storing the answer.
+Other singletons move by equation~\eqref{eq:cov-shift}: for $q' = 10$ the
 covariance is $-0.032 - (0.558)(0.170) = -0.127$, so the shift is
-$(-1)(-0.127)/(2 \times 0.415) = +0.153$, landing on $+0.711$ ---
+$(-1)(-0.127)/(2 \times 0.415) = +0.153$, landing on $+0.711$,
 and indeed $(1 + 0.711)/2 = 0.855$, the column $M_{0,10}$ of the
-Question 2 box. Note also that every mask containing the asked bit
+Question 2 box. With $\sigma_{11}$ pinned, every mask containing the asked bit
 is now just $(-1)^a$ times its partner
-($\chi'_{1010} = -\chi'_{0010}$,
-etc.): with $\sigma_{11}$ pinned, no correlator involving
-question $11$ carries independent knowledge anymore.
-\end{example}
+($\chi'_{1010} = -\chi'_{0010}$
+etc.).
 
-\begin{example}
 \begin{center}
 \begin{tikzpicture}[x=8cm, y=1.5cm]
   % the update rule (eq:corr-update), drawn: per set, the numerator
@@ -6329,16 +6326,13 @@ question $11$ carries independent knowledge anymore.
 \end{tikzpicture}
 \end{center}
 The update rule of
-equation~\eqref{eq:corr-update}, drawn for the guiding example's
-first update ($q = 11$, $a = 1$, so $(-1)^a = -1$ and toggled bit
-$1000$). One row per set $\mathcal S$. At $x = 2M_{a,q} = 1 + (-1)^a
-\chi_{1000} = 0.830$ stands the numerator as a waterfall: the bar
-of $\chi_{\mathcal S}$ (blue), and beside it the partner's signed
-contribution $(-1)^a \chi_{\mathcal S \triangle \{q\}}$ (orange), hanging
-from the level where the first bar ends. The two subscripts
-differ by the flipped bit. The ray from the origin through the
-waterfall's endpoint rescales it, by similar triangles, to
-$x = 1$, where its height is the updated correlator $\chi'_{\mathcal S}$.
+equation~\eqref{eq:corr-update}, drawn for the
+first update. One row per set $\mathcal S$. $x = 2M_{a,q} = 1 + (-1)^a
+\chi_{1000} = 0.830$ is the denominator. Each numerator is a waterfall: the bar
+of $\chi_{\mathcal S}$ (blue), plus its partner's (with first bit flipped) signed
+contribution $(-1)^a \chi_{\mathcal S \triangle \{q\}}$ (orange). The ray from the origin through the
+waterfall's endpoint rescales it to a similar triangle with base
+$x = 1$, so its height is the updated correlator $\chi'_{\mathcal S}$.
 \end{example}
 
 As Werner moves through the questions, more correlators settle to $\pm 1$. The 1-shell models the belief of the bias of each question. 
@@ -6880,7 +6874,7 @@ $C$ measures correlations that are not visible from $M$. If there's only one unk
 Put another way, usually, the binary maps are an overcomplete basis for $M$, because their number $N \gg \dim(M) = Q(A-1)$. Expressing $M$ as a linear combination of maps drops knowledge.
 That's not the case once learning has reduced the number of free parameters to one each.
 
-\begin{example}
+\begin{example}[label=ex:run21]
 \textbf{Question 4.} One question, one heavily loaded coin:
 \[
   \begin{array}{c|cccc}
@@ -6894,13 +6888,6 @@ That's not the case once learning has reduced the number of free parameters to o
     \langle \Delta H(M) \rangle & \text{---} & \hm{0} 0.264 & \text{---} & \text{---}
   \end{array}
 \]
-\begin{center}
-\begin{tikzpicture}[x=1cm, y=1.5cm]
-  \faxis
-  \fslot{2.65}{0}{0.955}{0.264}{0.264}{0.264}
-  \fbrace{0}{11}\fbrace{2.65}{10}\fbrace{5.30}{01}\fbrace{7.95}{00}
-\end{tikzpicture}
-\end{center}
 The two forecasts now coincide: with $C = 0$ there is no transfer
 left to hope for, and the last question can only be observed, not
 leveraged. Nature answers $a = 0$ (probability $0.955$, surprisal
@@ -6934,10 +6921,8 @@ amount was fixed in advance (the column's full entropy), while the
 realized surprisal undershot it because the likelier answer arrived.
 In the split of equation~\eqref{eq:windfall-tower}: pure windfall,
 tower $0$.
-\end{example}
 
-\begin{example}[label=ex:run21]
-Cumulatively: $2.925$ bits of table
+\textbf{Summary.} Cumulatively: $2.925$ bits of table
 destroyed, all of it, for $2.231$ bits of
 surprisal received: $L_4 = 1.311$. Most of that was luck, not
 intelligence. The figure below
